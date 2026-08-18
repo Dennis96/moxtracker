@@ -1,0 +1,17 @@
+{
+  "name": "moxtracker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Il server che riceve le partite di Mox e il sito che le mostra",
+  "type": "module",
+  "scripts": {
+    "prove": "node --test prove/*.test.js",
+    "locale": "wrangler dev --local",
+    "database-locale": "wrangler d1 execute moxtracker --local --file=schema.sql",
+    "database-vero": "wrangler d1 execute moxtracker --remote --file=schema.sql",
+    "pubblica": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.42.0"
+  }
+}

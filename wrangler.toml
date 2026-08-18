@@ -1,0 +1,19 @@
+# Come Cloudflare deve far girare il server.
+#
+# `database_id` resta vuoto finche' il database non esiste: si riempie da solo
+# con `wrangler d1 create moxtracker`, che stampa la riga da incollare qui.
+# Fino ad allora tutto funziona in locale, dove D1 e' un file SQLite sul PC.
+
+name = "moxtracker"
+main = "src/index.js"
+compatibility_date = "2026-08-18"
+
+# Niente log delle richieste con dati dentro: qui si tiene solo quello che
+# serve a capire un guasto.
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "moxtracker"
+database_id = ""

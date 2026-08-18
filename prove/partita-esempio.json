@@ -1,0 +1,45 @@
+{
+  "versione": 1,
+  "partita": "d8e352c369",
+  "evento": "Ladder",
+  "formato": "Standard",
+  "mazzo": {
+    "impronta": "87d9c4e3a8e425314a63985d51d9fc269c10846c8b9f9f9f9c96c15d5747802f",
+    "carte": {
+      "101": 4,
+      "102": 2
+    }
+  },
+  "avversario": {
+    "carte": [
+      201,
+      202
+    ]
+  },
+  "andamento": {
+    "esito": "vinta",
+    "mulligan": 1,
+    "su_gioco": true,
+    "giochi": [
+      "vinta",
+      "persa",
+      "vinta"
+    ]
+  },
+  "mox": "2 beta 2.6",
+  "mittente": "00000000000000000000000000000000",
+  "quando": "2026-08-17T18:24:00Z",
+  "fuso": 120,
+  "durata": 517,
+  "turni": 18,
+  "rank": {
+    "costruito": {
+      "classe": "Gold",
+      "livello": 3
+    }
+  },
+  "apertura": {
+    "101": 2
+  },
+  "arena": "2026.62.1"
+}

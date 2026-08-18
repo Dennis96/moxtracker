@@ -1,0 +1,3 @@
+# Il server gira su Linux: qui tutto LF, come nel resto del progetto.
+* text=auto eol=lf
+*.bat text eol=crlf
