@@ -7,6 +7,12 @@ archetipo, in che fascia di rank, e chi batte chi.
 Gira su Cloudflare Workers con un database D1 accanto. Il sito che mostrerà i
 numeri è il lavoro successivo; qui c'è la parte che riceve.
 
+**È in linea dal 18/08/2026**, per ora all'indirizzo provvisorio
+`https://moxtracker.scdennis96.workers.dev` — `/salute` dice se è vivo. Quello
+definitivo sarà `moxtracker.app`: l'indirizzo va deciso **prima** che Mox
+cominci a spedire, perché finisce dentro il programma e resta nelle copie già
+distribuite.
+
 ## Quello che non fa, per scelta
 
 - **Non tiene nomi.** Né di chi manda né dell'avversario. La partita è
