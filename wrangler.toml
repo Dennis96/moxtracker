@@ -13,6 +13,15 @@ compatibility_date = "2026-08-18"
 [observability]
 enabled = true
 
+# L'indirizzo definitivo del server. Sta su un sottodominio suo, separato dal
+# sito: `moxtracker.app` sara' la pagina che la gente apre, `api.moxtracker.app`
+# e' il ricevitore che Mox chiama. Tenerli distinti vuol dire poter rifare il
+# sito quando si vuole senza toccare l'indirizzo scritto dentro il programma -
+# e quell'indirizzo, una volta distribuito, non si cambia piu'.
+[[routes]]
+pattern = "api.moxtracker.app"
+custom_domain = true
+
 [[d1_databases]]
 binding = "DB"
 database_name = "moxtracker"

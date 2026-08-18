@@ -7,11 +7,14 @@ archetipo, in che fascia di rank, e chi batte chi.
 Gira su Cloudflare Workers con un database D1 accanto. Il sito che mostrerà i
 numeri è il lavoro successivo; qui c'è la parte che riceve.
 
-**È in linea dal 18/08/2026**, per ora all'indirizzo provvisorio
-`https://moxtracker.scdennis96.workers.dev` — `/salute` dice se è vivo. Quello
-definitivo sarà `moxtracker.app`: l'indirizzo va deciso **prima** che Mox
-cominci a spedire, perché finisce dentro il programma e resta nelle copie già
-distribuite.
+**È in linea dal 18/08/2026** su **`https://api.moxtracker.app`** —
+`/salute` dice se è vivo, `POST /partite` riceve.
+
+L'indirizzo sta su un sottodominio suo, separato dal sito: `moxtracker.app`
+sarà la pagina che si apre nel browser, `api.moxtracker.app` è il ricevitore
+che Mox chiama. Tenerli distinti vuol dire poter rifare il sito quando si
+vuole senza toccare l'indirizzo scritto dentro il programma — e quello, una
+volta distribuito nelle copie di Mox, non si cambia più.
 
 ## Quello che non fa, per scelta
 
