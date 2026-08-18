@@ -16,4 +16,4 @@ enabled = true
 [[d1_databases]]
 binding = "DB"
 database_name = "moxtracker"
-database_id = ""
+database_id = "85145457-e78e-41bb-b069-41269321db1c"
