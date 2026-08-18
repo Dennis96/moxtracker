@@ -62,6 +62,12 @@ curl -X POST http://localhost:8787/partite -H "content-type: application/json" -
 
 Serve un account Cloudflare (gratuito).
 
+**Il modo facile, su Windows:** doppio clic su **`COLLEGA-CLOUDFLARE.bat`**.
+Fa i due comandi qui sotto uno dopo l'altro, spiegando cosa sta succedendo, e
+lascia il risultato in `id-database.txt`.
+
+**A mano**, se preferisci il terminale:
+
 ```
 npx wrangler login                 # apre il browser e chiede di autorizzare
 npx wrangler d1 create moxtracker  # stampa l'id del database
