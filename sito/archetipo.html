@@ -8,6 +8,7 @@
   <title>Dettaglio meta — MOX Arena Assistant</title>
   <link rel="icon" href="./assets/mox.ico">
   <link rel="stylesheet" href="./css/site.css">
+  <link rel="stylesheet" href="./css/step53.css">
   <script type="module" src="./js/archetype.js"></script>
 </head>
 <body class="detail-page">
@@ -47,14 +48,14 @@
         <section class="panel detail-section" aria-labelledby="rank-detail-title">
           <div class="panel-inner">
             <h2 id="rank-detail-title" class="panel-title"><span class="icon" aria-hidden="true">◇</span>Rank</h2>
-            <div class="locked-feature"><strong>Distribuzione per rank</strong><p>Questa vista richiede statistiche aggregate per archetipo e rank. Il frontend è predisposto, ma l'API attuale non espone ancora questa serie.</p></div>
+            <div class="locked-feature"><strong>Distribuzione per rank</strong><p>Questa vista richiede statistiche aggregate per archetipo e rank. Verrà attivata quando l'API esporrà la serie completa.</p></div>
           </div>
         </section>
 
         <section class="panel detail-section" aria-labelledby="initiative-detail-title">
           <div class="panel-inner">
             <h2 id="initiative-detail-title" class="panel-title magenta"><span class="icon" aria-hidden="true">⚔</span>Al gioco / alla risposta</h2>
-            <div class="locked-feature"><strong>Dato volutamente non mostrato</strong><p>L'endpoint attuale espone solo il dato globale di tutte le liste. Qui sarebbe fuorviante: verrà mostrato soltanto quando sarà calcolato per questo specifico archetipo.</p></div>
+            <div class="locked-feature"><strong>Dato volutamente non mostrato</strong><p>Qui comparirà soltanto il dato calcolato per questo specifico archetipo, non la statistica globale di tutte le liste.</p></div>
           </div>
         </section>
 
@@ -65,13 +66,27 @@
           </div>
         </section>
 
-        <section class="panel detail-section" aria-labelledby="decklist-detail-title">
+        <section id="reference-panel" class="panel detail-section" aria-labelledby="decklist-detail-title">
           <div class="panel-inner">
-            <h2 id="decklist-detail-title" class="panel-title"><span class="icon" aria-hidden="true">▤</span>Carte / decklist</h2>
-            <div class="locked-feature"><strong>Due fonti, senza confonderle</strong><p>La futura pagina distinguerà la lista di riferimento del catalogo mox-meta dalle carte realmente più osservate nelle partite MOXTRACKER.</p></div>
+            <h2 id="decklist-detail-title" class="panel-title"><span class="icon" aria-hidden="true">▤</span>Liste di riferimento</h2>
+            <p class="panel-lead">Decklist curate di mox-meta. Sono riferimenti del catalogo, non statistiche osservate.</p>
+            <div id="reference-lists" class="reference-lists"><p>Caricamento…</p></div>
           </div>
         </section>
       </div>
+
+      <section id="variants-panel" class="panel variants-panel" aria-labelledby="variants-title">
+        <div class="panel-inner">
+          <div class="variants-heading">
+            <div>
+              <h2 id="variants-title" class="panel-title"><span class="icon" aria-hidden="true">≋</span>Varianti osservate su MOX</h2>
+              <p class="panel-lead">Ogni variante è una decklist distinta realmente raccolta. Le statistiche della variante restano nascoste sotto 30 partite.</p>
+            </div>
+            <span id="variants-count" class="variant-count">Caricamento…</span>
+          </div>
+          <div id="variants-list" class="variants-list"></div>
+        </div>
+      </section>
 
       <section class="panel trend-panel" aria-labelledby="trend-title">
         <div class="panel-inner">

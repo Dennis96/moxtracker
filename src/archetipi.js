@@ -80,13 +80,18 @@ function concorrenteAltroArchetipo(candidati, archetipoId) {
 }
 
 function risultato(lista, livello, extra = {}) {
+  const nomeCatalogo = lista.archetipo || lista.nome || lista.archetipo_id;
+  const nomePubblico = lista.nome_pubblico || nomeCatalogo;
   return {
     archetipo_id: lista.archetipo_id,
-    archetipo: lista.archetipo || lista.nome || lista.archetipo_id,
+    archetipo: nomePubblico,
+    nome_pubblico: nomePubblico,
+    archetipo_catalogo: nomeCatalogo,
     strategia: lista.strategia || null,
     colori: Array.isArray(lista.colori) ? lista.colori : [],
     modalita: livello === "variante" ? (lista.modalita || null) : null,
     lista_id: livello === "variante" ? (lista.id || null) : null,
+    lista_nome: livello === "variante" ? (lista.nome || null) : null,
     livello_classificazione: livello,
     ...extra,
   };
@@ -97,8 +102,6 @@ export function classificaFirma(firma, catalogo = CATALOGO_ARCHETIPI,
   if (!catalogo?.liste?.length || !firma || !Object.keys(firma).length) return null;
   const regole = { ...POLICY_ARCHETIPI, ...(policy || {}) };
 
-  // Livello 1: lista quasi identica. Il 90% continua a significare variante
-  // riconosciuta, non identita' dell'intero archetipo.
   const liste = candidatiLista(firma, catalogo);
   const primo = liste[0];
   if (primo && primo.punteggio >= regole.soglia) {
@@ -111,8 +114,6 @@ export function classificaFirma(firma, catalogo = CATALOGO_ARCHETIPI,
     }
   }
 
-  // Livello 2: archetipo. Qui contano le carte-cardine, non gli slot flessibili.
-  // Il generatore produce un core corto e discriminante per ogni lista.
   const cores = (catalogo.liste || []).map(lista => {
     const core = somiglianzaCore(firma, lista.core || []);
     return { lista, ...core };

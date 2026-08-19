@@ -5,6 +5,7 @@
 
 import { controlla, riga, LIMITI, VERSIONE_ACCETTATA } from "./controlli.js";
 import { leggiMeta, leggiGiocoRisposta, leggiScontri } from "./lettura.js";
+import { leggiArchetipo } from "./dettaglio-archetipo.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -89,11 +90,8 @@ async function riceviPartite(richiesta, ambiente) {
   const rifiutate = [];
   for (const dato of arrivate) {
     const motivo = controlla(dato);
-    if (motivo) {
-      rifiutate.push({ partita: dato && dato.partita, motivo });
-    } else {
-      buone.push(dato);
-    }
+    if (motivo) rifiutate.push({ partita: dato && dato.partita, motivo });
+    else buone.push(dato);
   }
   if (buone.length === 0) {
     return risposta({ accettate: 0, gia_presenti: 0, rifiutate }, 400);
@@ -145,6 +143,11 @@ export default {
       return letturaPubblica(leggiMeta, ambiente.DB, indirizzo);
     }
 
+    if (indirizzo.pathname === "/archetipo") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      return letturaPubblica(leggiArchetipo, ambiente.DB, indirizzo);
+    }
+
     if (indirizzo.pathname === "/gioco-risposta") {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
       return letturaPubblica(leggiGiocoRisposta, ambiente.DB, indirizzo);
@@ -156,9 +159,7 @@ export default {
     }
 
     if (indirizzo.pathname === "/partite") {
-      if (richiesta.method !== "POST") {
-        return risposta({ errore: "usa POST" }, 405);
-      }
+      if (richiesta.method !== "POST") return risposta({ errore: "usa POST" }, 405);
       try {
         return await riceviPartite(richiesta, ambiente);
       } catch (guasto) {

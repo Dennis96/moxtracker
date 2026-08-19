@@ -25,6 +25,11 @@ function query({ formato, rank }) {
 export function fetchMeta(filters, options) {
   return request(`/meta?${query(filters)}`, options);
 }
+export function fetchArchetipo({ formato, rank, id }, options) {
+  const params = new URLSearchParams({ formato, id });
+  if (rank) params.set("rank", rank);
+  return request(`/archetipo?${params.toString()}`, options);
+}
 export function fetchGiocoRisposta(filters, options) {
   return request(`/gioco-risposta?${query(filters)}`, options);
 }

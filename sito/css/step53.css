@@ -1,0 +1,34 @@
+.variants-panel { margin-top: 16px; }
+.variants-heading { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:14px; }
+.variant-count { flex:0 0 auto; padding:7px 11px; border:1px solid var(--line-strong); border-radius:999px; color:#c879ff; font-size:.74rem; font-weight:800; }
+.variants-list { display:grid; gap:10px; }
+.variant-card { border:1px solid var(--line); border-radius:11px; background:var(--surface-2); overflow:hidden; }
+.variant-head { display:flex; justify-content:space-between; gap:20px; align-items:center; padding:14px 16px; }
+.variant-head > div:first-child { display:flex; flex-direction:column; gap:4px; }
+.variant-head small, .variant-note, .reference-meta { color:var(--muted); }
+.variant-metrics { display:flex; gap:18px; text-align:right; color:var(--muted); font-size:.78rem; }
+.variant-metrics b { color:var(--text); }
+.variant-details, .reference-details { border-top:1px solid var(--line); }
+.variant-details summary, .reference-details summary { cursor:pointer; padding:12px 16px; color:#c879ff; font-weight:750; }
+.decklist-cards { list-style:none; margin:0; padding:8px 16px 16px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px 14px; }
+.decklist-cards li { display:flex; gap:8px; min-width:0; padding:6px 8px; border-radius:7px; background:rgba(124,44,255,.035); }
+.decklist-cards li strong { color:#c879ff; }
+.decklist-cards li span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.unknown-card { color:var(--muted); font-style:italic; }
+.variant-note { margin:0; padding:0 16px 16px; font-size:.78rem; }
+.reference-lists { margin-top:12px; display:grid; gap:8px; }
+.reference-details { border:1px solid var(--line); border-radius:9px; overflow:hidden; }
+.reference-details summary { border:0; }
+.reference-decklist { list-style:none; margin:0; padding:0 16px 14px; columns:2; column-gap:24px; color:var(--muted); font-size:.82rem; }
+.reference-decklist li { break-inside:avoid; margin:0 0 5px; }
+.sideboard-title { display:block; padding:5px 16px 8px; }
+.reference-meta { margin:0; padding:0 16px 14px; font-size:.72rem; }
+@media (max-width:980px) {
+  .decklist-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:720px) {
+  .variants-heading, .variant-head { flex-direction:column; align-items:flex-start; }
+  .variant-metrics { text-align:left; }
+  .decklist-cards { grid-template-columns:1fr; }
+  .reference-decklist { columns:1; }
+}

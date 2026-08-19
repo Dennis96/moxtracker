@@ -1,18 +1,9 @@
 r"""Genera il catalogo server-side degli archetipi usando il DB locale di Arena.
 
-STEP 5.2 separa due concetti:
-- variante: lista quasi identica al riferimento (somiglianza completa >= 90%);
-- archetipo: famiglia riconoscibile da un core corto di carte caratteristiche.
-
-Non cambia il protocollo inviato da MOX e non deduce l'archetipo dai soli colori.
-Converte le decklist curate di mox-meta in firme confrontabili con gli ID numerici
-che MOXTRACKER conserva in `carte_mazzo`.
-
-Uso dalla root di moxtracker:
-    python strumenti\genera_catalogo_archetipi.py
-
-Se il progetto MOX non e' nella cartella sorella `Codice`, indicarlo:
-    python strumenti\genera_catalogo_archetipi.py --mox "C:\\...\\Codice"
+STEP 5.3 mantiene separati:
+- archetipo: famiglia strategica riconoscibile dal core;
+- variante: lista quasi identica al riferimento (>= 90%);
+- nome pubblico: etichetta canonica leggibile sul sito, distinta dai nomi interni.
 """
 
 from __future__ import annotations
@@ -31,10 +22,48 @@ OUTPUT = ROOT / "src" / "catalogo-archetipi-generato.js"
 BASICHE = {"plains", "island", "swamp", "mountain", "forest"}
 CORE_MAX_CARTE = 8
 
+NOMI_PUBBLICI = {
+    "aure-mono-bianco": "Mono White Auras",
+    "rakdos-aggro": "Rakdos Aggro",
+    "mono-red": "Mono Red",
+    "mono-white-lifegain": "Mono White Lifegain",
+    "dimir": "Dimir Control (Bo3)",
+    "dimir-control": "Dimir Control (Bo1)",
+    "azorius": "Azorius Control",
+    "naya": "Naya Aggro",
+    "mono-black": "Mono Black Midrange",
+    "boros-prodezze": "Boros Prowess",
+    "golgari": "Golgari Midrange",
+    "aure-orzhov": "Orzhov Auras",
+    "boros-schiera": "Boros Aggro",
+    "mono-blue": "Mono Blue Tempo",
+    "mono-black-ladri": "Mono Black Aggro",
+    "azorius-flash": "Azorius Flash",
+    "orzhov-skeletons": "Orzhov Skeletons",
+    "izzet-robots": "Izzet Robots",
+    "jeskai-artifacts": "Jeskai Artifacts",
+    "mono-green-landfall": "Mono Green Landfall",
+    "izzet-spellementals": "Izzet Spellementals",
+    "four-color-reanimator": "Four-Color Reanimator",
+    "five-color-dragonstorm": "Five-Color Dragonstorm",
+}
+
 
 def normalizza(nome: str) -> str:
     testo = unicodedata.normalize("NFKC", str(nome or "")).casefold().strip()
     return " ".join(testo.split())
+
+
+def nome_pubblico(mazzo: dict) -> str:
+    ident = str(mazzo.get("archetipo_id") or mazzo.get("id") or "")
+    if ident in NOMI_PUBBLICI:
+        return NOMI_PUBBLICI[ident]
+    tier = str(mazzo.get("tier_archetipo") or "").strip()
+    if tier:
+        return tier
+    nome = str(mazzo.get("nome") or mazzo.get("archetipo") or ident).strip()
+    nome = re.sub(r"\s*\((?:Bo1|Bo3|versione da ladder)\)\s*$", "", nome, flags=re.I)
+    return nome or ident
 
 
 def trova_mox(esplicito: str | None) -> Path:
@@ -45,20 +74,14 @@ def trova_mox(esplicito: str | None) -> Path:
         if (base / "costo_mazzo.py").is_file():
             return base.parent
         raise SystemExit(f"Non trovo gli strumenti MOX in: {base}")
-
     candidati = [
-        ROOT.parent / "Codice",
-        ROOT.parent / "codice",
-        ROOT.parent / "MOX" / "Codice",
-        ROOT.parent / "Mox" / "Codice",
+        ROOT.parent / "Codice", ROOT.parent / "codice",
+        ROOT.parent / "MOX" / "Codice", ROOT.parent / "Mox" / "Codice",
     ]
     for base in candidati:
         if (base / "strumenti" / "costo_mazzo.py").is_file():
             return base.resolve()
-    raise SystemExit(
-        "Non trovo automaticamente la cartella Codice di MOX. "
-        "Rilancia con --mox \"C:\\percorso\\Codice\"."
-    )
+    raise SystemExit("Non trovo automaticamente la cartella Codice di MOX. Usa --mox.")
 
 
 def trova_meta(base_mox: Path, esplicito: str | None) -> Path:
@@ -75,9 +98,7 @@ def trova_meta(base_mox: Path, esplicito: str | None) -> Path:
     for p in candidati:
         if p.is_file():
             return p.resolve()
-    raise SystemExit(
-        "Non trovo standard.json. Usa --meta \"C:\\...\\standard.json\"."
-    )
+    raise SystemExit("Non trovo standard.json. Usa --meta.")
 
 
 def carica_carte_arena(base_mox: Path):
@@ -88,7 +109,6 @@ def carica_carte_arena(base_mox: Path):
         from lingua import carica_carte  # type: ignore
     except Exception as exc:  # noqa: BLE001
         raise SystemExit(f"Non riesco a importare gli strumenti MOX: {exc}") from exc
-
     db = trova_database()
     if not db:
         raise SystemExit("Database delle carte di MTG Arena non trovato.")
@@ -106,35 +126,18 @@ def leggi_riga_lista(riga: str):
 
 
 def risolvi_nome_catalogo(nome: str, ids_per_nome: dict[str, set[int]]):
-    """Restituisce il nome canonico usato dal DB Arena.
-
-    Le decklist pubbliche possono scrivere le carte trasformabili come
-    ``Fronte // Retro`` mentre il DB locale di Arena puo' indicizzare soltanto
-    la faccia anteriore, che e' quella effettivamente inseribile nel mazzo.
-    Prima proviamo sempre il nome completo; il fallback alla faccia anteriore
-    vale soltanto quando e' presente esplicitamente il separatore ``//``.
-    """
     esatto = normalizza(nome)
     if esatto in ids_per_nome:
         return esatto
-
     if "//" in str(nome):
         fronte = normalizza(str(nome).split("//", 1)[0])
         if fronte in ids_per_nome:
             return fronte
-
     return None
 
 
 def core_dichiarato(mazzo: dict, firma: dict[str, int],
                     ids_per_nome: dict[str, set[int]]) -> list[str]:
-    """Legge eventuali carte core curate in mox-meta.
-
-    `budget_policy.core` nasce per preservare l'identita' del mazzo quando si
-    costruiscono versioni economiche: e' quindi un ottimo segnale, ma non e'
-    obbligatorio. Il generatore lo usa come priorita' e poi completa il core
-    automaticamente fino a un massimo di otto carte.
-    """
     fuori: list[str] = []
     policy = mazzo.get("budget_policy") or {}
     for nome in policy.get("core") or []:
@@ -145,22 +148,10 @@ def core_dichiarato(mazzo: dict, firma: dict[str, int],
 
 
 def completa_core(liste: list[dict]) -> None:
-    """Costruisce un core corto e leggibile per ogni lista.
-
-    Ordine dei segnali:
-    1. carte dichiarate core in mox-meta;
-    2. carte giocate in 3-4 copie;
-    3. rarita' della carta tra archetipi diversi;
-    4. carte a 2/1 copia solo se servono per completare il nucleo.
-
-    Non si richiede che il numero di copie coincida: il runtime controllera'
-    soltanto la presenza di queste carte-cardine.
-    """
     carte_per_archetipo: dict[str, set[str]] = {}
     for lista in liste:
         ident = str(lista.get("archetipo_id") or lista.get("id") or "")
         carte_per_archetipo.setdefault(ident, set()).update((lista.get("firma") or {}).keys())
-
     frequenza_archetipi: Counter[str] = Counter()
     for carte in carte_per_archetipo.values():
         frequenza_archetipi.update(carte)
@@ -171,13 +162,10 @@ def completa_core(liste: list[dict]) -> None:
         for nome in lista.pop("_core_dichiarato", []) or []:
             if nome in firma and nome not in scelti:
                 scelti.append(nome)
-
         candidati = [nome for nome in firma if nome not in scelti]
         candidati.sort(key=lambda nome: (
             0 if int(firma.get(nome, 0)) >= 3 else 1 if int(firma.get(nome, 0)) == 2 else 2,
-            frequenza_archetipi.get(nome, 999),
-            -int(firma.get(nome, 0)),
-            nome,
+            frequenza_archetipi.get(nome, 999), -int(firma.get(nome, 0)), nome,
         ))
         for nome in candidati:
             if len(scelti) >= CORE_MAX_CARTE:
@@ -210,9 +198,8 @@ def genera(base_mox: Path, meta_path: Path):
             continue
         nomi = (info or {}).get("nomi") or {}
         nome = nomi.get("enUS")
-        if not nome:
-            continue
-        ids_per_nome.setdefault(normalizza(nome), set()).add(ident)
+        if nome:
+            ids_per_nome.setdefault(normalizza(nome), set()).add(ident)
 
     liste = []
     nomi_catalogo: set[str] = set()
@@ -239,11 +226,16 @@ def genera(base_mox: Path, meta_path: Path):
         liste.append({
             "id": mazzo.get("id"),
             "nome": mazzo.get("nome"),
+            "nome_pubblico": nome_pubblico(mazzo),
             "archetipo": mazzo.get("archetipo") or mazzo.get("nome"),
             "archetipo_id": mazzo.get("archetipo_id") or mazzo.get("id"),
             "strategia": mazzo.get("strategia"),
             "colori": mazzo.get("colori") or [],
             "modalita": mazzo.get("modalita"),
+            "fonte": mazzo.get("fonte"),
+            "data": mazzo.get("data"),
+            "lista_riferimento": mazzo.get("lista") or [],
+            "sideboard_riferimento": mazzo.get("sideboard") or [],
             "firma": firma,
             "_core_dichiarato": dichiarato,
         })
@@ -251,8 +243,8 @@ def genera(base_mox: Path, meta_path: Path):
     if mancanti:
         esempio = ", ".join(sorted(mancanti)[:12])
         raise SystemExit(
-            f"Catalogo non generato: {len(mancanti)} nomi non esistono nel DB Arena "
-            f"locale. Esempi: {esempio}"
+            f"Catalogo non generato: {len(mancanti)} nomi non esistono nel DB Arena locale. "
+            f"Esempi: {esempio}"
         )
 
     completa_core(liste)
@@ -269,7 +261,7 @@ def genera(base_mox: Path, meta_path: Path):
                 basi_ids.append(arena_id)
 
     catalogo = {
-        "versione": 2,
+        "versione": 3,
         "generato": True,
         "formato": formato,
         "aggiornato": dati.get("aggiornato"),
@@ -280,11 +272,8 @@ def genera(base_mox: Path, meta_path: Path):
     }
     OUTPUT.write_text(js_export(catalogo), encoding="utf-8", newline="\n")
     return {
-        "db": str(db),
-        "meta": str(meta_path),
-        "liste": len(liste),
-        "nomi": len(nomi_catalogo),
-        "ids": len(id_a_nome),
+        "db": str(db), "meta": str(meta_path), "liste": len(liste),
+        "nomi": len(nomi_catalogo), "ids": len(id_a_nome),
         "cores": sum(1 for lista in liste if lista.get("core")),
         "output": str(OUTPUT),
     }
