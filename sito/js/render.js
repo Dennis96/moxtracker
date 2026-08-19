@@ -33,13 +33,16 @@ function renderDeckIdentity(deck, apiFilters) {
   link.href = deckDetailUrl(deck, apiFilters);
   const wrap = el("div", "deck");
   const archetypeId = deckArchetypeId(deck);
+  const publicLabel = deckLabel(deck);
+  const publicWords = publicLabel.split(/[-_\s]+/).filter(Boolean);
   const markText = deck.impronta
     ? shortFingerprint(deck.impronta, 2).toUpperCase()
-    : (archetypeId || "AR").split(/[-_\s]+/).filter(Boolean).slice(0, 2).map(x => x[0]).join("").toUpperCase();
+    : publicWords.slice(0, 2).map(x => x[0]).join("").toUpperCase();
   const mark = el("span", "deck-mark", markText || "AR");
   mark.title = deck.impronta || archetypeId || "Archetipo";
   const text = el("span", "deck-copy");
-  text.append(el("strong", "deck-name", deckLabel(deck)), el("small", deckIsClassified(deck) ? "classified" : "", classificationSummary(deck)));
+  text.append(el("strong", "deck-name", deckLabel(deck)));
+  if (!deckIsClassified(deck)) text.append(el("small", "", classificationSummary(deck)));
   const meta = el("span", "deck-tags");
   for (const color of deckColors(deck)) meta.append(el("span", `mini-color mini-${color.toLowerCase()}`, color));
   const strategy = deckStrategy(deck);

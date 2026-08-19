@@ -66,18 +66,17 @@ function renderVariants(data) {
     const empty = document.createElement("p"); empty.className = "variants-empty"; empty.textContent = "Nessuna variante osservata nel filtro corrente."; host.append(empty); return;
   }
 
-  for (const variant of variants) {
+  for (const [index, variant] of variants.entries()) {
     const article = document.createElement("article"); article.className = "variant-card";
     const head = document.createElement("div"); head.className = "variant-head";
     const identity = document.createElement("div");
-    const title = document.createElement("strong"); title.textContent = `Variante ${variant.variante_id}`;
-    const sub = document.createElement("small");
-    sub.textContent = variant.lista_riferimento_nome
-      ? `Molto vicina a: ${variant.lista_riferimento_nome}`
-      : "Decklist distinta osservata su MOX";
+    const title = document.createElement("strong"); title.textContent = `Variante osservata #${index + 1}`;
+    const sub = document.createElement("small"); sub.textContent = `ID ${variant.variante_id}`;
     identity.append(title, sub);
     const metrics = document.createElement("div"); metrics.className = "variant-metrics";
-    metrics.innerHTML = `<span><b>${formatInteger(variant.partite)}</b> partite</span><span>${variant.dati_sufficienti ? (formatPercent(variant.win_rate) || "—") : "WR sotto soglia"}</span>`;
+    const partiteLabel = Number(variant.partite) === 1 ? "partita" : "partite";
+    const wrLabel = variant.dati_sufficienti ? (formatPercent(variant.win_rate) || "—") : "Dati insufficienti";
+    metrics.innerHTML = `<span><b>${formatInteger(variant.partite)}</b> ${partiteLabel}</span><span>${wrLabel}</span>`;
     head.append(identity, metrics);
 
     const details = document.createElement("details"); details.className = "variant-details";
@@ -99,6 +98,8 @@ function renderVariants(data) {
 function renderReferences(data) {
   const host = document.querySelector("#reference-lists"); host.replaceChildren();
   const refs = Array.isArray(data.liste_riferimento) ? data.liste_riferimento : [];
+  const titleLabel = document.querySelector("#reference-title-label");
+  if (titleLabel) titleLabel.textContent = refs.length === 1 ? "Lista di riferimento" : "Liste di riferimento";
   if (!refs.length) {
     host.innerHTML = "<strong>Nessuna lista di riferimento</strong><p>Il catalogo non espone una lista per questo archetipo.</p>";
     return;
@@ -106,7 +107,7 @@ function renderReferences(data) {
   for (const ref of refs) {
     const details = document.createElement("details"); details.className = "reference-details";
     const summary = document.createElement("summary");
-    summary.textContent = [ref.nome, ref.modalita].filter(Boolean).join(" • ");
+    summary.textContent = [ref.nome_pubblico || ref.nome, ref.modalita].filter(Boolean).join(" • ");
     const list = document.createElement("ul"); list.className = "reference-decklist";
     for (const line of ref.lista || []) { const li = document.createElement("li"); li.textContent = line; list.append(li); }
     details.append(summary, list);
