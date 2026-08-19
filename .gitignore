@@ -5,3 +5,4 @@ node_modules/
 id-database.txt
 __pycache__/
 *.pyc
+mazzo-*.json

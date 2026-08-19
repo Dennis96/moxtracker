@@ -7,6 +7,7 @@
   "scripts": {
     "prove": "node --test prove/*.test.js",
     "genera-archetipi": "python strumenti/genera_catalogo_archetipi.py",
+    "diagnostica-archetipo": "node strumenti/diagnostica_archetipo.mjs",
     "locale": "wrangler dev --local",
     "database-locale": "wrangler d1 execute moxtracker --local --file=schema.sql",
     "database-vero": "wrangler d1 execute moxtracker --remote --file=schema.sql",

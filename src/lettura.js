@@ -54,8 +54,10 @@ function metaPerImpronta(esito, testa) {
       colori: [],
       modalita: null,
       classificazione: null,
+      livelli_classificazione: [],
       impronta: riga.impronta,
       impronte_raggruppate: 1,
+      varianti_rilevate: 1,
       partite,
       vittorie,
       sconfitte: partite - vittorie,
@@ -84,8 +86,10 @@ export async function leggiMeta(db, indirizzo) {
   const catalogo = infoCatalogo(filtro.formato);
 
   if (catalogoPronto(filtro.formato) && (esito.results || []).length) {
-    // Una sola lettura per tutte le impronte del filtro. La classificazione
-    // avviene sulle carte complete del NOSTRO mazzo; l'avversario resta fuori.
+    // Una sola lettura per tutte le impronte del filtro. Il motore distingue:
+    // - archetipo: nucleo di carte caratteristiche;
+    // - variante: lista quasi identica al riferimento.
+    // L'avversario resta fuori: non deduciamo l'archetipo dalle sole carte viste.
     const carte = await db.prepare(
       `SELECT p.impronta_mazzo AS impronta,
               cm.carta AS carta,
@@ -112,7 +116,7 @@ export async function leggiMeta(db, indirizzo) {
         : "impronta_mazzo",
       catalogo_archetipi: catalogo,
       nota: catalogo.disponibile
-        ? "Gli archetipi sono riconosciuti conservativamente dalla lista completa. Se la somiglianza non supera la soglia, il gruppo resta identificato soltanto dalla sua impronta."
+        ? "Gli archetipi sono riconosciuti da un nucleo di carte caratteristiche; la somiglianza completa al 90% identifica invece una variante quasi uguale al riferimento. I casi ambigui restano identificati soltanto dalla loro impronta."
         : "Il catalogo archetipi server non e' ancora generato: i mazzi restano raggruppati per impronta esatta.",
       mazzi,
     },

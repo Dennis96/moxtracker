@@ -3,6 +3,9 @@ import { CATALOGO_ARCHETIPI } from "./catalogo-archetipi-generato.js";
 export const POLICY_ARCHETIPI = Object.freeze({
   soglia: 0.90,
   margine: 0.03,
+  core_soglia: 0.60,
+  core_min_carte: 5,
+  core_margine: 0.20,
 });
 
 function numero(valore) {
@@ -32,8 +35,6 @@ export function firmaDaCarte(righe, catalogo = CATALOGO_ARCHETIPI) {
     const id = String(riga?.carta ?? "");
     const copie = numero(riga?.copie);
     if (!id || !copie || basi.has(id)) continue;
-    // Una carta non nota al catalogo NON viene ignorata: rimane nella firma
-    // come ID anonimo e quindi abbassa la somiglianza, invece di gonfiarla.
     const nome = nomi[id] || `#${id}`;
     firma[nome] = (firma[nome] || 0) + copie;
   }
@@ -53,37 +54,90 @@ export function somiglianza(prima, seconda) {
   return comuni / totale;
 }
 
-export function classificaFirma(firma, catalogo = CATALOGO_ARCHETIPI,
-                                policy = POLICY_ARCHETIPI) {
-  if (!catalogo?.liste?.length || !firma || !Object.keys(firma).length) return null;
+export function somiglianzaCore(firma, core) {
+  const carte = [...new Set((core || []).filter(Boolean).map(String))];
+  if (!firma || !carte.length) return { punteggio: 0, carte: 0, totale: carte.length };
+  const presenti = carte.filter(nome => numero(firma[nome]) > 0).length;
+  return {
+    punteggio: presenti / carte.length,
+    carte: presenti,
+    totale: carte.length,
+  };
+}
 
-  const candidati = catalogo.liste.map(lista => ({
+function candidatiLista(firma, catalogo) {
+  return (catalogo.liste || []).map(lista => ({
     lista,
     punteggio: somiglianza(firma, lista.firma || {}),
   })).sort((a, b) => b.punteggio - a.punteggio ||
                     String(a.lista.id).localeCompare(String(b.lista.id)));
+}
 
-  const primo = candidati[0];
-  if (!primo || primo.punteggio < policy.soglia) return null;
+function concorrenteAltroArchetipo(candidati, archetipoId) {
+  return candidati.find(c =>
+    c.lista.archetipo_id && c.lista.archetipo_id !== archetipoId
+  ) || null;
+}
 
-  // Due varianti dello STESSO archetipo non sono ambiguita': cerchiamo il
-  // miglior concorrente che porterebbe a un archetipo diverso.
-  const altro = candidati.find(c =>
-    c.lista.archetipo_id && c.lista.archetipo_id !== primo.lista.archetipo_id
-  );
-  if (altro && primo.punteggio - altro.punteggio < policy.margine) return null;
-
-  const lista = primo.lista;
+function risultato(lista, livello, extra = {}) {
   return {
     archetipo_id: lista.archetipo_id,
     archetipo: lista.archetipo || lista.nome || lista.archetipo_id,
     strategia: lista.strategia || null,
     colori: Array.isArray(lista.colori) ? lista.colori : [],
-    modalita: lista.modalita || null,
-    lista_id: lista.id || null,
-    // Solo per diagnostica interna e test. Non viene pubblicato come win rate.
-    _somiglianza: primo.punteggio,
+    modalita: livello === "variante" ? (lista.modalita || null) : null,
+    lista_id: livello === "variante" ? (lista.id || null) : null,
+    livello_classificazione: livello,
+    ...extra,
   };
+}
+
+export function classificaFirma(firma, catalogo = CATALOGO_ARCHETIPI,
+                                policy = POLICY_ARCHETIPI) {
+  if (!catalogo?.liste?.length || !firma || !Object.keys(firma).length) return null;
+  const regole = { ...POLICY_ARCHETIPI, ...(policy || {}) };
+
+  // Livello 1: lista quasi identica. Il 90% continua a significare variante
+  // riconosciuta, non identita' dell'intero archetipo.
+  const liste = candidatiLista(firma, catalogo);
+  const primo = liste[0];
+  if (primo && primo.punteggio >= regole.soglia) {
+    const altro = concorrenteAltroArchetipo(liste, primo.lista.archetipo_id);
+    if (!altro || primo.punteggio - altro.punteggio >= regole.margine) {
+      return risultato(primo.lista, "variante", {
+        _somiglianza: primo.punteggio,
+        _core: null,
+      });
+    }
+  }
+
+  // Livello 2: archetipo. Qui contano le carte-cardine, non gli slot flessibili.
+  // Il generatore produce un core corto e discriminante per ogni lista.
+  const cores = (catalogo.liste || []).map(lista => {
+    const core = somiglianzaCore(firma, lista.core || []);
+    return { lista, ...core };
+  }).sort((a, b) => b.punteggio - a.punteggio ||
+                    b.carte - a.carte ||
+                    String(a.lista.id).localeCompare(String(b.lista.id)));
+
+  const migliore = cores[0];
+  if (!migliore ||
+      migliore.carte < regole.core_min_carte ||
+      migliore.punteggio < regole.core_soglia) return null;
+
+  const altroCore = concorrenteAltroArchetipo(cores, migliore.lista.archetipo_id);
+  if (altroCore && migliore.punteggio - altroCore.punteggio < regole.core_margine) {
+    return null;
+  }
+
+  return risultato(migliore.lista, "archetipo", {
+    _somiglianza: primo?.punteggio || 0,
+    _core: {
+      punteggio: migliore.punteggio,
+      carte: migliore.carte,
+      totale: migliore.totale,
+    },
+  });
 }
 
 export function classificaImpronte(righeCarte, formato,
@@ -121,9 +175,7 @@ export function aggregaMeta(righeMeta, righeCarte, totale, soglia, formato,
   for (const riga of righeMeta || []) {
     const impronta = String(riga?.impronta || "");
     const c = classificazioni.get(impronta) || null;
-    const chiave = c
-      ? `a:${c.archetipo_id}:${String(c.modalita || "").toLowerCase()}`
-      : `i:${impronta}`;
+    const chiave = c ? `a:${c.archetipo_id}` : `i:${impronta}`;
     if (!gruppi.has(chiave)) {
       gruppi.set(chiave, {
         nome: c ? c.archetipo : null,
@@ -131,8 +183,9 @@ export function aggregaMeta(righeMeta, righeCarte, totale, soglia, formato,
         archetipo_id: c ? c.archetipo_id : null,
         strategia: c ? c.strategia : null,
         colori: c ? c.colori : [],
-        modalita: c ? c.modalita : null,
+        modalita: null,
         classificazione: c ? "catalogo_mox_meta" : null,
+        livelli_classificazione: new Set(),
         impronta: c ? null : impronta,
         impronte: new Set(),
         partite: 0,
@@ -141,6 +194,7 @@ export function aggregaMeta(righeMeta, righeCarte, totale, soglia, formato,
     }
     const gruppo = gruppi.get(chiave);
     gruppo.impronte.add(impronta);
+    if (c?.livello_classificazione) gruppo.livelli_classificazione.add(c.livello_classificazione);
     gruppo.partite += numero(riga?.partite);
     gruppo.vittorie += numero(riga?.vittorie);
   }
@@ -157,8 +211,10 @@ export function aggregaMeta(righeMeta, righeCarte, totale, soglia, formato,
       colori: gruppo.colori,
       modalita: gruppo.modalita,
       classificazione: gruppo.classificazione,
+      livelli_classificazione: [...gruppo.livelli_classificazione].sort(),
       impronta: gruppo.impronta,
       impronte_raggruppate: gruppo.impronte.size,
+      varianti_rilevate: gruppo.impronte.size,
       partite,
       vittorie,
       sconfitte: partite - vittorie,
@@ -178,5 +234,9 @@ export function infoCatalogo(formato, catalogo = CATALOGO_ARCHETIPI) {
     aggiornato: catalogo?.aggiornato || null,
     liste: Array.isArray(catalogo?.liste) ? catalogo.liste.length : 0,
     soglia_somiglianza: POLICY_ARCHETIPI.soglia,
+    soglia_variante: POLICY_ARCHETIPI.soglia,
+    core_soglia: POLICY_ARCHETIPI.core_soglia,
+    core_min_carte: POLICY_ARCHETIPI.core_min_carte,
+    core_margine: POLICY_ARCHETIPI.core_margine,
   };
 }

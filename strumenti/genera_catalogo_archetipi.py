@@ -1,8 +1,12 @@
 r"""Genera il catalogo server-side degli archetipi usando il DB locale di Arena.
 
-Non cambia il protocollo inviato da MOX e non fa deduzioni dai colori.
-Converte invece le decklist curate di mox-meta in firme confrontabili con gli
-ID numerici che MOXTRACKER conserva in `carte_mazzo`.
+STEP 5.2 separa due concetti:
+- variante: lista quasi identica al riferimento (somiglianza completa >= 90%);
+- archetipo: famiglia riconoscibile da un core corto di carte caratteristiche.
+
+Non cambia il protocollo inviato da MOX e non deduce l'archetipo dai soli colori.
+Converte le decklist curate di mox-meta in firme confrontabili con gli ID numerici
+che MOXTRACKER conserva in `carte_mazzo`.
 
 Uso dalla root di moxtracker:
     python strumenti\genera_catalogo_archetipi.py
@@ -18,12 +22,14 @@ import json
 import re
 import sys
 import unicodedata
+from collections import Counter
 from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "src" / "catalogo-archetipi-generato.js"
 BASICHE = {"plains", "island", "swamp", "mountain", "forest"}
+CORE_MAX_CARTE = 8
 
 
 def normalizza(nome: str) -> str:
@@ -120,6 +126,66 @@ def risolvi_nome_catalogo(nome: str, ids_per_nome: dict[str, set[int]]):
     return None
 
 
+def core_dichiarato(mazzo: dict, firma: dict[str, int],
+                    ids_per_nome: dict[str, set[int]]) -> list[str]:
+    """Legge eventuali carte core curate in mox-meta.
+
+    `budget_policy.core` nasce per preservare l'identita' del mazzo quando si
+    costruiscono versioni economiche: e' quindi un ottimo segnale, ma non e'
+    obbligatorio. Il generatore lo usa come priorita' e poi completa il core
+    automaticamente fino a un massimo di otto carte.
+    """
+    fuori: list[str] = []
+    policy = mazzo.get("budget_policy") or {}
+    for nome in policy.get("core") or []:
+        key = risolvi_nome_catalogo(str(nome), ids_per_nome)
+        if key and key in firma and key not in fuori:
+            fuori.append(key)
+    return fuori
+
+
+def completa_core(liste: list[dict]) -> None:
+    """Costruisce un core corto e leggibile per ogni lista.
+
+    Ordine dei segnali:
+    1. carte dichiarate core in mox-meta;
+    2. carte giocate in 3-4 copie;
+    3. rarita' della carta tra archetipi diversi;
+    4. carte a 2/1 copia solo se servono per completare il nucleo.
+
+    Non si richiede che il numero di copie coincida: il runtime controllera'
+    soltanto la presenza di queste carte-cardine.
+    """
+    carte_per_archetipo: dict[str, set[str]] = {}
+    for lista in liste:
+        ident = str(lista.get("archetipo_id") or lista.get("id") or "")
+        carte_per_archetipo.setdefault(ident, set()).update((lista.get("firma") or {}).keys())
+
+    frequenza_archetipi: Counter[str] = Counter()
+    for carte in carte_per_archetipo.values():
+        frequenza_archetipi.update(carte)
+
+    for lista in liste:
+        firma = lista.get("firma") or {}
+        scelti: list[str] = []
+        for nome in lista.pop("_core_dichiarato", []) or []:
+            if nome in firma and nome not in scelti:
+                scelti.append(nome)
+
+        candidati = [nome for nome in firma if nome not in scelti]
+        candidati.sort(key=lambda nome: (
+            0 if int(firma.get(nome, 0)) >= 3 else 1 if int(firma.get(nome, 0)) == 2 else 2,
+            frequenza_archetipi.get(nome, 999),
+            -int(firma.get(nome, 0)),
+            nome,
+        ))
+        for nome in candidati:
+            if len(scelti) >= CORE_MAX_CARTE:
+                break
+            scelti.append(nome)
+        lista["core"] = scelti[:CORE_MAX_CARTE]
+
+
 def js_export(dati: dict) -> str:
     corpo = json.dumps(dati, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return (
@@ -167,6 +233,9 @@ def genera(base_mox: Path, meta_path: Path):
                 continue
             nomi_catalogo.add(key)
             firma[key] = firma.get(key, 0) + copie
+
+        dichiarato = core_dichiarato(mazzo, firma, ids_per_nome)
+        nomi_catalogo.update(dichiarato)
         liste.append({
             "id": mazzo.get("id"),
             "nome": mazzo.get("nome"),
@@ -176,6 +245,7 @@ def genera(base_mox: Path, meta_path: Path):
             "colori": mazzo.get("colori") or [],
             "modalita": mazzo.get("modalita"),
             "firma": firma,
+            "_core_dichiarato": dichiarato,
         })
 
     if mancanti:
@@ -185,8 +255,10 @@ def genera(base_mox: Path, meta_path: Path):
             f"locale. Esempi: {esempio}"
         )
 
-    # Mappa soltanto i nomi che possono servire al confronto, piu' tutte le
-    # stampe delle cinque terre base. Questo mantiene piccolo il bundle Worker.
+    completa_core(liste)
+    for lista in liste:
+        nomi_catalogo.update(lista.get("core") or [])
+
     richiesti = nomi_catalogo | BASICHE
     id_a_nome = {}
     basi_ids = []
@@ -197,7 +269,7 @@ def genera(base_mox: Path, meta_path: Path):
                 basi_ids.append(arena_id)
 
     catalogo = {
-        "versione": 1,
+        "versione": 2,
         "generato": True,
         "formato": formato,
         "aggiornato": dati.get("aggiornato"),
@@ -213,6 +285,7 @@ def genera(base_mox: Path, meta_path: Path):
         "liste": len(liste),
         "nomi": len(nomi_catalogo),
         "ids": len(id_a_nome),
+        "cores": sum(1 for lista in liste if lista.get("core")),
         "output": str(OUTPUT),
     }
 
@@ -229,6 +302,7 @@ def main():
     print(f"  database Arena: {esito['db']}")
     print(f"  meta:           {esito['meta']}")
     print(f"  liste:          {esito['liste']}")
+    print(f"  core generati:  {esito['cores']}")
     print(f"  nomi carte:     {esito['nomi']}")
     print(f"  Arena ID mappati: {esito['ids']}")
     print(f"  scritto:        {esito['output']}")
