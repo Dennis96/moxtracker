@@ -1,37 +1,29 @@
 // Il server che riceve le partite di Mox.
 //
-// Gira su Cloudflare Workers, con un database D1 accanto. Fa tre cose e basta:
-// dice se e' vivo, riceve partite e le salva senza doppioni. Il sito che le
-// mostrera' e' un lavoro dopo.
-//
-// Quello che NON fa, per scelta: non tiene indirizzi IP, non mette cookie, non
-// registra nulla che dica chi sei. Il mittente e' un numero a caso generato da
-// Mox sul tuo computer, e serve solo a mettere un tetto a quante partite si
-// possono mandare in un giorno.
+// Gira su Cloudflare Workers, con un database D1 accanto.
+// Riceve le partite e pubblica le letture necessarie al sito.
 
 import { controlla, riga, LIMITI, VERSIONE_ACCETTATA } from "./controlli.js";
+import { leggiMeta, leggiGiocoRisposta, leggiScontri } from "./lettura.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
-  // Il sito pubblico e Mox stanno su origini diverse: senza questo, il
-  // browser rifiuterebbe le richieste della pagina del meta.
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "content-type",
   "access-control-allow-methods": "GET, POST, OPTIONS",
 };
 
-function risposta(corpo, stato = 200) {
+function risposta(corpo, stato = 200, cache = false) {
+  const headers = { ...INTESTAZIONI };
+  if (cache && stato === 200) {
+    headers["cache-control"] = "public, max-age=60, s-maxage=300";
+  }
   return new Response(JSON.stringify(corpo, null, 2) + "\n",
-    { status: stato, headers: INTESTAZIONI });
+    { status: stato, headers });
 }
 
 async function salva(db, dati, ricevuta) {
-  // Una partita alla volta ma in un colpo solo di comandi: D1 esegue il
-  // gruppo come un blocco, quindi non puo' restare una partita registrata a
-  // meta' - con le carte scritte e la riga no, o viceversa.
   const comandi = [];
-  // Quali comandi scrivono nella tabella `partite`: solo quelli contano per
-  // dire quante partite sono davvero entrate. Le carte sono righe loro.
   const indiciDellePartite = [];
   for (const dato of dati) {
     const r = riga(dato, ricevuta);
@@ -58,9 +50,6 @@ async function salva(db, dati, ricevuta) {
     }
   }
   const esiti = await db.batch(comandi);
-  // Le partite davvero nuove: `INSERT OR IGNORE` non fallisce sui doppioni,
-  // li conta come zero righe scritte. E' cosi' che si distingue «accettata»
-  // da «ce l'avevamo gia'» senza una lettura in piu'.
   let nuove = 0;
   for (const indice of indiciDellePartite) {
     const esito = esiti[indice];
@@ -110,9 +99,6 @@ async function riceviPartite(richiesta, ambiente) {
     return risposta({ accettate: 0, gia_presenti: 0, rifiutate }, 400);
   }
 
-  // Un mittente solo non deve poter riempire il meta di partite inventate. Non
-  // ferma chi bara di proposito - basta cambiare numero - e infatti sta
-  // scritto anche nel documento: alza il costo, non chiude la porta.
   const mittente = buone[0].mittente;
   if (buone.some((dato) => dato.mittente !== mittente)) {
     return risposta({ errore: "una richiesta, un mittente solo" }, 400);
@@ -136,15 +122,39 @@ async function riceviPartite(richiesta, ambiente) {
   });
 }
 
+async function letturaPubblica(funzione, db, indirizzo) {
+  const esito = await funzione(db, indirizzo);
+  if (esito.errore) return risposta({ errore: esito.errore }, esito.stato || 400);
+  return risposta(esito.corpo, esito.stato || 200, true);
+}
+
 export default {
   async fetch(richiesta, ambiente) {
     const indirizzo = new URL(richiesta.url);
+
     if (richiesta.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: INTESTAZIONI });
     }
+
     if (indirizzo.pathname === "/salute") {
       return risposta({ stato: "vivo", versione_accettata: VERSIONE_ACCETTATA });
     }
+
+    if (indirizzo.pathname === "/meta") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      return letturaPubblica(leggiMeta, ambiente.DB, indirizzo);
+    }
+
+    if (indirizzo.pathname === "/gioco-risposta") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      return letturaPubblica(leggiGiocoRisposta, ambiente.DB, indirizzo);
+    }
+
+    if (indirizzo.pathname === "/scontri") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      return letturaPubblica(leggiScontri, ambiente.DB, indirizzo);
+    }
+
     if (indirizzo.pathname === "/partite") {
       if (richiesta.method !== "POST") {
         return risposta({ errore: "usa POST" }, 405);
@@ -152,12 +162,11 @@ export default {
       try {
         return await riceviPartite(richiesta, ambiente);
       } catch (guasto) {
-        // Il dettaglio resta nei log del server: al mittente non si racconta
-        // come e' fatto il database.
         console.error("guasto ricevendo partite", guasto);
         return risposta({ errore: "guasto del server" }, 500);
       }
     }
+
     return risposta({ errore: "non c'e' niente qui" }, 404);
   },
 };
