@@ -1,3 +1,5 @@
+import { aggregaMeta, catalogoPronto, infoCatalogo } from "./archetipi.js";
+
 export const SOGLIA_META = 30;
 export const SOGLIA_SCONTRI = 100;
 
@@ -39,6 +41,31 @@ async function quadro(db, filtro) {
   };
 }
 
+function metaPerImpronta(esito, testa) {
+  return (esito.results || []).map((riga) => {
+    const partite = Number(riga.partite || 0);
+    const vittorie = Number(riga.vittorie || 0);
+    const sufficienti = partite >= SOGLIA_META;
+    return {
+      nome: null,
+      archetipo: null,
+      archetipo_id: null,
+      strategia: null,
+      colori: [],
+      modalita: null,
+      classificazione: null,
+      impronta: riga.impronta,
+      impronte_raggruppate: 1,
+      partite,
+      vittorie,
+      sconfitte: partite - vittorie,
+      dati_sufficienti: sufficienti,
+      win_rate: sufficienti ? percentuale(vittorie, partite) : null,
+      quota_meta: sufficienti ? percentuale(partite, testa.partite_totali) : null,
+    };
+  });
+}
+
 export async function leggiMeta(db, indirizzo) {
   const filtro = filtri(indirizzo, ["impronta_mazzo IS NOT NULL"]);
   if (filtro.errore) return { errore: filtro.errore, stato: 400 };
@@ -53,21 +80,26 @@ export async function leggiMeta(db, indirizzo) {
      ORDER BY partite DESC, impronta_mazzo ASC`
   ).bind(...filtro.argomenti).all();
 
-  const mazzi = (esito.results || []).map((riga) => {
-    const partite = Number(riga.partite || 0);
-    const vittorie = Number(riga.vittorie || 0);
-    const sufficienti = partite >= SOGLIA_META;
-    return {
-      nome: null,
-      impronta: riga.impronta,
-      partite,
-      vittorie,
-      sconfitte: partite - vittorie,
-      dati_sufficienti: sufficienti,
-      win_rate: sufficienti ? percentuale(vittorie, partite) : null,
-      quota_meta: sufficienti ? percentuale(partite, testa.partite_totali) : null,
-    };
-  });
+  let mazzi = metaPerImpronta(esito, testa);
+  const catalogo = infoCatalogo(filtro.formato);
+
+  if (catalogoPronto(filtro.formato) && (esito.results || []).length) {
+    // Una sola lettura per tutte le impronte del filtro. La classificazione
+    // avviene sulle carte complete del NOSTRO mazzo; l'avversario resta fuori.
+    const carte = await db.prepare(
+      `SELECT p.impronta_mazzo AS impronta,
+              cm.carta AS carta,
+              MAX(cm.copie) AS copie
+       FROM partite p
+       JOIN carte_mazzo cm ON cm.partita = p.id
+       ${filtro.where}
+       GROUP BY p.impronta_mazzo, cm.carta`
+    ).bind(...filtro.argomenti).all();
+    mazzi = aggregaMeta(
+      esito.results || [], carte.results || [], testa.partite_totali,
+      SOGLIA_META, filtro.formato
+    );
+  }
 
   return {
     stato: 200,
@@ -75,8 +107,13 @@ export async function leggiMeta(db, indirizzo) {
       ...testa,
       filtri: { formato: filtro.formato, rank: filtro.rank },
       soglia_percentuali: SOGLIA_META,
-      raggruppamento: "impronta_mazzo",
-      nota: "Gli archetipi non sono ancora nominati: i mazzi sono raggruppati per impronta esatta.",
+      raggruppamento: catalogo.disponibile
+        ? "archetipo_con_fallback_impronta"
+        : "impronta_mazzo",
+      catalogo_archetipi: catalogo,
+      nota: catalogo.disponibile
+        ? "Gli archetipi sono riconosciuti conservativamente dalla lista completa. Se la somiglianza non supera la soglia, il gruppo resta identificato soltanto dalla sua impronta."
+        : "Il catalogo archetipi server non e' ancora generato: i mazzi restano raggruppati per impronta esatta.",
       mazzi,
     },
   };

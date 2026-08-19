@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080d">
+  <meta name="description" content="Dettaglio archetipo nel meta pubblico MOX Arena Assistant.">
+  <title>Dettaglio meta — MOX Arena Assistant</title>
+  <link rel="icon" href="./assets/mox.ico">
+  <link rel="stylesheet" href="./css/site.css">
+  <script type="module" src="./js/archetype.js"></script>
+</head>
+<body class="detail-page">
+  <header class="site-header">
+    <nav class="nav" aria-label="Navigazione principale">
+      <a class="brand" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./index.html#matchup">Matchup</a><a href="./index.html#metodo">Metodo</a></div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="detail-hero">
+      <div class="detail-hero-inner">
+        <a id="back-to-meta" class="back-link" href="./index.html#meta">← Torna al Meta Explorer</a>
+        <div id="detail-heading" class="detail-heading">
+          <div class="detail-title-block">
+            <span class="eyebrow">Dettaglio meta</span>
+            <h1>Caricamento…</h1>
+            <div id="detail-tags" class="detail-tags"></div>
+          </div>
+          <img src="./assets/branding/mox-marchio.webp" alt="" aria-hidden="true">
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-content">
+      <div id="detail-error" class="detail-error" hidden></div>
+      <div id="detail-summary" class="summary-grid" aria-live="polite">
+        <article class="summary-card"><span>Win rate</span><strong id="detail-winrate">—</strong><small id="detail-winrate-note">Caricamento…</small></article>
+        <article class="summary-card"><span>Quota meta</span><strong id="detail-share">—</strong><small id="detail-share-note">Caricamento…</small></article>
+        <article class="summary-card"><span>Partite</span><strong id="detail-games">—</strong><small id="detail-record">—</small></article>
+        <article class="summary-card"><span>Filtro rank</span><strong id="detail-rank">—</strong><small>Dati della vista corrente</small></article>
+      </div>
+
+      <div class="detail-grid">
+        <section class="panel detail-section" aria-labelledby="rank-detail-title">
+          <div class="panel-inner">
+            <h2 id="rank-detail-title" class="panel-title"><span class="icon" aria-hidden="true">◇</span>Rank</h2>
+            <div class="locked-feature"><strong>Distribuzione per rank</strong><p>Questa vista richiede statistiche aggregate per archetipo e rank. Il frontend è predisposto, ma l'API attuale non espone ancora questa serie.</p></div>
+          </div>
+        </section>
+
+        <section class="panel detail-section" aria-labelledby="initiative-detail-title">
+          <div class="panel-inner">
+            <h2 id="initiative-detail-title" class="panel-title magenta"><span class="icon" aria-hidden="true">⚔</span>Al gioco / alla risposta</h2>
+            <div class="locked-feature"><strong>Dato volutamente non mostrato</strong><p>L'endpoint attuale espone solo il dato globale di tutte le liste. Qui sarebbe fuorviante: verrà mostrato soltanto quando sarà calcolato per questo specifico archetipo.</p></div>
+          </div>
+        </section>
+
+        <section class="panel detail-section" aria-labelledby="matchup-detail-title">
+          <div class="panel-inner">
+            <h2 id="matchup-detail-title" class="panel-title magenta"><span class="icon" aria-hidden="true">⌾</span>Matchup</h2>
+            <div class="locked-feature"><strong>Archetipo vs archetipo</strong><p>Confronti pubblicati solo da 100 partite affidabili per coppia e quando l'archetipo avversario è identificato in modo sufficientemente affidabile.</p></div>
+          </div>
+        </section>
+
+        <section class="panel detail-section" aria-labelledby="decklist-detail-title">
+          <div class="panel-inner">
+            <h2 id="decklist-detail-title" class="panel-title"><span class="icon" aria-hidden="true">▤</span>Carte / decklist</h2>
+            <div class="locked-feature"><strong>Due fonti, senza confonderle</strong><p>La futura pagina distinguerà la lista di riferimento del catalogo mox-meta dalle carte realmente più osservate nelle partite MOXTRACKER.</p></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel trend-panel" aria-labelledby="trend-title">
+        <div class="panel-inner">
+          <h2 id="trend-title" class="panel-title"><span class="icon" aria-hidden="true">⌁</span>Andamento nel tempo</h2>
+          <div class="trend-placeholder"><div class="trend-empty" aria-hidden="true"><span>⌁</span></div><div><strong>Storico non ancora disponibile</strong><p>Il grafico apparirà quando MOXTRACKER avrà una serie temporale reale per questo archetipo. Nessuna barra viene disegnata senza dati.</p></div></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer"><nav aria-label="Footer"><a href="./index.html">MOX</a><span>•</span><a href="./index.html#meta">Meta</a><span>•</span><span>Privacy</span><span>•</span><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav></footer>
+</body>
+</html>

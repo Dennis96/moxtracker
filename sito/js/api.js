@@ -1,0 +1,33 @@
+import { API_BASE } from "./config.js";
+
+async function request(path, { signal } = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: "GET",
+    headers: { accept: "application/json" },
+    signal,
+  });
+  let data = null;
+  try { data = await response.json(); } catch { /* handled below */ }
+  if (!response.ok) {
+    const message = data?.errore || `Errore API (${response.status})`;
+    throw new Error(message);
+  }
+  if (!data || typeof data !== "object") throw new Error("Risposta API non leggibile");
+  return data;
+}
+
+function query({ formato, rank }) {
+  const params = new URLSearchParams({ formato });
+  if (rank) params.set("rank", rank);
+  return params.toString();
+}
+
+export function fetchMeta(filters, options) {
+  return request(`/meta?${query(filters)}`, options);
+}
+export function fetchGiocoRisposta(filters, options) {
+  return request(`/gioco-risposta?${query(filters)}`, options);
+}
+export function fetchScontri(filters, options) {
+  return request(`/scontri?${query(filters)}`, options);
+}

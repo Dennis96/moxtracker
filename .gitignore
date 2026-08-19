@@ -3,3 +3,5 @@ node_modules/
 .dev.vars
 *.log
 id-database.txt
+__pycache__/
+*.pyc

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080d">
+  <meta name="description" content="MOX Arena Assistant: meta pubblico di MTG Arena basato sulle partite anonime raccolte dagli utenti MOX.">
+  <title>MOX Arena Assistant — Meta MTG Arena</title>
+  <link rel="icon" href="./assets/mox.ico">
+  <link rel="stylesheet" href="./css/site.css">
+  <script type="module" src="./js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#meta">Vai al Meta Explorer</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Navigazione principale">
+      <a class="brand" href="#top" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <div class="nav-links"><a href="#meta">Meta</a><a href="#matchup">Matchup</a><a href="#metodo">Metodo</a></div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="hero-kicker" aria-hidden="true">MOX</p>
+          <h1 id="hero-title">Arena Assistant</h1>
+          <p>Il meta di MTG Arena basato sulle partite raccolte dagli utenti MOX.</p>
+          <a class="cta" data-download aria-disabled="true" href="#"><span aria-hidden="true">⇩</span> Scarica MOX</a>
+        </div>
+        <img class="hero-art" src="./assets/branding/mox-marchio.webp" alt="Mascotte ufficiale MOX: procione con cappuccio viola e gemma">
+      </div>
+    </section>
+
+    <section class="dashboard" aria-label="Statistiche pubbliche MOX">
+      <section id="meta" class="panel meta-panel" aria-labelledby="meta-title">
+        <div class="panel-inner">
+          <div class="panel-heading-row">
+            <div>
+              <h2 id="meta-title" class="panel-title"><span class="icon" aria-hidden="true">▥</span>Meta Explorer</h2>
+              <p class="panel-lead">Trova un archetipo per formato, rank, colore e strategia. Clicca una riga per aprire il dettaglio.</p>
+            </div>
+            <div class="meta-status"><strong id="meta-count">Caricamento…</strong><span>•</span><time id="meta-updated"></time></div>
+          </div>
+
+          <div class="explorer-controls" aria-label="Filtri Meta Explorer">
+            <div class="filter-field compact">
+              <label for="format-filter">Formato</label>
+              <span class="select-wrap"><select id="format-filter" aria-label="Formato"></select></span>
+            </div>
+            <div class="filter-field compact">
+              <label for="rank-filter">Rank</label>
+              <span class="select-wrap"><select id="rank-filter" aria-label="Rank"></select></span>
+            </div>
+            <div class="filter-field search-field">
+              <label for="archetype-search">Cerca</label>
+              <div class="search-box"><span aria-hidden="true">⌕</span><input id="archetype-search" type="search" autocomplete="off" placeholder="Archetipo o lista…"></div>
+            </div>
+            <div class="filter-field strategy-field">
+              <label for="strategy-filter">Strategia</label>
+              <span class="select-wrap"><select id="strategy-filter" aria-describedby="classification-help"><option value="">Tutte le strategie</option></select></span>
+            </div>
+            <div class="filter-field color-field">
+              <span class="field-label">Colori</span>
+              <div class="color-filters" role="group" aria-label="Filtra per colori">
+                <button type="button" class="color-pip color-w" data-color="W" aria-pressed="false" title="Bianco">W</button>
+                <button type="button" class="color-pip color-u" data-color="U" aria-pressed="false" title="Blu">U</button>
+                <button type="button" class="color-pip color-b" data-color="B" aria-pressed="false" title="Nero">B</button>
+                <button type="button" class="color-pip color-r" data-color="R" aria-pressed="false" title="Rosso">R</button>
+                <button type="button" class="color-pip color-g" data-color="G" aria-pressed="false" title="Verde">G</button>
+              </div>
+            </div>
+            <button id="clear-local-filters" class="clear-filters" type="button">Azzera filtri</button>
+          </div>
+          <p id="classification-help" class="classification-help">Colori e strategia si attiveranno automaticamente quando l'Archetype Engine alimenterà questi campi nell'API.</p>
+
+          <div id="meta-body" aria-live="polite"><div class="skeleton"></div></div>
+          <div class="meta-footer-row">
+            <p id="meta-threshold" class="note">Percentuali pubblicate da 30 partite.</p>
+            <p id="meta-visible" class="note"></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="matchup" class="panel matchup-panel" aria-labelledby="matchup-title">
+        <div class="panel-inner">
+          <div class="panel-heading-row matchup-heading">
+            <div>
+              <h2 id="matchup-title" class="panel-title magenta"><span class="icon" aria-hidden="true">⌾</span>Matchup tra archetipi</h2>
+              <p class="panel-lead">Quanto performa un archetipo A contro un archetipo B. Una percentuale compare solo da 100 partite affidabili per coppia.</p>
+            </div>
+            <span class="threshold-badge">100+ per coppia</span>
+          </div>
+          <div id="matchup-state" class="unavailable wide" aria-live="polite"><div class="lock">🔒</div><div><h3>Caricamento matchup</h3><p>Verifica disponibilità in corso…</p></div></div>
+        </div>
+      </section>
+
+      <section id="metodo" class="panel methodology" aria-labelledby="method-title">
+        <div class="panel-inner">
+          <h2 id="method-title" class="panel-title"><span class="icon" aria-hidden="true">ⓘ</span>Come funzionano i dati</h2>
+          <div class="method-grid">
+            <article class="method-card"><div class="method-icon" aria-hidden="true">▥</div><div><strong>30+ percentuali</strong><p>Win rate e quota meta compaiono solo quando il campione raggiunge la soglia prevista.</p></div></article>
+            <article class="method-card"><div class="method-icon" aria-hidden="true">⚔</div><div><strong>100+ matchup</strong><p>Ogni confronto tra due archetipi richiede almeno 100 partite affidabili.</p></div></article>
+            <article class="method-card"><div class="method-icon" aria-hidden="true">◉</div><div><strong>Dati anonimi</strong><p>Nessun nome giocatore e nessun dato personale viene mostrato nel meta pubblico.</p></div></article>
+            <article class="method-card"><div class="method-icon" aria-hidden="true">✓</div><div><strong>Nessun numero inventato</strong><p>Sotto soglia mostriamo conteggi reali e “Dati insufficienti”, non percentuali finte.</p></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-cta" aria-label="Scarica MOX">
+        <strong>Aiuta a rendere il meta più preciso.</strong>
+        <a class="cta" data-download aria-disabled="true" href="#"><span aria-hidden="true">⇩</span> Scarica MOX</a>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <nav aria-label="Footer"><a href="#top">MOX</a><span>•</span><a href="#metodo">Metodologia</a><span>•</span><span>Privacy</span><span>•</span><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
+  </footer>
+</body>
+</html>
