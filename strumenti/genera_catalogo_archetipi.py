@@ -251,21 +251,26 @@ def genera(base_mox: Path, meta_path: Path):
     for lista in liste:
         nomi_catalogo.update(lista.get("core") or [])
 
-    richiesti = nomi_catalogo | BASICHE
+    # Il classificatore usa soprattutto le carte presenti nelle liste curate,
+    # ma la pagina delle varianti deve poter mostrare il nome di QUALSIASI carta
+    # realmente osservata da MOXTRACKER. Per questo il dizionario pubblico ID ->
+    # nome viene generato da tutto il database locale di Arena, non soltanto dal
+    # sottoinsieme presente in mox-meta. Le soglie e i core restano invariati.
     id_a_nome = {}
     basi_ids = []
-    for nome in sorted(richiesti):
+    for nome in sorted(ids_per_nome):
         for arena_id in sorted(ids_per_nome.get(nome, ())):
             id_a_nome[str(arena_id)] = nome
             if nome in BASICHE:
                 basi_ids.append(arena_id)
 
     catalogo = {
-        "versione": 3,
+        "versione": 4,
         "generato": True,
         "formato": formato,
         "aggiornato": dati.get("aggiornato"),
         "generato_il": date.today().isoformat(),
+        "nomi_arena_completi": True,
         "id_a_nome": id_a_nome,
         "basi_ids": sorted(set(basi_ids)),
         "liste": liste,
@@ -273,7 +278,7 @@ def genera(base_mox: Path, meta_path: Path):
     OUTPUT.write_text(js_export(catalogo), encoding="utf-8", newline="\n")
     return {
         "db": str(db), "meta": str(meta_path), "liste": len(liste),
-        "nomi": len(nomi_catalogo), "ids": len(id_a_nome),
+        "nomi": len(nomi_catalogo), "nomi_arena": len(ids_per_nome), "ids": len(id_a_nome),
         "cores": sum(1 for lista in liste if lista.get("core")),
         "output": str(OUTPUT),
     }
@@ -292,8 +297,9 @@ def main():
     print(f"  meta:           {esito['meta']}")
     print(f"  liste:          {esito['liste']}")
     print(f"  core generati:  {esito['cores']}")
-    print(f"  nomi carte:     {esito['nomi']}")
-    print(f"  Arena ID mappati: {esito['ids']}")
+    print(f"  nomi usati dal classificatore: {esito['nomi']}")
+    print(f"  nomi Arena disponibili:        {esito['nomi_arena']}")
+    print(f"  Arena ID nominati:             {esito['ids']}")
     print(f"  scritto:        {esito['output']}")
     return 0
 
