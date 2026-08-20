@@ -19,10 +19,10 @@ gli archetipi dalle carte e offre dati aggregati al sito.
   `POST /contributi/elimina`; D1 separato e R2 privato con lifecycle a 730 giorni.
 - **Lettura pubblica:** `GET /salute`, `/meta`, `/archetipo`,
   `/gioco-risposta`, `/scontri`.
-- **Sito:** costruito e verificato in locale; non ancora pubblicato sul dominio
-  principale.
-- **Dominio:** `moxtracker.app` è stato comprato, ma al 20/08/2026 non risolve
-  ancora verso il frontend.
+- **Sito beta:** `https://beta.moxtracker.pages.dev`, separato dal dominio
+  principale e pensato per i feedback iniziali.
+- **Dominio:** `moxtracker.app` è stato comprato, ma al 20/08/2026 non è ancora
+  collegato al frontend.
 - **Step 6.1.1:** immagini `art_crop` e correzione della cache completate in
   locale. Le modifiche restano volutamente non committate e non pubblicate
   finché lo sviluppo non viene dichiarato concluso.
@@ -102,7 +102,7 @@ richieste `/api` all'API pubblica, senza inviare partite o Draft.
 3. eseguire `npm run prove`;
 4. committare e inviare il ramo soltanto quando la consegna è pronta;
 5. pubblicare prima il Worker se il frontend dipende da nuovi campi;
-6. pubblicare `sito/` su Cloudflare Pages e collegare `moxtracker.app`;
+6. verificare la beta Pages e collegare `moxtracker.app` solo dopo i feedback;
 7. impostare in `sito/js/config.js` l'URL reale del download di Mox;
 8. controllare desktop, mobile, privacy, soglie e assenza di numeri finti.
 

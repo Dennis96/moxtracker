@@ -1,7 +1,8 @@
 # Step 8 — pre-lancio del sito
 
-Implementato localmente il 20/08/2026. Non committato e non pubblicato su
-Cloudflare Pages.
+Pubblicato come beta controllata il 20/08/2026 su
+`https://beta.moxtracker.pages.dev`. Il dominio principale non è stato
+collegato.
 
 ## Correzioni completate
 
@@ -28,11 +29,11 @@ Cloudflare Pages.
   nessun errore di rete o numero inventato;
 - due pulsanti download ancora `aria-disabled=true` e `DOWNLOAD_URL=null`.
 
-## Prima della pubblicazione
+## Prima del dominio principale
 
 1. aggiungere un contatto privacy dedicato;
 2. completare Draft reali Premier/Quick/Prendi Due;
 3. decidere e creare la release pubblica soltanto quando la beta è pronta;
 4. impostare allora `DOWNLOAD_URL`;
-5. riesaminare diff, commit e push;
-6. pubblicare prima un'anteprima Pages e infine collegare `moxtracker.app`.
+5. raccogliere e correggere i feedback della beta;
+6. riesaminare le modifiche e collegare infine `moxtracker.app`.
