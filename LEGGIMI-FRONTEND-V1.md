@@ -1,9 +1,13 @@
 # MOXTRACKER Frontend v1 — prima build
 
-Questa cartella contiene **solo file nuovi frontend** e un test frontend.
-Non sostituisce né modifica `src/`, `schema.sql` o `wrangler.toml`.
+> **Passaggio storico.** I file descritti qui sono già stati integrati nel
+> repository. Lo sviluppo è poi arrivato allo Step 6.1.1; per lo stato corrente
+> usare [LEGGIMI.md](LEGGIMI.md) e [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
 
-## Copia nel repository locale
+Questa era la prima consegna: conteneva solo file frontend e un test, senza
+modificare `src/`, `schema.sql` o `wrangler.toml`.
+
+## Copia originaria nel repository locale
 
 Copia le cartelle:
 

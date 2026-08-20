@@ -9,7 +9,8 @@
 // Se cambia li', cambia qui: e' per questo che ogni pacchetto porta il suo
 // numero di versione.
 
-export const VERSIONE_ACCETTATA = 1;
+export const VERSIONI_ACCETTATE = [1, 2];
+export const VERSIONE_ACCETTATA = 2;
 
 // Limiti dichiarati, non sparsi nel codice.
 export const LIMITI = {
@@ -70,11 +71,14 @@ export function controlla(dato) {
   if (!dato || typeof dato !== "object" || Array.isArray(dato)) {
     return "non e' un pacchetto";
   }
-  if (dato.versione !== VERSIONE_ACCETTATA) {
+  if (!VERSIONI_ACCETTATE.includes(dato.versione)) {
     return `versione ${JSON.stringify(dato.versione)} sconosciuta`;
   }
   if (!stringa(dato.partita, 10)) return "identificativo della partita non valido";
   if (!stringa(dato.mittente, 32)) return "mittente non valido";
+  if (dato.versione === 2 && !stringa(dato.segreto_cancellazione, 64)) {
+    return "segreto di cancellazione non valido";
+  }
 
   const mazzo = dato.mazzo;
   if (!mazzo || typeof mazzo !== "object") return "manca il mazzo";
@@ -124,6 +128,10 @@ export function controlla(dato) {
   }
   if (dato.formato !== null && typeof dato.formato !== "string") {
     return "formato non valido";
+  }
+  if ("draft" in dato &&
+      (dato.versione !== 2 || !stringa(dato.draft, 64))) {
+    return "collegamento al Draft non valido";
   }
   return null;
 }

@@ -1,9 +1,11 @@
 # moxtracker — tutto il necessario per costruire il sito
 
-> Documento per chi costruisce la **pagina pubblica del meta** (previsto con
-> ChatGPT il 19/08/2026). È scritto per bastare da solo: chi lo legge non vede
-> il resto dei file, quindi qui dentro c'è tutto — schema, formato, regole.
-> Il codice del server è pubblico: `github.com/Dennis96/moxtracker`.
+> **Specifica storica del 18/08/2026.** È il brief con cui ChatGPT Chat ha
+> costruito la prima versione del sito. Le sezioni che dicono che endpoint e
+> pagine «mancano» descrivono quel momento e oggi non sono più vere. Per lo
+> stato corrente usare [LEGGIMI.md](LEGGIMI.md) e
+> [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md). Regole su privacy, soglie e dati
+> restano valide finché un documento corrente non le modifica esplicitamente.
 
 ## Cos'è moxtracker, in una frase
 

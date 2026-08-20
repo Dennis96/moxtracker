@@ -2,6 +2,7 @@ import { DEFAULT_FORMAT } from "./config.js";
 import { fetchArchetipo, fetchMeta } from "./api.js";
 import { deckLabel, formatInteger, formatPercent, sampleSufficient } from "./format.js";
 import { classificationSummary, deckArchetypeId, deckColors, deckMode, deckStrategy, strategyLabel } from "./meta-model.js";
+import { createCardListItem, parseReferenceLine } from "./card-images.js";
 
 function setupTheme() {
   const root = document.documentElement;
@@ -47,14 +48,11 @@ function renderDeck(deck, params) {
 }
 
 function cardLine(card) {
-  const row = document.createElement("li");
-  const count = document.createElement("strong");
-  count.textContent = `${formatInteger(card.copie)}×`;
-  const name = document.createElement("span");
-  name.textContent = card.nome ? titleCase(card.nome) : `Carta Arena #${card.arena_id}`;
-  if (!card.nome) name.classList.add("unknown-card");
-  row.append(count, name);
-  return row;
+  return createCardListItem({
+    arena_id: card.arena_id,
+    copie: card.copie,
+    nome: card.nome ? titleCase(card.nome) : "",
+  });
 }
 
 function renderVariants(data) {
@@ -109,12 +107,12 @@ function renderReferences(data) {
     const summary = document.createElement("summary");
     summary.textContent = [ref.nome_pubblico || ref.nome, ref.modalita].filter(Boolean).join(" • ");
     const list = document.createElement("ul"); list.className = "reference-decklist";
-    for (const line of ref.lista || []) { const li = document.createElement("li"); li.textContent = line; list.append(li); }
+    for (const line of ref.lista || []) list.append(createCardListItem(parseReferenceLine(line)));
     details.append(summary, list);
     if ((ref.sideboard || []).length) {
       const sideTitle = document.createElement("strong"); sideTitle.className = "sideboard-title"; sideTitle.textContent = "Sideboard";
       const side = document.createElement("ul"); side.className = "reference-decklist";
-      for (const line of ref.sideboard) { const li = document.createElement("li"); li.textContent = line; side.append(li); }
+      for (const line of ref.sideboard) side.append(createCardListItem(parseReferenceLine(line)));
       details.append(sideTitle, side);
     }
     const meta = document.createElement("p"); meta.className = "reference-meta";

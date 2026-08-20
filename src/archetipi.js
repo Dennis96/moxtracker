@@ -167,6 +167,16 @@ function percentuale(parte, totale) {
   return Math.round((parte * 10000) / totale) / 100;
 }
 
+function carteCoreArchetipo(archetipoId, catalogo) {
+  if (!archetipoId) return [];
+  const lista = (catalogo?.liste || []).find(item =>
+    item?.archetipo_id === archetipoId &&
+    Array.isArray(item.core) &&
+    item.core.length
+  );
+  return lista ? [...lista.core] : [];
+}
+
 export function aggregaMeta(righeMeta, righeCarte, totale, soglia, formato,
                             catalogo = CATALOGO_ARCHETIPI,
                             policy = POLICY_ARCHETIPI) {
@@ -184,6 +194,7 @@ export function aggregaMeta(righeMeta, righeCarte, totale, soglia, formato,
         archetipo_id: c ? c.archetipo_id : null,
         strategia: c ? c.strategia : null,
         colori: c ? c.colori : [],
+        carte_core: c ? carteCoreArchetipo(c.archetipo_id, catalogo) : [],
         modalita: null,
         classificazione: c ? "catalogo_mox_meta" : null,
         livelli_classificazione: new Set(),
@@ -210,6 +221,7 @@ export function aggregaMeta(righeMeta, righeCarte, totale, soglia, formato,
       archetipo_id: gruppo.archetipo_id,
       strategia: gruppo.strategia,
       colori: gruppo.colori,
+      carte_core: gruppo.carte_core,
       modalita: gruppo.modalita,
       classificazione: gruppo.classificazione,
       livelli_classificazione: [...gruppo.livelli_classificazione].sort(),

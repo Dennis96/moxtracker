@@ -1,0 +1,329 @@
+import { strict as assert } from "node:assert";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+
+import server from "../src/index.js";
+import { controllaDraft, riconciliaStorageDraft } from "../src/draft.js";
+import { creaFintoD1 } from "./finto-d1.js";
+
+const QUI = fileURLToPath(new URL(".", import.meta.url));
+const SCHEMA = QUI + "../schema.sql";
+const SCHEMA_DRAFT = QUI + "../schema-draft.sql";
+
+function esempio(cambia = {}) {
+  return {
+    versione: 1,
+    draft: "a".repeat(32),
+    mittente: "b".repeat(32),
+    mox: "2.9",
+    set: "HOB",
+    formato: "PremierDraft",
+    iniziato: "2026-08-20T10:00:00Z",
+    finito: "2026-08-20T10:20:00Z",
+    completo: true,
+    impronta_arena: "c".repeat(64),
+    segreto_cancellazione: "d".repeat(64),
+    pick: [
+      { numero: 1, posizione: [1, 1], offerte: [101, 102], pool_prima: [],
+        consiglio_mox: 101, politica: "policy-test", scelta: 102, seguito_mox: false,
+        candidati: [
+          { carta: 101, rango_mox: 1, campione: 1200, valore_17lands: 0.576,
+            fonte_17lands: "17lands GIH WR", intervallo_95: [0.548, 0.604],
+            modifica_mox: 0, vicina: false },
+          { carta: 102, rango_mox: 2, campione: 1100, valore_17lands: 0.562,
+            fonte_17lands: "17lands GIH WR", intervallo_95: [0.532, 0.591],
+            modifica_mox: 0, vicina: true },
+        ] },
+      { numero: 2, posizione: [1, 2], offerte: [103, 104], pool_prima: [102],
+        consiglio_mox: 103, politica: "policy-test", scelta: 103, seguito_mox: true,
+        candidati: [
+          { carta: 103, rango_mox: 1, campione: 900, valore_17lands: 0.55,
+            fonte_17lands: "17lands GIH WR", intervallo_95: [0.51, 0.59],
+            modifica_mox: 0, vicina: false },
+        ] },
+    ],
+    pool_finale: [102, 103],
+    ...cambia,
+  };
+}
+
+function r2Finto() {
+  const oggetti = new Map();
+  return {
+    oggetti,
+    async put(chiave, valore) { oggetti.set(chiave, valore); },
+    async delete(chiavi) {
+      for (const chiave of Array.isArray(chiavi) ? chiavi : [chiavi]) oggetti.delete(chiave);
+    },
+    async list(opzioni = {}) {
+      const tutte = [...oggetti.entries()].sort(([a], [b]) => a.localeCompare(b));
+      const inizio = Number(opzioni.cursor || 0);
+      const fine = Math.min(tutte.length, inizio + Number(opzioni.limit || 1000));
+      return {
+        objects: tutte.slice(inizio, fine).map(([key, valore]) => ({
+          key, size: new TextEncoder().encode(valore).byteLength,
+        })),
+        truncated: fine < tutte.length,
+        cursor: fine < tutte.length ? String(fine) : undefined,
+      };
+    },
+  };
+}
+
+function ambiente() {
+  return { DB: creaFintoD1(SCHEMA), DRAFT_DB: creaFintoD1(SCHEMA_DRAFT),
+    DRAFT_RAW: r2Finto() };
+}
+
+async function manda(env, percorso, corpo, metodo = "POST") {
+  const richiesta = new Request("https://esempio.invalid" + percorso, {
+    method: metodo,
+    headers: { "content-type": "application/json" },
+    body: metodo === "POST" ? JSON.stringify(corpo) : undefined,
+  });
+  const risposta = await server.fetch(richiesta, env);
+  return { stato: risposta.status, corpo: await risposta.json() };
+}
+
+test("valida sequenza, offerte, pool e campi vietati", () => {
+  assert.equal(controllaDraft(esempio()), null);
+  const sceltaImpossibile = esempio();
+  sceltaImpossibile.pick[0].scelta = 999;
+  assert.match(controllaDraft(sceltaImpossibile), /scelta/);
+  const sequenza = esempio();
+  sequenza.pick[1].numero = 3;
+  assert.match(controllaDraft(sequenza), /sequenza/);
+  const ostile = esempio({ opponent: "nome privato" });
+  assert.match(controllaDraft(ostile), /vietato/);
+});
+
+test("Prendi Due valida e indicizza entrambe le carte della decisione", async () => {
+  const env = ambiente();
+  const pickTwo = esempio({
+    draft: "9".repeat(32), formato: "PickTwoDraft",
+    pick: [{
+      numero: 1, posizione: [1, 1], offerte: [101, 102, 103], pool_prima: [],
+      consiglio_mox: 101, consigli_mox: [101, 102], politica: "policy-test",
+      scelte: [102, 101], seguito_mox: true,
+      candidati: [
+        { carta: 101, rango_mox: 1, campione: 1200, vicina: false },
+        { carta: 102, rango_mox: 2, campione: 1100, vicina: false },
+        { carta: 103, rango_mox: 3, campione: 900, vicina: true },
+      ],
+    }],
+    pool_finale: [102, 101],
+  });
+  assert.equal(controllaDraft(pickTwo), null);
+  const esito = await manda(env, "/draft", pickTwo);
+  assert.equal(esito.stato, 200);
+  assert.equal(env.DRAFT_DB.conta("draft_pick"), 2);
+  const indice = env.DRAFT_DB.tutte(
+    "SELECT numero, consiglio, scelta, seguito FROM draft_pick ORDER BY numero");
+  assert.deepEqual(indice.map((riga) => riga.numero), [1, 2]);
+  assert.deepEqual(indice.map((riga) => riga.scelta), [102, 101]);
+  assert.ok(indice.every((riga) => riga.seguito === 1));
+
+  const incompleto = structuredClone(pickTwo);
+  incompleto.pick[0].scelte = [101];
+  assert.match(controllaDraft(incompleto), /scelt/);
+});
+
+test("salva indice in D1 e traccia privata in R2 senza il segreto", async () => {
+  const env = ambiente();
+  const esito = await manda(env, "/draft", { draft: [esempio()] });
+  assert.equal(esito.stato, 200);
+  assert.equal(esito.corpo.accettati, 1);
+  assert.equal(env.DRAFT_DB.conta("draft"), 1);
+  assert.equal(env.DRAFT_DB.conta("draft_pick"), 2);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 1);
+  const raw = [...env.DRAFT_RAW.oggetti.values()][0];
+  assert.ok(!raw.includes("segreto_cancellazione"));
+  assert.ok(!raw.includes("nome privato"));
+
+  const doppione = await manda(env, "/draft", { draft: [esempio()] });
+  assert.equal(doppione.corpo.gia_presenti, 1);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 1);
+  assert.equal((await manda(env, "/draft/raw", null, "GET")).stato, 404);
+});
+
+test("riconcilia D1 e R2 senza esporre o leggere il contenuto grezzo", async () => {
+  const env = ambiente();
+  assert.equal((await manda(env, "/draft", esempio())).stato, 200);
+  const riga = env.DRAFT_DB.tutte("SELECT oggetto_r2 FROM draft")[0];
+  env.DRAFT_RAW.oggetti.set(riga.oggetto_r2, "x");
+  env.DRAFT_RAW.oggetti.set("2026-08/orfano.json", "{}");
+  env.DRAFT_DB.prepare(`INSERT INTO draft
+    (id, mittente, ricevuto, set_code, formato, completo, pick, politica,
+     oggetto_r2, byte, versione) VALUES (?, ?, ?, 'HOB', 'PremierDraft', 1,
+     1, 'p', ?, 99, 1)`).bind("f".repeat(32), "b".repeat(32),
+      new Date().toISOString(), "2026-08/mancante.json").esegui();
+
+  const rapporto = await riconciliaStorageDraft(env.DRAFT_DB, env.DRAFT_RAW);
+  assert.equal(rapporto.coerente, false);
+  assert.deepEqual(rapporto.orfani_r2, ["2026-08/orfano.json"]);
+  assert.deepEqual(rapporto.senza_oggetto.map((x) => x.oggetto_r2),
+    ["2026-08/mancante.json"]);
+  assert.deepEqual(rapporto.dimensioni_incoerenti.map((x) => x.oggetto_r2),
+    [riga.oggetto_r2]);
+});
+
+test("un guasto R2 non scrive D1 e un guasto D1 compensa R2", async () => {
+  const r2Rotto = ambiente();
+  r2Rotto.DRAFT_RAW.put = async () => { throw new Error("R2 put guasto"); };
+  assert.equal((await manda(r2Rotto, "/draft", esempio())).stato, 500);
+  assert.equal(r2Rotto.DRAFT_DB.conta("draft"), 0);
+  assert.equal(r2Rotto.DRAFT_RAW.oggetti.size, 0);
+
+  const d1Rotto = ambiente();
+  d1Rotto.DRAFT_DB.batch = async () => { throw new Error("D1 batch guasto"); };
+  assert.equal((await manda(d1Rotto, "/draft", esempio())).stato, 500);
+  assert.equal(d1Rotto.DRAFT_DB.conta("draft"), 0);
+  assert.equal(d1Rotto.DRAFT_RAW.oggetti.size, 0);
+});
+
+test("il raro doppio guasto viene trovato dalla riconciliazione", async () => {
+  const env = ambiente();
+  env.DRAFT_DB.batch = async () => { throw new Error("D1 batch guasto"); };
+  env.DRAFT_RAW.delete = async () => { throw new Error("R2 delete guasto"); };
+  assert.equal((await manda(env, "/draft", esempio())).stato, 500);
+  assert.equal(env.DRAFT_DB.conta("draft"), 0);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 1);
+  const rapporto = await riconciliaStorageDraft(env.DRAFT_DB, env.DRAFT_RAW);
+  assert.equal(rapporto.coerente, false);
+  assert.equal(rapporto.orfani_r2.length, 1);
+});
+
+test("pubblica solo aggregati e nasconde percentuali sotto soglia", async () => {
+  const env = ambiente();
+  await manda(env, "/draft", { draft: [esempio()] });
+  const { stato, corpo } = await manda(env, "/draft/statistiche?set=HOB", null, "GET");
+  assert.equal(stato, 200);
+  assert.equal(corpo.fasi[0].campione, 2);
+  assert.equal(corpo.fasi[0].accordo_mox, null);
+  assert.equal(corpo.soglia_percentuali, 100);
+  assert.equal(corpo.risultati.win_rate, null);
+  assert.ok(!JSON.stringify(corpo).includes("offerte"));
+});
+
+test("cancella Draft e oggetti solo col segreto corretto", async () => {
+  const env = ambiente();
+  await manda(env, "/draft", esempio());
+  const partita = {
+    versione: 2, partita: "1".repeat(10), mittente: "b".repeat(32),
+    evento: "PremierDraft_HOB", formato: "Limited",
+    mazzo: { impronta: "e".repeat(64), carte: { "101": 40 } },
+    avversario: { carte: [] }, andamento: { esito: "vinta", mulligan: 0 },
+    segreto_cancellazione: "d".repeat(64), mox: "2.9",
+  };
+  assert.equal((await manda(env, "/partite", partita)).stato, 200);
+  assert.equal(env.DB.conta("partite"), 1);
+  assert.ok(!env.DB.tutte("SELECT dato FROM partite")[0].dato
+    .includes("segreto_cancellazione"));
+  const negato = await manda(env, "/contributi/elimina", {
+    mittente: "b".repeat(32), segreto: "e".repeat(64),
+  });
+  assert.equal(negato.stato, 403);
+  const tolto = await manda(env, "/contributi/elimina", {
+    mittente: "b".repeat(32), segreto: "d".repeat(64),
+  });
+  assert.equal(tolto.stato, 200);
+  assert.deepEqual(tolto.corpo.eliminati, { draft: 1, partite: 1 });
+  assert.equal(env.DRAFT_DB.conta("draft"), 0);
+  assert.equal(env.DRAFT_DB.conta("draft_pick"), 0);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 0);
+  assert.equal(env.DB.conta("partite"), 0);
+  assert.equal(env.DB.conta("carte_mazzo"), 0);
+  assert.equal(env.DB.conta("contributori"), 0);
+});
+
+test("una cancellazione interrotta prima di D1 e' ripetibile", async () => {
+  const env = ambiente();
+  await manda(env, "/draft", esempio());
+  const eliminaVero = env.DRAFT_RAW.delete.bind(env.DRAFT_RAW);
+  let primo = true;
+  env.DRAFT_RAW.delete = async (chiavi) => {
+    if (primo) { primo = false; throw new Error("R2 temporaneamente guasto"); }
+    return eliminaVero(chiavi);
+  };
+  const corpo = { mittente: "b".repeat(32), segreto: "d".repeat(64) };
+  assert.equal((await manda(env, "/contributi/elimina", corpo)).stato, 500);
+  assert.equal(env.DRAFT_DB.conta("draft"), 1);
+  assert.equal(env.DRAFT_DB.conta("contributori"), 1);
+  assert.equal((await manda(env, "/contributi/elimina", corpo)).stato, 200);
+  assert.equal(env.DRAFT_DB.conta("draft"), 0);
+  assert.equal(env.DRAFT_DB.conta("contributori"), 0);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 0);
+});
+
+test("il tetto per contributore rifiuta senza scrivere R2", async () => {
+  const env = ambiente();
+  const oggi = new Date().toISOString();
+  for (let n = 0; n < 30; n += 1) {
+    env.DRAFT_DB.prepare(`INSERT INTO draft
+      (id, mittente, ricevuto, set_code, formato, completo, pick, politica,
+       oggetto_r2, byte, versione) VALUES (?, ?, ?, 'HOB', 'PremierDraft', 1,
+       1, 'p', ?, 10, 1)`).bind(String(n).padStart(32, "0"), "b".repeat(32),
+        oggi, `x/${n}.json`).esegui();
+  }
+  const esito = await manda(env, "/draft", esempio());
+  assert.equal(esito.stato, 429);
+  assert.match(esito.corpo.errore, /tetto/);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 0);
+});
+
+test("un Draft completo usa insert compatti e la richiesta resta entro D1 Free", async () => {
+  const env = ambiente();
+  const lungo = esempio({ draft: "f".repeat(32), pick: [], pool_finale: [] });
+  const pool = [];
+  for (let numero = 1; numero <= 42; numero += 1) {
+    const scelta = 1000 + numero;
+    lungo.pick.push({
+      numero,
+      posizione: [Math.ceil(numero / 14), ((numero - 1) % 14) + 1],
+      offerte: [scelta, 2000 + numero],
+      pool_prima: [...pool],
+      consiglio_mox: scelta,
+      politica: "policy-test",
+      scelta,
+      seguito_mox: true,
+      candidati: [{ carta: scelta, rango_mox: 1, campione: 1000, vicina: false }],
+    });
+    pool.push(scelta);
+  }
+  lungo.pool_finale = [...pool];
+  assert.equal((await manda(env, "/draft", lungo)).stato, 200);
+  assert.equal(env.DRAFT_DB.conta("draft_pick"), 42);
+  const troppi = Array.from({ length: 5 }, (_, n) =>
+    esempio({ draft: String(n).padStart(32, "0") }));
+  assert.equal((await manda(ambiente(), "/draft", { draft: troppi })).stato, 413);
+});
+
+test("salute dichiara le versioni accettate", async () => {
+  const env = ambiente();
+  const { corpo } = await manda(env, "/salute", null, "GET");
+  assert.deepEqual(corpo.versioni_partite_accettate, [1, 2]);
+  assert.deepEqual(corpo.versioni_draft_accettate, [1]);
+});
+
+test("una partita v2 si collega soltanto con la stessa impronta Arena e senza duplicati", async () => {
+  const env = ambiente();
+  await manda(env, "/draft", esempio());
+  const partita = {
+    versione: 2, partita: "1".repeat(10), mittente: "b".repeat(32),
+    evento: "PremierDraft_HOB", formato: "Limited",
+    mazzo: { impronta: "e".repeat(64), carte: { "101": 40 } },
+    avversario: { carte: [] }, andamento: { esito: "vinta", mulligan: 0 },
+    draft: "c".repeat(64), segreto_cancellazione: "d".repeat(64), mox: "2.9",
+  };
+  const esito = await manda(env, "/partite", partita);
+  assert.equal(esito.stato, 200);
+  assert.equal(env.DRAFT_DB.conta("draft_link"), 1);
+  assert.equal((await manda(env, "/partite", partita)).stato, 200);
+  assert.equal(env.DRAFT_DB.conta("draft_link"), 1);
+
+  const diversa = structuredClone(partita);
+  diversa.partita = "2".repeat(10);
+  diversa.draft = "d".repeat(64);
+  assert.equal((await manda(env, "/partite", diversa)).stato, 200);
+  assert.equal(env.DRAFT_DB.conta("draft_link"), 1);
+});

@@ -1,94 +1,113 @@
-# moxtracker — il server delle partite di Mox
+# moxtracker — server, meta e sito di Mox
 
-Riceve le partite che [Mox](https://github.com/Dennis96) registra da MTG Arena
-e le conserva, per costruirci sopra le statistiche del meta: quanto vince ogni
-archetipo, in che fascia di rank, e chi batte chi.
+> Stato verificato il **20/08/2026**. L'indice dei documenti è in
+> [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
 
-Gira su Cloudflare Workers con un database D1 accanto. Il sito che mostrerà i
-numeri è il lavoro successivo; qui c'è la parte che riceve.
+moxtracker è la parte online di Mox. Riceve, solo con consenso, le partite che
+il programma locale legge da MTG Arena; le conserva in Cloudflare D1, riconosce
+gli archetipi dalle carte e offre dati aggregati al sito.
 
-**È in linea dal 18/08/2026** su **`https://api.moxtracker.app`** —
-`/salute` dice se è vivo, `POST /partite` riceve.
+È un repository Git separato da `..\Codice`. Il ramo di sviluppo corrente è
+`frontend-v1`.
 
-L'indirizzo sta su un sottodominio suo, separato dal sito: `moxtracker.app`
-sarà la pagina che si apre nel browser, `api.moxtracker.app` è il ricevitore
-che Mox chiama. Tenerli distinti vuol dire poter rifare il sito quando si
-vuole senza toccare l'indirizzo scritto dentro il programma — e quello, una
-volta distribuito nelle copie di Mox, non si cambia più.
+## Stato corrente
 
-## Quello che non fa, per scelta
+- **API pubblica:** `https://api.moxtracker.app`.
+- **Database:** Cloudflare D1.
+- **Ricezione:** `POST /partite`.
+- **Draft online:** `POST /draft`, `GET /draft/statistiche`,
+  `POST /contributi/elimina`; D1 separato e R2 privato con lifecycle a 730 giorni.
+- **Lettura pubblica:** `GET /salute`, `/meta`, `/archetipo`,
+  `/gioco-risposta`, `/scontri`.
+- **Sito:** costruito e verificato in locale; non ancora pubblicato sul dominio
+  principale.
+- **Dominio:** `moxtracker.app` è stato comprato, ma al 20/08/2026 non risolve
+  ancora verso il frontend.
+- **Step 6.1.1:** immagini `art_crop` e correzione della cache completate in
+  locale. Le modifiche restano volutamente non committate e non pubblicate
+  finché lo sviluppo non viene dichiarato concluso.
+- **Step 7:** Worker, D1 Draft, R2, lifecycle e cancellazione sono online e
+  collaudati; resta da impostare dal pannello l'avviso spesa a 1 dollaro.
+- **Pre-lancio sito:** banner beta, Privacy, Draft raggiungibile da mobile,
+  Matchup compatto senza dati e anteprima locale con aggregati reali completati.
+  Il download resta intenzionalmente disattivato.
 
-- **Non tiene nomi.** Né di chi manda né dell'avversario. La partita è
-  identificata da un'impronta calcolata sul computer di chi gioca.
-- **Non tiene indirizzi IP e non mette cookie.**
-- **Non riceve la mano né la libreria dell'avversario**, solo le carte che il
-  log di Arena ha già rivelato durante la partita — e se un client provasse a
-  mandarle, il server rifiuta il pacchetto invece di conservarle.
-- **Non riceve il nome che dai al mazzo in Arena**: è testo libero e può
-  contenere qualsiasi cosa. Arrivano le carte, che dicono molto di più.
-- **Non deduce niente al posto di chi manda.** Gli archetipi si calcolano qui,
-  dalle carte, così quando il catalogo migliora si rifanno anche sulle partite
-  vecchie.
+Il Worker pubblico restituisce anche `carte_core`; il frontend può quindi
+mostrare colori, strategia e immagini degli archetipi riconosciuti.
 
-Chi manda è un numero generato a caso da Mox al primo avvio e conservato sul
-computer di chi gioca: serve a mettere un tetto a quante partite si possono
-spedire in un giorno, e a ritrovare le proprie partite se un domani ci si
-registra sul sito. Si può cancellare in qualsiasi momento.
+## Regole sui dati
 
-## Com'è fatto
+- Nessun nome del giocatore, nome dell'avversario o nome libero del mazzo.
+- Nessun dato nascosto del mazzo avversario: solo carte rivelate nel log.
+- Il mittente è un identificativo casuale per installazione, non l'impronta del
+  computer.
+- L'invio parte spento e richiede consenso esplicito in Mox.
+- Partite e Draft hanno consensi separati. La revoca Draft svuota soltanto la
+  coda online e conserva i dati personali locali.
+- Gli archetipi sono dedotti sul server; se le carte non bastano, il risultato
+  è «non identificato».
+- Ogni percentuale deve restare legata a campione e aggiornamento. Sotto 30
+  partite non si mostra una percentuale; per una coppia della matrice degli
+  scontri la soglia è 100.
 
-| File | Cosa contiene |
+## Struttura
+
+| Percorso | Contenuto |
 |---|---|
-| `src/controlli.js` | che cosa si accetta e cosa si rifiuta, e perché |
-| `src/index.js` | il Worker: `/salute` e `POST /partite` |
-| `schema.sql` | le tabelle: `partite`, `carte_mazzo`, `carte_avversario` |
-| `prove/` | le prove dei controlli, senza rete e senza database |
+| `src/index.js` | instradamento HTTP del Worker |
+| `src/controlli.js` | validazione dei pacchetti in ingresso |
+| `src/draft.js` | validazione, R2/D1, tetti, aggregati e cancellazione coordinata di partite e Draft |
+| `src/lettura.js` | aggregazioni pubbliche |
+| `src/archetipi.js` | classificazione di archetipi e varianti |
+| `src/dettaglio-archetipo.js` | pagina dati di un singolo archetipo |
+| `src/catalogo-archetipi-generato.js` | catalogo generato dai dati pubblicabili di Mox |
+| `schema.sql` | schema D1 |
+| `schema-draft.sql` | schema del secondo D1 dedicato ai Draft |
+| `sito/` | frontend statico per Cloudflare Pages |
+| `prove/` | test Node senza dipendenza dal database reale |
+| `strumenti/` | generatori, diagnostica e applicatori storici degli Step |
 
-Ogni partita entra **una volta sola**: la chiave è l'identificativo del match,
-e un pacchetto che arriva due volte non conta due volte. Il pacchetto originale
-si conserva intero accanto alle colonne, così i conti si possono rifare domani
-con regole migliori invece di restare quelli di oggi.
+## Prove locali
 
-## Provarlo sul proprio computer
+Serve Node.js con le dipendenze già installate.
 
-Serve [Node.js](https://nodejs.org) (versione LTS).
-
-```
-npm install
-npm run prove              # i controlli: nessuna rete, mezzo secondo
-npm run database-locale    # crea le tabelle in un SQLite locale
-npm run locale             # avvia il server su http://localhost:8787
-```
-
-Con il server acceso:
-
-```
-curl http://localhost:8787/salute
-curl -X POST http://localhost:8787/partite -H "content-type: application/json" -d @prove/partita-esempio.json
+```powershell
+npm run prove
 ```
 
-## Metterlo online
+Il conteggio aggiornato va preso dall'ultima esecuzione di `npm run prove`, non
+copiato in questo file durante lo sviluppo.
 
-Serve un account Cloudflare (gratuito).
+Per avviare il Worker locale:
 
-**Il modo facile, su Windows:** doppio clic su **`COLLEGA-CLOUDFLARE.bat`**.
-Fa i due comandi qui sotto uno dopo l'altro, spiegando cosa sta succedendo, e
-lascia il risultato in `id-database.txt`.
-
-**A mano**, se preferisci il terminale:
-
-```
-npx wrangler login                 # apre il browser e chiede di autorizzare
-npx wrangler d1 create moxtracker  # stampa l'id del database
+```powershell
+npm run database-locale
+npm run database-draft-locale
+npm run locale
 ```
 
-L'id va incollato in `wrangler.toml`, alla voce `database_id`. Poi:
+Per vedere il sito con gli aggregati dell'API pubblica:
 
+```powershell
+npm run sito-locale
 ```
-npm run database-vero              # crea le tabelle sul database vero
-npm run pubblica
-```
 
-## Licenza
+Poi aprire `http://127.0.0.1:8790`. L'anteprima inoltra in sola lettura le
+richieste `/api` all'API pubblica, senza inviare partite o Draft.
 
-Da decidere prima di accettare contributi.
+## Prima di pubblicare
+
+1. terminare lo Step corrente e riesaminare le modifiche locali;
+2. eseguire `npm run genera-archetipi` se è cambiato il catalogo sorgente;
+3. eseguire `npm run prove`;
+4. committare e inviare il ramo soltanto quando la consegna è pronta;
+5. pubblicare prima il Worker se il frontend dipende da nuovi campi;
+6. pubblicare `sito/` su Cloudflare Pages e collegare `moxtracker.app`;
+7. impostare in `sito/js/config.js` l'URL reale del download di Mox;
+8. controllare desktop, mobile, privacy, soglie e assenza di numeri finti.
+
+Il pulsante di download non va attivato finché la beta non supera anche i
+Draft reali completi concordati con l'utente.
+
+Non eseguire `npm run database-vero` o `npm run pubblica` come semplice prova:
+scrivono sul servizio Cloudflare reale.

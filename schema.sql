@@ -59,3 +59,11 @@ CREATE TABLE IF NOT EXISTS carte_avversario (
 
 CREATE INDEX IF NOT EXISTS carte_mazzo_per_carta ON carte_mazzo (carta);
 CREATE INDEX IF NOT EXISTS carte_avversario_per_carta ON carte_avversario (carta);
+
+-- Il segreto non viene mai conservato: questa impronta autorizza la
+-- cancellazione di tutte le partite inviate dalla stessa installazione.
+CREATE TABLE IF NOT EXISTS contributori (
+  mittente             TEXT PRIMARY KEY,
+  cancellazione_hash   TEXT NOT NULL,
+  creato               TEXT NOT NULL
+);

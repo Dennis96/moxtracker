@@ -32,8 +32,9 @@ async function manda(db, corpo, metodo = "POST", percorso = "/partite") {
 test("il pacchetto di esempio e' quello che Mox produce davvero", () => {
   // Se questa fallisce, il formato e' cambiato in `pacchetto_partita.py` e il
   // server va aggiornato: e' il punto in cui le due parti si toccano.
-  assert.equal(ESEMPIO.versione, 1);
+  assert.equal(ESEMPIO.versione, 2);
   assert.equal(typeof ESEMPIO.mittente, "string");
+  assert.equal(typeof ESEMPIO.segreto_cancellazione, "string");
   assert.ok(ESEMPIO.mazzo && ESEMPIO.avversario && ESEMPIO.andamento);
 });
 
@@ -58,7 +59,10 @@ test("una partita entra, e le sue carte con lei", async () => {
   assert.equal(riga.esito, ESEMPIO.andamento.esito);
   assert.equal(riga.su_gioco, 1);
   assert.equal(riga.rank_classe, "Gold");
-  assert.deepEqual(JSON.parse(riga.dato), ESEMPIO, "il pacchetto deve restare intero");
+  const conservato = structuredClone(ESEMPIO);
+  delete conservato.segreto_cancellazione;
+  assert.deepEqual(JSON.parse(riga.dato), conservato,
+    "il pacchetto deve restare intero salvo il segreto di cancellazione");
 });
 
 test("la stessa partita due volte conta una volta sola", async () => {

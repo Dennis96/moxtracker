@@ -3,9 +3,13 @@
 // Gira su Cloudflare Workers, con un database D1 accanto.
 // Riceve le partite e pubblica le letture necessarie al sito.
 
-import { controlla, riga, LIMITI, VERSIONE_ACCETTATA } from "./controlli.js";
+import { controlla, riga, LIMITI, VERSIONI_ACCETTATE } from "./controlli.js";
 import { leggiMeta, leggiGiocoRisposta, leggiScontri } from "./lettura.js";
 import { leggiArchetipo } from "./dettaglio-archetipo.js";
+import {
+  VERSIONI_DRAFT_ACCETTATE, collegaPartiteDraft, eliminaContributi,
+  riceviDraft, sha256, statisticheDraft,
+} from "./draft.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -23,11 +27,18 @@ function risposta(corpo, stato = 200, cache = false) {
     { status: stato, headers });
 }
 
-async function salva(db, dati, ricevuta) {
+async function salva(db, dati, ricevuta, segretoHash = null) {
   const comandi = [];
+  if (segretoHash) {
+    comandi.push(db.prepare(`INSERT OR IGNORE INTO contributori
+      (mittente, cancellazione_hash, creato) VALUES (?, ?, ?)`).bind(
+        dati[0].mittente, segretoHash, ricevuta));
+  }
   const indiciDellePartite = [];
   for (const dato of dati) {
-    const r = riga(dato, ricevuta);
+    const pulito = { ...dato };
+    delete pulito.segreto_cancellazione;
+    const r = riga(pulito, ricevuta);
     indiciDellePartite.push(comandi.length);
     comandi.push(db.prepare(
       `INSERT OR IGNORE INTO partite
@@ -101,6 +112,21 @@ async function riceviPartite(richiesta, ambiente) {
   if (buone.some((dato) => dato.mittente !== mittente)) {
     return risposta({ errore: "una richiesta, un mittente solo" }, 400);
   }
+  const segreti = [...new Set(buone.filter((d) => d.versione === 2)
+    .map((d) => d.segreto_cancellazione))];
+  if (segreti.length > 1) {
+    return risposta({ errore: "un mittente, un solo segreto di cancellazione" }, 400);
+  }
+  let segretoHash = null;
+  if (segreti.length === 1) {
+    segretoHash = await sha256(segreti[0]);
+    const contributore = await ambiente.DB.prepare(
+      "SELECT cancellazione_hash FROM contributori WHERE mittente = ?"
+    ).bind(mittente).first();
+    if (contributore && contributore.cancellazione_hash !== segretoHash) {
+      return risposta({ errore: "segreto del contributore non coerente" }, 403);
+    }
+  }
   const ieri = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const gia = await quantePerMittente(ambiente.DB, mittente, ieri);
   if (gia + buone.length > LIMITI.partitePerMittenteAlGiorno) {
@@ -112,7 +138,8 @@ async function riceviPartite(richiesta, ambiente) {
   }
 
   const ricevuta = new Date().toISOString();
-  const nuove = await salva(ambiente.DB, buone, ricevuta);
+  const nuove = await salva(ambiente.DB, buone, ricevuta, segretoHash);
+  await collegaPartiteDraft(ambiente.DRAFT_DB, buone);
   return risposta({
     accettate: nuove,
     gia_presenti: buone.length - Math.min(nuove, buone.length),
@@ -135,7 +162,8 @@ export default {
     }
 
     if (indirizzo.pathname === "/salute") {
-      return risposta({ stato: "vivo", versione_accettata: VERSIONE_ACCETTATA });
+      return risposta({ stato: "vivo", versioni_partite_accettate: VERSIONI_ACCETTATE,
+        versioni_draft_accettate: VERSIONI_DRAFT_ACCETTATE });
     }
 
     if (indirizzo.pathname === "/meta") {
@@ -164,6 +192,36 @@ export default {
         return await riceviPartite(richiesta, ambiente);
       } catch (guasto) {
         console.error("guasto ricevendo partite", guasto);
+        return risposta({ errore: "guasto del server" }, 500);
+      }
+    }
+
+    if (indirizzo.pathname === "/draft") {
+      if (richiesta.method !== "POST") return risposta({ errore: "usa POST" }, 405);
+      try {
+        return await riceviDraft(richiesta, ambiente, risposta);
+      } catch (guasto) {
+        console.error("guasto ricevendo Draft", guasto);
+        return risposta({ errore: "guasto del server" }, 500);
+      }
+    }
+
+    if (indirizzo.pathname === "/draft/statistiche") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      try {
+        return risposta(await statisticheDraft(ambiente.DRAFT_DB, indirizzo), 200, true);
+      } catch (guasto) {
+        console.error("guasto leggendo statistiche Draft", guasto);
+        return risposta({ errore: "guasto del server" }, 500);
+      }
+    }
+
+    if (indirizzo.pathname === "/contributi/elimina") {
+      if (richiesta.method !== "POST") return risposta({ errore: "usa POST" }, 405);
+      try {
+        return await eliminaContributi(richiesta, ambiente, risposta);
+      } catch (guasto) {
+        console.error("guasto cancellando contributi", guasto);
         return risposta({ errore: "guasto del server" }, 500);
       }
     }

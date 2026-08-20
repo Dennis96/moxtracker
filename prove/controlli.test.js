@@ -57,7 +57,12 @@ test("un pacchetto minimo passa: quello che manca non e' un errore", () => {
 });
 
 test("la versione sconosciuta si rifiuta invece di indovinare", () => {
-  assert.match(controlla(pacchettoBuono({ versione: 2 })), /versione/);
+  assert.equal(controlla(pacchettoBuono({
+    versione: 2, segreto_cancellazione: "d".repeat(64),
+  })), null,
+    "la v2 e' quella prodotta da Mox 2.9");
+  assert.match(controlla(pacchettoBuono({ versione: 2 })), /segreto/);
+  assert.match(controlla(pacchettoBuono({ versione: 3 })), /versione/);
   assert.match(controlla(pacchettoBuono({ versione: undefined })), /versione/);
 });
 

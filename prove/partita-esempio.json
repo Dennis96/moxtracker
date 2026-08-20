@@ -1,5 +1,5 @@
 {
-  "versione": 1,
+  "versione": 2,
   "partita": "d8e352c369",
   "evento": "Ladder",
   "formato": "Standard",
@@ -26,9 +26,10 @@
       "vinta"
     ]
   },
-  "mox": "2 beta 2.6",
+  "mox": "2 beta 2.9",
   "mittente": "00000000000000000000000000000000",
-  "quando": "2026-08-17T18:24:00Z",
+  "segreto_cancellazione": "1111111111111111111111111111111111111111111111111111111111111111",
+  "quando": "2026-08-17T20:24:00Z",
   "fuso": 120,
   "durata": 517,
   "turni": 18,

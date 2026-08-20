@@ -1,0 +1,34 @@
+import { strict as assert } from "node:assert";
+import { readFileSync } from "node:fs";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+
+const QUI = fileURLToPath(new URL(".", import.meta.url));
+const leggi = percorso => readFileSync(QUI + "../sito/" + percorso, "utf8");
+
+test("pre-lancio mantiene il download MOX disabilitato", () => {
+  assert.match(leggi("js/config.js"), /DOWNLOAD_URL = null/);
+  const home = leggi("index.html");
+  assert.equal((home.match(/data-download aria-disabled="true"/g) || []).length, 2);
+});
+
+test("pre-lancio espone beta, privacy e Draft anche nella navigazione mobile", () => {
+  for (const pagina of ["index.html", "draft.html", "archetipo.html", "privacy.html"]) {
+    const html = leggi(pagina);
+    assert.match(html, /beta-banner/);
+    assert.match(html, /privacy\.html/);
+  }
+  assert.match(leggi("index.html"), /nav-label-mobile">Draft/);
+  assert.match(leggi("css/site.css"), /nav-links a:nth-child\(n\+3\)/);
+});
+
+test("pre-lancio locale usa il proxy omonimo e produzione l'API pubblica", () => {
+  assert.match(leggi("js/config.js"), /window\.location\.origin.*\/api/);
+  assert.match(leggi("js/config.js"), /https:\/\/api\.moxtracker\.app/);
+  assert.match(leggi("_headers"), /connect-src https:\/\/api\.moxtracker\.app/);
+});
+
+test("pre-lancio compatta i matchup ancora non pubblicabili", () => {
+  assert.match(leggi("js/render.js"), /is-unavailable/);
+  assert.match(leggi("css/site.css"), /matchup-panel\.is-unavailable/);
+});

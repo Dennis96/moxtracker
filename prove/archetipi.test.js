@@ -168,4 +168,5 @@ test("piu impronte dello stesso archetipo vengono aggregate come varianti dello 
   assert.equal(gruppi[0].quota_meta, 100);
   assert.equal(gruppi[0].impronte_raggruppate, 2);
   assert.equal(gruppi[0].varianti_rilevate, 2);
+  assert.deepEqual(gruppi[0].carte_core, catalogo.liste[0].core);
 });

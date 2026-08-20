@@ -1,5 +1,6 @@
 import { deckLabel, formatDate, formatInteger, formatPercent, sampleSufficient, shortFingerprint, winRateClass } from "./format.js";
 import { classificationSummary, deckArchetypeId, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks, strategyLabel } from "./meta-model.js";
+import { createCoreStrip } from "./card-images.js";
 
 function clear(node) { while (node.firstChild) node.firstChild.remove(); }
 function el(tag, className, text) {
@@ -48,6 +49,8 @@ function renderDeckIdentity(deck, apiFilters) {
   const strategy = deckStrategy(deck);
   if (strategy) meta.append(el("span", "strategy-chip", strategyLabel(strategy)));
   if (meta.childNodes.length) text.append(meta);
+  const core = createCoreStrip(deck.carte_core || []);
+  if (core.childNodes.length) text.append(core);
   wrap.append(mark, text, el("span", "row-chevron", "›"));
   link.append(wrap);
   return link;
@@ -111,6 +114,8 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     const head = el("div", "mobile-deck-head");
     const title = el("div"); title.append(el("strong", "", deckLabel(deck)), el("small", "", classificationSummary(deck)));
     head.append(title, el("span", "", `${formatInteger(deck.partite)} pt. ›`)); card.append(head);
+    const core = createCoreStrip(deck.carte_core || []);
+    if (core.childNodes.length) card.append(core);
     const grid = el("div", "mobile-deck-grid");
     const values = [
       ["V / S", `${formatInteger(deck.vittorie)} / ${formatInteger(deck.sconfitte)}`],
@@ -133,6 +138,7 @@ export function renderMetaError(error) {
 
 export function renderScontri(data) {
   const root = document.querySelector("#matchup-state"); clear(root);
+  root.closest(".matchup-panel")?.classList.toggle("is-unavailable", data.disponibile === false);
   if (data.disponibile === false) {
     const lock = el("div", "lock", "🔒");
     const text = el("div");
@@ -147,8 +153,8 @@ export function renderScontri(data) {
   root.append(stateBlock("Matchup disponibili", `${formatInteger(count)} confronti pronti. La matrice verrà renderizzata qui.`));
 }
 export function renderScontriLoading() {
-  const root = document.querySelector("#matchup-state"); clear(root); root.append(stateBlock("Caricamento matchup", "Verifica disponibilità in corso…"));
+  const root = document.querySelector("#matchup-state"); clear(root); root.closest(".matchup-panel")?.classList.remove("is-unavailable"); root.append(stateBlock("Caricamento matchup", "Verifica disponibilità in corso…"));
 }
 export function renderScontriError(error) {
-  const root = document.querySelector("#matchup-state"); clear(root); root.append(stateBlock("Matchup non raggiungibili", error.message || "Errore di rete", "scontri"));
+  const root = document.querySelector("#matchup-state"); clear(root); root.closest(".matchup-panel")?.classList.add("is-unavailable"); root.append(stateBlock("Matchup non raggiungibili", error.message || "Errore di rete", "scontri"));
 }
