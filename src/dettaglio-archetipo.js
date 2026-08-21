@@ -86,11 +86,12 @@ function cartePerImpronta(righe) {
   return fuori;
 }
 
-function variante(riga, classificazione, carte) {
+function variante(riga, classificazione, carte, totaleMeta) {
   const impronta = String(riga.impronta || "");
   const partite = numero(riga.partite);
   const vittorie = numero(riga.vittorie);
   const pubblicabile = decklistPubblicabile(partite);
+  const sufficienti = partite >= SOGLIA_PERCENTUALI;
   const fuori = {
     origine: "osservazione_mox",
     variante_id: impronta.slice(0, 12),
@@ -99,8 +100,9 @@ function variante(riga, classificazione, carte) {
     partite,
     vittorie,
     sconfitte: partite - vittorie,
-    dati_sufficienti: partite >= SOGLIA_PERCENTUALI,
-    win_rate: partite >= SOGLIA_PERCENTUALI ? percentuale(vittorie, partite) : null,
+    dati_sufficienti: sufficienti,
+    win_rate: sufficienti ? percentuale(vittorie, partite) : null,
+    quota_meta: sufficienti ? percentuale(partite, totaleMeta) : null,
     decklist_pubblicabile: pubblicabile,
   };
   if (pubblicabile) {
@@ -159,7 +161,7 @@ export async function leggiArchetipo(db, indirizzo) {
     if (classificazione?.livello_classificazione) livelli.add(classificazione.livello_classificazione);
     partite += numero(riga.partite);
     vittorie += numero(riga.vittorie);
-    return variante(riga, classificazione, carte);
+    return variante(riga, classificazione, carte, totaleMeta);
   }).sort((a, b) => b.partite - a.partite || a.impronta.localeCompare(b.impronta));
 
   const prima = classificazioni.get(String(righe[0].impronta || ""));

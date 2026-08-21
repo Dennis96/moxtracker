@@ -10,13 +10,14 @@
   <link rel="stylesheet" href="./css/site.css">
   <link rel="stylesheet" href="./css/step53.css">
   <link rel="stylesheet" href="./css/card-images.css">
+  <link rel="stylesheet" href="./css/ui-fixes.css">
   <script type="module" src="./js/archetype.js"></script>
 </head>
 <body class="detail-page">
   <header class="site-header">
     <nav class="nav" aria-label="Navigazione principale">
       <a class="brand" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-      <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./draft.html"><span class="nav-label-desktop">Metodo Draft</span><span class="nav-label-mobile">Draft</span></a><a href="./index.html#matchup">Matchup</a><a href="./index.html#metodo">Metodo</a></div>
+      <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./draft.html"><span class="nav-label-desktop">Metodo Draft</span><span class="nav-label-mobile">Draft</span></a></div>
       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
     </nav>
   </header>
@@ -31,7 +32,7 @@
         <a id="back-to-meta" class="back-link" href="./index.html#meta">← Torna al Meta Explorer</a>
         <div id="detail-heading" class="detail-heading">
           <div class="detail-title-block">
-            <span class="eyebrow">Dettaglio meta</span>
+            <span id="detail-eyebrow" class="eyebrow">Dettaglio meta</span>
             <h1>Caricamento…</h1>
             <div id="detail-tags" class="detail-tags"></div>
           </div>
@@ -42,6 +43,62 @@
 
     <section class="detail-content">
       <div id="detail-error" class="detail-error" hidden></div>
+
+      <section id="variant-focus" class="panel variant-focus" hidden aria-labelledby="variant-focus-title">
+        <div class="variant-focus-header">
+          <div class="variant-focus-heading">
+            <span class="variant-focus-icon" aria-hidden="true">▥</span>
+            <div>
+              <span class="eyebrow">Vista statistica della variante</span>
+              <h2 id="variant-focus-title">Variante osservata</h2>
+              <p><strong id="variant-focus-parent">Archetipo</strong><span class="variant-focus-separator">•</span><span id="variant-focus-id">ID —</span><span class="variant-focus-separator">•</span><span id="variant-focus-rank">Tutti i rank</span></p>
+            </div>
+          </div>
+          <a id="variant-focus-back" class="variant-focus-back" href="#">
+            <span class="variant-focus-back-arrow" aria-hidden="true">←</span>
+            <span><strong>Torna all'archetipo</strong><span>Archetipo</span></span>
+          </a>
+        </div>
+
+        <div class="variant-focus-inner">
+          <div class="variant-focus-metrics" aria-live="polite">
+            <article class="variant-metric-card"><span>Win rate</span><strong id="variant-focus-winrate">—</strong><small id="variant-focus-threshold">Caricamento…</small></article>
+            <article class="variant-metric-card"><span>Record</span><strong id="variant-focus-record">—</strong><small>Vittorie / sconfitte</small></article>
+            <article class="variant-metric-card"><span>Partite</span><strong id="variant-focus-games">—</strong><small>Osservate su MOX</small></article>
+            <article class="variant-metric-card"><span>Quota meta</span><strong id="variant-focus-share">—</strong><small>Nel filtro corrente</small></article>
+          </div>
+
+          <div class="variant-focus-body">
+            <section class="variant-decklist-panel" aria-labelledby="variant-decklist-title">
+              <div class="variant-section-heading">
+                <div>
+                  <span class="variant-section-kicker">Lista effettivamente osservata</span>
+                  <h3 id="variant-decklist-title">Decklist della variante</h3>
+                </div>
+                <span id="variant-focus-decklist-state" class="variant-state-badge is-locked">Verifica soglia</span>
+              </div>
+              <div id="variant-focus-decklist"></div>
+            </section>
+
+            <aside class="variant-advanced-panel" aria-labelledby="variant-advanced-title">
+              <div class="variant-section-heading">
+                <div>
+                  <span class="variant-section-kicker">Dati della singola decklist</span>
+                  <h3 id="variant-advanced-title">Statistiche avanzate</h3>
+                </div>
+              </div>
+              <div class="variant-advanced-list">
+                <div class="variant-advanced-item"><span class="variant-advanced-icon" aria-hidden="true">⚔</span><div><strong>Al gioco / alla risposta</strong><small>Performance specifica della variante</small></div><span class="variant-data-state">In arrivo</span></div>
+                <div class="variant-advanced-item"><span class="variant-advanced-icon" aria-hidden="true">⌾</span><div><strong>Matchup della variante</strong><small>Contro archetipi avversari affidabili</small></div><span class="variant-data-state">In arrivo</span></div>
+                <div class="variant-advanced-item"><span class="variant-advanced-icon" aria-hidden="true">⌁</span><div><strong>Andamento nel tempo</strong><small>Trend della singola variante</small></div><span class="variant-data-state">In arrivo</span></div>
+              </div>
+            </aside>
+          </div>
+
+          <p class="variant-focus-footnote">Questa pagina contiene solo dati della variante selezionata. Le liste di riferimento del catalogo restano nella panoramica dell'archetipo.</p>
+        </div>
+      </section>
+
       <div id="detail-summary" class="summary-grid" aria-live="polite">
         <article class="summary-card"><span>Win rate</span><strong id="detail-winrate">—</strong><small id="detail-winrate-note">Caricamento…</small></article>
         <article class="summary-card"><span>Quota meta</span><strong id="detail-share">—</strong><small id="detail-share-note">Caricamento…</small></article>
@@ -49,25 +106,25 @@
         <article class="summary-card"><span>Filtro rank</span><strong id="detail-rank">—</strong><small>Dati della vista corrente</small></article>
       </div>
 
-      <div class="detail-grid">
+      <div id="detail-grid" class="detail-grid">
         <section class="panel detail-section" aria-labelledby="rank-detail-title">
           <div class="panel-inner">
             <h2 id="rank-detail-title" class="panel-title"><span class="icon" aria-hidden="true">◇</span>Rank</h2>
-            <div class="locked-feature"><strong>Distribuzione per rank</strong><p>Questa vista richiede statistiche aggregate per archetipo e rank. Verrà attivata quando l'API esporrà la serie completa.</p></div>
+            <div class="locked-feature"><strong>Distribuzione per rank</strong><p id="rank-scope-note">Questa vista richiede statistiche aggregate per archetipo e rank. Verrà attivata quando l'API esporrà la serie completa.</p></div>
           </div>
         </section>
 
         <section class="panel detail-section" aria-labelledby="initiative-detail-title">
           <div class="panel-inner">
             <h2 id="initiative-detail-title" class="panel-title magenta"><span class="icon" aria-hidden="true">⚔</span>Al gioco / alla risposta</h2>
-            <div class="locked-feature"><strong>Dato volutamente non mostrato</strong><p>Qui comparirà soltanto il dato calcolato per questo specifico archetipo, non la statistica globale di tutte le liste.</p></div>
+            <div class="locked-feature"><strong id="initiative-scope-title">Dato volutamente non mostrato</strong><p id="initiative-scope-note">Qui comparirà soltanto il dato calcolato per questo specifico archetipo, non la statistica globale di tutte le liste.</p></div>
           </div>
         </section>
 
         <section class="panel detail-section" aria-labelledby="matchup-detail-title">
           <div class="panel-inner">
             <h2 id="matchup-detail-title" class="panel-title magenta"><span class="icon" aria-hidden="true">⌾</span>Matchup</h2>
-            <div class="locked-feature"><strong>Archetipo vs archetipo</strong><p>Confronti pubblicati solo da 100 partite affidabili per coppia e quando l'archetipo avversario è identificato in modo sufficientemente affidabile.</p></div>
+            <div class="locked-feature"><strong id="matchup-scope-title">Archetipo vs archetipo</strong><p id="matchup-scope-note">Confronti pubblicati solo da 100 partite affidabili per coppia e quando l'archetipo avversario è identificato in modo sufficientemente affidabile.</p></div>
           </div>
         </section>
 
@@ -85,7 +142,7 @@
           <div class="variants-heading">
             <div>
               <h2 id="variants-title" class="panel-title"><span class="icon" aria-hidden="true">≋</span>Varianti osservate su MOX</h2>
-              <p class="panel-lead">Ogni variante è una decklist distinta osservata su MOX. Percentuali e decklist precisa vengono pubblicate quando la stessa variante raggiunge almeno 30 partite.</p>
+              <p class="panel-lead">Ogni variante è una decklist distinta osservata su MOX. Qui vedi un riepilogo rapido; apri la variante per statistiche dedicate e decklist. Percentuali e decklist precisa vengono pubblicate quando la stessa variante raggiunge almeno 30 partite.</p>
             </div>
             <span id="variants-count" class="variant-count">Caricamento…</span>
           </div>
@@ -93,10 +150,10 @@
         </div>
       </section>
 
-      <section class="panel trend-panel" aria-labelledby="trend-title">
+      <section id="trend-panel" class="panel trend-panel" aria-labelledby="trend-title">
         <div class="panel-inner">
           <h2 id="trend-title" class="panel-title"><span class="icon" aria-hidden="true">⌁</span>Andamento nel tempo</h2>
-          <div class="trend-placeholder"><div class="trend-empty" aria-hidden="true"><span>⌁</span></div><div><strong>Storico non ancora disponibile</strong><p>Il grafico apparirà quando MOXTRACKER avrà una serie temporale reale per questo archetipo. Nessuna barra viene disegnata senza dati.</p></div></div>
+          <div class="trend-placeholder"><div class="trend-empty" aria-hidden="true"><span>⌁</span></div><div><strong id="trend-scope-title">Storico non ancora disponibile</strong><p id="trend-scope-note">Il grafico apparirà quando MOXTRACKER avrà una serie temporale reale per questo archetipo. Nessuna barra viene disegnata senza dati.</p></div></div>
         </div>
       </section>
     </section>

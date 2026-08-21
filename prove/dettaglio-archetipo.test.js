@@ -49,6 +49,7 @@ test("variante riconosciuta: da 30 partite la decklist e pubblica, catalogo semp
   assert.equal(r.corpo.varianti[0].origine, "osservazione_mox");
   assert.equal(r.corpo.varianti[0].decklist_pubblicabile, true);
   assert.ok(r.corpo.varianti[0].carte.length >= 1);
+  assert.equal(r.corpo.varianti[0].quota_meta, 100);
   assert.equal("lista_riferimento_id" in r.corpo.varianti[0], true);
   assert.equal("lista_riferimento_nome" in r.corpo.varianti[0], true);
   assert.ok(r.corpo.liste_riferimento.length >= 1);
@@ -75,6 +76,7 @@ test("decklist osservata richiede 30 partite, indipendentemente dal numero di in
     assert.equal(r.corpo.tipo_dettaglio, "non_classificato");
     assert.equal(r.corpo.varianti[0].decklist_pubblicabile, caso.pubblicabile);
     assert.equal("carte" in r.corpo.varianti[0], caso.pubblicabile);
+    assert.equal(r.corpo.varianti[0].quota_meta, caso.partite >= 30 ? 100 : null);
   }
 });
 
