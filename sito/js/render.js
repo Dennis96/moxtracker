@@ -34,23 +34,31 @@ function renderDeckIdentity(deck, apiFilters) {
   link.href = deckDetailUrl(deck, apiFilters);
   const wrap = el("div", "deck");
   const archetypeId = deckArchetypeId(deck);
+  const classified = deckIsClassified(deck);
   const publicLabel = deckLabel(deck);
   const publicWords = publicLabel.split(/[-_\s]+/).filter(Boolean);
-  const markText = deck.impronta
-    ? shortFingerprint(deck.impronta, 2).toUpperCase()
-    : publicWords.slice(0, 2).map(x => x[0]).join("").toUpperCase();
+  const markText = classified
+    ? publicWords.slice(0, 2).map(x => x[0]).join("").toUpperCase()
+    : "NC";
   const mark = el("span", "deck-mark", markText || "AR");
-  mark.title = deck.impronta || archetypeId || "Archetipo";
+  mark.title = classified ? (archetypeId || "Archetipo riconosciuto") : "Mazzo non classificato";
   const text = el("span", "deck-copy");
-  text.append(el("strong", "deck-name", deckLabel(deck)));
-  if (!deckIsClassified(deck)) text.append(el("small", "", classificationSummary(deck)));
+  text.append(el("strong", "deck-name", publicLabel));
+  if (!classified) {
+    text.append(el("small", "", classificationSummary(deck)));
+    if (deck.impronta) text.append(el("small", "", `ID tecnico ${shortFingerprint(deck.impronta)}`));
+  }
   const meta = el("span", "deck-tags");
-  for (const color of deckColors(deck)) meta.append(el("span", `mini-color mini-${color.toLowerCase()}`, color));
-  const strategy = deckStrategy(deck);
-  if (strategy) meta.append(el("span", "strategy-chip", strategyLabel(strategy)));
+  if (classified) {
+    for (const color of deckColors(deck)) meta.append(el("span", `mini-color mini-${color.toLowerCase()}`, color));
+    const strategy = deckStrategy(deck);
+    if (strategy) meta.append(el("span", "strategy-chip", strategyLabel(strategy)));
+  }
   if (meta.childNodes.length) text.append(meta);
-  const core = createCoreStrip(deck.carte_core || []);
-  if (core.childNodes.length) text.append(core);
+  if (classified) {
+    const core = createCoreStrip(deck.carte_core || []);
+    if (core.childNodes.length) text.append(core);
+  }
   wrap.append(mark, text, el("span", "row-chevron", "›"));
   link.append(wrap);
   return link;
@@ -110,18 +118,23 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
 
   const mobile = el("div", "mobile-meta");
   for (const deck of decks) {
+    const classified = deckIsClassified(deck);
     const card = el("a", "mobile-deck"); card.href = deckDetailUrl(deck, apiFilters);
     const head = el("div", "mobile-deck-head");
-    const title = el("div"); title.append(el("strong", "", deckLabel(deck)), el("small", "", classificationSummary(deck)));
+    const title = el("div");
+    title.append(el("strong", "", deckLabel(deck)), el("small", "", classificationSummary(deck)));
+    if (!classified && deck.impronta) title.append(el("small", "", `ID tecnico ${shortFingerprint(deck.impronta)}`));
     head.append(title, el("span", "", `${formatInteger(deck.partite)} pt. ›`)); card.append(head);
-    const core = createCoreStrip(deck.carte_core || []);
-    if (core.childNodes.length) card.append(core);
+    if (classified) {
+      const core = createCoreStrip(deck.carte_core || []);
+      if (core.childNodes.length) card.append(core);
+    }
     const grid = el("div", "mobile-deck-grid");
     const values = [
       ["V / S", `${formatInteger(deck.vittorie)} / ${formatInteger(deck.sconfitte)}`],
       ["Win rate", sampleSufficient(deck) ? formatPercent(deck.win_rate) : "Dati insufficienti"],
       ["Quota meta", sampleSufficient(deck) ? formatPercent(deck.quota_meta) : "Dati insufficienti"],
-      [deck.impronta ? "ID" : "Modalità", deck.impronta ? shortFingerprint(deck.impronta) : (deckMode(deck) || "—")],
+      [deck.impronta && !classified ? "ID tecnico" : "Modalità", deck.impronta && !classified ? shortFingerprint(deck.impronta) : (deckMode(deck) || "—")],
     ];
     for (const [label, value] of values) { const metric = el("div", "mobile-metric"); metric.append(el("span", "", label), el("strong", "", value)); grid.append(metric); }
     card.append(grid); mobile.append(card);

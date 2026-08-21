@@ -7,68 +7,127 @@ import server from "../src/index.js";
 
 const QUI = fileURLToPath(new URL(".", import.meta.url));
 const SCHEMA = QUI + "../schema.sql";
-const IMPRONTA = "4".repeat(64);
+const IMPRONTA_RICONOSCIUTA = "4".repeat(64);
+const IMPRONTA_SCONOSCIUTA = "e".repeat(64);
+const CARTA_FIXTURE = 51307; // Ethereal Armor: nome e Arena ID non devono filtrare sotto soglia.
 
-function preparaMonoWhite(db) {
-  db.prepare(`INSERT INTO partite
-    (id, mittente, ricevuta, formato, esito, su_gioco, rank_classe,
-     impronta_mazzo, versione, dato)
-    VALUES (?, ?, ?, 'Standard', 'vinta', 1, 'Gold', ?, 1, '{}')`)
-    .bind("a000000001", "f".repeat(32), "2026-08-19T10:00:00Z", IMPRONTA).esegui();
-
-  const carte = [
-    [51307, 4],   // Ethereal Armor
-    [92081, 4],   // Optimistic Scavenger
-    [92090, 4],   // Sheltered by Ghosts
-    [97823, 4],   // Origin of Spider-Man
-    [97964, 4],   // Skyward Spider
-    [91549, 2],   // Feather of Flight
-    [92089, 2],   // Shardmage's Rescue
-    [66499, 20],  // Plains
-  ];
-  for (const [carta, copie] of carte) {
-    db.prepare("INSERT INTO carte_mazzo (partita, carta, copie) VALUES (?, ?, ?)")
-      .bind("a000000001", carta, copie).esegui();
+function inserisciPartite(db, {
+  impronta, partite, contributori, carte = [], prefisso = "m",
+}) {
+  for (let i = 0; i < partite; i += 1) {
+    const id = `${prefisso}${String(i).padStart(9, "0")}`;
+    const mittente = `contributore-${i % contributori}`;
+    db.prepare(`INSERT INTO partite
+      (id, mittente, ricevuta, formato, esito, su_gioco, rank_classe,
+       impronta_mazzo, versione, dato)
+      VALUES (?, ?, ?, 'Standard', 'vinta', 1, 'Gold', ?, 1, '{}')`)
+      .bind(id, mittente, "2026-08-19T10:00:00Z", impronta).esegui();
+    if (i === 0) {
+      for (const [carta, copie] of carte) {
+        db.prepare("INSERT INTO carte_mazzo (partita, carta, copie) VALUES (?, ?, ?)")
+          .bind(id, carta, copie).esegui();
+      }
+    }
   }
 }
 
+const CARTE_AURE = [
+  [51307, 4], [92081, 4], [92090, 4], [97823, 4], [97964, 4],
+  [91549, 2], [92089, 2], [66499, 20],
+];
+
 function url(path) { return new URL("https://x.invalid" + path); }
 
-test("dettaglio archetipo separa nome canonico, varianti osservate e riferimenti", async () => {
+test("variante riconosciuta: da 30 partite la decklist e pubblica, catalogo sempre separato", async () => {
   const db = creaFintoD1(SCHEMA);
-  preparaMonoWhite(db);
+  inserisciPartite(db, {
+    impronta: IMPRONTA_RICONOSCIUTA, partite: 40, contributori: 1, carte: CARTE_AURE,
+  });
   const r = await leggiArchetipo(db, url("/archetipo?formato=Standard&id=aure-mono-bianco"));
   assert.equal(r.stato, 200);
-  assert.equal(r.corpo.archetipo_id, "aure-mono-bianco");
   assert.equal(r.corpo.nome, "Mono White Auras");
-  assert.equal(r.corpo.partite, 1);
-  assert.equal(r.corpo.dati_sufficienti, false);
-  assert.equal(r.corpo.win_rate, null);
-  assert.equal(r.corpo.varianti_osservate, 1);
-  assert.equal(r.corpo.varianti[0].impronta, IMPRONTA);
-  assert.ok(r.corpo.varianti[0].carte.length >= 8);
+  assert.equal(r.corpo.varianti[0].origine, "osservazione_mox");
+  assert.equal(r.corpo.varianti[0].decklist_pubblicabile, true);
+  assert.ok(r.corpo.varianti[0].carte.length >= 1);
+  assert.equal(r.corpo.varianti[0].quota_meta, 100);
+  assert.equal("lista_riferimento_id" in r.corpo.varianti[0], true);
+  assert.equal("lista_riferimento_nome" in r.corpo.varianti[0], true);
   assert.ok(r.corpo.liste_riferimento.length >= 1);
+  assert.equal(r.corpo.liste_riferimento[0].origine, "catalogo_reference");
   assert.ok(r.corpo.liste_riferimento[0].lista.length >= 1);
 });
 
-test("dettaglio archetipo rispetta il filtro rank", async () => {
+test("decklist osservata richiede 30 partite, indipendentemente dal numero di installazioni", async () => {
+  const casi = [
+    { partite: 29, contributori: 10, pubblicabile: false },
+    { partite: 30, contributori: 1, pubblicabile: true },
+    { partite: 60, contributori: 1, pubblicabile: true },
+  ];
+  for (const caso of casi) {
+    const db = creaFintoD1(SCHEMA);
+    inserisciPartite(db, {
+      impronta: IMPRONTA_SCONOSCIUTA, ...caso, carte: [[CARTA_FIXTURE, 4]],
+    });
+    const r = await leggiArchetipo(db,
+      url(`/archetipo?formato=Standard&impronta=${IMPRONTA_SCONOSCIUTA}`));
+    assert.equal(r.stato, 200);
+    assert.equal(r.corpo.nome, "Mazzo non classificato");
+    assert.equal(r.corpo.archetipo_id, null);
+    assert.equal(r.corpo.tipo_dettaglio, "non_classificato");
+    assert.equal(r.corpo.varianti[0].decklist_pubblicabile, caso.pubblicabile);
+    assert.equal("carte" in r.corpo.varianti[0], caso.pubblicabile);
+    assert.equal(r.corpo.varianti[0].quota_meta, caso.partite >= 30 ? 100 : null);
+  }
+});
+
+test("risposta sotto soglia non serializza carte, Arena ID o contributor", async () => {
   const db = creaFintoD1(SCHEMA);
-  preparaMonoWhite(db);
-  const r = await leggiArchetipo(db, url("/archetipo?formato=Standard&id=aure-mono-bianco&rank=Silver"));
-  assert.equal(r.stato, 404);
+  inserisciPartite(db, {
+    impronta: IMPRONTA_SCONOSCIUTA, partite: 29, contributori: 1,
+    carte: [[CARTA_FIXTURE, 4]],
+  });
+  const r = await leggiArchetipo(db,
+    url(`/archetipo?formato=Standard&impronta=${IMPRONTA_SCONOSCIUTA}`));
+  const testo = JSON.stringify(r.corpo);
+  assert.equal(testo.includes(String(CARTA_FIXTURE)), false);
+  assert.equal(testo.includes("Ethereal Armor"), false);
+  assert.equal(testo.includes("mittente"), false);
+  assert.equal(testo.includes("contributore-0"), false);
+  assert.equal(testo.includes("contributori"), false);
+});
+
+test("impronta valida apre il dettaglio e una malformata viene rifiutata", async () => {
+  const db = creaFintoD1(SCHEMA);
+  inserisciPartite(db, {
+    impronta: IMPRONTA_SCONOSCIUTA, partite: 30, contributori: 1,
+    carte: [[CARTA_FIXTURE, 4]],
+  });
+  const buona = await leggiArchetipo(db,
+    url(`/archetipo?formato=Standard&impronta=${IMPRONTA_SCONOSCIUTA}`));
+  assert.equal(buona.stato, 200);
+  assert.equal(buona.corpo.varianti[0].carte[0].arena_id, CARTA_FIXTURE);
+  const cattiva = await leggiArchetipo(db,
+    url("/archetipo?formato=Standard&impronta=not-hex"));
+  assert.equal(cattiva.stato, 400);
 });
 
 test("la strada pubblica /archetipo usa GET", async () => {
   const db = creaFintoD1(SCHEMA);
-  preparaMonoWhite(db);
-  const richiesta = new Request("https://x.invalid/archetipo?formato=Standard&id=aure-mono-bianco", { method: "GET" });
+  inserisciPartite(db, {
+    impronta: IMPRONTA_SCONOSCIUTA, partite: 30, contributori: 1,
+    carte: [[CARTA_FIXTURE, 4]],
+  });
+  const richiesta = new Request(
+    `https://x.invalid/archetipo?formato=Standard&impronta=${IMPRONTA_SCONOSCIUTA}`,
+    { method: "GET" },
+  );
   const risposta = await server.fetch(richiesta, { DB: db });
   const corpo = await risposta.json();
   assert.equal(risposta.status, 200);
-  assert.equal(corpo.nome, "Mono White Auras");
+  assert.equal(corpo.nome, "Mazzo non classificato");
 });
 
-test("archetipo richiede id valido", async () => {
+test("archetipo richiede id o impronta validi", async () => {
   const db = creaFintoD1(SCHEMA);
   const r = await leggiArchetipo(db, url("/archetipo?formato=Standard"));
   assert.equal(r.stato, 400);

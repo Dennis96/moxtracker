@@ -46,6 +46,7 @@ test("meta nasconde percentuali sotto 30 e le mostra da 30", async () => {
   assert.equal(r.corpo.mazzi[1].partite, 29);
   assert.equal(r.corpo.mazzi[1].win_rate, null);
   assert.equal(r.corpo.mazzi[1].quota_meta, null);
+  assert.equal(r.corpo.mazzi[0].nome, "Mazzo non classificato");
 });
 
 test("meta filtra il rank", async () => {

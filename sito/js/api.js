@@ -25,8 +25,11 @@ function query({ formato, rank }) {
 export function fetchMeta(filters, options) {
   return request(`/meta?${query(filters)}`, options);
 }
-export function fetchArchetipo({ formato, rank, id }, options) {
-  const params = new URLSearchParams({ formato, id });
+export function fetchArchetipo({ formato, rank, id, impronta }, options) {
+  const params = new URLSearchParams({ formato });
+  if (id) params.set("id", id);
+  else if (impronta) params.set("impronta", impronta);
+  else throw new Error("Serve id archetipo oppure impronta");
   if (rank) params.set("rank", rank);
   return request(`/archetipo?${params.toString()}`, options);
 }

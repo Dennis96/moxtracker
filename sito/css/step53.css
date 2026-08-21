@@ -2,12 +2,18 @@
 .variants-heading { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:14px; }
 .variant-count { flex:0 0 auto; padding:7px 11px; border:1px solid var(--line-strong); border-radius:999px; color:#c879ff; font-size:.74rem; font-weight:800; }
 .variants-list { display:grid; gap:10px; }
-.variant-card { border:1px solid var(--line); border-radius:11px; background:var(--surface-2); overflow:hidden; }
+.variant-card { border:1px solid var(--line); border-radius:11px; background:var(--surface-2); overflow:hidden; transition:border-color .15s ease, box-shadow .15s ease; }
 .variant-head { display:flex; justify-content:space-between; gap:20px; align-items:center; padding:14px 16px; }
 .variant-head > div:first-child { display:flex; flex-direction:column; gap:4px; }
+.variant-head-right { display:flex; align-items:center; gap:12px; }
 .variant-head small, .variant-note, .reference-meta { color:var(--muted); }
-.variant-metrics { display:flex; gap:18px; text-align:right; color:var(--muted); font-size:.78rem; }
+.variant-metrics { display:flex; gap:16px; text-align:right; color:var(--muted); font-size:.78rem; }
 .variant-metrics b { color:var(--text); }
+.variant-summary-status { flex:0 0 auto; padding:5px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:.68rem; font-weight:800; }
+.variant-summary-status.is-public { color:#75e3c6; border-color:rgba(95,218,186,.32); background:rgba(44,165,135,.07); }
+.variant-summary-status.is-locked { color:#d19a62; border-color:rgba(216,151,84,.3); background:rgba(180,110,45,.06); }
+.variant-open { flex:0 0 auto; padding:8px 11px; border:1px solid var(--line-strong); border-radius:8px; color:#c879ff; font-size:.76rem; font-weight:800; text-decoration:none; white-space:nowrap; }
+.variant-open:hover { background:rgba(200,121,255,.08); }
 .variant-details, .reference-details { border-top:1px solid var(--line); }
 .variant-details summary, .reference-details summary { cursor:pointer; padding:12px 16px; color:#c879ff; font-weight:750; }
 .decklist-cards { list-style:none; margin:0; padding:8px 16px 16px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px 14px; }
@@ -23,12 +29,149 @@
 .reference-decklist li { break-inside:avoid; margin:0 0 5px; }
 .sideboard-title { display:block; padding:5px 16px 8px; }
 .reference-meta { margin:0; padding:0 16px 14px; font-size:.72rem; }
+.variant-tag, .parent-archetype-tag { border-color:var(--line-strong); color:#c879ff; }
+
+/* Vista dedicata della singola variante: volutamente diversa dalla panoramica archetipo. */
+.variant-focus { border-color:rgba(183,87,255,.42); background:linear-gradient(180deg, color-mix(in srgb, var(--surface) 94%, rgba(135,48,255,.08)), var(--surface)); }
+/* I layout grid/flex della panoramica possono prevalere sullo stile
+   [hidden] del browser. Quando JS seleziona una variante, questi blocchi
+   devono sparire davvero. */
+#detail-summary[hidden],
+#detail-grid[hidden],
+#variants-panel[hidden],
+#trend-panel[hidden],
+#reference-panel[hidden],
+#variant-focus[hidden] { display:none !important; }
+.variant-focus-header { min-height:112px; display:flex; align-items:center; justify-content:space-between; gap:22px; padding:20px 22px; border-bottom:1px solid rgba(190,105,255,.26); background:linear-gradient(110deg, rgba(112,32,177,.27), rgba(62,22,102,.13) 52%, rgba(21,13,37,.08)); }
+.variant-focus-heading { display:flex; align-items:center; gap:16px; min-width:0; }
+.variant-focus-icon { width:54px; height:54px; flex:0 0 auto; display:grid; place-items:center; border:1px solid rgba(197,112,255,.34); border-radius:12px; color:#cf7dff; background:rgba(144,46,216,.12); font-size:1.45rem; box-shadow:inset 0 0 18px rgba(173,68,255,.08); }
+.variant-focus-heading .eyebrow { margin:0 0 4px; }
+.variant-focus-heading h2 { margin:0; font-size:clamp(1.45rem, 2.4vw, 2.15rem); letter-spacing:-.025em; }
+.variant-focus-heading p { display:flex; flex-wrap:wrap; gap:7px; margin:6px 0 0; color:var(--muted); font-size:.78rem; }
+.variant-focus-heading p strong { color:var(--text); }
+.variant-focus-separator { opacity:.55; }
+.variant-focus-back { flex:0 0 auto; min-width:190px; display:flex; align-items:center; gap:10px; padding:10px 13px; border:1px solid rgba(86,220,198,.42); border-radius:10px; background:rgba(34,148,131,.08); color:#82e9d7; text-decoration:none; }
+.variant-focus-back:hover { background:rgba(34,148,131,.13); }
+.variant-focus-back-arrow { font-size:1.2rem; font-weight:900; }
+.variant-focus-back > span:last-child { display:flex; flex-direction:column; gap:2px; }
+.variant-focus-back strong { font-size:.82rem; }
+.variant-focus-back span span { color:color-mix(in srgb, #82e9d7 72%, var(--muted)); font-size:.7rem; }
+.variant-focus-inner { padding:18px; }
+.variant-focus-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.variant-metric-card { min-height:106px; padding:15px; border:1px solid var(--line); border-radius:11px; background:var(--surface-2); }
+.variant-metric-card > span { display:block; color:var(--muted); font-size:.7rem; font-weight:850; text-transform:uppercase; letter-spacing:.045em; }
+.variant-metric-card > strong { display:block; margin:8px 0 3px; color:#ca69ff; font-size:clamp(1.35rem,2.3vw,2rem); letter-spacing:-.03em; }
+.variant-metric-card small { color:var(--muted); font-size:.72rem; }
+.variant-focus-body { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(300px,.75fr); gap:12px; margin-top:12px; }
+.variant-decklist-panel, .variant-advanced-panel { min-width:0; border:1px solid var(--line); border-radius:11px; background:var(--surface-2); overflow:hidden; }
+.variant-section-heading { min-height:72px; display:flex; justify-content:space-between; align-items:center; gap:14px; padding:14px 16px; border-bottom:1px solid var(--line); }
+.variant-section-kicker { display:block; margin-bottom:3px; color:#b96bff; font-size:.66rem; font-weight:850; text-transform:uppercase; letter-spacing:.055em; }
+.variant-section-heading h3 { margin:0; font-size:1rem; }
+.variant-state-badge { flex:0 0 auto; padding:5px 8px; border:1px solid var(--line); border-radius:999px; font-size:.68rem; font-weight:850; }
+.variant-state-badge.is-public { color:#75e3c6; border-color:rgba(95,218,186,.32); background:rgba(44,165,135,.07); }
+.variant-state-badge.is-locked { color:#d19a62; border-color:rgba(216,151,84,.3); background:rgba(180,110,45,.06); }
+#variant-focus-decklist { padding:12px; }
+.variant-focus-card-list { margin:0; padding:0; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.variant-decklist-locked { min-height:150px; }
+.variant-advanced-list { display:grid; gap:0; }
+.variant-advanced-item { min-height:82px; display:grid; grid-template-columns:38px minmax(0,1fr) auto; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px solid var(--line); }
+.variant-advanced-item:last-child { border-bottom:0; }
+.variant-advanced-icon { width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line-strong); border-radius:9px; color:#c96dff; background:rgba(145,48,216,.07); }
+.variant-advanced-item div { min-width:0; }
+.variant-advanced-item strong { display:block; font-size:.8rem; }
+.variant-advanced-item small { display:block; margin-top:3px; color:var(--muted); font-size:.68rem; line-height:1.35; }
+.variant-data-state { padding:4px 7px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:.64rem; white-space:nowrap; }
+.variant-focus-footnote { margin:12px 2px 0; padding:10px 12px; border:1px solid rgba(190,105,255,.18); border-radius:9px; background:rgba(122,43,192,.045); color:var(--muted); font-size:.74rem; }
+
+.detail-page.variant-mode .detail-hero { min-height:235px; }
+.detail-page.variant-mode .detail-hero-inner { padding-top:24px; padding-bottom:18px; }
+.detail-page.variant-mode .detail-heading { min-height:140px; }
+.detail-page.variant-mode .detail-heading h1 { font-size:clamp(2.25rem,4.6vw,4.2rem); }
+.detail-page.variant-mode .detail-heading > img { max-height:160px; width:min(17vw,225px); }
+
+@media (max-width:1100px) {
+  .variant-focus-body { grid-template-columns:1fr; }
+  .variant-focus-metrics { grid-template-columns:repeat(2,1fr); }
+}
 @media (max-width:980px) {
   .decklist-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .variant-head-right { align-items:flex-end; flex-direction:column; }
 }
 @media (max-width:720px) {
-  .variants-heading, .variant-head { flex-direction:column; align-items:flex-start; }
-  .variant-metrics { text-align:left; }
-  .decklist-cards { grid-template-columns:1fr; }
+  .variants-heading, .variant-head, .variant-focus-header { flex-direction:column; align-items:flex-start; }
+  .variant-head-right { width:100%; align-items:flex-start; }
+  .variant-metrics { width:100%; flex-wrap:wrap; text-align:left; }
+  .variant-open { width:100%; text-align:center; }
+  .variant-focus-back { width:100%; }
+  .variant-focus-inner { padding:12px; }
+  .variant-focus-metrics { grid-template-columns:1fr 1fr; }
+  .variant-focus-heading { align-items:flex-start; }
+  .variant-focus-icon { width:44px; height:44px; }
+  .variant-focus-card-list, .decklist-cards { grid-template-columns:1fr; }
+  .variant-advanced-item { grid-template-columns:36px minmax(0,1fr); }
+  .variant-data-state { grid-column:2; justify-self:start; }
   .reference-decklist { columns:1; }
+  .detail-page.variant-mode .detail-heading { min-height:125px; }
+}
+
+/* Contrasto tema chiaro: la hero dettaglio resta volutamente scura, quindi
+   titolo, navigazione e badge devono mantenere un primo piano chiaro. */
+html[data-theme="light"] .detail-hero .back-link {
+  color: rgba(249,247,255,.78);
+}
+html[data-theme="light"] .detail-hero .back-link:hover {
+  color: #fff;
+}
+html[data-theme="light"] .detail-hero .detail-heading h1 {
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0,0,0,.42);
+}
+html[data-theme="light"] .detail-hero .detail-title-block .eyebrow {
+  color: #d993ff;
+}
+html[data-theme="light"] .detail-hero .detail-tag:not(.color-tag) {
+  color: #e6c4ff;
+  border-color: rgba(218,159,255,.42);
+  background: rgba(124,44,255,.14);
+}
+html[data-theme="light"] .detail-hero .detail-tag.pending-tag {
+  color: #ffe1a3;
+  border-color: rgba(255,213,128,.42);
+  background: rgba(153,103,25,.16);
+}
+
+/* La scheda variante in tema chiaro usa superfici chiare: aumentiamo il
+   contrasto dei viola e soprattutto del comando di ritorno all'archetipo. */
+html[data-theme="light"] .variant-focus-header {
+  background: linear-gradient(110deg, rgba(175,93,224,.22), rgba(245,239,250,.96) 52%, rgba(255,255,255,.72));
+  border-bottom-color: rgba(135,61,177,.24);
+}
+html[data-theme="light"] .variant-focus-icon {
+  color: #842bb7;
+  border-color: rgba(127,44,174,.34);
+  background: rgba(136,52,185,.09);
+}
+html[data-theme="light"] .variant-focus-heading .eyebrow,
+html[data-theme="light"] .variant-section-kicker {
+  color: #842bb7;
+}
+html[data-theme="light"] .variant-metric-card > strong {
+  color: #a236cf;
+}
+html[data-theme="light"] .variant-focus-back {
+  color: #0c6d62;
+  border-color: rgba(20,128,114,.46);
+  background: rgba(27,155,138,.11);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.38);
+}
+html[data-theme="light"] .variant-focus-back:hover {
+  color: #07584f;
+  border-color: rgba(12,105,94,.62);
+  background: rgba(27,155,138,.17);
+}
+html[data-theme="light"] .variant-focus-back strong {
+  color: inherit;
+}
+html[data-theme="light"] .variant-focus-back span span {
+  color: #376f68;
 }

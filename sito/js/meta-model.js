@@ -1,4 +1,4 @@
-import { deckLabel } from "./format.js";
+import { deckLabel, UNCLASSIFIED_DECK_NAME } from "./format.js";
 
 export const COLORS = ["W", "U", "B", "R", "G"];
 
@@ -29,11 +29,15 @@ export function strategyLabel(value) {
 }
 
 export function deckIsClassified(deck) {
-  return Boolean(deckArchetypeId(deck) || deck?.archetipo || deck?.nome || deckColors(deck).length || deckStrategy(deck));
+  if (deck?.tipo_dettaglio === "non_classificato") return false;
+  if (deck?.nome === UNCLASSIFIED_DECK_NAME || deck?.archetipo === UNCLASSIFIED_DECK_NAME) {
+    return Boolean(deckArchetypeId(deck));
+  }
+  return Boolean(deckArchetypeId(deck) || deck?.tipo_dettaglio === "riconosciuto");
 }
 
 export function classificationSummary(deck) {
-  if (!deckIsClassified(deck)) return "Classificazione archetipo in attesa";
+  if (!deckIsClassified(deck)) return "Archetipo non ancora confermato";
   const bits = [];
   const colors = deckColors(deck);
   const strategy = deckStrategy(deck);
@@ -42,6 +46,12 @@ export function classificationSummary(deck) {
   if (strategy) bits.push(strategyLabel(strategy));
   if (mode) bits.push(mode);
   return bits.join(" • ") || "Archetipo riconosciuto";
+}
+
+export function observedDecklistCards(item) {
+  if (item?.origine !== "osservazione_mox") return [];
+  if (item?.decklist_pubblicabile !== true) return [];
+  return Array.isArray(item?.carte) ? item.carte : [];
 }
 
 export function availableStrategies(decks) {
@@ -86,9 +96,12 @@ export function deckDetailUrl(deck, apiFilters = {}) {
   if (apiFilters.formato) params.set("formato", apiFilters.formato);
   if (apiFilters.rank) params.set("rank", apiFilters.rank);
   const id = deckArchetypeId(deck);
-  if (id) params.set("id", id);
+  if (id) {
+    params.set("id", id);
+  } else if (typeof deck?.impronta === "string" && deck.impronta.trim()) {
+    params.set("impronta", deck.impronta.trim());
+  }
   const mode = deckMode(deck);
   if (mode) params.set("modalita", mode);
-  if (deck?.impronta) params.set("impronta", deck.impronta);
   return `./archetipo.html?${params.toString()}`;
 }
