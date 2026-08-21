@@ -15,7 +15,8 @@ collegato.
   pubblicabili;
 - anteprima `npm run sito-locale`, che inoltra in sola lettura le richieste
   `/api` all'API pubblica senza inviare partite o Draft;
-- pulsanti “Scarica MOX” ancora disattivati per decisione dell'utente;
+- pulsanti “Scarica MOX” collegati alla release GitHub più recente, con un nome
+  asset stabile che non cambia a ogni beta;
 - quattro prove permanenti dedicate al pre-lancio.
 
 ## Verifiche
@@ -27,13 +28,13 @@ collegato.
 - Privacy mobile: sei sezioni, nessun overflow;
 - Metodo Draft desktop: API raggiungibile, 0 pick e stato vuoto corretto,
   nessun errore di rete o numero inventato;
-- due pulsanti download ancora `aria-disabled=true` e `DOWNLOAD_URL=null`.
+- due pulsanti download attivi verso `Mox-Windows-beta.zip` nella release
+  GitHub indicata come più recente.
 
 ## Prima del dominio principale
 
 1. aggiungere un contatto privacy dedicato;
 2. completare Draft reali Premier/Quick/Prendi Due;
-3. decidere e creare la release pubblica soltanto quando la beta è pronta;
-4. impostare allora `DOWNLOAD_URL`;
-5. raccogliere e correggere i feedback della beta;
-6. riesaminare le modifiche e collegare infine `moxtracker.app`.
+3. pubblicare ogni nuova beta nello stesso asset stabile GitHub;
+4. raccogliere e correggere i feedback della beta;
+5. riesaminare le modifiche e collegare infine `moxtracker.app`.

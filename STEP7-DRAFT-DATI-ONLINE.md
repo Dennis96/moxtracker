@@ -1,7 +1,8 @@
 # Step 7 — raccolta Draft online e Laboratorio Draft
 
-Implementato e pubblicato sul Worker il 20/08/2026. Le modifiche restano non
-committate e il sito/Pages non è stato pubblicato.
+Implementato e pubblicato sul Worker il 20/08/2026. Il sito beta è stato poi
+pubblicato su Pages; la copia locale può restare non committata fino al
+riesame e al commit deliberati.
 
 ## Contratto
 

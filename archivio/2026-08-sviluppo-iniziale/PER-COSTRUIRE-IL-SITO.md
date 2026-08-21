@@ -3,8 +3,8 @@
 > **Specifica storica del 18/08/2026.** È il brief con cui ChatGPT Chat ha
 > costruito la prima versione del sito. Le sezioni che dicono che endpoint e
 > pagine «mancano» descrivono quel momento e oggi non sono più vere. Per lo
-> stato corrente usare [LEGGIMI.md](LEGGIMI.md) e
-> [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md). Regole su privacy, soglie e dati
+> stato corrente usare [LEGGIMI.md](../../LEGGIMI.md) e
+> [DOCUMENTAZIONE.md](../../DOCUMENTAZIONE.md). Regole su privacy, soglie e dati
 > restano valide finché un documento corrente non le modifica esplicitamente.
 
 ## Cos'è moxtracker, in una frase

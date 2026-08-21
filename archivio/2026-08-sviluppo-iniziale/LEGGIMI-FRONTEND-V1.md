@@ -2,7 +2,7 @@
 
 > **Passaggio storico.** I file descritti qui sono già stati integrati nel
 > repository. Lo sviluppo è poi arrivato allo Step 6.1.1; per lo stato corrente
-> usare [LEGGIMI.md](LEGGIMI.md) e [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
+> usare [LEGGIMI.md](../../LEGGIMI.md) e [DOCUMENTAZIONE.md](../../DOCUMENTAZIONE.md).
 
 Questa era la prima consegna: conteneva solo file frontend e un test, senza
 modificare `src/`, `schema.sql` o `wrangler.toml`.
@@ -37,7 +37,9 @@ Poi apri `http://127.0.0.1:8790`. In locale non usare `wrangler pages dev` dalla
 
 ## Download MOX
 
-Il pulsante `Scarica MOX` è intenzionalmente disabilitato finché non viene definito un URL reale.
+Il pulsante `Scarica MOX` punta all'asset stabile `Mox-Windows-beta.zip` della
+release GitHub più recente; aggiornando la release il collegamento del sito non
+cambia.
 Quando sarà disponibile, modificare solamente:
 
 ```text

@@ -1,6 +1,6 @@
 # moxtracker — server, meta e sito di Mox
 
-> Stato verificato il **20/08/2026**. L'indice dei documenti è in
+> Stato verificato il **21/08/2026**. L'indice dei documenti è in
 > [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
 
 moxtracker è la parte online di Mox. Riceve, solo con consenso, le partite che
@@ -23,14 +23,15 @@ gli archetipi dalle carte e offre dati aggregati al sito.
   principale e pensato per i feedback iniziali.
 - **Dominio:** `moxtracker.app` è stato comprato, ma al 20/08/2026 non è ancora
   collegato al frontend.
-- **Step 6.1.1:** immagini `art_crop` e correzione della cache completate in
-  locale. Le modifiche restano volutamente non committate e non pubblicate
-  finché lo sviluppo non viene dichiarato concluso.
+- **Step 6.1.1:** immagini `art_crop` e correzione della cache sono online
+  sulla beta Pages e funzionano nel Meta Explorer. Le modifiche possono restare
+  non committate nella copia locale: lo stato Git e la pubblicazione della beta
+  sono due cose distinte.
 - **Step 7:** Worker, D1 Draft, R2, lifecycle e cancellazione sono online e
   collaudati; resta da impostare dal pannello l'avviso spesa a 1 dollaro.
 - **Pre-lancio sito:** banner beta, Privacy, Draft raggiungibile da mobile,
   Matchup compatto senza dati e anteprima locale con aggregati reali completati.
-  Il download resta intenzionalmente disattivato.
+  Il download punta all'asset stabile della release GitHub più recente.
 
 Il Worker pubblico restituisce anche `carte_core`; il frontend può quindi
 mostrare colori, strategia e immagini degli archetipi riconosciuti.
@@ -103,11 +104,12 @@ richieste `/api` all'API pubblica, senza inviare partite o Draft.
 4. committare e inviare il ramo soltanto quando la consegna è pronta;
 5. pubblicare prima il Worker se il frontend dipende da nuovi campi;
 6. verificare la beta Pages e collegare `moxtracker.app` solo dopo i feedback;
-7. impostare in `sito/js/config.js` l'URL reale del download di Mox;
+7. verificare che l'asset stabile `Mox-Windows-beta.zip` appartenga alla release
+   GitHub più recente;
 8. controllare desktop, mobile, privacy, soglie e assenza di numeri finti.
 
-Il pulsante di download non va attivato finché la beta non supera anche i
-Draft reali completi concordati con l'utente.
+Il pulsante di download è stato attivato per la beta controllata dopo il primo
+Draft reale Prendi Due e il fix 2.9.1; il dominio principale resta separato.
 
 Non eseguire `npm run database-vero` o `npm run pubblica` come semplice prova:
 scrivono sul servizio Cloudflare reale.

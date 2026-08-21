@@ -6,10 +6,12 @@ import { fileURLToPath } from "node:url";
 const QUI = fileURLToPath(new URL(".", import.meta.url));
 const leggi = percorso => readFileSync(QUI + "../sito/" + percorso, "utf8");
 
-test("pre-lancio mantiene il download MOX disabilitato", () => {
-  assert.match(leggi("js/config.js"), /DOWNLOAD_URL = null/);
+test("pre-lancio collega il download MOX alla release GitHub piu recente", () => {
+  const configurazione = leggi("js/config.js");
+  assert.match(configurazione, /releases\/latest\/download\/Mox-Windows-beta\.zip/);
   const home = leggi("index.html");
-  assert.equal((home.match(/data-download aria-disabled="true"/g) || []).length, 2);
+  assert.equal((home.match(/data-download href="https:\/\/github\.com\/Dennis96\/moxtracker\/releases\/latest\/download\/Mox-Windows-beta\.zip"/g) || []).length, 2);
+  assert.doesNotMatch(home, /data-download aria-disabled="true"/);
 });
 
 test("pre-lancio espone beta, privacy e Draft anche nella navigazione mobile", () => {
