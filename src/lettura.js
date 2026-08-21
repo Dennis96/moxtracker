@@ -47,8 +47,8 @@ function metaPerImpronta(esito, testa) {
     const vittorie = Number(riga.vittorie || 0);
     const sufficienti = partite >= SOGLIA_META;
     return {
-      nome: null,
-      archetipo: null,
+      nome: "Mazzo non classificato",
+      archetipo: "Mazzo non classificato",
       archetipo_id: null,
       strategia: null,
       colori: [],
@@ -105,6 +105,11 @@ export async function leggiMeta(db, indirizzo) {
     );
   }
 
+  // L'impronta serve al collegamento tecnico con il dettaglio, ma non e' un
+  // nome da mostrare al visitatore. La classificazione resta del motore: qui
+  // cambiamo soltanto il testo pubblico dei casi che il motore non riconosce.
+  mazzi = mazzi.map((mazzo) => mazzettoPubblico(mazzo));
+
   return {
     stato: 200,
     corpo: {
@@ -120,6 +125,15 @@ export async function leggiMeta(db, indirizzo) {
         : "Il catalogo archetipi server non e' ancora generato: i mazzi restano raggruppati per impronta esatta.",
       mazzi,
     },
+  };
+}
+
+function mazzettoPubblico(mazzo) {
+  if (mazzo.archetipo_id) return mazzo;
+  return {
+    ...mazzo,
+    nome: "Mazzo non classificato",
+    archetipo: "Mazzo non classificato",
   };
 }
 
