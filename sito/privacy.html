@@ -29,8 +29,8 @@
       <div class="privacy-hero-inner">
         <span class="eyebrow">Trasparenza prima dei numeri</span>
         <h1 id="privacy-title">Privacy e dati</h1>
-        <p>MOX raccoglie contributi soltanto dopo un consenso esplicito. Il sito pubblica aggregati e non mostra mai la cronologia di un singolo giocatore.</p>
-        <div class="privacy-meta"><span>Aggiornata il 20 agosto 2026</span><span>Beta 2.9.1</span><span>Nessun account sul sito</span></div>
+        <p>MOX raccoglie contributi soltanto dopo un consenso esplicito. Il sito pubblica statistiche aggregate e, da 30 partite della stessa variante, può mostrare la decklist osservata; non pubblica mai la cronologia o l’identità di un singolo giocatore.</p>
+        <div class="privacy-meta"><span>Aggiornata il 21 agosto 2026</span><span>Beta pubblica</span><span>Nessun account sul sito</span></div>
       </div>
     </section>
 
@@ -66,9 +66,11 @@
       </article>
 
       <article class="panel privacy-section">
-        <h2>Dove e per quanto tempo</h2>
+        <h2>Dove, per quanto tempo e quando pubblichiamo</h2>
         <p>Cloudflare ospita l'API e i database D1. Le tracce Draft complete sono in un bucket R2 privato e non sono raggiungibili dal sito; vengono eliminate automaticamente dopo 730 giorni. Gli indici e le partite restano finché sono necessari al progetto o finché l'utente non richiede la cancellazione tramite MOX.</p>
-        <p>Il sito mostra soltanto risultati aggregati. Una percentuale Draft richiede almeno 100 pick e un risultato di gioco almeno 30 match collegati; il meta non mostra percentuali sotto 30 partite.</p>
+        <p>Le statistiche pubbliche restano soggette a soglie minime. Una percentuale Draft richiede almeno 100 pick e un risultato di gioco almeno 30 match collegati; il meta non mostra percentuali sotto 30 partite.</p>
+        <p>Una decklist osservata precisa viene pubblicata quando la stessa variante raggiunge almeno 30 partite, anche se il campione proviene da una sola installazione. In quel caso la lista di carte diventa pubblica, ma il sito non pubblica l'identità dell'installazione, il mittente o la cronologia del giocatore e non collega pubblicamente la lista a una persona.</p>
+        <p>Le liste di riferimento di mox-meta sono invece un catalogo pubblico curato separatamente: non sono ricostruzioni delle decklist osservate dagli utenti MOX.</p>
       </article>
 
       <article class="panel privacy-section">
@@ -80,7 +82,7 @@
       <article class="panel privacy-section">
         <h2>Sito, cookie e servizi esterni</h2>
         <p>Il sito non usa cookie pubblicitari o sistemi di profilazione. La preferenza chiaro/scuro viene salvata soltanto nel browser tramite memoria locale.</p>
-        <p>Cloudflare gestisce le normali richieste tecniche necessarie a distribuire sito e API. Le immagini delle carte vengono richieste a Scryfall: come per ogni risorsa web esterna, Scryfall può ricevere i normali dati tecnici della richiesta. Questi dati non vengono aggiunti ai database MOX.</p>
+        <p>Cloudflare gestisce le normali richieste tecniche necessarie a distribuire sito e API. Le immagini delle carte vengono richieste a Scryfall soltanto per carte che il frontend è autorizzato a mostrare, comprese le liste pubbliche del catalogo e le decklist osservate che hanno superato la soglia di pubblicazione. Una decklist osservata protetta non genera richieste immagine o hover per le sue carte. Come per ogni risorsa web esterna, Scryfall può ricevere i normali dati tecnici della richiesta; questi dati non vengono aggiunti ai database MOX.</p>
       </article>
 
       <article class="panel privacy-section">

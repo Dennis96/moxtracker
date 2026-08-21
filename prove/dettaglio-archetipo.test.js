@@ -38,7 +38,7 @@ const CARTE_AURE = [
 
 function url(path) { return new URL("https://x.invalid" + path); }
 
-test("variante riconosciuta: osservazione protetta, catalogo sempre pubblico", async () => {
+test("variante riconosciuta: da 30 partite la decklist e pubblica, catalogo sempre separato", async () => {
   const db = creaFintoD1(SCHEMA);
   inserisciPartite(db, {
     impronta: IMPRONTA_RICONOSCIUTA, partite: 40, contributori: 1, carte: CARTE_AURE,
@@ -47,18 +47,20 @@ test("variante riconosciuta: osservazione protetta, catalogo sempre pubblico", a
   assert.equal(r.stato, 200);
   assert.equal(r.corpo.nome, "Mono White Auras");
   assert.equal(r.corpo.varianti[0].origine, "osservazione_mox");
-  assert.equal(r.corpo.varianti[0].decklist_pubblicabile, false);
-  assert.equal("carte" in r.corpo.varianti[0], false);
+  assert.equal(r.corpo.varianti[0].decklist_pubblicabile, true);
+  assert.ok(r.corpo.varianti[0].carte.length >= 1);
+  assert.equal("lista_riferimento_id" in r.corpo.varianti[0], true);
+  assert.equal("lista_riferimento_nome" in r.corpo.varianti[0], true);
   assert.ok(r.corpo.liste_riferimento.length >= 1);
   assert.equal(r.corpo.liste_riferimento[0].origine, "catalogo_reference");
   assert.ok(r.corpo.liste_riferimento[0].lista.length >= 1);
 });
 
-test("decklist osservata richiede insieme 30 partite e 5 contributor", async () => {
+test("decklist osservata richiede 30 partite, indipendentemente dal numero di installazioni", async () => {
   const casi = [
-    { partite: 60, contributori: 1, pubblicabile: false },
     { partite: 29, contributori: 10, pubblicabile: false },
-    { partite: 30, contributori: 5, pubblicabile: true },
+    { partite: 30, contributori: 1, pubblicabile: true },
+    { partite: 60, contributori: 1, pubblicabile: true },
   ];
   for (const caso of casi) {
     const db = creaFintoD1(SCHEMA);
@@ -79,7 +81,7 @@ test("decklist osservata richiede insieme 30 partite e 5 contributor", async () 
 test("risposta sotto soglia non serializza carte, Arena ID o contributor", async () => {
   const db = creaFintoD1(SCHEMA);
   inserisciPartite(db, {
-    impronta: IMPRONTA_SCONOSCIUTA, partite: 60, contributori: 1,
+    impronta: IMPRONTA_SCONOSCIUTA, partite: 29, contributori: 1,
     carte: [[CARTA_FIXTURE, 4]],
   });
   const r = await leggiArchetipo(db,
@@ -95,7 +97,7 @@ test("risposta sotto soglia non serializza carte, Arena ID o contributor", async
 test("impronta valida apre il dettaglio e una malformata viene rifiutata", async () => {
   const db = creaFintoD1(SCHEMA);
   inserisciPartite(db, {
-    impronta: IMPRONTA_SCONOSCIUTA, partite: 30, contributori: 5,
+    impronta: IMPRONTA_SCONOSCIUTA, partite: 30, contributori: 1,
     carte: [[CARTA_FIXTURE, 4]],
   });
   const buona = await leggiArchetipo(db,
@@ -110,7 +112,7 @@ test("impronta valida apre il dettaglio e una malformata viene rifiutata", async
 test("la strada pubblica /archetipo usa GET", async () => {
   const db = creaFintoD1(SCHEMA);
   inserisciPartite(db, {
-    impronta: IMPRONTA_SCONOSCIUTA, partite: 30, contributori: 5,
+    impronta: IMPRONTA_SCONOSCIUTA, partite: 30, contributori: 1,
     carte: [[CARTA_FIXTURE, 4]],
   });
   const richiesta = new Request(

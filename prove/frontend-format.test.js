@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { deckLabel, formatDate, formatInteger, formatPercent, shortFingerprint, sampleSufficient, winRateClass } from "../sito/js/format.js";
-import { availableStrategies, classificationAvailable, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks } from "../sito/js/meta-model.js";
+import { availableStrategies, classificationAvailable, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks, observedDecklistCards } from "../sito/js/meta-model.js";
 
 test("frontend non trasforma null in zero percento", () => {
   assert.equal(formatPercent(null), null);
@@ -13,10 +13,11 @@ test("frontend formatta percentuali e numeri in italiano", () => {
   assert.equal(formatInteger(1284), "1.284");
 });
 
-test("frontend mostra archetipo, nome o impronta corta senza inventare", () => {
+test("frontend usa il nome esatto per un mazzo non classificato", () => {
   assert.equal(deckLabel({ archetipo: "Dimir Midrange", nome: "Lista 1", impronta: "abcdef012345" }), "Dimir Midrange");
   assert.equal(deckLabel({ nome: "Dimir", impronta: "abcdef012345" }), "Dimir");
-  assert.equal(deckLabel({ nome: null, impronta: "abcdef012345" }), "Mazzo abcdef01");
+  assert.equal(deckLabel({ nome: null, impronta: "abcdef012345" }), "Mazzo non classificato");
+  assert.equal(deckLabel({ nome: "Mazzo non classificato", impronta: "abcdef012345" }), "Mazzo non classificato");
   assert.equal(shortFingerprint(null), "non identificato");
 });
 
@@ -44,6 +45,29 @@ test("metadati archetipo accettano i campi previsti da mox-meta", () => {
   assert.deepEqual(availableStrategies([deck, { strategia: "aggro" }]), ["aggro", "control"]);
 });
 
+test("nome colori e strategia non bastano a dichiarare un archetipo classificato", () => {
+  const generic = {
+    nome: "Mazzo non classificato", archetipo: "Mazzo non classificato",
+    colori: ["W"], strategia: "aggro", tipo_dettaglio: "non_classificato",
+  };
+  assert.equal(deckIsClassified(generic), false);
+  assert.equal(deckIsClassified({ nome: "Nome libero", colori: ["U"], strategia: "control" }), false);
+  assert.equal(deckIsClassified({ archetipo_id: "dimir" }), true);
+});
+
+test("helper decklist osservata applica la privacy anche lato frontend", () => {
+  const cards = [{ arena_id: 51307, copie: 4, nome: "Ethereal Armor" }];
+  assert.deepEqual(observedDecklistCards({
+    origine: "osservazione_mox", decklist_pubblicabile: false, carte: cards,
+  }), []);
+  assert.deepEqual(observedDecklistCards({
+    origine: "catalogo_reference", decklist_pubblicabile: true, carte: cards,
+  }), []);
+  assert.deepEqual(observedDecklistCards({
+    origine: "osservazione_mox", decklist_pubblicabile: true, carte: cards,
+  }), cards);
+});
+
 test("filtri locali colore strategia e ricerca non inventano classificazioni", () => {
   const decks = [
     { archetipo: "Dimir Midrange", archetipo_id: "dimir", colori: ["U", "B"], strategia: "midrange" },
@@ -56,12 +80,22 @@ test("filtri locali colore strategia e ricerca non inventano classificazioni", (
   assert.equal(filterMetaDecks(decks, { colors: ["G"] }).length, 0);
 });
 
-test("url dettaglio conserva formato rank e impronta", () => {
-  const url = deckDetailUrl({ archetipo_id: "dimir", modalita: "Bo3", impronta: "abc" }, { formato: "Standard", rank: "Gold" });
-  assert.match(url, /archetipo\.html\?/);
-  assert.match(url, /formato=Standard/);
-  assert.match(url, /rank=Gold/);
-  assert.match(url, /id=dimir/);
-  assert.match(url, /modalita=Bo3/);
-  assert.match(url, /impronta=abc/);
+test("url dettaglio usa id per archetipo e impronta solo per non classificato", () => {
+  const classified = deckDetailUrl(
+    { archetipo_id: "dimir", modalita: "Bo3", impronta: "abc" },
+    { formato: "Standard", rank: "Gold" },
+  );
+  assert.match(classified, /archetipo\.html\?/);
+  assert.match(classified, /formato=Standard/);
+  assert.match(classified, /rank=Gold/);
+  assert.match(classified, /id=dimir/);
+  assert.match(classified, /modalita=Bo3/);
+  assert.equal(classified.includes("impronta="), false);
+
+  const unclassified = deckDetailUrl(
+    { archetipo_id: null, impronta: "e".repeat(64) },
+    { formato: "Standard" },
+  );
+  assert.match(unclassified, /impronta=e{64}/);
+  assert.equal(unclassified.includes("id="), false);
 });

@@ -1,10 +1,9 @@
-// Regole comuni per tutto cio' che deriva dalle decklist osservate in MOX.
-// Il numero di installazioni serve solo a decidere la pubblicazione: non deve
-// mai uscire nelle risposte pubbliche.
+// Regola comune per tutto cio' che deriva dalle decklist osservate in MOX.
+// La lista precisa diventa pubblicabile quando la stessa variante raggiunge
+// almeno 30 partite. L'identificativo dell'installazione resta sempre privato
+// e non condiziona la soglia di pubblicazione.
 export const SOGLIA_DECKLIST_PARTITE = 30;
-export const SOGLIA_DECKLIST_CONTRIBUTORI = 5;
 
-export function decklistPubblicabile(partite, contributori) {
-  return Number(partite) >= SOGLIA_DECKLIST_PARTITE &&
-    Number(contributori) >= SOGLIA_DECKLIST_CONTRIBUTORI;
+export function decklistPubblicabile(partite) {
+  return Number(partite) >= SOGLIA_DECKLIST_PARTITE;
 }

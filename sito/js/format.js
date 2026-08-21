@@ -4,6 +4,8 @@ const df = new Intl.DateTimeFormat("it-IT", {
   hour: "2-digit", minute: "2-digit",
 });
 
+export const UNCLASSIFIED_DECK_NAME = "Mazzo non classificato";
+
 export function formatInteger(value) {
   const n = Number(value);
   return Number.isFinite(n) ? nf.format(n) : "—";
@@ -29,9 +31,11 @@ export function shortFingerprint(value, length = 8) {
 }
 
 export function deckLabel(deck) {
-  if (deck?.archetipo) return deck.archetipo;
-  if (deck?.nome) return deck.nome;
-  return `Mazzo ${shortFingerprint(deck?.impronta)}`;
+  const archetype = typeof deck?.archetipo === "string" ? deck.archetipo.trim() : "";
+  if (archetype && archetype !== UNCLASSIFIED_DECK_NAME) return archetype;
+  const name = typeof deck?.nome === "string" ? deck.nome.trim() : "";
+  if (name && name !== UNCLASSIFIED_DECK_NAME) return name;
+  return UNCLASSIFIED_DECK_NAME;
 }
 
 export function sampleSufficient(item) {

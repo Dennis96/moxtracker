@@ -90,14 +90,12 @@ function variante(riga, classificazione, carte) {
   const impronta = String(riga.impronta || "");
   const partite = numero(riga.partite);
   const vittorie = numero(riga.vittorie);
-  const pubblicabile = decklistPubblicabile(partite, riga.contributori);
+  const pubblicabile = decklistPubblicabile(partite);
   const fuori = {
     origine: "osservazione_mox",
     variante_id: impronta.slice(0, 12),
     impronta,
     livello_classificazione: classificazione?.livello_classificazione || "non_classificato",
-    lista_riferimento_id: classificazione?.lista_id || null,
-    lista_riferimento_nome: classificazione?.lista_nome || null,
     partite,
     vittorie,
     sconfitte: partite - vittorie,
@@ -106,6 +104,8 @@ function variante(riga, classificazione, carte) {
     decklist_pubblicabile: pubblicabile,
   };
   if (pubblicabile) {
+    fuori.lista_riferimento_id = classificazione?.lista_id || null;
+    fuori.lista_riferimento_nome = classificazione?.lista_nome || null;
     fuori.carte = (carte.get(impronta) || []).sort((a, b) =>
       String(a.nome || a.arena_id).localeCompare(String(b.nome || b.arena_id)));
   }
@@ -120,8 +120,6 @@ export async function leggiArchetipo(db, indirizzo) {
   }
 
   const filtro = dove(p);
-  // La quota meta usa sempre tutto il formato/rank richiesto, anche quando il
-  // dettaglio punta a una sola impronta.
   const filtroMeta = dove({ ...p, impronta: null });
   const totaleRiga = await db.prepare(
     `SELECT COUNT(*) AS totale FROM partite ${filtroMeta.where}`
@@ -130,7 +128,6 @@ export async function leggiArchetipo(db, indirizzo) {
   const esito = await db.prepare(
     `SELECT impronta_mazzo AS impronta,
             COUNT(*) AS partite,
-            COUNT(DISTINCT mittente) AS contributori,
             SUM(CASE WHEN esito = 'vinta' THEN 1 ELSE 0 END) AS vittorie
      FROM partite ${filtro.where}
      GROUP BY impronta_mazzo
@@ -195,7 +192,7 @@ export async function leggiArchetipo(db, indirizzo) {
       livelli_classificazione: [...livelli].sort(),
       varianti,
       liste_riferimento: ref,
-      nota_varianti: "Le varianti osservate sono dati aggregati MOXTRACKER. Le liste di riferimento provengono separatamente dal catalogo mox-meta.",
+      nota_varianti: "Le varianti osservate provengono dai contributi MOXTRACKER e rispettano le soglie di pubblicazione. Le liste di riferimento provengono separatamente dal catalogo mox-meta.",
     },
   };
 }
