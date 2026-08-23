@@ -115,6 +115,12 @@ stessa giornata è stata pubblicata anche **Mox 2.9.13**: manifesto firmato nel
 secret `MOX_RELEASE_MANIFEST`, installer su R2 `moxtracker-releases`, release
 GitHub `mox-v2-beta2.9.13` con l'asset stabile `Mox-Windows-beta.zip`.
 
+Nel pomeriggio sono stati pubblicati anche: il pulsante di download senza il
+numero di versione (che restava indietro a ogni release), la cronologia che
+parte da dieci partite con lo stesso pulsante che la richiude, e le query di
+cache alzate su account, supporto e amministrazione — senza quelle, il codice
+nuovo restava invisibile ai browser.
+
 Per avviare il Worker locale:
 
 ```powershell
