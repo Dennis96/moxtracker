@@ -109,8 +109,11 @@ amministratore, audit, retention, ticket anonimo, link segreto, risposte e
 cronologia autenticata.
 `prove/account-ticket-frontend.test.js` blocca regressioni nelle pagine, nella
 dashboard responsive, nel caricamento degli stili e nell'informativa Privacy.
-La suite complessiva è **112/112**, eseguita davvero il 23/08/2026: le due
-prove nuove coprono la CSP di Turnstile e la leggibilità dei messaggi.
+Il conteggio della suite si prende da `npm run prove`, non da questa riga:
+copiato qui invecchia in un giorno. Le prove aggiunte il 23/08/2026 coprono la
+CSP di Turnstile, la leggibilità dei messaggi, il filtro degli eventi, i mazzi
+sincronizzati, la loro cancellazione con l'account e la pulizia notturna delle
+credenziali scadute.
 
 ## Collaudo reale — stato per singola prova
 
