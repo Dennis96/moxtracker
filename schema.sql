@@ -153,6 +153,11 @@ CREATE TABLE IF NOT EXISTS ticket (
   aggiornato     TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS ticket_account ON ticket (account_id, aggiornato);
+-- Un ticket anonimo si ritrova solo dal suo token segreto: la ricerca per
+-- hash deve avere il suo indice. Parziale, perche' i ticket autenticati non
+-- hanno accesso_hash.
+CREATE INDEX IF NOT EXISTS ticket_accesso
+  ON ticket (accesso_hash) WHERE accesso_hash IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS ticket_messaggio (
   id             TEXT PRIMARY KEY,

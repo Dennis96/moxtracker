@@ -10,7 +10,7 @@ import {
   VERSIONI_DRAFT_ACCETTATE, collegaPartiteDraft, eliminaContributi,
   riceviDraft, sha256, statisticheDraft,
 } from "./draft.js";
-import { gestisciAccount } from "./account.js";
+import { gestisciAccount, pulisciCredenzialiScadute } from "./account.js";
 import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
 
 const INTESTAZIONI = {
@@ -298,6 +298,9 @@ export default {
     return risposta({ errore: "non c'e' niente qui" }, 404);
   },
   async scheduled(_controllore, ambiente, contesto) {
-    contesto.waitUntil(pulisciTicketScaduti(ambiente));
+    contesto.waitUntil(Promise.all([
+      pulisciTicketScaduti(ambiente),
+      pulisciCredenzialiScadute(ambiente),
+    ]));
   },
 };

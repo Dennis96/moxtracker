@@ -124,10 +124,10 @@ Questa tabella è l'unico posto dove il loro esito viene dichiarato.
 | 3 | Revoca del dispositivo | il dispositivo sparisce e Mox non riesce più a scrivere sull'account | da fare |
 | 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti | da fare |
 | 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla | da fare |
-| 6 | Ticket con allegato | PNG/JPEG/WebP fino a 10 MB accettati, ZIP rifiutato, download solo autenticato | **in parte** il 23/08/2026: un JPEG da 74 KiB accettato e visibile nel ticket. Restano il rifiuto dello ZIP e il download dell'allegato |
+| 6 | Ticket con allegato | PNG/JPEG/WebP fino a 10 MB accettati, ZIP rifiutato, download solo autenticato | **quasi**: JPEG accettato, visibile e **scaricato davvero** il 23/08/2026. Resta solo il rifiuto di uno ZIP |
 | 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | **bloccata** il 23/08/2026: la pagina diceva «verifica anti-spam non caricata». Causa trovata: la CSP fermava script e iframe di Turnstile. Corretta e **pubblicata** il 23/08: la prova si può rifare |
 | 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` | **in parte** il 23/08/2026: l'amministratore vede il ticket e il suo allegato. Cambio stato e risposta non ancora provati |
-| 9 | Secondo account reale | non vede né i dati né i ticket del primo | **in parte** il 23/08/2026: il secondo account esiste e ha aperto un ticket. Resta da verificare che non veda dati e ticket del primo |
+| 9 | Secondo account reale | non vede né i dati né i ticket del primo | **superata** il 23/08/2026 |
 
 Due avvertenze sull'ordine, imparate leggendo cosa fanno queste prove.
 
@@ -140,5 +140,11 @@ sull'account di prova della riga 9.
 più se l'export conteneva tutto; revocando prima si verifica anche che Mox si
 accorga davvero di non poter più scrivere.
 
-Finché le righe da 3 a 9 non sono spuntate, account e ticket restano
-**pubblicati e in parte collaudati**: si possono usare, non dichiarare stabili.
+Restano quindi: il rifiuto di uno ZIP (6), l'amministrazione (8), la revoca
+del dispositivo (3), l'export (4) e la cancellazione (5), quest'ultima solo
+sull'account di prova.
+
+Il 23/08/2026, analizzando il database, sono emersi due difetti che proprio la
+prova 5 avrebbe trovato: la cancellazione dell'account **non** portava via i
+mazzi sincronizzati, e l'export **non** li conteneva. Corretti e pubblicati,
+con due regressioni permanenti.

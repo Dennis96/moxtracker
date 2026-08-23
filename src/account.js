@@ -864,11 +864,13 @@ async function esporta(richiesta, ambiente, utente) {
   const nomiMazzi = await ambiente.DB.prepare(`SELECT formato, impronta, nome, aggiornato
     FROM account_mazzo_nome WHERE account_id = ? ORDER BY aggiornato`)
     .bind(utente.id).all();
+  const mazziArena = await mazziSincronizzati(ambiente.DB, utente.id);
   const mittenti = quadro.dispositivi.map((d) => d.mittente);
   if (!mittenti.length) return rispostaAccount(richiesta, ambiente,
     { versione: 1, esportato: new Date().toISOString(), account: {
       id: utente.id, nome: utente.nome,
-    }, dati: quadro, nomi_mazzi: nomiMazzi.results || [] });
+    }, dati: quadro, nomi_mazzi: nomiMazzi.results || [],
+      mazzi_arena: mazziArena });
   const segni = mittenti.map(() => "?").join(", ");
   const partite = await ambiente.DB.prepare(
     `SELECT dato FROM partite WHERE mittente IN (${segni}) ORDER BY ricevuta`).bind(...mittenti).all();
@@ -887,7 +889,7 @@ async function esporta(richiesta, ambiente, utente) {
       id: utente.id, nome: utente.nome,
     }, dispositivi: quadro.dispositivi,
     partite: (partite.results || []).map((r) => JSON.parse(r.dato)), draft: pacchettiDraft,
-    nomi_mazzi: nomiMazzi.results || [],
+    nomi_mazzi: nomiMazzi.results || [], mazzi_arena: mazziArena,
   });
 }
 
@@ -929,6 +931,10 @@ async function eliminaAccount(richiesta, ambiente, utente) {
     ambiente.DB.prepare("DELETE FROM account_dispositivo WHERE account_id = ?").bind(utente.id),
     ambiente.DB.prepare("DELETE FROM account_codice_mox WHERE account_id = ?").bind(utente.id),
     ambiente.DB.prepare("DELETE FROM account_mazzo_nome WHERE account_id = ?").bind(utente.id),
+    // I mazzi sincronizzati portano il nome scelto dall'utente: sono la
+    // cosa piu' personale che questo database contenga, e devono sparire
+    // con l'account. Erano rimasti fuori quando la tabella e' nata.
+    ambiente.DB.prepare("DELETE FROM account_mazzo WHERE account_id = ?").bind(utente.id),
     ambiente.DB.prepare("DELETE FROM account_sessione WHERE account_id = ?").bind(utente.id),
     ambiente.DB.prepare("DELETE FROM account_identita WHERE account_id = ?").bind(utente.id),
     ambiente.DB.prepare("DELETE FROM ticket_audit WHERE account_id = ?").bind(utente.id),
@@ -936,6 +942,23 @@ async function eliminaAccount(richiesta, ambiente, utente) {
   ]);
   return rispostaAccount(richiesta, ambiente, { eliminato: true, contributi: eliminati }, 200,
     { "set-cookie": cookieSessione("", 0) });
+}
+
+// Sessioni, stati OAuth e codici Mox scaduti: nessuno li toglieva.
+//
+// Venivano cancellati solo quando qualcuno li usava: chi comincia un accesso e
+// non lo finisce, chi genera un codice e non collega niente, chi smette di
+// usare il sito senza fare logout lasciavano una riga per sempre. Sono
+// credenziali morte - hash, ma pur sempre righe legate a un account - e la
+// tabella cresceva senza motivo. Il cron di ogni notte le porta via.
+export async function pulisciCredenzialiScadute(ambiente, adesso = new Date().toISOString()) {
+  const esiti = await ambiente.DB.batch([
+    ambiente.DB.prepare("DELETE FROM account_sessione WHERE scade < ?").bind(adesso),
+    ambiente.DB.prepare("DELETE FROM account_oauth_stato WHERE scade < ?").bind(adesso),
+    ambiente.DB.prepare("DELETE FROM account_codice_mox WHERE scade < ?").bind(adesso),
+  ]);
+  return (esiti || []).reduce(
+    (somma, esito) => somma + Number(esito?.meta?.changes || 0), 0);
 }
 
 export async function gestisciAccount(richiesta, ambiente, indirizzo) {

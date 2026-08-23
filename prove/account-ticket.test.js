@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 
 import worker from "../src/index.js";
 import { pulisciTicketScaduti } from "../src/ticket.js";
+import { pulisciCredenzialiScadute } from "../src/account.js";
 import { sha256 } from "../src/draft.js";
 import { creaFintoD1 } from "./finto-d1.js";
 
@@ -613,4 +614,76 @@ test("un evento che non conosciamo viene ripulito, non inventato", async () => {
   // evento costruito e' semplicemente falso.
   assert.equal(dati.eventi[0].nome, "Evento costruito");
   assert.notEqual(dati.eventi[0].nome, "Limited");
+});
+
+test("cancellare l'account porta via anche i mazzi sincronizzati", async () => {
+  // Erano rimasti fuori dalla cancellazione quando la tabella e' nata: il
+  // nome che l'utente da' a un mazzo e' la cosa piu' personale qui dentro, e
+  // sopravviveva a un account cancellato.
+  const env = ambiente();
+  const mittente = "b".repeat(32);
+  const segreto = "c".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+  await sincronizza(env, { mittente, segreto, mazzi: [
+    { impronta: "a".repeat(64), nome: "Il mio mazzo", carte: { "1": 60 } },
+  ] });
+  assert.equal(env.DB.conta("account_mazzo"), 1);
+  const eliminato = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/delete", {
+      method: "POST", headers: { cookie: sessione, "content-type": "application/json" },
+      body: JSON.stringify({ conferma: "ELIMINA" }),
+    }), env);
+  assert.equal(eliminato.status, 200);
+  assert.equal(env.DB.conta("account_mazzo"), 0);
+});
+
+test("l'export contiene anche i mazzi veri di Arena", async () => {
+  const env = ambiente();
+  const mittente = "d".repeat(32);
+  const segreto = "e".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+  await sincronizza(env, { mittente, segreto, mazzi: [
+    { impronta: "f".repeat(64), nome: "Tritoni Pedine", carte: { "9": 60 } },
+  ] });
+  const esportato = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/export", { headers: { cookie: sessione } }), env);
+  const dato = await esportato.json();
+  assert.equal(dato.mazzi_arena.length, 1);
+  assert.equal(dato.mazzi_arena[0].nome, "Tritoni Pedine");
+});
+
+test("le credenziali scadute non restano per sempre nel database", async () => {
+  // Sessioni, stati OAuth e codici Mox venivano cancellati solo quando
+  // qualcuno li usava: chi abbandona un accesso a meta' lasciava una riga
+  // per sempre.
+  const env = ambiente();
+  const sessione = await accedi(env);
+  await worker.fetch(new Request("https://api.moxtracker.app/account/link-code", {
+    method: "POST", headers: { cookie: sessione },
+  }), env);
+  const passato = "2020-01-01T00:00:00.000Z";
+  await env.DB.batch([
+    env.DB.prepare("UPDATE account_sessione SET scade = ?").bind(passato),
+    env.DB.prepare("UPDATE account_codice_mox SET scade = ?").bind(passato),
+  ]);
+  await worker.fetch(new Request(
+    "https://api.moxtracker.app/auth/google?ritorno=/account.html"), env);
+  await env.DB.batch([
+    env.DB.prepare("UPDATE account_oauth_stato SET scade = ?").bind(passato),
+  ]);
+  assert.equal(env.DB.conta("account_sessione"), 1);
+  assert.equal(env.DB.conta("account_codice_mox"), 1);
+  assert.equal(env.DB.conta("account_oauth_stato"), 1);
+
+  const tolte = await pulisciCredenzialiScadute(env);
+  assert.equal(tolte >= 3, true, `attese almeno 3 righe rimosse, tolte ${tolte}`);
+  assert.equal(env.DB.conta("account_sessione"), 0);
+  assert.equal(env.DB.conta("account_codice_mox"), 0);
+  assert.equal(env.DB.conta("account_oauth_stato"), 0);
+
+  // Una sessione ancora valida non deve essere toccata.
+  const viva = await accedi(env);
+  assert.ok(viva);
+  await pulisciCredenzialiScadute(env);
+  assert.equal(env.DB.conta("account_sessione"), 1);
 });
