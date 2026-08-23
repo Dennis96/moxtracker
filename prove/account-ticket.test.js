@@ -551,3 +551,66 @@ test("i mazzi non partono senza il segreto dell'installazione collegata", async 
   assert.equal(estraneo.status, 403);
   assert.equal(env.DB.conta("account_mazzo"), 0);
 });
+
+test("il menu degli eventi elenca tutto, non solo i Draft", async () => {
+  // Il difetto trovato dall'utente il 23/08/2026: nella cronologia il menu
+  // «Evento» mostrava soltanto HOB Premier Draft e Prendi Due, perche' veniva
+  // riempito dalle sessioni Limited. Ladder e precostruiti non erano
+  // filtrabili, anche se il filtro lato server li accettava gia'.
+  const env = ambiente();
+  const mittente = "7".repeat(32);
+  const segreto = "8".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+  const partite = [
+    partitaPersonale({ id: "1100000001", mittente, segreto, evento: "Ladder" }),
+    partitaPersonale({ id: "1100000002", mittente, segreto, evento: "Ladder",
+      esito: "persa" }),
+    partitaPersonale({ id: "1100000003", mittente, segreto,
+      evento: "DualColorPrecons", formato: null }),
+    partitaPersonale({ id: "1100000004", mittente, segreto,
+      evento: "PremierDraft_HOB_20260801", formato: null }),
+    partitaPersonale({ id: "1100000005", mittente, segreto,
+      evento: "jump_in", formato: null }),
+  ];
+  const inviate = await worker.fetch(new Request("https://api.moxtracker.app/partite", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify(partite),
+  }), env);
+  assert.equal(inviate.status, 200);
+
+  const stat = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/stats", { headers: { cookie: sessione } }), env);
+  const dati = await stat.json();
+  const nomi = dati.eventi.map((e) => e.nome);
+  assert.ok(nomi.includes("Ladder"), `manca Ladder: ${nomi.join(", ")}`);
+  assert.ok(nomi.includes("Mazzi precostruiti"), `mancano i precon: ${nomi.join(", ")}`);
+  assert.ok(nomi.includes("Jump In"), `manca Jump In: ${nomi.join(", ")}`);
+  assert.ok(nomi.includes("HOB · Premier Draft"), `manca il Draft: ${nomi.join(", ")}`);
+  assert.equal(dati.eventi.find((e) => e.valore === "Ladder").partite, 2);
+
+  const filtrate = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/matches?evento=DualColorPrecons",
+    { headers: { cookie: sessione } }), env);
+  const elenco = await filtrate.json();
+  assert.equal(elenco.totale, 1);
+  assert.equal(elenco.partite[0].evento, "DualColorPrecons");
+});
+
+test("un evento che non conosciamo viene ripulito, non inventato", async () => {
+  const env = ambiente();
+  const mittente = "9".repeat(32);
+  const segreto = "1".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+  await worker.fetch(new Request("https://api.moxtracker.app/partite", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify([partitaPersonale({ id: "2200000001", mittente, segreto,
+      evento: "Constructed_Event_Standard_20260801", formato: null })]),
+  }), env);
+  const stat = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/stats", { headers: { cookie: sessione } }), env);
+  const dati = await stat.json();
+  // Prima qualsiasi cosa non riconosciuta diventava "Limited", che per un
+  // evento costruito e' semplicemente falso.
+  assert.equal(dati.eventi[0].nome, "Evento costruito");
+  assert.notEqual(dati.eventi[0].nome, "Limited");
+});

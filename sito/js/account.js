@@ -403,13 +403,13 @@ function popolaFiltri() {
   for (const mazzo of stato.statistiche.mazzi) {
     deck.append(new Option(nomeMazzo(mazzo), mazzo.impronta));
   }
-  const eventi = new Map();
-  for (const sessione of stato.statistiche.sessioni_limited) {
-    eventi.set(sessione.evento, sessione.nome);
-  }
+  // Prima qui si guardavano solo le sessioni Limited: chi voleva filtrare le
+  // partite Ladder o i precostruiti non trovava la voce nel menu.
   const event = $("filter-event");
   event.replaceChildren(new Option("Tutti gli eventi", ""));
-  for (const [valore, nome] of eventi) event.append(new Option(nome, valore));
+  for (const evento of stato.statistiche.eventi || []) {
+    event.append(new Option(`${evento.nome} (${evento.partite})`, evento.valore));
+  }
 }
 
 async function caricaPartite(aggiungi = false) {

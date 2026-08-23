@@ -310,14 +310,32 @@ function catalogoStampe(ids) {
     .map((id) => [String(id), stampaCartaArena(id)]).filter(([, stampa]) => stampa));
 }
 
+// Il nome grezzo che Arena scrive nel log non e' fatto per essere letto:
+// "DualColorPrecons", "jump_in", "Constructed_Event_Standard_20260801". Qui
+// diventa leggibile, ma senza inventare: quello che non riconosciamo viene
+// ripulito, non tradotto a indovinare.
 function etichettaEvento(evento) {
-  const testo = String(evento || "Evento Limited");
+  const testo = String(evento || "").trim();
+  if (!testo) return "Evento sconosciuto";
   const set = testo.match(/(?:Draft|Sealed)_([A-Z0-9]{3,6})_/i)?.[1]?.toUpperCase();
-  const tipo = /PickTwoDraft/i.test(testo) ? "Prendi Due"
+  const limitato = /PickTwoDraft/i.test(testo) ? "Prendi Due"
     : /PremierDraft/i.test(testo) ? "Premier Draft"
       : /QuickDraft/i.test(testo) ? "Quick Draft"
-        : /TradDraft/i.test(testo) ? "Traditional Draft" : "Limited";
-  return set ? `${set} · ${tipo}` : tipo;
+        : /TradDraft/i.test(testo) ? "Traditional Draft"
+          : /Sealed/i.test(testo) ? "Sealed"
+            : /Draft/i.test(testo) ? "Draft" : null;
+  if (limitato) return set ? `${set} · ${limitato}` : limitato;
+  const minuscolo = testo.toLowerCase();
+  if (minuscolo === "ladder") return "Ladder";
+  if (minuscolo === "traditional_ladder") return "Ladder tradizionale";
+  if (minuscolo.startsWith("constructed_event")) return "Evento costruito";
+  if (minuscolo.startsWith("dualcolorprecons")) return "Mazzi precostruiti";
+  if (minuscolo.startsWith("welcomedeckduels")) return "Mazzi di benvenuto";
+  if (minuscolo.startsWith("jump_in") || minuscolo.startsWith("jumpin")) return "Jump In";
+  if (minuscolo.startsWith("brawl") || minuscolo.includes("_brawl")) return "Brawl";
+  return testo.replace(/[_-]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/\s+/g, " ").trim();
 }
 
 async function statistichePersonali(ambiente, accountId) {
@@ -326,7 +344,7 @@ async function statistichePersonali(ambiente, accountId) {
     totali: { partite: 0, vittorie: 0, sconfitte: 0, win_rate: null,
       al_gioco: 0, alla_risposta: 0, durata_media: null },
     mazzi: [], forma_recente: [], sessioni_limited: [], andamento_rank: [],
-    sincronizzazione: { mazzi: 0, quando: null },
+    eventi: [], sincronizzazione: { mazzi: 0, quando: null },
     avversari: { riconosciuti: [], non_riconosciuti: 0, partite_totali: 0 },
   };
   const mittenti = device.map((d) => d.mittente);
@@ -414,6 +432,19 @@ async function statistichePersonali(ambiente, accountId) {
         .map(([id, copie]) => cartaPersonale(Number(id), Number(copie))),
     });
   }
+
+  // Il menu «Evento» della cronologia si riempiva dalle sole sessioni
+  // Limited: Ladder, precostruiti e Jump In non erano nemmeno filtrabili,
+  // anche se il filtro lato server accettava già qualsiasi evento.
+  const eventiRighe = await ambiente.DB.prepare(`SELECT evento,
+      COUNT(*) AS partite, MAX(COALESCE(quando, ricevuta)) AS ultima
+    FROM partite WHERE mittente IN (${segni}) AND evento IS NOT NULL
+      AND evento <> '' GROUP BY evento ORDER BY partite DESC, ultima DESC`)
+    .bind(...mittenti).all();
+  const eventi = (eventiRighe.results || []).map((riga) => ({
+    valore: riga.evento, nome: etichettaEvento(riga.evento),
+    partite: Number(riga.partite || 0),
+  }));
 
   const forma = await ambiente.DB.prepare(`SELECT id, esito, quando, ricevuta
     FROM partite WHERE mittente IN (${segni})
@@ -515,6 +546,7 @@ async function statistichePersonali(ambiente, accountId) {
     // Senza sincronizzazione non si puo' dire che un mazzo "non c'e' piu' in
     // Arena": semplicemente non lo sappiamo, e dirlo lo stesso sarebbe una
     // deduzione inventata. Il sito mostra le etichette solo da qui in poi.
+    eventi,
     sincronizzazione: { mazzi: sincronizzati.length,
       quando: sincronizzati[0]?.sincronizzato || null },
     andamento_rank: andamentoRank,

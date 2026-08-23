@@ -62,6 +62,14 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(js, /\/messages/);
 });
 
+test("il menu Evento si riempie da tutti gli eventi, non dai soli Draft", () => {
+  const js = leggi("js/account.js");
+  assert.match(js, /stato\.statistiche\.eventi/);
+  // Le sessioni Limited restano dove servono davvero, cioe' nella sezione
+  // dei Draft: qui si controlla solo che non riempiano piu' il menu.
+  assert.doesNotMatch(js, /eventi\.set\(sessione\.evento/);
+});
+
 test("la verifica anti-spam puo' davvero caricarsi", () => {
   // Il 23/08/2026 il widget Turnstile non compariva e la pagina diceva
   // "verifica anti-spam non caricata": la CSP fermava lo script e l'iframe,
