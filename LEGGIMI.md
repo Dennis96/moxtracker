@@ -102,12 +102,18 @@ copiato in questo file durante lo sviluppo.
 
 Ultima esecuzione del 23/08: **112/112** verdi.
 
-**Correzioni del 23/08 non ancora pubblicate.** Sono nel repository e verdi in
+**Lavoro del 23/08 non ancora pubblicato.** Sono nel repository e verdi in
 locale, ma il servizio online ha ancora la versione precedente: la CSP che
 consente Turnstile (senza la quale i ticket anonimi non funzionano), il testo
 dei messaggi che non resta più attaccato al nome di chi scrive, e la frase su
-Discord tolta dal riquadro «Prima di inviare». Servono un deploy Pages e la
-verifica su `moxtracker.app`. Gli stack
+Discord tolta dal riquadro «Prima di inviare»; il menu «Evento» della
+cronologia che elenca tutti gli eventi e non i soli Draft; e i mazzi veri di
+Arena sincronizzati nell'account (`POST /mox/account/decks`, tabella
+`account_mazzo`).
+
+Per pubblicare servono, in quest'ordine: la migrazione
+`migrazioni/2026-08-23-account-mazzo.sql` sul D1 remoto, il deploy del Worker,
+il deploy Pages, e la verifica su `moxtracker.app`. Gli stack
 trace da fault injection R2/D1 durante quei test sono attesi e coperti.
 
 Per avviare il Worker locale:
