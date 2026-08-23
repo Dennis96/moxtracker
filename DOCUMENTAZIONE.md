@@ -1,17 +1,39 @@
 # moxtracker — indice della documentazione
 
-> Aggiornato il **20/08/2026**. Questo file distingue lo stato corrente dai
+> Aggiornato il **22/08/2026**. Questo file distingue lo stato corrente dai
 > passaggi storici; le istruzioni contenute nei vecchi handoff non prevalgono
 > sul codice e sul [LEGGIMI.md](LEGGIMI.md).
 
 ## Da leggere adesso
 
-1. [LEGGIMI.md](LEGGIMI.md) — stato verificato, struttura, test e percorso di
+1. [ACCOUNT-E-TICKET.md](ACCOUNT-E-TICKET.md) — account OAuth, dashboard
+   personale, collegamento Mox, ticket e configurazione pubblicata.
+2. [S2-CHIUSURA-2026-08-22.md](S2-CHIUSURA-2026-08-22.md) — perimetro corretto
+   di S2 e regressione permanente sui mazzi precostruiti.
+
+3. [MOXTRACKER-HANDOFF-2026-08-21.md](MOXTRACKER-HANDOFF-2026-08-21.md) — stato
+   integrato `frontend-v1` `1c268e8`, privacy pubblica, vista varianti,
+   deploy Worker/Pages e verifica richiesta sulle partite Ladder.
+4. [LEGGIMI.md](LEGGIMI.md) — stato verificato, struttura, test e percorso di
    pubblicazione.
-2. [STEP8-PRELANCIO-SITO.md](STEP8-PRELANCIO-SITO.md) — correzioni della beta
+5. [STEP8-PRELANCIO-SITO.md](STEP8-PRELANCIO-SITO.md) — correzioni della beta
    pubblica, Privacy, navigazione mobile e anteprima con dati reali.
-3. [STEP7-DRAFT-DATI-ONLINE.md](STEP7-DRAFT-DATI-ONLINE.md) — contratto Draft,
+6. [STEP7-DRAFT-DATI-ONLINE.md](STEP7-DRAFT-DATI-ONLINE.md) — contratto Draft,
    R2/D1, privacy, tetti e stato Cloudflare.
+
+## Stato pubblico e lavoro locale
+
+Il ramo di provenienza resta `frontend-v1` al commit integrato `1c268e8`; le
+modifiche locali autorizzate del 22/08 sono pubblicate sul Worker e su Pages.
+Il dominio principale è `https://moxtracker.app` e la beta separata è
+`https://beta.moxtracker.pages.dev`. Lo stato verificato è **110/110** prove.
+Le decklist osservate sono pubblicabili solo dopo 30 partite della stessa
+variante, senza mai esporre il mittente; la vista variante è separata dalla
+pagina archetipo. S2 è stata riallineata al difetto reale e chiusa nel codice:
+gli eventi con mazzo fornito entrano nella cronologia privata ma non nel meta
+Standard. Impronta Bo1 stabile, Thor Capstone e rank parziale sono stati
+pubblicati il 22/08 dopo le migrazioni D1. Account e ticket sono configurati e
+pubblici; cronologia, decklist e dettagli restano privati alla sessione OAuth.
 
 I documenti di Step precedenti sono in
 [`archivio/2026-08-sviluppo-iniziale`](archivio/2026-08-sviluppo-iniziale/):

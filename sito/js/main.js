@@ -1,4 +1,4 @@
-import { DEFAULT_FORMAT, DOWNLOAD_URL, FORMATS, RANKS } from "./config.js";
+import { DEFAULT_FORMAT, DOWNLOAD_URL, FORMATS, RANKS } from "./config.js?v=20260822-3";
 import { fetchMeta, fetchScontri } from "./api.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
@@ -116,7 +116,7 @@ function setupDownload() {
   document.querySelectorAll("[data-download]").forEach(link => {
     if (DOWNLOAD_URL) {
       link.href = DOWNLOAD_URL; link.removeAttribute("aria-disabled");
-      link.title = "Scarica l'ultima beta MOX per Windows (circa 108 MB)";
+      link.title = "Scarica l'ultima beta MOX per Windows (ZIP)";
     } else {
       link.href = "#"; link.setAttribute("aria-disabled", "true");
       link.title = "Il link di download verrà collegato quando sarà disponibile";

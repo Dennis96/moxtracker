@@ -6,6 +6,6 @@ export const DEFAULT_FORMAT = "Standard";
 export const FORMATS = ["Standard"];
 export const RANKS = ["", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Mythic"];
 
-// Nome stabile dell'asset nella release GitHub piu' recente: il sito non deve
-// cambiare URL a ogni nuova beta di Mox.
+// Download manuale dal sito: asset ZIP stabile della release GitHub più recente.
+// Il canale firmato /mox/release + /mox/download.exe resta separato per l'autoupdate.
 export const DOWNLOAD_URL = "https://github.com/Dennis96/moxtracker/releases/latest/download/Mox-Windows-beta.zip";

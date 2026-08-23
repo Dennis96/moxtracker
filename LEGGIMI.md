@@ -1,6 +1,6 @@
 # moxtracker — server, meta e sito di Mox
 
-> Stato verificato il **21/08/2026**. L'indice dei documenti è in
+> Stato verificato il **22/08/2026**. L'indice dei documenti è in
 > [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
 
 moxtracker è la parte online di Mox. Riceve, solo con consenso, le partite che
@@ -8,7 +8,7 @@ il programma locale legge da MTG Arena; le conserva in Cloudflare D1, riconosce
 gli archetipi dalle carte e offre dati aggregati al sito.
 
 È un repository Git separato da `..\Codice`. Il ramo di sviluppo corrente è
-`frontend-v1`.
+`frontend-v1`, al commit integrato `1c268e8` del 21/08/2026.
 
 ## Stato corrente
 
@@ -19,19 +19,32 @@ gli archetipi dalle carte e offre dati aggregati al sito.
   `POST /contributi/elimina`; D1 separato e R2 privato con lifecycle a 730 giorni.
 - **Lettura pubblica:** `GET /salute`, `/meta`, `/archetipo`,
   `/gioco-risposta`, `/scontri`.
-- **Sito beta:** `https://beta.moxtracker.pages.dev`, separato dal dominio
-  principale e pensato per i feedback iniziali.
-- **Dominio:** `moxtracker.app` è stato comprato, ma al 20/08/2026 non è ancora
-  collegato al frontend.
+- **Release Mox:** `GET /mox/release`; senza manifesto firmato risponde
+  `disponibile: false`.
+- **Account e ticket:** OAuth Google/Discord, collegamento Mox, ticket,
+  amministrazione con audit, Turnstile, D1/R2 privato e retention sono
+  configurati e pubblicati. La dashboard privata mostra panoramica W/L,
+  prestazioni per decklist esatta, cronologia filtrabile e cliccabile,
+  decklist, andamento delle partite, sessioni Limited e pool dei Draft.
+  Vedi `ACCOUNT-E-TICKET.md`.
+- **Correzioni pubblicate il 22/08:** le Bo1 usano l'impronta della decklist
+  iniziale Arena; il catalogo riconosce `Thor Capstone`. Il rank con livello
+  senza classe è conservato come `parziale`; migrazione rank e le due
+  migrazioni Thor Capstone (5 + 2 righe) sono state applicate. L'API restituisce
+  il gruppo Thor Capstone con 7 partite.
+- **Sito:** `https://moxtracker.app`; la beta Pages resta disponibile per i
+  collaudi separati.
 - **Step 6.1.1:** immagini `art_crop` e correzione della cache sono online
-  sulla beta Pages e funzionano nel Meta Explorer. Le modifiche possono restare
-  non committate nella copia locale: lo stato Git e la pubblicazione della beta
-  sono due cose distinte.
+  sulla beta Pages e funzionano nel Meta Explorer.
 - **Step 7:** Worker, D1 Draft, R2, lifecycle e cancellazione sono online e
   collaudati; resta da impostare dal pannello l'avviso spesa a 1 dollaro.
+- **Privacy e varianti:** decklist osservata pubblicabile solo da 30 partite
+  della stessa variante, senza mittente; pagina variante separata, con
+  decklist nascosta sotto soglia. Percentuali a 30 e matchup a 100 partite.
 - **Pre-lancio sito:** banner beta, Privacy, Draft raggiungibile da mobile,
   Matchup compatto senza dati e anteprima locale con aggregati reali completati.
-  Il download punta all'asset stabile della release GitHub più recente.
+  Navbar semplificata e light mode corretta. Il download punta all'asset
+  stabile della release GitHub più recente.
 
 Il Worker pubblico restituisce anche `carte_core`; il frontend può quindi
 mostrare colori, strategia e immagini degli archetipi riconosciuti.
@@ -58,6 +71,8 @@ mostrare colori, strategia e immagini degli archetipi riconosciuti.
 | `src/index.js` | instradamento HTTP del Worker |
 | `src/controlli.js` | validazione dei pacchetti in ingresso |
 | `src/draft.js` | validazione, R2/D1, tetti, aggregati e cancellazione coordinata di partite e Draft |
+| `src/account.js` | OAuth, sessioni, dashboard, dispositivi, export e cancellazione account |
+| `src/ticket.js` | ticket anonimi/autenticati, messaggi, allegati e stati |
 | `src/lettura.js` | aggregazioni pubbliche |
 | `src/archetipi.js` | classificazione di archetipi e varianti |
 | `src/dettaglio-archetipo.js` | pagina dati di un singolo archetipo |
@@ -78,6 +93,9 @@ npm run prove
 
 Il conteggio aggiornato va preso dall'ultima esecuzione di `npm run prove`, non
 copiato in questo file durante lo sviluppo.
+
+Ultima esecuzione del 22/08: **109/109** verdi. Gli stack
+trace da fault injection R2/D1 durante quei test sono attesi e coperti.
 
 Per avviare il Worker locale:
 
@@ -102,14 +120,15 @@ richieste `/api` all'API pubblica, senza inviare partite o Draft.
 2. eseguire `npm run genera-archetipi` se è cambiato il catalogo sorgente;
 3. eseguire `npm run prove`;
 4. committare e inviare il ramo soltanto quando la consegna è pronta;
-5. pubblicare prima il Worker se il frontend dipende da nuovi campi;
-6. verificare la beta Pages e collegare `moxtracker.app` solo dopo i feedback;
-7. verificare che l'asset stabile `Mox-Windows-beta.zip` appartenga alla release
+5. per account/ticket seguire tutti i prerequisiti di `ACCOUNT-E-TICKET.md`;
+6. pubblicare prima il Worker se il frontend dipende da nuovi campi;
+7. verificare sia `moxtracker.app` sia la beta Pages dopo ogni deploy;
+8. verificare che l'asset stabile `Mox-Windows-beta.zip` appartenga alla release
    GitHub più recente;
-8. controllare desktop, mobile, privacy, soglie e assenza di numeri finti.
+9. controllare desktop, mobile, privacy, soglie e assenza di numeri finti.
 
 Il pulsante di download è stato attivato per la beta controllata dopo il primo
-Draft reale Prendi Due e il fix 2.9.1; il dominio principale resta separato.
+Draft reale Prendi Due e il fix 2.9.1; il dominio principale è online.
 
 Non eseguire `npm run database-vero` o `npm run pubblica` come semplice prova:
 scrivono sul servizio Cloudflare reale.
