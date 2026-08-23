@@ -12,6 +12,11 @@ test("pre-lancio collega il download MOX allo ZIP stabile della release GitHub",
   const home = leggi("index.html");
   assert.equal((home.match(/data-download href="https:\/\/github\.com\/Dennis96\/moxtracker\/releases\/latest\/download\/Mox-Windows-beta\.zip"/g) || []).length, 2);
   assert.doesNotMatch(home, /data-download aria-disabled="true"/);
+  // Il numero di versione scritto a mano nel pulsante invecchia a ogni
+  // release: il 23/08/2026 il sito serviva gia' la 2.9.13 e i due pulsanti
+  // dicevano ancora 2.9.12. L'URL e' stabile, il testo deve esserlo altrettanto.
+  assert.match(home, /Scarica MOX per Windows/);
+  assert.doesNotMatch(home, /Scarica MOX \d/);
 });
 
 test("pre-lancio espone beta, privacy e Draft anche nella navigazione mobile", () => {
