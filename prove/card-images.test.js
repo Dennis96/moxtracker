@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import {
   cardLookupKey,
+  cardLookupUrls,
   extractCardMedia,
   normalizeCardSpec,
   parseReferenceLine,
@@ -20,16 +21,28 @@ test("parser lista riferimento gestisce copie con e senza x", () => {
 });
 
 test("lookup immagini preferisce Arena ID e usa il nome come fallback", () => {
-  assert.equal(cardLookupKey({ arena_id: 1234, nome: "Carta" }), "arena:1234");
+  assert.equal(cardLookupKey({ arena_id: 1234, nome: "Carta" }),
+    "arena:1234|name:carta");
   assert.equal(cardLookupKey({ nome: "  Ethereal   Armor " }), "name:ethereal armor");
   assert.equal(cardLookupKey({}), null);
+});
+
+test("lookup HOB ripiega sulla stampa Arena quando Scryfall non indicizza arena_id", () => {
+  const carta = { arena_id: 103441, nome: "Front Porch Sentries", set: "HOB", numero: "67" };
+  assert.deepEqual(cardLookupUrls(carta), [
+    "https://api.scryfall.com/cards/arena/103441",
+    "https://api.scryfall.com/cards/hob/67",
+    "https://api.scryfall.com/cards/named?exact=Front+Porch+Sentries",
+  ]);
+  assert.equal(cardLookupKey(carta),
+    "arena:103441|print:hob/67|name:front porch sentries");
 });
 
 test("normalizzazione mantiene copie e scarta Arena ID non validi", () => {
   assert.deepEqual(normalizeCardSpec({
     arena_id: "42", nome: "  Skyward Spider ", copie: "4",
   }), {
-    arenaId: 42, name: "Skyward Spider", copies: 4,
+    arenaId: 42, name: "Skyward Spider", setCode: "", collectorNumber: "", copies: 4,
   });
   assert.equal(normalizeCardSpec({ arena_id: 0 }).arenaId, null);
 });

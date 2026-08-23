@@ -89,6 +89,8 @@
 .reference-decklist li { margin: 0; }
 .card-hover-preview {
   position: fixed;
+  inset: auto;
+  margin: 0;
   z-index: 1000;
   width: 278px;
   max-height: calc(100vh - 24px);

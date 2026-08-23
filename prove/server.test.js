@@ -19,13 +19,13 @@ function copia(cambia = {}) {
   return JSON.parse(JSON.stringify({ ...ESEMPIO, ...cambia }));
 }
 
-async function manda(db, corpo, metodo = "POST", percorso = "/partite") {
+async function manda(db, corpo, metodo = "POST", percorso = "/partite", extra = {}) {
   const richiesta = new Request("https://esempio.invalid" + percorso, {
     method: metodo,
     headers: { "content-type": "application/json" },
     body: metodo === "POST" ? JSON.stringify(corpo) : undefined,
   });
-  const risposta = await server.fetch(richiesta, { DB: db });
+  const risposta = await server.fetch(richiesta, { DB: db, ...extra });
   return { stato: risposta.status, corpo: await risposta.json() };
 }
 
@@ -45,6 +45,30 @@ test("dice se e' vivo", async () => {
   assert.equal(corpo.stato, "vivo");
 });
 
+test("release Mox resta spenta senza manifesto e pubblica quello firmato", async () => {
+  const db = creaFintoD1(SCHEMA);
+  const percorso = "/mox/release?piattaforma=win-x64&canale=stable&corrente=2%20beta%202.9.4";
+  const vuota = await manda(db, null, "GET", percorso);
+  assert.equal(vuota.stato, 200);
+  assert.equal(vuota.corpo.disponibile, false);
+
+  const manifesto = {
+    versione: "2 beta 2.9.5", url: "https://example.invalid/Mox.exe",
+    sha256: "a".repeat(64), dimensione: 123, firma: "firma",
+    note: "prova", minima: "2 beta 2.9.4",
+  };
+  const pronta = await manda(db, null, "GET", percorso,
+    { MOX_RELEASE_MANIFEST: JSON.stringify(manifesto) });
+  assert.equal(pronta.stato, 200);
+  assert.equal(pronta.corpo.disponibile, true);
+  assert.equal(pronta.corpo.versione, "2 beta 2.9.5");
+
+  const aggiornata = await manda(db, null, "GET",
+    percorso.replace("2.9.4", "2.9.5"),
+    { MOX_RELEASE_MANIFEST: JSON.stringify(manifesto) });
+  assert.equal(aggiornata.corpo.disponibile, false);
+});
+
 test("una partita entra, e le sue carte con lei", async () => {
   const db = creaFintoD1(SCHEMA);
   const { stato, corpo } = await manda(db, copia());
@@ -59,10 +83,24 @@ test("una partita entra, e le sue carte con lei", async () => {
   assert.equal(riga.esito, ESEMPIO.andamento.esito);
   assert.equal(riga.su_gioco, 1);
   assert.equal(riga.rank_classe, "Gold");
+  assert.equal(riga.rank_stato, "completo");
   const conservato = structuredClone(ESEMPIO);
   delete conservato.segreto_cancellazione;
   assert.deepEqual(JSON.parse(riga.dato), conservato,
     "il pacchetto deve restare intero salvo il segreto di cancellazione");
+});
+
+test("un evento con mazzo fornito entra senza formato e non sporca Standard", async () => {
+  const db = creaFintoD1(SCHEMA);
+  const fornita = copia({ evento: "DualColorPrecons", formato: null });
+  const ingresso = await manda(db, fornita);
+  assert.equal(ingresso.stato, 200);
+  assert.equal(ingresso.corpo.accettate, 1);
+
+  const meta = await manda(db, null, "GET", "/meta?formato=Standard");
+  assert.equal(meta.stato, 200);
+  assert.equal(meta.corpo.partite_totali, 0);
+  assert.deepEqual(meta.corpo.mazzi, []);
 });
 
 test("la stessa partita due volte conta una volta sola", async () => {

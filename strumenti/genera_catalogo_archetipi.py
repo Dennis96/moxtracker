@@ -44,6 +44,7 @@ NOMI_PUBBLICI = {
     "jeskai-artifacts": "Jeskai Artifacts",
     "mono-green-landfall": "Mono Green Landfall",
     "izzet-spellementals": "Izzet Spellementals",
+    "thor-capstone": "Thor Capstone",
     "four-color-reanimator": "Four-Color Reanimator",
     "five-color-dragonstorm": "Five-Color Dragonstorm",
 }
@@ -139,8 +140,12 @@ def risolvi_nome_catalogo(nome: str, ids_per_nome: dict[str, set[int]]):
 def core_dichiarato(mazzo: dict, firma: dict[str, int],
                     ids_per_nome: dict[str, set[int]]) -> list[str]:
     fuori: list[str] = []
+    # Il core dell'archetipo e la policy per proporre sostituzioni economiche
+    # sono concetti distinti. Le liste senza una sostituzione affidabile
+    # possono dichiarare il primo senza fingere di avere la seconda.
     policy = mazzo.get("budget_policy") or {}
-    for nome in policy.get("core") or []:
+    dichiarato = policy.get("core") or mazzo.get("core") or []
+    for nome in dichiarato:
         key = risolvi_nome_catalogo(str(nome), ids_per_nome)
         if key and key in firma and key not in fuori:
             fuori.append(key)
@@ -257,21 +262,28 @@ def genera(base_mox: Path, meta_path: Path):
     # nome viene generato da tutto il database locale di Arena, non soltanto dal
     # sottoinsieme presente in mox-meta. Le soglie e i core restano invariati.
     id_a_nome = {}
+    id_a_stampa = {}
     basi_ids = []
     for nome in sorted(ids_per_nome):
         for arena_id in sorted(ids_per_nome.get(nome, ())):
             id_a_nome[str(arena_id)] = nome
+            info = carte.get(arena_id) or {}
+            codice_set = str(info.get("set") or "").strip().lower()
+            numero = str(info.get("numero") or "").strip()
+            if codice_set and numero:
+                id_a_stampa[str(arena_id)] = [codice_set, numero]
             if nome in BASICHE:
                 basi_ids.append(arena_id)
 
     catalogo = {
-        "versione": 4,
+        "versione": 5,
         "generato": True,
         "formato": formato,
         "aggiornato": dati.get("aggiornato"),
         "generato_il": date.today().isoformat(),
         "nomi_arena_completi": True,
         "id_a_nome": id_a_nome,
+        "id_a_stampa": id_a_stampa,
         "basi_ids": sorted(set(basi_ids)),
         "liste": liste,
     }
@@ -279,6 +291,7 @@ def genera(base_mox: Path, meta_path: Path):
     return {
         "db": str(db), "meta": str(meta_path), "liste": len(liste),
         "nomi": len(nomi_catalogo), "nomi_arena": len(ids_per_nome), "ids": len(id_a_nome),
+        "stampe": len(id_a_stampa),
         "cores": sum(1 for lista in liste if lista.get("core")),
         "output": str(OUTPUT),
     }
@@ -300,6 +313,7 @@ def main():
     print(f"  nomi usati dal classificatore: {esito['nomi']}")
     print(f"  nomi Arena disponibili:        {esito['nomi_arena']}")
     print(f"  Arena ID nominati:             {esito['ids']}")
+    print(f"  stampe Arena identificabili:   {esito['stampe']}")
     print(f"  scritto:        {esito['output']}")
     return 0
 

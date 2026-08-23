@@ -145,6 +145,8 @@ export function controlla(dato) {
  */
 export function riga(dato, ricevuta) {
   const rank = (dato.rank && dato.rank.costruito) || (dato.rank && dato.rank.limitato) || {};
+  const classe = typeof rank.classe === "string" ? rank.classe : null;
+  const livello = Number.isInteger(rank.livello) ? rank.livello : null;
   return {
     id: dato.partita,
     mittente: dato.mittente,
@@ -158,8 +160,13 @@ export function riga(dato, ricevuta) {
     turni: dato.turni ?? null,
     durata: dato.durata ?? null,
     giochi: Array.isArray(dato.andamento.giochi) ? dato.andamento.giochi.length : null,
-    rank_classe: typeof rank.classe === "string" ? rank.classe : null,
-    rank_livello: Number.isInteger(rank.livello) ? rank.livello : null,
+    rank_classe: classe,
+    rank_livello: livello,
+    // Arena puo' mandare il livello del costruito senza la classe. La riga
+    // conserva comunque il valore, ma rende visibile che il dato e' parziale
+    // anziche' sembrare un salvataggio rotto o un rank da indovinare.
+    rank_stato: classe && livello ? "completo"
+      : (classe || livello ? "parziale" : "assente"),
     impronta_mazzo: dato.mazzo.impronta,
     mox: typeof dato.mox === "string" ? dato.mox.slice(0, 40) : null,
     arena: typeof dato.arena === "string" ? dato.arena.slice(0, 40) : null,

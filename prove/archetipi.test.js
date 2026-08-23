@@ -2,8 +2,9 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import {
   aggregaMeta, classificaFirma, classificaImpronte, firmaDaCarte,
-  somiglianza, somiglianzaCore,
+  nomeCartaArena, somiglianza, somiglianzaCore, stampaCartaArena,
 } from "../src/archetipi.js";
+import { CATALOGO_ARCHETIPI } from "../src/catalogo-archetipi-generato.js";
 
 const catalogo = {
   versione: 2,
@@ -36,6 +37,13 @@ const catalogo = {
     },
   ],
 };
+
+test("il catalogo risolve anche le carte HOB per il fallback immagini", () => {
+  assert.equal(nomeCartaArena(103441), "front porch sentries");
+  assert.equal(nomeCartaArena(103490), "smaug's fury");
+  assert.deepEqual(stampaCartaArena(103441), { set: "hob", numero: "67" });
+  assert.deepEqual(stampaCartaArena(103490), { set: "hob", numero: "111" });
+});
 
 test("la firma usa gli ID Arena, esclude le terre base e non ignora carte sconosciute", () => {
   const firma = firmaDaCarte([
@@ -145,6 +153,23 @@ test("la classificazione lavora per impronta e usa la lista completa del nostro 
     { impronta: "aaa", carta: 8, copie: 4 },
   ], "Standard", catalogo);
   assert.equal(mappa.get("aaa")?.archetipo_id, "archetipo-a");
+});
+
+test("la lista reale Thor Capstone viene ricondotta al suo archetipo", () => {
+  // Decklist anonimizzata dal difetto del 22/08: 60 carte dichiarate nel
+  // connectResp di Arena. Non e' una lista di riferimento dell'utente.
+  const carte = {
+    58449: 18, 69407: 1, 82853: 1, 86958: 4, 86983: 1, 87279: 1,
+    93901: 1, 93905: 2, 95516: 1, 96166: 2, 96832: 3, 97426: 3,
+    97430: 3, 102574: 1, 102579: 3, 102591: 4, 102793: 1,
+    103472: 3, 105019: 2, 105022: 3, 105051: 2,
+  };
+  const firma = firmaDaCarte(Object.entries(carte).map(([carta, copie]) => ({
+    carta: Number(carta), copie,
+  })), CATALOGO_ARCHETIPI);
+  const risultato = classificaFirma(firma, CATALOGO_ARCHETIPI);
+  assert.equal(risultato?.archetipo_id, "thor-capstone");
+  assert.equal(risultato?.livello_classificazione, "archetipo");
 });
 
 test("piu impronte dello stesso archetipo vengono aggregate come varianti dello stesso meta", () => {

@@ -17,6 +17,19 @@ function chiaveFormato(valore) {
   return String(valore || "").trim().toLocaleLowerCase("en-US");
 }
 
+export function nomeCartaArena(arenaId, catalogo = CATALOGO_ARCHETIPI) {
+  const nome = catalogo?.id_a_nome?.[String(arenaId)];
+  return typeof nome === "string" && nome.trim() ? nome.trim() : null;
+}
+
+export function stampaCartaArena(arenaId, catalogo = CATALOGO_ARCHETIPI) {
+  const stampa = catalogo?.id_a_stampa?.[String(arenaId)];
+  if (!Array.isArray(stampa) || stampa.length < 2) return null;
+  const set = String(stampa[0] || "").trim().toLocaleLowerCase("en-US");
+  const numero = String(stampa[1] || "").trim();
+  return set && numero ? { set, numero } : null;
+}
+
 export function catalogoPronto(formato, catalogo = CATALOGO_ARCHETIPI) {
   return Boolean(
     catalogo && catalogo.generato === true &&

@@ -122,6 +122,7 @@ test("la riga per il database conserva il pacchetto intero", () => {
   assert.equal(r.giochi, 3);
   assert.equal(r.rank_classe, "Gold");
   assert.equal(r.rank_livello, 3);
+  assert.equal(r.rank_stato, "completo");
   assert.deepEqual(JSON.parse(r.dato), dato, "il pacchetto originale deve restare intero");
 });
 
@@ -133,6 +134,7 @@ test("senza rank e senza play/draw le colonne restano vuote, non zero", () => {
   const r = riga(dato, "2026-08-18T10:00:00.000Z");
   assert.equal(r.rank_classe, null);
   assert.equal(r.rank_livello, null);
+  assert.equal(r.rank_stato, "assente");
   assert.equal(r.su_gioco, null, "«non si sa» non deve diventare «alla risposta»");
   assert.equal(r.turni, null);
 });
@@ -142,4 +144,13 @@ test("il rank del limited vale quando non c'e' il costruito", () => {
   const r = riga(dato, "2026-08-18T10:00:00.000Z");
   assert.equal(r.rank_classe, "Silver");
   assert.equal(r.rank_livello, 4);
+  assert.equal(r.rank_stato, "completo");
+});
+
+test("un livello ricevuto senza classe resta un rank parziale", () => {
+  const dato = pacchettoBuono({ rank: { costruito: { livello: 3, vinte: 3, perse: 4 } } });
+  const r = riga(dato, "2026-08-22T12:04:22.591Z");
+  assert.equal(r.rank_classe, null);
+  assert.equal(r.rank_livello, 3);
+  assert.equal(r.rank_stato, "parziale");
 });

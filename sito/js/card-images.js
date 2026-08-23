@@ -1,5 +1,5 @@
 const SCRYFALL_API = "https://api.scryfall.com";
-const CACHE_KEY = "mox-scryfall-card-cache-v2";
+const CACHE_KEY = "mox-scryfall-card-cache-v3";
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MISSING_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 500;
@@ -29,6 +29,8 @@ export function normalizeCardSpec(card = {}) {
   return {
     arenaId: positiveArenaId(card.arena_id ?? card.arenaId),
     name: cleanName(card.nome ?? card.name),
+    setCode: cleanName(card.set ?? card.set_code ?? card.setCode).toLocaleLowerCase("en-US"),
+    collectorNumber: cleanName(card.numero ?? card.collector_number ?? card.collectorNumber),
     copies: Number.isFinite(Number(card.copie ?? card.copies))
       ? Number(card.copie ?? card.copies)
       : null,
@@ -37,9 +39,27 @@ export function normalizeCardSpec(card = {}) {
 
 export function cardLookupKey(card = {}) {
   const spec = normalizeCardSpec(card);
-  if (spec.arenaId) return `arena:${spec.arenaId}`;
-  if (spec.name) return `name:${spec.name.toLocaleLowerCase("en-US")}`;
-  return null;
+  const parti = [];
+  if (spec.arenaId) parti.push(`arena:${spec.arenaId}`);
+  if (spec.setCode && spec.collectorNumber) {
+    parti.push(`print:${spec.setCode}/${spec.collectorNumber.toLocaleLowerCase("en-US")}`);
+  }
+  if (spec.name) parti.push(`name:${spec.name.toLocaleLowerCase("en-US")}`);
+  return parti.join("|") || null;
+}
+
+export function cardLookupUrls(card = {}) {
+  const spec = normalizeCardSpec(card);
+  const urls = [];
+  if (spec.arenaId) urls.push(`${SCRYFALL_API}/cards/arena/${spec.arenaId}`);
+  if (spec.setCode && spec.collectorNumber) {
+    urls.push(`${SCRYFALL_API}/cards/${encodeURIComponent(spec.setCode)}/${encodeURIComponent(spec.collectorNumber)}`);
+  }
+  if (spec.name) {
+    const params = new URLSearchParams({ exact: spec.name });
+    urls.push(`${SCRYFALL_API}/cards/named?${params}`);
+  }
+  return urls;
 }
 
 export function parseReferenceLine(line) {
@@ -154,17 +174,10 @@ function queuedFetch(url) {
 }
 
 async function lookupNetwork(spec) {
-  if (spec.arenaId) {
-    const result = await queuedFetch(`${SCRYFALL_API}/cards/arena/${spec.arenaId}`);
+  for (const url of cardLookupUrls(spec)) {
+    const result = await queuedFetch(url);
     if (result.found) return result.data;
   }
-
-  if (spec.name) {
-    const params = new URLSearchParams({ exact: spec.name });
-    const result = await queuedFetch(`${SCRYFALL_API}/cards/named?${params}`);
-    if (result.found) return result.data;
-  }
-
   return null;
 }
 
@@ -225,6 +238,7 @@ function ensurePreview() {
 
   previewNode = document.createElement("aside");
   previewNode.className = "card-hover-preview";
+  previewNode.setAttribute("popover", "manual");
   previewNode.hidden = true;
   previewNode.setAttribute("aria-hidden", "true");
 
@@ -272,12 +286,26 @@ function showPreview(anchor, media, spec) {
   previewMeta.textContent = details.join(" • ");
 
   previewNode.hidden = false;
+  if (typeof previewNode.showPopover === "function") {
+    try {
+      if (!previewNode.matches(":popover-open")) previewNode.showPopover();
+    } catch {
+      // Browser senza Popover completo: resta il normale elemento fixed.
+    }
+  }
   positionPreview(anchor);
 }
 
 function hidePreview(anchor = null) {
   if (!previewNode) return;
   if (anchor && activePreviewAnchor && anchor !== activePreviewAnchor) return;
+  if (typeof previewNode.hidePopover === "function") {
+    try {
+      if (previewNode.matches(":popover-open")) previewNode.hidePopover();
+    } catch {
+      // Il fallback fixed non richiede nessuna chiusura speciale.
+    }
+  }
   previewNode.hidden = true;
   activePreviewAnchor = null;
   if (previewImage) previewImage.removeAttribute("src");
