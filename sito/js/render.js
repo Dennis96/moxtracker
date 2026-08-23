@@ -71,6 +71,16 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
   const updated = formatDate(data.aggiornato);
   document.querySelector("#meta-updated").textContent = updated ? `Ultimo dato ricevuto: ${updated}` : "Nessun dato ricevuto";
   document.querySelector("#meta-threshold").textContent = `Percentuali pubblicate da ${formatInteger(data.soglia_percentuali)} partite.`;
+  // Con un filtro di rank attivo un archetipo puo' sparire perche' le sue
+  // partite non portano la classe: Arena a volte manda solo il livello. Senza
+  // questa riga sembra che il mazzo non esista, e non e' vero.
+  const senzaRank = Number(data.partite_senza_rank || 0);
+  const nota = document.querySelector("#meta-threshold");
+  if (senzaRank > 0) {
+    nota.textContent += ` ${formatInteger(senzaRank)} ${senzaRank === 1
+      ? "partita non ha il rank completo e resta fuori da questo filtro."
+      : "partite non hanno il rank completo e restano fuori da questo filtro."}`;
+  }
 
   let decks = filterMetaDecks(Array.isArray(data.mazzi) ? data.mazzi : [], localFilters);
   document.querySelector("#meta-visible").textContent = `${formatInteger(decks.length)} ${decks.length === 1 ? "gruppo mostrato" : "gruppi mostrati"}`;

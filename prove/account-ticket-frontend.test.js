@@ -62,6 +62,18 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(js, /\/messages/);
 });
 
+test("il rank si sceglie come intervallo, non come voce singola", () => {
+  const html = leggi("index.html");
+  const js = leggi("js/main.js");
+  const css = leggi("css/site.css");
+  assert.match(html, /id="rank-min"/);
+  assert.match(html, /id="rank-max"/);
+  assert.doesNotMatch(html, /<select id="rank-filter"/);
+  assert.match(js, /Da \$\{elenco\[0\]\} a \$\{elenco\[elenco\.length - 1\]\}/);
+  assert.match(js, /elenco\.join\(","\)/);
+  assert.match(css, /\.rank-track/);
+});
+
 test("la cronologia parte corta e lo stesso pulsante la richiude", () => {
   const js = leggi("js/account.js");
   assert.match(js, /PASSO_PARTITE = 10/);

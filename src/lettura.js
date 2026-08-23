@@ -8,23 +8,36 @@ function percentuale(parte, totale) {
   return Math.round((parte * 10000) / totale) / 100;
 }
 
+// Le classi che Arena espone. Una partita puo' arrivare senza classe - il
+// log a volte porta solo il livello - e in quel caso non appartiene a nessun
+// rank: non si indovina, ma si dice quante sono.
+const CLASSI_RANK = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Mythic"];
+
 function filtri(indirizzo, extra = []) {
   const formato = (indirizzo.searchParams.get("formato") || "").trim();
   if (!formato || formato.length > 40) {
     return { errore: "formato mancante o non valido" };
   }
-  const rank = (indirizzo.searchParams.get("rank") || "").trim();
-  if (rank.length > 20) return { errore: "rank non valido" };
+  // Il rank si puo' chiedere anche a piu' classi insieme, separate da
+  // virgola: «da Gold a Platinum» e' una domanda normale, e prima si poteva
+  // fare solo una classe alla volta o nessuna.
+  const grezzo = (indirizzo.searchParams.get("rank") || "").trim();
+  if (grezzo.length > 80) return { errore: "rank non valido" };
+  const classi = grezzo ? grezzo.split(",").map((c) => c.trim()).filter(Boolean) : [];
+  if (classi.some((c) => !CLASSI_RANK.includes(c))) {
+    return { errore: "rank non valido" };
+  }
 
   const condizioni = ["formato = ?", ...extra];
   const argomenti = [formato];
-  if (rank) {
-    condizioni.push("rank_classe = ?");
-    argomenti.push(rank);
+  if (classi.length) {
+    condizioni.push(`rank_classe IN (${classi.map(() => "?").join(", ")})`);
+    argomenti.push(...classi);
   }
   return {
     formato,
-    rank: rank || null,
+    rank: classi.length ? classi.join(",") : null,
+    classi,
     where: "WHERE " + condizioni.join(" AND "),
     argomenti,
   };
@@ -35,9 +48,21 @@ async function quadro(db, filtro) {
     `SELECT COUNT(*) AS partite_totali, MAX(ricevuta) AS aggiornato
      FROM partite ${filtro.where}`
   ).bind(...filtro.argomenti).first();
+  // Con un filtro di rank attivo, un archetipo puo' sparire del tutto senza
+  // che si capisca perche': le sue partite potrebbero non avere la classe.
+  // Il numero si dice, cosi' il sito puo' spiegarlo invece di far sparire e
+  // basta.
+  let senzaRank = 0;
+  if (filtro.classi && filtro.classi.length) {
+    const escluse = await db.prepare(
+      `SELECT COUNT(*) AS n FROM partite WHERE formato = ? AND rank_classe IS NULL`
+    ).bind(filtro.formato).first();
+    senzaRank = Number((escluse && escluse.n) || 0);
+  }
   return {
     partite_totali: Number((riga && riga.partite_totali) || 0),
     aggiornato: (riga && riga.aggiornato) || null,
+    partite_senza_rank: senzaRank,
   };
 }
 

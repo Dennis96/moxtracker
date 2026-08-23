@@ -7,10 +7,10 @@
   <meta name="description" content="MOX Arena Assistant: meta pubblico di MTG Arena basato sulle partite anonime raccolte dagli utenti MOX.">
   <title>MOX Arena Assistant — Meta MTG Arena</title>
   <link rel="icon" href="./assets/mox.ico">
-  <link rel="stylesheet" href="./css/site.css">
+  <link rel="stylesheet" href="./css/site.css?v=20260823-1">
   <link rel="stylesheet" href="./css/card-images.css">
   <link rel="stylesheet" href="./css/ui-fixes.css">
-  <script type="module" src="./js/main.js?v=20260822-3"></script>
+  <script type="module" src="./js/main.js?v=20260823-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#meta">Vai al Meta Explorer</a>
@@ -55,9 +55,20 @@
               <label for="format-filter">Formato</label>
               <span class="select-wrap"><select id="format-filter" aria-label="Formato"></select></span>
             </div>
-            <div class="filter-field compact">
-              <label for="rank-filter">Rank</label>
-              <span class="select-wrap"><select id="rank-filter" aria-label="Rank"></select></span>
+            <div class="filter-field rank-field">
+              <label for="rank-min" id="rank-legend">Rank</label>
+              <div class="rank-range">
+                <output id="rank-label" for="rank-min rank-max">Tutti i rank</output>
+                <div class="rank-track">
+                  <span class="rank-selected" id="rank-selected"></span>
+                  <input type="range" id="rank-min" min="0" max="5" step="1" value="0" aria-label="Rank più basso">
+                  <input type="range" id="rank-max" min="0" max="5" step="1" value="5" aria-label="Rank più alto">
+                </div>
+                <ul class="rank-ticks" aria-hidden="true">
+                  <li>Bronze</li><li>Silver</li><li>Gold</li>
+                  <li>Platinum</li><li>Diamond</li><li>Mythic</li>
+                </ul>
+              </div>
             </div>
             <div class="filter-field search-field">
               <label for="archetype-search">Cerca</label>

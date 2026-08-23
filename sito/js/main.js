@@ -26,18 +26,50 @@ function setupApiFilters() {
   }
   format.value = DEFAULT_FORMAT;
 
-  const rank = document.querySelector("#rank-filter");
-  for (const value of RANKS) {
-    const option = document.createElement("option");
-    option.value = value; option.textContent = value || "Tutti i rank"; rank.append(option);
-  }
+  // Il rank e' un intervallo, non una voce di menu: la domanda vera e' «da
+  // che rank a che rank», e con un menu si poteva chiedere una classe sola.
+  const classi = RANKS.filter(Boolean);
+  const minimo = document.querySelector("#rank-min");
+  const massimo = document.querySelector("#rank-max");
+  const etichetta = document.querySelector("#rank-label");
+  const evidenza = document.querySelector("#rank-selected");
+  minimo.max = String(classi.length - 1);
+  massimo.max = String(classi.length - 1);
+  massimo.value = String(classi.length - 1);
 
-  const changed = () => {
-    state.apiFilters = { formato: format.value, rank: rank.value };
+  const scelti = () => {
+    const da = Math.min(Number(minimo.value), Number(massimo.value));
+    const a = Math.max(Number(minimo.value), Number(massimo.value));
+    return classi.slice(da, a + 1);
+  };
+
+  const disegna = () => {
+    const da = Math.min(Number(minimo.value), Number(massimo.value));
+    const a = Math.max(Number(minimo.value), Number(massimo.value));
+    const passo = 100 / (classi.length - 1);
+    evidenza.style.left = `${da * passo}%`;
+    evidenza.style.width = `${(a - da) * passo}%`;
+    const elenco = scelti();
+    etichetta.textContent = elenco.length === classi.length ? "Tutti i rank"
+      : elenco.length === 1 ? `Solo ${elenco[0]}`
+        : `Da ${elenco[0]} a ${elenco[elenco.length - 1]}`;
+  };
+
+  const cambiato = () => {
+    const elenco = scelti();
+    // Tutte le classi equivale a nessun filtro: cosi' restano dentro anche le
+    // partite che il rank non ce l'hanno.
+    state.apiFilters = { formato: format.value,
+      rank: elenco.length === classi.length ? "" : elenco.join(",") };
+    disegna();
     loadAll();
   };
-  format.addEventListener("change", changed);
-  rank.addEventListener("change", changed);
+  format.addEventListener("change", cambiato);
+  for (const cursore of [minimo, massimo]) {
+    cursore.addEventListener("input", disegna);
+    cursore.addEventListener("change", cambiato);
+  }
+  disegna();
 }
 
 function renderCurrentMeta() {

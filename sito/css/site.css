@@ -282,3 +282,30 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Il filtro del rank: un intervallo, non una scelta sola.
+   Due cursori sullo stesso binario, come si fa quando la domanda vera e'
+   «da che rank a che rank», e non «quale rank». */
+.rank-field { min-width: 250px; }
+.rank-range { display: flex; flex-direction: column; gap: 6px; }
+.rank-range output { font-size: .82rem; color: var(--text); min-height: 18px; }
+.rank-track { position: relative; height: 24px; }
+.rank-track::before { content: ""; position: absolute; left: 0; right: 0; top: 10px;
+  height: 4px; border-radius: 3px; background: var(--surface-3); border: 1px solid var(--line); }
+.rank-selected { position: absolute; top: 10px; height: 4px; border-radius: 3px;
+  background: var(--accent, #a855f7); pointer-events: none; }
+.rank-track input[type="range"] { position: absolute; left: 0; width: 100%; margin: 0;
+  height: 24px; background: none; appearance: none; pointer-events: none; }
+.rank-track input[type="range"]::-webkit-slider-thumb { appearance: none; pointer-events: auto;
+  width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--surface-1);
+  background: var(--accent, #a855f7); cursor: pointer; }
+.rank-track input[type="range"]::-moz-range-thumb { pointer-events: auto;
+  width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--surface-1);
+  background: var(--accent, #a855f7); cursor: pointer; }
+.rank-track input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--text); }
+.rank-ticks { display: flex; justify-content: space-between; list-style: none;
+  margin: 0; padding: 0; font-size: .68rem; color: var(--muted); }
+.rank-ticks li { flex: 1; text-align: center; }
+.rank-ticks li:first-child { text-align: left; }
+.rank-ticks li:last-child { text-align: right; }
+@media (max-width: 720px) { .rank-ticks { font-size: .62rem; } }

@@ -901,6 +901,40 @@ async function esci(richiesta, ambiente, utente) {
     { "set-cookie": cookieSessione("", 0) });
 }
 
+// Le tabelle che appartengono a un account, in un posto solo.
+//
+// Il 23/08/2026 `account_mazzo` e' nata senza passare di qui: la cancellazione
+// elencava dodici DELETE scritti a mano e quello nuovo mancava, cosi' i mazzi
+// - con il nome scelto dall'utente, il dato piu' personale di questo database
+// - sopravvivevano a un account cancellato. Aggiungere una tabella con una
+// colonna `account_id` senza metterla in questo elenco fa fallire una prova:
+// non e' piu' una cosa che si puo' dimenticare.
+export const TABELLE_DELL_ACCOUNT = [
+  "account_dispositivo",
+  "account_codice_mox",
+  "account_mazzo_nome",
+  "account_mazzo",
+  "account_sessione",
+  "account_identita",
+  "ticket_audit",
+];
+
+// Le tabelle dei ticket non hanno `account_id`: appartengono all'account
+// attraverso il ticket, e vanno svuotate prima di lui.
+const TABELLE_DEI_TICKET = ["ticket_audit", "ticket_allegato", "ticket_messaggio"];
+
+export function comandiCancellaAccount(db, accountId) {
+  const comandi = TABELLE_DEI_TICKET.map((tabella) => db.prepare(
+    `DELETE FROM ${tabella} WHERE ticket_id IN
+      (SELECT id FROM ticket WHERE account_id = ?)`).bind(accountId));
+  comandi.push(db.prepare("DELETE FROM ticket WHERE account_id = ?").bind(accountId));
+  for (const tabella of TABELLE_DELL_ACCOUNT) {
+    comandi.push(db.prepare(`DELETE FROM ${tabella} WHERE account_id = ?`).bind(accountId));
+  }
+  comandi.push(db.prepare("DELETE FROM account WHERE id = ?").bind(accountId));
+  return comandi;
+}
+
 async function eliminaAccount(richiesta, ambiente, utente) {
   const corpo = await corpoJson(richiesta);
   if (corpo?.conferma !== "ELIMINA") return rispostaAccount(richiesta, ambiente,
@@ -920,26 +954,7 @@ async function eliminaAccount(richiesta, ambiente, utente) {
       await ambiente.TICKET_FILES.delete(chiavi.slice(i, i + 1000));
     }
   }
-  await ambiente.DB.batch([
-    ambiente.DB.prepare(`DELETE FROM ticket_audit WHERE ticket_id IN
-      (SELECT id FROM ticket WHERE account_id = ?)`).bind(utente.id),
-    ambiente.DB.prepare(`DELETE FROM ticket_allegato WHERE ticket_id IN
-      (SELECT id FROM ticket WHERE account_id = ?)`).bind(utente.id),
-    ambiente.DB.prepare(`DELETE FROM ticket_messaggio WHERE ticket_id IN
-      (SELECT id FROM ticket WHERE account_id = ?)`).bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM ticket WHERE account_id = ?").bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM account_dispositivo WHERE account_id = ?").bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM account_codice_mox WHERE account_id = ?").bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM account_mazzo_nome WHERE account_id = ?").bind(utente.id),
-    // I mazzi sincronizzati portano il nome scelto dall'utente: sono la
-    // cosa piu' personale che questo database contenga, e devono sparire
-    // con l'account. Erano rimasti fuori quando la tabella e' nata.
-    ambiente.DB.prepare("DELETE FROM account_mazzo WHERE account_id = ?").bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM account_sessione WHERE account_id = ?").bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM account_identita WHERE account_id = ?").bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM ticket_audit WHERE account_id = ?").bind(utente.id),
-    ambiente.DB.prepare("DELETE FROM account WHERE id = ?").bind(utente.id),
-  ]);
+  await ambiente.DB.batch(comandiCancellaAccount(ambiente.DB, utente.id));
   return rispostaAccount(richiesta, ambiente, { eliminato: true, contributi: eliminati }, 200,
     { "set-cookie": cookieSessione("", 0) });
 }

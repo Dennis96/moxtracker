@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 
 import worker from "../src/index.js";
 import { pulisciTicketScaduti } from "../src/ticket.js";
-import { pulisciCredenzialiScadute } from "../src/account.js";
+import { pulisciCredenzialiScadute, TABELLE_DELL_ACCOUNT } from "../src/account.js";
 import { sha256 } from "../src/draft.js";
 import { creaFintoD1 } from "./finto-d1.js";
 
@@ -686,4 +686,72 @@ test("le credenziali scadute non restano per sempre nel database", async () => {
   assert.ok(viva);
   await pulisciCredenzialiScadute(env);
   assert.equal(env.DB.conta("account_sessione"), 1);
+});
+
+test("nessuna tabella dell'account puo' sfuggire alla cancellazione", async () => {
+  // La prova che rende impossibile ripetere il difetto del 23/08/2026: allora
+  // account_mazzo era nata senza entrare nell'elenco della cancellazione, e i
+  // mazzi sopravvivevano all'account. Qui l'elenco viene confrontato con lo
+  // schema vero: chi aggiunge una tabella con `account_id` e non la dichiara
+  // fa fallire questa riga.
+  const { readFileSync } = await import("node:fs");
+  const schema = readFileSync(join(qui, "..", "schema.sql"), "utf8");
+  const conAccountId = [];
+  for (const pezzo of schema.split(/CREATE TABLE IF NOT EXISTS\s+/).slice(1)) {
+    const nome = pezzo.split(/[\s(]/)[0];
+    const corpo = pezzo.slice(pezzo.indexOf("("), pezzo.indexOf(");"));
+    if (/\baccount_id\b/.test(corpo)) conAccountId.push(nome);
+  }
+  assert.ok(conAccountId.length >= 7, `trovate solo ${conAccountId.length} tabelle con account_id`);
+  // `ticket` ha account_id ma viene cancellata insieme ai suoi figli, non
+  // dall'elenco: e' l'unica eccezione, e sta scritta qui.
+  const attese = conAccountId.filter((nome) => nome !== "ticket");
+  const mancanti = attese.filter((nome) => !TABELLE_DELL_ACCOUNT.includes(nome));
+  assert.deepEqual(mancanti, [],
+    `queste tabelle hanno account_id ma non vengono cancellate: ${mancanti.join(", ")}`);
+});
+
+test("il rank si puo' chiedere a piu' classi insieme", async () => {
+  const env = ambiente();
+  const mittente = "3".repeat(32);
+  const segreto = "4".repeat(64);
+  const partite = [
+    { classe: "Gold", id: "3300000001" },
+    { classe: "Platinum", id: "3300000002" },
+    { classe: "Mythic", id: "3300000003" },
+  ].map(({ classe, id }) => {
+    const pacchetto = partitaPersonale({ id, mittente, segreto });
+    pacchetto.rank = { costruito: { classe, livello: 2 } };
+    return pacchetto;
+  });
+  // Una partita senza classe: Arena a volte manda solo il livello.
+  const parziale = partitaPersonale({ id: "3300000004", mittente, segreto });
+  parziale.rank = { costruito: { livello: 3 } };
+  partite.push(parziale);
+  await worker.fetch(new Request("https://api.moxtracker.app/partite", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify(partite),
+  }), env);
+
+  const tutte = await (await worker.fetch(new Request(
+    "https://api.moxtracker.app/meta?formato=Standard"), env)).json();
+  assert.equal(tutte.partite_totali, 4);
+  assert.equal(tutte.partite_senza_rank, 0, "senza filtro non si parla di esclusi");
+
+  const due = await (await worker.fetch(new Request(
+    "https://api.moxtracker.app/meta?formato=Standard&rank=Gold,Platinum"), env)).json();
+  assert.equal(due.partite_totali, 2);
+  assert.equal(due.filtri.rank, "Gold,Platinum");
+
+  // La partita senza classe non appartiene a nessun rank, e il sito deve
+  // poterlo dire invece di far sparire un archetipo senza spiegazione.
+  assert.equal(due.partite_senza_rank, 1);
+
+  const sola = await (await worker.fetch(new Request(
+    "https://api.moxtracker.app/meta?formato=Standard&rank=Mythic"), env)).json();
+  assert.equal(sola.partite_totali, 1);
+
+  const sbagliato = await worker.fetch(new Request(
+    "https://api.moxtracker.app/meta?formato=Standard&rank=Leggenda"), env);
+  assert.equal(sbagliato.status, 400);
 });
