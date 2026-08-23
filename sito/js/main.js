@@ -37,6 +37,16 @@ function setupApiFilters() {
   massimo.max = String(classi.length - 1);
   massimo.value = String(classi.length - 1);
 
+  // Le insegne sopra il binario: si accendono quelle dentro l'intervallo.
+  const tacche = document.querySelector("#rank-ticks");
+  for (const classe of classi) {
+    const voce = document.createElement("li");
+    const icona = document.createElement("img");
+    icona.src = `./assets/rank/${classe.toLowerCase()}.svg`;
+    icona.alt = ""; icona.width = 21; icona.height = 21;
+    voce.append(icona); voce.title = classe; tacche.append(voce);
+  }
+
   const scelti = () => {
     const da = Math.min(Number(minimo.value), Number(massimo.value));
     const a = Math.max(Number(minimo.value), Number(massimo.value));
@@ -53,6 +63,9 @@ function setupApiFilters() {
     etichetta.textContent = elenco.length === classi.length ? "Tutti i rank"
       : elenco.length === 1 ? `Solo ${elenco[0]}`
         : `Da ${elenco[0]} a ${elenco[elenco.length - 1]}`;
+    for (const [indice, voce] of [...tacche.children].entries()) {
+      voce.classList.toggle("attivo", indice >= da && indice <= a);
+    }
   };
 
   const cambiato = () => {

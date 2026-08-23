@@ -76,7 +76,7 @@ html[data-theme="light"] .hero { background: linear-gradient(92deg, rgba(244,243
 .meta-status strong { color: var(--text); }
 .meta-status time { color: #c065ff; }
 
-.explorer-controls { display: grid; grid-template-columns: 170px 190px minmax(260px, 1.25fr) 210px minmax(250px, .9fr) auto; gap: 11px; align-items: end; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface-2) 93%, rgba(127,43,255,.07)); }
+.explorer-controls { display: grid; grid-template-columns: 170px 232px minmax(240px, 1.15fr) 200px minmax(230px, .85fr) auto; gap: 11px; align-items: end; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface-2) 93%, rgba(127,43,255,.07)); }
 .filter-field { min-width: 0; }
 .filter-field label, .field-label { display: block; margin: 0 0 6px; color: var(--muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .045em; }
 .select-wrap { position: relative; display: block; }
@@ -284,28 +284,31 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 }
 
 /* Il filtro del rank: un intervallo, non una scelta sola.
-   Due cursori sullo stesso binario, come si fa quando la domanda vera e'
-   «da che rank a che rank», e non «quale rank». */
-.rank-field { min-width: 250px; }
-.rank-range { display: flex; flex-direction: column; gap: 6px; }
-.rank-range output { font-size: .82rem; color: var(--text); min-height: 18px; }
-.rank-track { position: relative; height: 24px; }
-.rank-track::before { content: ""; position: absolute; left: 0; right: 0; top: 10px;
-  height: 4px; border-radius: 3px; background: var(--surface-3); border: 1px solid var(--line); }
-.rank-selected { position: absolute; top: 10px; height: 4px; border-radius: 3px;
-  background: var(--accent, #a855f7); pointer-events: none; }
-.rank-track input[type="range"] { position: absolute; left: 0; width: 100%; margin: 0;
-  height: 24px; background: none; appearance: none; pointer-events: none; }
-.rank-track input[type="range"]::-webkit-slider-thumb { appearance: none; pointer-events: auto;
-  width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--surface-1);
-  background: var(--accent, #a855f7); cursor: pointer; }
-.rank-track input[type="range"]::-moz-range-thumb { pointer-events: auto;
-  width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--surface-1);
-  background: var(--accent, #a855f7); cursor: pointer; }
-.rank-track input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--text); }
+   Due cursori sullo stesso binario, e sopra le sei insegne che dicono a colpo
+   d'occhio dove sei. Il testo dei rank non ci stava nella colonna: si
+   sovrapponeva al campo di ricerca. */
+.rank-field { min-width: 0; }
+.rank-range { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.rank-range output { font-size: .74rem; color: var(--text); min-height: 16px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rank-ticks { display: flex; justify-content: space-between; list-style: none;
-  margin: 0; padding: 0; font-size: .68rem; color: var(--muted); }
-.rank-ticks li { flex: 1; text-align: center; }
-.rank-ticks li:first-child { text-align: left; }
-.rank-ticks li:last-child { text-align: right; }
-@media (max-width: 720px) { .rank-ticks { font-size: .62rem; } }
+  margin: 0; padding: 0 2px; gap: 2px; }
+.rank-ticks li { flex: 0 0 auto; line-height: 0; }
+.rank-ticks img { width: 21px; height: 21px; display: block;
+  filter: grayscale(1) opacity(.34); transition: filter .12s ease, transform .12s ease; }
+.rank-ticks li.attivo img { filter: none; transform: translateY(-1px); }
+.rank-track { position: relative; height: 20px; }
+.rank-track::before { content: ""; position: absolute; left: 0; right: 0; top: 8px;
+  height: 4px; border-radius: 3px; background: var(--surface-3); border: 1px solid var(--line); }
+.rank-selected { position: absolute; top: 8px; height: 4px; border-radius: 3px;
+  background: #a855f7; pointer-events: none; }
+.rank-track input[type="range"] { position: absolute; left: 0; width: 100%; margin: 0;
+  height: 20px; background: none; appearance: none; pointer-events: none; }
+.rank-track input[type="range"]::-webkit-slider-thumb { appearance: none; pointer-events: auto;
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--surface-1);
+  background: #a855f7; cursor: pointer; }
+.rank-track input[type="range"]::-moz-range-thumb { pointer-events: auto;
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--surface-1);
+  background: #a855f7; cursor: pointer; }
+.rank-track input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--text); }
+@media (max-width: 980px) { .rank-field { grid-column: span 1; } }
