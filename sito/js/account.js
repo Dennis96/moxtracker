@@ -3,7 +3,9 @@ import { createCardThumbnail, resolveCard } from "./card-images.js?v=20260822-9"
 
 const $ = (id) => document.getElementById(id);
 const numeri = new Intl.NumberFormat("it-IT");
-const stato = { dashboard: null, statistiche: null, offset: 0, limite: 30,
+// Dieci partite per volta: a trenta la pagina diventava lunghissima e il
+// pulsante «Carica altre partite» non lo vedeva nessuno.
+const stato = { dashboard: null, statistiche: null, offset: 0, limite: 10,
   totale: 0, partite: [], filtri: { mazzo: "", esito: "", evento: "" } };
 
 function tema() {

@@ -62,6 +62,17 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(js, /\/messages/);
 });
 
+test("gli script delle pagine private portano una versione, per la cache", () => {
+  // Senza `?v=` (o con la stessa di prima) il browser continua a servire il
+  // file vecchio anche dopo il deploy: successo il 23/08/2026 col menu Evento.
+  for (const pagina of ["account.html", "supporto.html", "admin.html"]) {
+    const html = leggi(pagina);
+    const script = html.match(/src="\.\/js\/[a-z-]+\.js(\?v=[^"]+)?"/);
+    assert.ok(script, `${pagina}: nessuno script trovato`);
+    assert.ok(script[1], `${pagina}: lo script non ha ?v= e restera' in cache`);
+  }
+});
+
 test("il menu Evento si riempie da tutti gli eventi, non dai soli Draft", () => {
   const js = leggi("js/account.js");
   assert.match(js, /stato\.statistiche\.eventi/);

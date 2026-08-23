@@ -140,6 +140,11 @@ richieste `/api` all'API pubblica, senza inviare partite o Draft.
 4. committare e inviare il ramo soltanto quando la consegna è pronta;
 5. per account/ticket seguire tutti i prerequisiti di `ACCOUNT-E-TICKET.md`;
 6. pubblicare prima il Worker se il frontend dipende da nuovi campi;
+6-bis. **se hai toccato un `.js` o un `.css`, alza il `?v=` che lo richiama
+   nelle pagine HTML.** Il 23/08/2026 il codice nuovo era online ma i browser
+   continuavano a servire quello vecchio dalla cache, perché l'indirizzo con
+   la vecchia query era identico: sembrava che la correzione non fosse
+   partita;
 7. verificare sia `moxtracker.app` sia la beta Pages dopo ogni deploy;
 8. verificare che l'asset stabile `Mox-Windows-beta.zip` appartenga alla release
    GitHub più recente;
