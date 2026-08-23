@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS partite (
   giochi          INTEGER,         -- quanti game nel match (Bo3)
   rank_classe     TEXT,
   rank_livello    INTEGER,
+  rank_stato      TEXT NOT NULL DEFAULT 'assente', -- completo, parziale o assente
   impronta_mazzo  TEXT,
   mox             TEXT,
   arena           TEXT,
@@ -67,3 +68,123 @@ CREATE TABLE IF NOT EXISTS contributori (
   cancellazione_hash   TEXT NOT NULL,
   creato               TEXT NOT NULL
 );
+
+-- Account facoltativi. Le identita' OAuth restano private e non vengono mai
+-- usate nelle letture pubbliche del meta.
+CREATE TABLE IF NOT EXISTS account (
+  id             TEXT PRIMARY KEY,
+  nome           TEXT NOT NULL,
+  avatar         TEXT,
+  ruolo          TEXT NOT NULL DEFAULT 'utente',
+  creato         TEXT NOT NULL,
+  aggiornato     TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS account_identita (
+  provider       TEXT NOT NULL,
+  soggetto       TEXT NOT NULL,
+  account_id     TEXT NOT NULL,
+  PRIMARY KEY (provider, soggetto)
+);
+CREATE INDEX IF NOT EXISTS account_identita_account
+  ON account_identita (account_id);
+
+-- Cookie e stati OAuth sono credenziali: nel database entra soltanto SHA-256.
+CREATE TABLE IF NOT EXISTS account_sessione (
+  hash           TEXT PRIMARY KEY,
+  account_id     TEXT NOT NULL,
+  creato         TEXT NOT NULL,
+  scade          TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS account_sessione_account
+  ON account_sessione (account_id, scade);
+
+CREATE TABLE IF NOT EXISTS account_oauth_stato (
+  hash           TEXT PRIMARY KEY,
+  provider       TEXT NOT NULL,
+  ritorno        TEXT NOT NULL,
+  creato         TEXT NOT NULL,
+  scade          TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS account_codice_mox (
+  hash           TEXT PRIMARY KEY,
+  account_id     TEXT NOT NULL,
+  creato         TEXT NOT NULL,
+  scade          TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS account_dispositivo (
+  mittente       TEXT PRIMARY KEY,
+  account_id     TEXT NOT NULL,
+  nome           TEXT NOT NULL,
+  segreto_hash   TEXT NOT NULL,
+  collegato      TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS account_dispositivo_account
+  ON account_dispositivo (account_id, collegato);
+
+-- Etichette private scelte dall'utente per le proprie decklist costruite.
+-- L'impronta resta l'identificativo tecnico stabile; il nome non entra mai
+-- nelle aggregazioni pubbliche del meta.
+CREATE TABLE IF NOT EXISTS account_mazzo_nome (
+  account_id     TEXT NOT NULL,
+  formato        TEXT NOT NULL,
+  impronta       TEXT NOT NULL,
+  nome           TEXT NOT NULL,
+  aggiornato     TEXT NOT NULL,
+  PRIMARY KEY (account_id, formato, impronta)
+);
+CREATE INDEX IF NOT EXISTS account_mazzo_nome_account
+  ON account_mazzo_nome (account_id, aggiornato);
+
+-- Ticket e messaggi. Un ticket anonimo e' accessibile soltanto tramite il
+-- token segreto restituito alla creazione, anch'esso salvato come hash.
+CREATE TABLE IF NOT EXISTS ticket (
+  id             TEXT PRIMARY KEY,
+  account_id     TEXT,
+  accesso_hash   TEXT,
+  categoria      TEXT NOT NULL,
+  titolo         TEXT NOT NULL,
+  stato          TEXT NOT NULL,
+  versione_mox   TEXT,
+  diagnostica_id TEXT,
+  creato         TEXT NOT NULL,
+  aggiornato     TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ticket_account ON ticket (account_id, aggiornato);
+
+CREATE TABLE IF NOT EXISTS ticket_messaggio (
+  id             TEXT PRIMARY KEY,
+  ticket_id      TEXT NOT NULL,
+  autore         TEXT NOT NULL,
+  testo          TEXT NOT NULL,
+  creato         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ticket_messaggio_ticket
+  ON ticket_messaggio (ticket_id, creato);
+
+CREATE TABLE IF NOT EXISTS ticket_allegato (
+  id             TEXT PRIMARY KEY,
+  ticket_id      TEXT NOT NULL,
+  nome           TEXT NOT NULL,
+  tipo           TEXT NOT NULL,
+  byte           INTEGER NOT NULL,
+  oggetto_r2     TEXT NOT NULL UNIQUE,
+  creato         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ticket_allegato_ticket
+  ON ticket_allegato (ticket_id, creato);
+
+-- Ogni operazione di supporto resta attribuita all'account amministratore.
+-- Non contiene token, cookie, IP o altri segreti.
+CREATE TABLE IF NOT EXISTS ticket_audit (
+  id             TEXT PRIMARY KEY,
+  account_id     TEXT NOT NULL,
+  ticket_id      TEXT NOT NULL,
+  azione         TEXT NOT NULL,
+  dettaglio      TEXT,
+  creato         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ticket_audit_ticket
+  ON ticket_audit (ticket_id, creato);

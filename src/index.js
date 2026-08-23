@@ -10,6 +10,8 @@ import {
   VERSIONI_DRAFT_ACCETTATE, collegaPartiteDraft, eliminaContributi,
   riceviDraft, sha256, statisticheDraft,
 } from "./draft.js";
+import { gestisciAccount } from "./account.js";
+import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -43,12 +45,12 @@ async function salva(db, dati, ricevuta, segretoHash = null) {
     comandi.push(db.prepare(
       `INSERT OR IGNORE INTO partite
        (id, mittente, ricevuta, quando, evento, formato, esito, su_gioco,
-        mulligan, turni, durata, giochi, rank_classe, rank_livello,
+        mulligan, turni, durata, giochi, rank_classe, rank_livello, rank_stato,
         impronta_mazzo, mox, arena, versione, dato)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(r.id, r.mittente, r.ricevuta, r.quando, r.evento, r.formato,
            r.esito, r.su_gioco, r.mulligan, r.turni, r.durata, r.giochi,
-           r.rank_classe, r.rank_livello, r.impronta_mazzo, r.mox, r.arena,
+           r.rank_classe, r.rank_livello, r.rank_stato, r.impronta_mazzo, r.mox, r.arena,
            r.versione, r.dato));
     for (const [carta, copie] of Object.entries(dato.mazzo.carte)) {
       comandi.push(db.prepare(
@@ -153,9 +155,66 @@ async function letturaPubblica(funzione, db, indirizzo) {
   return risposta(esito.corpo, esito.stato || 200, true);
 }
 
+function numeriVersione(valore) {
+  const numeri = String(valore || "").match(/\d+/g)?.map(Number) || [];
+  return [...numeri, 0, 0, 0, 0].slice(0, 4);
+}
+
+function versioneMaggiore(a, b) {
+  const prima = numeriVersione(a);
+  const seconda = numeriVersione(b);
+  for (let i = 0; i < prima.length; i += 1) {
+    if (prima[i] !== seconda[i]) return prima[i] > seconda[i];
+  }
+  return false;
+}
+
+function releaseMox(ambiente, indirizzo) {
+  if (indirizzo.searchParams.get("piattaforma") !== "win-x64" ||
+      indirizzo.searchParams.get("canale") !== "stable") {
+    return risposta({ errore: "piattaforma o canale non valido" }, 400);
+  }
+  if (!ambiente.MOX_RELEASE_MANIFEST) return risposta({ disponibile: false });
+  let manifesto;
+  try { manifesto = JSON.parse(ambiente.MOX_RELEASE_MANIFEST); } catch {
+    return risposta({ errore: "release non configurata" }, 503);
+  }
+  const obbligatori = ["versione", "url", "sha256", "dimensione", "firma"];
+  if (!manifesto || obbligatori.some((chiave) => !(chiave in manifesto))) {
+    return risposta({ errore: "release non configurata" }, 503);
+  }
+  const corrente = indirizzo.searchParams.get("corrente") || "0";
+  if (!versioneMaggiore(manifesto.versione, corrente)) {
+    return risposta({ disponibile: false });
+  }
+  return risposta({ disponibile: true, ...manifesto }, 200, true);
+}
+
+async function scaricaReleaseMox(ambiente) {
+  if (!ambiente.MOX_RELEASES) {
+    return risposta({ errore: "download release non configurato" }, 503);
+  }
+  const oggetto = await ambiente.MOX_RELEASES.get("Mox-Installer-win-x64.exe");
+  if (!oggetto) return risposta({ errore: "installer non trovato" }, 404);
+  return new Response(oggetto.body, {
+    headers: {
+      ...INTESTAZIONI,
+      "content-type": "application/vnd.microsoft.portable-executable",
+      "content-length": String(oggetto.size),
+      "content-disposition": "attachment; filename=\"Mox-Installer-win-x64.exe\"",
+      "cache-control": "no-store",
+    },
+  });
+}
+
 export default {
   async fetch(richiesta, ambiente) {
     const indirizzo = new URL(richiesta.url);
+
+    const ticket = await gestisciTicket(richiesta, ambiente, indirizzo);
+    if (ticket) return ticket;
+    const account = await gestisciAccount(richiesta, ambiente, indirizzo);
+    if (account) return account;
 
     if (richiesta.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: INTESTAZIONI });
@@ -164,6 +223,16 @@ export default {
     if (indirizzo.pathname === "/salute") {
       return risposta({ stato: "vivo", versioni_partite_accettate: VERSIONI_ACCETTATE,
         versioni_draft_accettate: VERSIONI_DRAFT_ACCETTATE });
+    }
+
+    if (indirizzo.pathname === "/mox/release") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      return releaseMox(ambiente, indirizzo);
+    }
+
+    if (indirizzo.pathname === "/mox/download.exe") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      return scaricaReleaseMox(ambiente);
     }
 
     if (indirizzo.pathname === "/meta") {
@@ -227,5 +296,8 @@ export default {
     }
 
     return risposta({ errore: "non c'e' niente qui" }, 404);
+  },
+  async scheduled(_controllore, ambiente, contesto) {
+    contesto.waitUntil(pulisciTicketScaduti(ambiente));
   },
 };

@@ -16,7 +16,7 @@
   <header class="site-header">
     <nav class="nav" aria-label="Navigazione principale">
       <a class="brand" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-      <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./draft.html"><span class="nav-label-desktop">Metodo Draft</span><span class="nav-label-mobile">Draft</span></a></div>
+      <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./draft.html"><span class="nav-label-desktop">Metodo Draft</span><span class="nav-label-mobile">Draft</span></a><a href="./supporto.html">Supporto</a><a href="./account.html">Account</a></div>
       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
     </nav>
   </header>
@@ -31,7 +31,7 @@
         <span class="eyebrow">Trasparenza prima dei numeri</span>
         <h1 id="privacy-title">Privacy e dati</h1>
         <p>MOX raccoglie contributi soltanto dopo un consenso esplicito. Il sito pubblica statistiche aggregate e, da 30 partite della stessa variante, può mostrare la decklist osservata; non pubblica mai la cronologia o l’identità di un singolo giocatore.</p>
-        <div class="privacy-meta"><span>Aggiornata il 21 agosto 2026</span><span>Beta pubblica</span><span>Nessun account sul sito</span></div>
+        <div class="privacy-meta"><span>Aggiornata il 22 agosto 2026</span><span>Beta pubblica</span><span>Account facoltativi</span></div>
       </div>
     </section>
 
@@ -61,14 +61,20 @@
           <li>nome dell'account Arena e identificativi Arena originali;</li>
           <li>nome libero del mazzo;</li>
           <li>mano, libreria o carte non rivelate dell'avversario;</li>
-          <li>email o profili social: il sito non offre ancora account o login.</li>
+          <li>password: l'accesso usa Google o Discord e MOX non gestisce credenziali proprie.</li>
         </ul>
         <p>Ogni installazione usa un identificativo casuale. Il segreto necessario alla cancellazione viene conservato sul server soltanto come hash.</p>
       </article>
 
       <article class="panel privacy-section">
+        <h2>Account e ticket facoltativi</h2>
+        <p>Se accedi, conserviamo soltanto l'identificativo del provider OAuth, il nome visualizzato e l'avatar. Non chiediamo né conserviamo l'email di Google o Discord. Questi dati servono solo ad autenticare la dashboard privata e non entrano nel meta pubblico.</p>
+        <p>Un'installazione viene collegata all'account soltanto con un codice monouso e con la prova del segreto locale di quell'installazione, anche se l'utente non invia contributi. I ticket autenticati restano nell'account; quelli anonimi sono accessibili con un link segreto e protetti da Turnstile. Gli screenshot restano in un archivio R2 privato.</p>
+      </article>
+
+      <article class="panel privacy-section">
         <h2>Dove, per quanto tempo e quando pubblichiamo</h2>
-        <p>Cloudflare ospita l'API e i database D1. Le tracce Draft complete sono in un bucket R2 privato e non sono raggiungibili dal sito; vengono eliminate automaticamente dopo 730 giorni. Gli indici e le partite restano finché sono necessari al progetto o finché l'utente non richiede la cancellazione tramite MOX.</p>
+        <p>Cloudflare ospita l'API e i database D1. Le tracce Draft complete sono in un bucket R2 privato e non sono raggiungibili dal sito; vengono eliminate automaticamente dopo 730 giorni. Gli allegati dei ticket chiusi vengono eliminati dopo 90 giorni e l'intero ticket chiuso dopo 365 giorni. Gli indici e le partite restano finché sono necessari al progetto o finché l'utente non richiede la cancellazione tramite MOX.</p>
         <p>Le statistiche pubbliche restano soggette a soglie minime. Una percentuale Draft richiede almeno 100 pick e un risultato di gioco almeno 30 match collegati; il meta non mostra percentuali sotto 30 partite.</p>
         <p>Una decklist osservata precisa viene pubblicata quando la stessa variante raggiunge almeno 30 partite, anche se il campione proviene da una sola installazione. In quel caso la lista di carte diventa pubblica, ma il sito non pubblica l'identità dell'installazione, il mittente o la cronologia del giocatore e non collega pubblicamente la lista a una persona.</p>
         <p>Le liste di riferimento di mox-meta sono invece un catalogo pubblico curato separatamente: non sono ricostruzioni delle decklist osservate dagli utenti MOX.</p>

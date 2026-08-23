@@ -13,6 +13,23 @@ compatibility_date = "2026-08-18"
 [observability]
 enabled = true
 
+[vars]
+SITE_ORIGIN = "https://moxtracker.app"
+TURNSTILE_SITE_KEY = "0x4AAAAAAEYng_drA6IkCiE1"
+
+# Pulizia giornaliera: allegati dei ticket chiusi dopo 90 giorni, intero
+# ticket dopo 365 giorni. La funzione e' idempotente e lavora a lotti.
+[triggers]
+crons = [ "17 3 * * *" ]
+
+[[ratelimits]]
+name = "TICKET_RATE_LIMITER"
+namespace_id = "29011"
+
+  [ratelimits.simple]
+  limit = 10
+  period = 60
+
 # L'indirizzo definitivo del server. Sta su un sottodominio suo, separato dal
 # sito: `moxtracker.app` sara' la pagina che la gente apre, `api.moxtracker.app`
 # e' il ricevitore che Mox chiama. Tenerli distinti vuol dire poter rifare il
@@ -36,3 +53,13 @@ database_id = "1cbe16b6-b776-4ba7-ba7c-72522535e712"
 [[r2_buckets]]
 binding = "DRAFT_RAW"
 bucket_name = "moxtracker-draft-raw"
+
+[[r2_buckets]]
+binding = "TICKET_FILES"
+bucket_name = "moxtracker-ticket-files"
+
+# L'installer Windows e' privato nel bucket ma viene servito soltanto dal
+# Worker, all'URL HTTPS che compare nel manifesto firmato di Mox.
+[[r2_buckets]]
+binding = "MOX_RELEASES"
+bucket_name = "moxtracker-releases"

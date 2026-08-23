@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080d"><meta name="description" content="Invia e segui un ticket di supporto MOX.">
+  <title>Supporto — MOX Arena Assistant</title>
+  <link rel="icon" href="./assets/mox.ico"><link rel="stylesheet" href="./css/site.css">
+  <link rel="stylesheet" href="./css/account-support.css"><link rel="stylesheet" href="./css/ui-fixes.css">
+  <script type="module" src="./js/supporto.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#supporto">Vai al supporto</a>
+  <header class="site-header"><nav class="nav" aria-label="Navigazione principale">
+    <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+    <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a></div>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+  </nav></header>
+  <main id="supporto" class="service-main">
+    <section class="service-hero"><span class="eyebrow">Segnalazioni tracciabili</span><h1>Supporto MOX</h1><p>Segnala un bug, un problema nei dati o una funzione da sviluppare. Se non accedi riceverai un link segreto: conservalo, perché è l’unico modo per rileggere il ticket.</p></section>
+    <section class="service-grid">
+      <form id="ticket-form" class="panel service-card">
+        <h2>Nuovo ticket</h2>
+        <label class="service-field">Categoria<select id="ticket-category" required><option value="bug">Bug</option><option value="dati">Problema dati</option><option value="sviluppo">Richiesta sviluppo</option></select></label>
+        <label class="service-field">Titolo<input id="ticket-title" minlength="5" maxlength="120" required></label>
+        <label class="service-field">Descrizione<textarea id="ticket-text" minlength="20" maxlength="5000" required placeholder="Cosa è successo, cosa ti aspettavi e come riprodurlo?"></textarea></label>
+        <label class="service-field">Versione Mox (facoltativa)<input id="ticket-version" maxlength="60" placeholder="es. 2 beta 2.9.4"></label>
+        <label class="service-field">Screenshot (facoltativo, max 10 MB)<input id="ticket-file" type="file" accept="image/png,image/jpeg,image/webp"></label>
+        <div id="turnstile-box" class="service-field"><span>Verifica anti-spam</span><div id="turnstile-widget"></div><small id="turnstile-message">Preparazione della verifica…</small></div>
+        <button id="ticket-submit" class="service-button primary" type="submit">Invia ticket</button><p id="ticket-message" class="service-message" aria-live="polite"></p>
+      </form>
+      <section id="ticket-detail" class="panel service-card hidden" aria-live="polite"><h2>Il tuo ticket</h2><div id="ticket-summary"></div><div id="ticket-messages" class="service-list"></div><form id="reply-form"><label class="service-field">Aggiungi informazioni<textarea id="reply-text" maxlength="5000"></textarea></label><button class="service-button" type="submit">Invia risposta</button></form></section>
+      <aside class="panel service-card"><h2>Prima di inviare</h2><p>Allega soltanto screenshot PNG, JPEG o WebP. Gli ZIP diagnostici non vengono accettati finché non sarà disponibile una scansione automatica sicura; puoi riportare nel testo l'identificativo creato da Mox.</p><p>I ticket sono l'archivio ufficiale. Discord servirà più avanti per community, annunci e beta, non per conservare i bug.</p><div class="service-actions"><a class="service-button" href="./account.html">Vai al tuo account</a><a class="service-button" href="./privacy.html">Privacy</a></div></aside>
+    </section>
+  </main>
+  <footer class="site-footer"><nav><a href="./index.html">MOX</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a href="./account.html">Account</a></nav></footer>
+</body></html>

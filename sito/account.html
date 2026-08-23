@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080d">
+  <meta name="description" content="Mazzi, partite, Draft e statistiche private del tuo account MOX.">
+  <title>Il mio MOX — MOX Arena Assistant</title>
+  <link rel="icon" href="./assets/mox.ico"><link rel="stylesheet" href="./css/site.css">
+  <link rel="stylesheet" href="./css/card-images.css?v=20260822-6">
+  <link rel="stylesheet" href="./css/account-support.css?v=20260822-6"><link rel="stylesheet" href="./css/ui-fixes.css">
+  <script type="module" src="./js/account.js?v=20260822-9"></script>
+</head>
+<body>
+  <a class="skip-link" href="#account">Vai all'account</a>
+  <header class="site-header"><nav class="nav" aria-label="Navigazione principale">
+    <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+    <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./draft.html">Draft</a><a href="./supporto.html">Supporto</a></div>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+  </nav></header>
+  <main id="account" class="service-main account-main">
+    <section class="service-hero"><span class="eyebrow">Privato per impostazione predefinita</span><h1>Il mio MOX</h1><p>Tutti i mazzi, le partite e i Draft associati ai tuoi dispositivi. Questi dati sono visibili soltanto nel tuo account.</p></section>
+    <section id="account-loading" class="panel service-card"><p>Carico la tua cronologia…</p></section>
+    <section id="account-login" class="panel service-card hidden">
+      <h2>Accedi</h2><p>MOX non gestisce password. Usa un account Google o Discord; il contributo anonimo continua a funzionare anche senza login.</p>
+      <div class="service-actions"><a id="login-google" class="service-button primary">Continua con Google</a><a id="login-discord" class="service-button">Continua con Discord</a></div>
+      <p id="login-message" class="service-message"></p>
+    </section>
+    <section id="account-dashboard" class="account-dashboard hidden">
+      <article class="panel service-card account-overview">
+        <div class="account-heading"><div><span class="eyebrow">Panoramica personale</span><h2 id="account-name">Account</h2><p id="provider-status" class="service-message"></p></div><div id="recent-form" class="recent-form" aria-label="Ultime dieci partite"></div></div>
+        <div class="account-kpis">
+          <div class="service-kpi"><span>Partite</span><strong id="total-matches">0</strong></div>
+          <div class="service-kpi"><span>Vittorie / sconfitte</span><strong><span id="total-wins">0</span> / <span id="total-losses">0</span></strong></div>
+          <div class="service-kpi"><span>Win rate</span><strong id="win-rate">—</strong></div>
+          <div class="service-kpi"><span>Al gioco / risposta</span><strong id="play-draw">—</strong></div>
+          <div class="service-kpi"><span>Durata media</span><strong id="average-duration">—</strong></div>
+          <div class="service-kpi"><span>Draft registrati</span><strong id="total-drafts">0</strong></div>
+        </div>
+      </article>
+      <article class="panel service-card account-section">
+        <div class="section-heading"><div><span class="eyebrow">Prestazioni per lista</span><h2>I miei mazzi</h2><p>Ogni riga rappresenta una decklist realmente usata. Aprila per vedere carte e statistiche.</p></div><span id="deck-count" class="section-count"></span></div>
+        <div id="decks" class="personal-table"></div>
+      </article>
+      <section class="account-insights">
+        <article class="panel service-card account-section">
+          <div class="section-heading"><div><span class="eyebrow">Progressione competitiva</span><h2>Andamento del rank</h2><p>I cambiamenti realmente ricevuti da Arena, in ordine cronologico.</p></div><span id="rank-summary" class="section-count"></span></div>
+          <div id="rank-chart" class="rank-chart"></div>
+        </article>
+        <article class="panel service-card account-section">
+          <div class="section-heading"><div><span class="eyebrow">Matchup osservati</span><h2>Contro gli archetipi</h2><p>Classificazione prudente basata soltanto sulle carte avversarie rivelate.</p></div><span id="opponent-summary" class="section-count"></span></div>
+          <div id="opponent-stats" class="opponent-stats"></div>
+        </article>
+      </section>
+      <article class="panel service-card account-section">
+        <div class="section-heading"><div><span class="eyebrow">Eventi Limited</span><h2>Draft e risultati</h2><p>Record ricostruiti soltanto dalle partite ricevute; eventuali parti mancanti sono dichiarate.</p></div></div>
+        <div id="draft-sessions" class="personal-grid"></div>
+      </article>
+      <article id="matches-section" class="panel service-card account-section">
+        <div class="section-heading"><div><span class="eyebrow">Cronologia completa</span><h2>Le mie partite</h2><p>Apri una partita per vedere decklist, mano iniziale, andamento e carte rivelate dall'avversario.</p></div><span id="matches-count" class="section-count"></span></div>
+        <div class="personal-filters">
+          <label>Mazzo<select id="filter-deck"><option value="">Tutti i mazzi</option></select></label>
+          <label>Esito<select id="filter-result"><option value="">Vinte e perse</option><option value="vinta">Vinte</option><option value="persa">Perse</option></select></label>
+          <label>Evento<select id="filter-event"><option value="">Tutti gli eventi</option></select></label>
+          <button id="clear-filters" class="service-button" type="button">Azzera filtri</button>
+        </div>
+        <div id="matches" class="match-list"></div>
+        <div class="service-actions centered"><button id="load-more" class="service-button" type="button">Carica altre partite</button></div>
+      </article>
+      <section class="service-grid account-services">
+        <article class="panel service-card"><h2>Collega Mox</h2><p>Genera un codice monouso, poi inseriscilo nelle Opzioni di Mox. Scade dopo 10 minuti.</p><button id="create-link" class="service-button primary" type="button">Genera codice</button><div id="link-code" class="service-code" aria-live="polite"></div><p id="link-message" class="service-message"></p></article>
+        <article class="panel service-card"><h2>Dispositivi</h2><div id="devices" class="service-list"></div></article>
+        <article class="panel service-card full"><h2>Ticket</h2><div id="tickets" class="service-list"></div><div class="service-actions"><a class="service-button" href="./supporto.html">Apri un ticket</a><a id="admin-link" class="service-button hidden" href="./admin.html">Amministra ticket</a></div></article>
+        <article class="panel service-card full"><h2>Accessi, dati e account</h2><p id="account-accesses"></p><div class="service-actions"><a id="link-google" class="service-button hidden">Collega Google</a><a id="link-discord" class="service-button hidden">Collega Discord</a><button id="export-data" class="service-button" type="button">Esporta JSON</button><button id="logout" class="service-button" type="button">Esci</button><button id="delete-account" class="service-button danger" type="button">Elimina dati e account</button></div><p id="account-message" class="service-message"></p></article>
+      </section>
+    </section>
+  </main>
+  <dialog id="detail-dialog" class="detail-dialog"><div class="detail-shell"><div class="detail-head"><div><span id="detail-eyebrow" class="eyebrow"></span><h2 id="detail-title">Dettaglio</h2></div><button class="dialog-close" type="button" data-close aria-label="Chiudi">×</button></div><div id="detail-content" class="detail-content"></div></div></dialog>
+  <footer class="site-footer"><nav><a href="./index.html">MOX</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a href="./supporto.html">Supporto</a></nav></footer>
+</body></html>

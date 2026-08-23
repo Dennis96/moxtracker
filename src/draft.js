@@ -421,11 +421,23 @@ export async function eliminaContributi(richiesta, ambiente, risposta) {
   if (!registrati.length || registrati.some((c) => c.cancellazione_hash !== hash)) {
     return risposta({ errore: "segreto non riconosciuto" }, 403);
   }
+  return risposta({ eliminati: await eliminaMittente(ambiente, corpo.mittente) });
+}
+
+// Usata dall'account solo dopo che l'installazione e' stata collegata provando
+// il suo segreto. Non e' una route pubblica e non sostituisce quella sopra.
+export async function eliminaMittente(ambiente, mittente) {
+  const contributoreDraft = ambiente.DRAFT_DB ? await ambiente.DRAFT_DB.prepare(
+    "SELECT cancellazione_hash FROM contributori WHERE mittente = ?"
+  ).bind(mittente).first() : null;
+  const contributorePartite = ambiente.DB ? await ambiente.DB.prepare(
+    "SELECT cancellazione_hash FROM contributori WHERE mittente = ?"
+  ).bind(mittente).first() : null;
   let righe = { results: [] };
   if (contributoreDraft) {
     righe = await ambiente.DRAFT_DB.prepare(
       "SELECT id, oggetto_r2 FROM draft WHERE mittente = ?"
-    ).bind(corpo.mittente).all();
+    ).bind(mittente).all();
   }
   const oggetti = (righe.results || []).map((r) => r.oggetto_r2);
   // L'API Workers di R2 accetta al massimo 1000 chiavi per delete.
@@ -433,33 +445,33 @@ export async function eliminaContributi(richiesta, ambiente, risposta) {
     await ambiente.DRAFT_RAW.delete(oggetti.slice(i, i + 1000));
   }
   if (contributoreDraft) await ambiente.DRAFT_DB.batch([
-    ambiente.DRAFT_DB.prepare("DELETE FROM draft_link WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(corpo.mittente),
-    ambiente.DRAFT_DB.prepare("DELETE FROM draft_pick WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(corpo.mittente),
-    ambiente.DRAFT_DB.prepare("DELETE FROM draft WHERE mittente = ?").bind(corpo.mittente),
+    ambiente.DRAFT_DB.prepare("DELETE FROM draft_link WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
+    ambiente.DRAFT_DB.prepare("DELETE FROM draft_pick WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
+    ambiente.DRAFT_DB.prepare("DELETE FROM draft WHERE mittente = ?").bind(mittente),
   ]);
   let righePartite = { results: [] };
   if (contributorePartite) {
     righePartite = await ambiente.DB.prepare(
-      "SELECT id FROM partite WHERE mittente = ?").bind(corpo.mittente).all();
+      "SELECT id FROM partite WHERE mittente = ?").bind(mittente).all();
   }
   if (contributorePartite) await ambiente.DB.batch([
-    ambiente.DB.prepare("DELETE FROM carte_mazzo WHERE partita IN (SELECT id FROM partite WHERE mittente = ?)").bind(corpo.mittente),
-    ambiente.DB.prepare("DELETE FROM carte_avversario WHERE partita IN (SELECT id FROM partite WHERE mittente = ?)").bind(corpo.mittente),
-    ambiente.DB.prepare("DELETE FROM partite WHERE mittente = ?").bind(corpo.mittente),
+    ambiente.DB.prepare("DELETE FROM carte_mazzo WHERE partita IN (SELECT id FROM partite WHERE mittente = ?)").bind(mittente),
+    ambiente.DB.prepare("DELETE FROM carte_avversario WHERE partita IN (SELECT id FROM partite WHERE mittente = ?)").bind(mittente),
+    ambiente.DB.prepare("DELETE FROM partite WHERE mittente = ?").bind(mittente),
   ]);
   // Le credenziali si tolgono per ultime: un guasto intermedio resta
   // ripetibile con lo stesso segreto, invece di lasciare dati irraggiungibili.
   if (contributorePartite) {
     await ambiente.DB.batch([ambiente.DB.prepare(
-      "DELETE FROM contributori WHERE mittente = ?").bind(corpo.mittente)]);
+      "DELETE FROM contributori WHERE mittente = ?").bind(mittente)]);
   }
   if (contributoreDraft) {
     await ambiente.DRAFT_DB.batch([ambiente.DRAFT_DB.prepare(
-      "DELETE FROM contributori WHERE mittente = ?").bind(corpo.mittente)]);
+      "DELETE FROM contributori WHERE mittente = ?").bind(mittente)]);
   }
-  return risposta({ eliminati: {
+  return {
     draft: oggetti.length, partite: (righePartite.results || []).length,
-  } });
+  };
 }
 
 export async function collegaPartiteDraft(db, partite) {
