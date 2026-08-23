@@ -294,9 +294,11 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 .rank-ticks { display: flex; justify-content: space-between; list-style: none;
   margin: 0; padding: 0 2px; gap: 2px; }
 .rank-ticks li { flex: 0 0 auto; line-height: 0; }
-.rank-ticks img { width: 21px; height: 21px; display: block;
-  filter: grayscale(1) opacity(.34); transition: filter .12s ease, transform .12s ease; }
-.rank-ticks li.attivo img { filter: none; transform: translateY(-1px); }
+.rank-ticks img { width: 24px; height: 24px; display: block;
+  filter: grayscale(1) brightness(.62); opacity: .5;
+  transition: filter .14s ease, opacity .14s ease, transform .14s ease; }
+.rank-ticks li.attivo img { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .55));
+  opacity: 1; transform: translateY(-1px); }
 .rank-track { position: relative; height: 20px; }
 .rank-track::before { content: ""; position: absolute; left: 0; right: 0; top: 8px;
   height: 4px; border-radius: 3px; background: var(--surface-3); border: 1px solid var(--line); }

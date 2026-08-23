@@ -42,8 +42,10 @@ function setupApiFilters() {
   for (const classe of classi) {
     const voce = document.createElement("li");
     const icona = document.createElement("img");
-    icona.src = `./assets/rank/${classe.toLowerCase()}.svg`;
-    icona.alt = ""; icona.width = 21; icona.height = 21;
+    icona.src = `./assets/rank/${classe.toLowerCase()}.webp`;
+    // Niente lazy: sono sei icone da tre chilobyte in cima alla pagina, e
+    // rimandarle significa solo mostrare sei buchi al primo sguardo.
+    icona.alt = ""; icona.width = 24; icona.height = 24; icona.decoding = "async";
     voce.append(icona); voce.title = classe; tacche.append(voce);
   }
 
