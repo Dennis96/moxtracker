@@ -147,10 +147,25 @@ test("il rank del limited vale quando non c'e' il costruito", () => {
   assert.equal(r.rank_stato, "completo");
 });
 
-test("un livello ricevuto senza classe resta un rank parziale", () => {
-  const dato = pacchettoBuono({ rank: { costruito: { livello: 3, vinte: 3, perse: 4 } } });
+test("un livello senza classe e' Bronze, e si vede che l'abbiamo dedotto", () => {
+  // Fino al 23/08/2026 questa riga restava senza classe, e l'archetipo che la
+  // portava spariva da ogni filtro di rank. Poi il dato ha parlato: Arena
+  // omette la classe quando vale il primo gradino - nello stesso oggetto
+  // sparisce anche `vinte` quando e' zero - e in 75 partite ricevute «Bronze»
+  // non era mai comparso, mentre Silver, Gold e Platinum si'.
+  const dato = pacchettoBuono({ rank: { costruito: { livello: 3, perse: 4 } } });
+  const r = riga(dato, "2026-08-22T12:04:22.591Z");
+  assert.equal(r.rank_classe, "Bronze");
+  assert.equal(r.rank_livello, 3);
+  assert.equal(r.rank_stato, "dedotto");
+  // Il pacchetto originale non viene toccato: la classe la' dentro non c'e',
+  // e chi domani volesse rifare i conti deve poterlo vedere.
+  assert.equal(JSON.parse(r.dato).rank.costruito.classe, undefined);
+});
+
+test("senza livello e senza classe non si deduce niente", () => {
+  const dato = pacchettoBuono({ rank: { costruito: { vinte: 2 } } });
   const r = riga(dato, "2026-08-22T12:04:22.591Z");
   assert.equal(r.rank_classe, null);
-  assert.equal(r.rank_livello, 3);
-  assert.equal(r.rank_stato, "parziale");
+  assert.equal(r.rank_stato, "assente");
 });

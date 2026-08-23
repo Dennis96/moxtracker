@@ -145,8 +145,20 @@ export function controlla(dato) {
  */
 export function riga(dato, ricevuta) {
   const rank = (dato.rank && dato.rank.costruito) || (dato.rank && dato.rank.limitato) || {};
-  const classe = typeof rank.classe === "string" ? rank.classe : null;
+  const classeInviata = typeof rank.classe === "string" ? rank.classe : null;
   const livello = Number.isInteger(rank.livello) ? rank.livello : null;
+  // Arena non manda la classe quando vale il primo gradino: nello stesso
+  // oggetto sparisce anche `vinte` se le vittorie sono zero, ed e' la firma
+  // di un serializzatore che omette i valori di default. La prova sui dati:
+  // in 75 partite ricevute la classe «Bronze» non compare **mai**, ne' nel
+  // costruito ne' nel limitato, mentre Gold, Platinum e Silver ci sono; e il
+  // giocatore di quelle partite e' Bronze davvero.
+  //
+  // Il pacchetto originale resta intatto in `dato`: qui si riempie solo la
+  // colonna che serve a cercare, e `rank_stato` dice che il valore e' dedotto
+  // e non dichiarato, cosi' chi legge sa sempre da dove viene.
+  const classe = classeInviata || (livello !== null ? "Bronze" : null);
+  const dedotta = !classeInviata && classe !== null;
   return {
     id: dato.partita,
     mittente: dato.mittente,
@@ -165,8 +177,9 @@ export function riga(dato, ricevuta) {
     // Arena puo' mandare il livello del costruito senza la classe. La riga
     // conserva comunque il valore, ma rende visibile che il dato e' parziale
     // anziche' sembrare un salvataggio rotto o un rank da indovinare.
-    rank_stato: classe && livello ? "completo"
-      : (classe || livello ? "parziale" : "assente"),
+    rank_stato: dedotta ? "dedotto"
+      : (classe && livello ? "completo"
+        : (classe || livello ? "parziale" : "assente")),
     impronta_mazzo: dato.mazzo.impronta,
     mox: typeof dato.mox === "string" ? dato.mox.slice(0, 40) : null,
     arena: typeof dato.arena === "string" ? dato.arena.slice(0, 40) : null,

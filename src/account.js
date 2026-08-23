@@ -487,7 +487,8 @@ async function statistichePersonali(ambiente, accountId) {
   const rank = await ambiente.DB.prepare(`SELECT id, COALESCE(quando, ricevuta) AS data,
       rank_classe AS classe, rank_livello AS livello
     FROM partite WHERE mittente IN (${segni}) AND formato IS NOT NULL
-      AND rank_stato = 'completo' AND rank_classe IS NOT NULL AND rank_livello IS NOT NULL
+      AND rank_stato IN ('completo', 'dedotto')
+      AND rank_classe IS NOT NULL AND rank_livello IS NOT NULL
     ORDER BY COALESCE(quando, ricevuta)`).bind(...mittenti).all();
   const ordineRank = new Map([["Bronze", 0], ["Silver", 1], ["Gold", 2],
     ["Platinum", 3], ["Diamond", 4], ["Mythic", 5]]);

@@ -724,10 +724,15 @@ test("il rank si puo' chiedere a piu' classi insieme", async () => {
     pacchetto.rank = { costruito: { classe, livello: 2 } };
     return pacchetto;
   });
-  // Una partita senza classe: Arena a volte manda solo il livello.
-  const parziale = partitaPersonale({ id: "3300000004", mittente, segreto });
-  parziale.rank = { costruito: { livello: 3 } };
-  partite.push(parziale);
+  // Una partita senza classe ma con il livello: e' Bronze, e da oggi il
+  // server lo scrive nella colonna dichiarando che l'ha dedotto.
+  const bronzo = partitaPersonale({ id: "3300000004", mittente, segreto });
+  bronzo.rank = { costruito: { livello: 3 } };
+  partite.push(bronzo);
+  // Una senza niente: quella resta davvero fuori da ogni filtro di rank.
+  const ignoto = partitaPersonale({ id: "3300000005", mittente, segreto });
+  delete ignoto.rank;
+  partite.push(ignoto);
   await worker.fetch(new Request("https://api.moxtracker.app/partite", {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify(partite),
@@ -735,7 +740,7 @@ test("il rank si puo' chiedere a piu' classi insieme", async () => {
 
   const tutte = await (await worker.fetch(new Request(
     "https://api.moxtracker.app/meta?formato=Standard"), env)).json();
-  assert.equal(tutte.partite_totali, 4);
+  assert.equal(tutte.partite_totali, 5);
   assert.equal(tutte.partite_senza_rank, 0, "senza filtro non si parla di esclusi");
 
   const due = await (await worker.fetch(new Request(
@@ -743,9 +748,13 @@ test("il rank si puo' chiedere a piu' classi insieme", async () => {
   assert.equal(due.partite_totali, 2);
   assert.equal(due.filtri.rank, "Gold,Platinum");
 
-  // La partita senza classe non appartiene a nessun rank, e il sito deve
-  // poterlo dire invece di far sparire un archetipo senza spiegazione.
+  // Resta fuori solo quella senza alcun rank: il sito lo dice, invece di far
+  // sparire un archetipo senza spiegazione.
   assert.equal(due.partite_senza_rank, 1);
+
+  const soloBronze = await (await worker.fetch(new Request(
+    "https://api.moxtracker.app/meta?formato=Standard&rank=Bronze"), env)).json();
+  assert.equal(soloBronze.partite_totali, 1, "il livello senza classe e' Bronze");
 
   const sola = await (await worker.fetch(new Request(
     "https://api.moxtracker.app/meta?formato=Standard&rank=Mythic"), env)).json();
