@@ -1,5 +1,9 @@
 # Step 7 — raccolta Draft online e Laboratorio Draft
 
+> **Documento di contratto, con numeri del suo giorno.** Il contratto Draft,
+> R2/D1, privacy e tetti restano validi; i conteggi di prove e le frasi sullo
+> stato Cloudflare vanno letti come storici. Stato corrente in `LEGGIMI.md`.
+
 Implementato e pubblicato sul Worker il 20/08/2026. Il sito beta è stato poi
 pubblicato su Pages; la copia locale può restare non committata fino al
 riesame e al commit deliberati.

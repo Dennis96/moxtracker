@@ -1,8 +1,14 @@
-# Account, dashboard e ticket — stato del 22/08/2026
+# Account, dashboard e ticket — stato del 23/08/2026
 
-La fase è implementata, configurata e pubblicata su `moxtracker.app` e
-`api.moxtracker.app`. Il collaudo reale Google/Discord, collegamento Mox,
-amministrazione e dashboard privata è stato completato il 22/08/2026.
+La fase è implementata, configurata e **pubblicata** su `moxtracker.app` e
+`api.moxtracker.app`.
+
+Il **collaudo reale non è ancora stato eseguito.** Fino al 23/08/2026 questo
+documento si contraddiceva da solo: l'apertura lo dava per completato e il
+punto 9 della configurazione lo chiedeva ancora. La riga vera è questa, e
+l'elenco di ciò che va provato sta in fondo, sotto «Collaudo reale — da fare».
+È l'unico posto in cui questo stato viene dichiarato: gli altri documenti
+rimandano qui.
 
 ## Account
 
@@ -76,7 +82,8 @@ Frontend: `sito/account.html` e `sito/supporto.html`.
 8. accedere una prima volta e promuovere esplicitamente il solo account del
    responsabile al ruolo `amministratore` in D1;
 9. collaudare OAuth reale, revoca, export, cancellazione e allegati su un
-   account di prova prima di aprire la funzione agli utenti.
+   account di prova prima di aprire la funzione agli utenti — vedi «Collaudo
+   reale — da fare», qui sotto.
 10. Turnstile e rate limiter sono attivi; il backend continua a fallire in modo
     sicuro se una futura configurazione dovesse mancare.
 
@@ -88,4 +95,24 @@ amministratore, audit, retention, ticket anonimo, link segreto, risposte e
 cronologia autenticata.
 `prove/account-ticket-frontend.test.js` blocca regressioni nelle pagine, nella
 dashboard responsive, nel caricamento degli stili e nell'informativa Privacy.
-La suite complessiva è **109/109**.
+La suite complessiva è **110/110**, eseguita davvero il 23/08/2026.
+
+## Collaudo reale — da fare
+
+Nessuna di queste prove è stata eseguita. Sono prove sul campo, non test
+automatici: la suite verde non le sostituisce.
+
+| # | Prova | Come si considera superata |
+|---|---|---|
+| 1 | Accesso con Google e con Discord | entrambi arrivano allo stesso account, senza chiedere lo scope email |
+| 2 | Collegamento di Mox | codice monouso di 9 caratteri, il dispositivo compare fra quelli collegati |
+| 3 | Revoca del dispositivo | il dispositivo sparisce e Mox non riesce più a scrivere sull'account |
+| 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti |
+| 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla |
+| 6 | Ticket con allegato | PNG/JPEG/WebP fino a 10 MB accettati, ZIP rifiutato, download solo autenticato |
+| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile |
+| 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` |
+| 9 | Secondo account reale | non vede né i dati né i ticket del primo |
+
+Finché queste nove righe non sono spuntate, account e ticket restano
+**pubblicati ma non collaudati**: si può usarli, non dichiararli stabili.

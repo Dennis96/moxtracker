@@ -1,5 +1,10 @@
 # Step 8 — pre-lancio del sito
 
+> **Documento storico.** Fotografa il 21–22/08/2026: da allora il dominio
+> principale `moxtracker.app` è stato collegato, account e ticket sono stati
+> pubblicati e la suite è passata a 110/110. Per lo stato corrente vale
+> `LEGGIMI.md`.
+
 Pubblicato come beta controllata e aggiornato il 21/08/2026 su
 `https://beta.moxtracker.pages.dev`. Il dominio principale non è stato
 collegato.

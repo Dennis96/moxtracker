@@ -1,25 +1,37 @@
 # moxtracker — indice della documentazione
 
-> Aggiornato il **22/08/2026**. Questo file distingue lo stato corrente dai
+> Aggiornato il **23/08/2026**. Questo file distingue lo stato corrente dai
 > passaggi storici; le istruzioni contenute nei vecchi handoff non prevalgono
 > sul codice e sul [LEGGIMI.md](LEGGIMI.md).
 
 ## Da leggere adesso
 
-1. [ACCOUNT-E-TICKET.md](ACCOUNT-E-TICKET.md) — account OAuth, dashboard
-   personale, collegamento Mox, ticket e configurazione pubblicata.
-2. [S2-CHIUSURA-2026-08-22.md](S2-CHIUSURA-2026-08-22.md) — perimetro corretto
+Prima di tutto, fuori da questo repository: **`..\LEGGIMI-PROGETTO-MAGIC.txt`**
+è la porta d'ingresso del progetto e dice quali sono i cinque documenti che
+descrivono lo stato corrente di Mox e del sito.
+
+Dentro moxtracker bastano tre file:
+
+1. [LEGGIMI.md](LEGGIMI.md) — stato verificato, struttura, prove e percorso di
+   pubblicazione.
+2. [ACCOUNT-E-TICKET.md](ACCOUNT-E-TICKET.md) — account OAuth, dashboard
+   personale, collegamento Mox, ticket, configurazione e **l'unico elenco dei
+   collaudi reali ancora da eseguire**.
+3. [S2-CHIUSURA-2026-08-22.md](S2-CHIUSURA-2026-08-22.md) — perimetro corretto
    di S2 e regressione permanente sui mazzi precostruiti.
 
-3. [MOXTRACKER-HANDOFF-2026-08-21.md](MOXTRACKER-HANDOFF-2026-08-21.md) — stato
-   integrato `frontend-v1` `1c268e8`, privacy pubblica, vista varianti,
-   deploy Worker/Pages e verifica richiesta sulle partite Ladder.
-4. [LEGGIMI.md](LEGGIMI.md) — stato verificato, struttura, test e percorso di
-   pubblicazione.
-5. [STEP8-PRELANCIO-SITO.md](STEP8-PRELANCIO-SITO.md) — correzioni della beta
-   pubblica, Privacy, navigazione mobile e anteprima con dati reali.
-6. [STEP7-DRAFT-DATI-ONLINE.md](STEP7-DRAFT-DATI-ONLINE.md) — contratto Draft,
-   R2/D1, privacy, tetti e stato Cloudflare.
+## Storia recente, non ordine di lavoro
+
+- [MOXTRACKER-HANDOFF-2026-08-22.md](MOXTRACKER-HANDOFF-2026-08-22.md) — la
+  fotografia completa del 22/08: cosa è stato pubblicato, cosa era rimasto
+  fuori da Git e con quali gruppi andava committato. Il consolidamento è stato
+  fatto il 23/08.
+- [MOXTRACKER-HANDOFF-2026-08-21.md](MOXTRACKER-HANDOFF-2026-08-21.md) — il
+  deploy del giorno prima.
+- [STEP8-PRELANCIO-SITO.md](STEP8-PRELANCIO-SITO.md) e
+  [STEP7-DRAFT-DATI-ONLINE.md](STEP7-DRAFT-DATI-ONLINE.md) — contratti e
+  correzioni degli Step, con i conteggi di prove del loro giorno. I numeri
+  vanno letti come storici: il conteggio corrente si prende da `npm run prove`.
 
 ## Stato pubblico e lavoro locale
 

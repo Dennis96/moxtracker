@@ -1,6 +1,6 @@
 # moxtracker — server, meta e sito di Mox
 
-> Stato verificato il **22/08/2026**. L'indice dei documenti è in
+> Stato verificato il **23/08/2026**. L'indice dei documenti è in
 > [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
 
 moxtracker è la parte online di Mox. Riceve, solo con consenso, le partite che
@@ -8,7 +8,10 @@ il programma locale legge da MTG Arena; le conserva in Cloudflare D1, riconosce
 gli archetipi dalle carte e offre dati aggregati al sito.
 
 È un repository Git separato da `..\Codice`. Il ramo di sviluppo corrente è
-`frontend-v1`, al commit integrato `1c268e8` del 21/08/2026.
+`frontend-v1`. Il 23/08/2026 tutto il lavoro del 22/08, che era rimasto solo
+sul disco pur essendo già pubblicato su Cloudflare, è stato consolidato in tre
+commit locali: S2/rank/archetipi/immagini HOB, account e ticket, download
+manuale e documentazione. Il remoto è `github.com/Dennis96/moxtracker`.
 
 ## Stato corrente
 
@@ -23,7 +26,8 @@ gli archetipi dalle carte e offre dati aggregati al sito.
   `disponibile: false`.
 - **Account e ticket:** OAuth Google/Discord, collegamento Mox, ticket,
   amministrazione con audit, Turnstile, D1/R2 privato e retention sono
-  configurati e pubblicati. La dashboard privata mostra panoramica W/L,
+  configurati e pubblicati. Il **collaudo reale non è ancora stato eseguito**:
+  l'elenco è in `ACCOUNT-E-TICKET.md`. La dashboard privata mostra panoramica W/L,
   prestazioni per decklist esatta, cronologia filtrabile e cliccabile,
   decklist, andamento delle partite, sessioni Limited e pool dei Draft.
   Vedi `ACCOUNT-E-TICKET.md`.
@@ -94,7 +98,7 @@ npm run prove
 Il conteggio aggiornato va preso dall'ultima esecuzione di `npm run prove`, non
 copiato in questo file durante lo sviluppo.
 
-Ultima esecuzione del 22/08: **109/109** verdi. Gli stack
+Ultima esecuzione del 23/08: **110/110** verdi. Gli stack
 trace da fault injection R2/D1 durante quei test sono attesi e coperti.
 
 Per avviare il Worker locale:
