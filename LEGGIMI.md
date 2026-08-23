@@ -26,8 +26,10 @@ manuale e documentazione. Il remoto è `github.com/Dennis96/moxtracker`.
   `disponibile: false`.
 - **Account e ticket:** OAuth Google/Discord, collegamento Mox, ticket,
   amministrazione con audit, Turnstile, D1/R2 privato e retention sono
-  configurati e pubblicati. Il **collaudo reale non è ancora stato eseguito**:
-  l'elenco è in `ACCOUNT-E-TICKET.md`. La dashboard privata mostra panoramica W/L,
+  configurati e pubblicati. Il **collaudo reale è in corso**: accesso Google e
+  Discord sullo stesso account e collegamento del Mox locale sono verificati
+  dal 23/08/2026; le altre sette prove sono elencate una per una in
+  `ACCOUNT-E-TICKET.md`. La dashboard privata mostra panoramica W/L,
   prestazioni per decklist esatta, cronologia filtrabile e cliccabile,
   decklist, andamento delle partite, sessioni Limited e pool dei Draft.
   Vedi `ACCOUNT-E-TICKET.md`.

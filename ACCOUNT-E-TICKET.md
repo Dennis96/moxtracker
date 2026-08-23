@@ -3,12 +3,16 @@
 La fase è implementata, configurata e **pubblicata** su `moxtracker.app` e
 `api.moxtracker.app`.
 
-Il **collaudo reale non è ancora stato eseguito.** Fino al 23/08/2026 questo
-documento si contraddiceva da solo: l'apertura lo dava per completato e il
-punto 9 della configurazione lo chiedeva ancora. La riga vera è questa, e
-l'elenco di ciò che va provato sta in fondo, sotto «Collaudo reale — da fare».
-È l'unico posto in cui questo stato viene dichiarato: gli altri documenti
-rimandano qui.
+Il **collaudo reale è in corso: due prove su nove sono superate.** Accesso con
+Google e con Discord sullo stesso account e collegamento del Mox locale
+funzionano davvero, verificati dall'utente il 23/08/2026. Le altre sette non
+sono state eseguite.
+
+Fino al 23/08/2026 questo documento si contraddiceva da solo: l'apertura dava
+tutto il collaudo per completato e il punto 9 della configurazione lo chiedeva
+ancora. Adesso l'esito sta scritto **prova per prova**, in fondo, sotto
+«Collaudo reale — stato per singola prova». È l'unico posto in cui questo
+stato viene dichiarato: gli altri documenti rimandano qui.
 
 ## Account
 
@@ -97,22 +101,33 @@ cronologia autenticata.
 dashboard responsive, nel caricamento degli stili e nell'informativa Privacy.
 La suite complessiva è **110/110**, eseguita davvero il 23/08/2026.
 
-## Collaudo reale — da fare
+## Collaudo reale — stato per singola prova
 
-Nessuna di queste prove è stata eseguita. Sono prove sul campo, non test
-automatici: la suite verde non le sostituisce.
+Sono prove sul campo, non test automatici: la suite verde non le sostituisce.
+Questa tabella è l'unico posto dove il loro esito viene dichiarato.
 
-| # | Prova | Come si considera superata |
-|---|---|---|
-| 1 | Accesso con Google e con Discord | entrambi arrivano allo stesso account, senza chiedere lo scope email |
-| 2 | Collegamento di Mox | codice monouso di 9 caratteri, il dispositivo compare fra quelli collegati |
-| 3 | Revoca del dispositivo | il dispositivo sparisce e Mox non riesce più a scrivere sull'account |
-| 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti |
-| 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla |
-| 6 | Ticket con allegato | PNG/JPEG/WebP fino a 10 MB accettati, ZIP rifiutato, download solo autenticato |
-| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile |
-| 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` |
-| 9 | Secondo account reale | non vede né i dati né i ticket del primo |
+| # | Prova | Come si considera superata | Esito |
+|---|---|---|---|
+| 1 | Accesso con Google e con Discord | entrambi arrivano allo stesso account, senza chiedere lo scope email | **superata** il 23/08/2026: l'account dell'utente è collegato a entrambi i provider |
+| 2 | Collegamento di Mox | codice monouso di 9 caratteri, il dispositivo compare fra quelli collegati | **superata** il 23/08/2026: il Mox locale dell'utente è collegato all'account |
+| 3 | Revoca del dispositivo | il dispositivo sparisce e Mox non riesce più a scrivere sull'account | da fare |
+| 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti | da fare |
+| 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla | da fare |
+| 6 | Ticket con allegato | PNG/JPEG/WebP fino a 10 MB accettati, ZIP rifiutato, download solo autenticato | da fare |
+| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | da fare |
+| 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` | da fare |
+| 9 | Secondo account reale | non vede né i dati né i ticket del primo | da fare |
 
-Finché queste nove righe non sono spuntate, account e ticket restano
-**pubblicati ma non collaudati**: si può usarli, non dichiararli stabili.
+Due avvertenze sull'ordine, imparate leggendo cosa fanno queste prove.
+
+**La 5 va per ultima, e non sull'account principale.** La cancellazione
+rimuove davvero account, contributi, ticket e allegati: eseguita sull'account
+dell'utente, porterebbe via anche le partite già inviate. Va fatta
+sull'account di prova della riga 9.
+
+**La 3 prima della 4.** Se si revoca il dispositivo dopo l'export non si sa
+più se l'export conteneva tutto; revocando prima si verifica anche che Mox si
+accorga davvero di non poter più scrivere.
+
+Finché le righe da 3 a 9 non sono spuntate, account e ticket restano
+**pubblicati e in parte collaudati**: si possono usare, non dichiarare stabili.
