@@ -326,6 +326,7 @@ async function statistichePersonali(ambiente, accountId) {
     totali: { partite: 0, vittorie: 0, sconfitte: 0, win_rate: null,
       al_gioco: 0, alla_risposta: 0, durata_media: null },
     mazzi: [], forma_recente: [], sessioni_limited: [], andamento_rank: [],
+    sincronizzazione: { mazzi: 0, quando: null },
     avversari: { riconosciuti: [], non_riconosciuti: 0, partite_totali: 0 },
   };
   const mittenti = device.map((d) => d.mittente);
@@ -367,6 +368,8 @@ async function statistichePersonali(ambiente, accountId) {
       classificazioni.set(chiaveMazzo(formato, impronta), classificazione);
     }
   }
+  const sincronizzati = await mazziSincronizzati(ambiente.DB, accountId);
+  const inArena = new Map(sincronizzati.map((m) => [m.impronta, m]));
   const nomiSalvati = await ambiente.DB.prepare(`SELECT formato, impronta, nome
     FROM account_mazzo_nome WHERE account_id = ?`).bind(accountId).all();
   const nomiPerMazzo = new Map((nomiSalvati.results || []).map((riga) =>
@@ -376,10 +379,17 @@ async function statistichePersonali(ambiente, accountId) {
     const c = classificazioni.get(chiave) || null;
     const partite = Number(riga.partite || 0);
     const vittorie = Number(riga.vittorie || 0);
+    // Il nome vero del mazzo, quello scritto in Arena, vale piu' di un
+    // archetipo dedotto: e' l'unico che l'utente riconosce. Sotto resta
+    // sempre visibile l'archetipo, che e' quello che conta per il meta.
+    const arena = inArena.get(riga.impronta) || null;
     return {
       impronta: riga.impronta, formato: riga.formato, evento: riga.evento,
       nome_personalizzato: nomiPerMazzo.get(chiave) || null,
-      nome: c?.nome_pubblico || c?.archetipo || null,
+      nome: arena?.nome || c?.nome_pubblico || c?.archetipo || null,
+      nome_arena: arena?.nome || null,
+      archetipo: c?.nome_pubblico || c?.archetipo || null,
+      in_arena: Boolean(arena),
       archetipo_id: c?.archetipo_id || null,
       strategia: c?.strategia || null, colori: c?.colori || [],
       modalita: c?.modalita || null, livello_classificazione: c?.livello_classificazione || null,
@@ -388,6 +398,23 @@ async function statistichePersonali(ambiente, accountId) {
       carte: cartePerMazzo.get(chiave) || [],
     };
   });
+  // I mazzi che esistono in Arena ma non hanno ancora una partita ricevuta:
+  // ci sono, e dirlo e' meglio che farli sparire finche' non li giochi.
+  const conPartite = new Set(mazzi.map((m) => m.impronta));
+  for (const arena of sincronizzati) {
+    if (conPartite.has(arena.impronta)) continue;
+    mazzi.push({
+      impronta: arena.impronta, formato: null, evento: null,
+      nome_personalizzato: null, nome: arena.nome, nome_arena: arena.nome,
+      archetipo: null, in_arena: true, archetipo_id: null, strategia: null,
+      colori: (arena.colori || "").split(""), modalita: null,
+      livello_classificazione: null, partite: 0, vittorie: 0, sconfitte: 0,
+      win_rate: null, ultima: null,
+      carte: Object.entries(arena.carte || {})
+        .map(([id, copie]) => cartaPersonale(Number(id), Number(copie))),
+    });
+  }
+
   const forma = await ambiente.DB.prepare(`SELECT id, esito, quando, ricevuta
     FROM partite WHERE mittente IN (${segni})
     ORDER BY COALESCE(quando, ricevuta) DESC LIMIT 10`).bind(...mittenti).all();
@@ -485,6 +512,11 @@ async function statistichePersonali(ambiente, accountId) {
       alla_risposta: Number(totale?.alla_risposta || 0),
       durata_media: totale?.durata_media === null ? null : Math.round(Number(totale.durata_media)) },
     mazzi, forma_recente: forma.results || [], sessioni_limited: sessioni.reverse(),
+    // Senza sincronizzazione non si puo' dire che un mazzo "non c'e' piu' in
+    // Arena": semplicemente non lo sappiamo, e dirlo lo stesso sarebbe una
+    // deduzione inventata. Il sito mostra le etichette solo da qui in poi.
+    sincronizzazione: { mazzi: sincronizzati.length,
+      quando: sincronizzati[0]?.sincronizzato || null },
     andamento_rank: andamentoRank,
     avversari: { riconosciuti: avversari, non_riconosciuti: nonRiconosciuti,
       partite_totali: perPartita.size },
@@ -689,6 +721,112 @@ async function collegaMox(richiesta, ambiente) {
   return rispostaAccount(richiesta, ambiente, { collegato: true });
 }
 
+// I mazzi che l'utente ha davvero in Arena, mandati dal suo Mox collegato.
+//
+// Non e' un contributo anonimo come le partite: sono dati suoi, arrivano con
+// il nome che ha scelto lui e restano dentro il suo account. Per questo qui
+// non basta il mittente: serve anche il segreto locale, lo stesso che
+// autorizza il collegamento e la cancellazione dei contributi.
+//
+// La sincronizzazione e' una fotografia, non un accumulo: quello che l'utente
+// ha cancellato da Arena sparisce anche qui. Le partite giocate con un mazzo
+// che non esiste piu' restano dov'erano e la dashboard le mostra come storico.
+function mazzoValido(voce) {
+  if (!voce || typeof voce !== "object") return null;
+  if (!hex(voce.impronta, 64)) return null;
+  const carte = carteValide(voce.carte);
+  if (!carte) return null;
+  const principali = Object.values(carte).reduce((somma, n) => somma + n, 0);
+  if (!principali) return null;
+  const sideboard = voce.sideboard ? carteValide(voce.sideboard) : null;
+  const laterale = sideboard
+    ? Object.values(sideboard).reduce((somma, n) => somma + n, 0) : 0;
+  const colori = String(voce.colori || "").toUpperCase().replace(/[^WUBRG]/g, "");
+  const nome = String(voce.nome || "").trim().slice(0, 120);
+  if (!nome) return null;
+  const aggiornato = typeof voce.aggiornato === "string"
+    && !Number.isNaN(Date.parse(voce.aggiornato)) ? voce.aggiornato : null;
+  return { impronta: voce.impronta, nome, carte, sideboard, principali,
+    laterale, colori, aggiornato };
+}
+
+function carteValide(grezze) {
+  if (!grezze || typeof grezze !== "object" || Array.isArray(grezze)) return null;
+  const voci = Object.entries(grezze).slice(0, 300);
+  const carte = {};
+  for (const [chiave, valore] of voci) {
+    const id = Number(chiave);
+    const copie = Number(valore);
+    if (!Number.isInteger(id) || id <= 0) return null;
+    if (!Number.isInteger(copie) || copie <= 0 || copie > 250) return null;
+    carte[String(id)] = copie;
+  }
+  return Object.keys(carte).length ? carte : null;
+}
+
+async function sincronizzaMazzi(richiesta, ambiente) {
+  const corpo = await corpoJson(richiesta);
+  if (!hex(corpo?.mittente, 32) || !hex(corpo?.segreto, 64)) {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "dati di sincronizzazione non validi" }, 400);
+  }
+  const dispositivo = await ambiente.DB.prepare(`SELECT account_id, segreto_hash
+    FROM account_dispositivo WHERE mittente = ?`).bind(corpo.mittente).first();
+  if (!dispositivo) {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "installazione non collegata a un account" }, 403);
+  }
+  if (dispositivo.segreto_hash !== await sha256(corpo.segreto)) {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "segreto locale non coerente" }, 403);
+  }
+  if (!Array.isArray(corpo?.mazzi)) {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "manca l'elenco dei mazzi" }, 400);
+  }
+  const validi = [];
+  const visti = new Set();
+  for (const voce of corpo.mazzi.slice(0, 200)) {
+    const mazzo = mazzoValido(voce);
+    if (!mazzo || visti.has(mazzo.impronta)) continue;
+    visti.add(mazzo.impronta);
+    validi.push(mazzo);
+  }
+  const ora = new Date().toISOString();
+  const comandi = [ambiente.DB.prepare("DELETE FROM account_mazzo WHERE account_id = ?")
+    .bind(dispositivo.account_id)];
+  for (const mazzo of validi) {
+    comandi.push(ambiente.DB.prepare(`INSERT INTO account_mazzo
+      (account_id, impronta, nome, carte, sideboard, principali, laterale,
+       colori, aggiornato, sincronizzato)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
+        dispositivo.account_id, mazzo.impronta, mazzo.nome,
+        JSON.stringify(mazzo.carte),
+        mazzo.sideboard ? JSON.stringify(mazzo.sideboard) : null,
+        mazzo.principali, mazzo.laterale, mazzo.colori || null,
+        mazzo.aggiornato, ora));
+  }
+  await ambiente.DB.batch(comandi);
+  return rispostaAccount(richiesta, ambiente,
+    { sincronizzati: validi.length, scartati: corpo.mazzi.length - validi.length });
+}
+
+async function mazziSincronizzati(db, accountId) {
+  const righe = await db.prepare(`SELECT impronta, nome, carte, sideboard,
+      principali, laterale, colori, aggiornato, sincronizzato
+    FROM account_mazzo WHERE account_id = ? ORDER BY nome`).bind(accountId).all();
+  return (righe.results || []).map((riga) => ({
+    ...riga,
+    carte: leggiCarte(riga.carte),
+    sideboard: leggiCarte(riga.sideboard),
+  }));
+}
+
+function leggiCarte(testo) {
+  if (!testo) return null;
+  try { return JSON.parse(testo); } catch { return null; }
+}
+
 async function esporta(richiesta, ambiente, utente) {
   const quadro = await riepilogoDashboard(ambiente, utente.id);
   const nomiMazzi = await ambiente.DB.prepare(`SELECT formato, impronta, nome, aggiornato
@@ -771,7 +909,8 @@ async function eliminaAccount(richiesta, ambiente, utente) {
 export async function gestisciAccount(richiesta, ambiente, indirizzo) {
   const percorso = indirizzo.pathname;
   const accountRoute = percorso.startsWith("/account/") || percorso === "/account" ||
-    percorso.startsWith("/auth/") || percorso === "/mox/account/link";
+    percorso.startsWith("/auth/") || percorso === "/mox/account/link" ||
+    percorso === "/mox/account/decks";
   if (!accountRoute) return null;
   if (richiesta.method === "OPTIONS") return preflightAccount(richiesta, ambiente);
   const oauth = percorso.match(/^\/auth\/(google|discord)$/);
@@ -784,6 +923,11 @@ export async function gestisciAccount(richiesta, ambiente, indirizzo) {
     : rispostaAccount(richiesta, ambiente, { errore: "usa GET" }, 405);
   if (percorso === "/mox/account/link") return richiesta.method === "POST"
     ? collegaMox(richiesta, ambiente)
+    : rispostaAccount(richiesta, ambiente, { errore: "usa POST" }, 405);
+  // Mox manda qui i mazzi: si autentica col mittente e col segreto locale,
+  // non con la sessione del browser, che sul desktop non esiste.
+  if (percorso === "/mox/account/decks") return richiesta.method === "POST"
+    ? sincronizzaMazzi(richiesta, ambiente)
     : rispostaAccount(richiesta, ambiente, { errore: "usa POST" }, 405);
 
   const richiesto = await richiedeUtente(richiesta, ambiente);

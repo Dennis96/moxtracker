@@ -439,3 +439,115 @@ test("la pulizia elimina allegati e ticket chiusi secondo la retention", async (
   assert.equal(env.DB.conta("ticket_allegato"), 0);
   assert.equal(env.TICKET_FILES.oggetti.size, 0);
 });
+
+async function collegaUnMox(env, mittente, segreto) {
+  const sessione = await accedi(env);
+  const codiceRisposta = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/link-code", {
+      method: "POST", headers: { cookie: sessione },
+    }), env);
+  const { codice } = await codiceRisposta.json();
+  const collegato = await worker.fetch(new Request(
+    "https://api.moxtracker.app/mox/account/link", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ codice, mittente, segreto, nome: "PC di prova" }),
+    }), env);
+  assert.equal(collegato.status, 200);
+  return sessione;
+}
+
+function sincronizza(env, corpo) {
+  return worker.fetch(new Request("https://api.moxtracker.app/mox/account/decks", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify(corpo),
+  }), env);
+}
+
+test("i mazzi veri di Arena arrivano con il loro nome e si uniscono alle partite", async () => {
+  const env = ambiente();
+  const mittente = "a".repeat(32);
+  const segreto = "b".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+  // L'impronta e' quella che partitaPersonale usa nel suo pacchetto: e'
+  // l'unione fra mazzo reale e partite gia' ricevute che questa prova guarda.
+  const impronta = "a".repeat(64);
+  await worker.fetch(new Request("https://api.moxtracker.app/partite", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify([partitaPersonale({ id: "aa00bb11cc", mittente, segreto })]),
+  }), env);
+
+  const esito = await sincronizza(env, { mittente, segreto, mazzi: [
+    { impronta, nome: "Tritoni Pedine", carte: { "90000": 4, "90001": 56 },
+      sideboard: { "90002": 15 }, colori: "U", aggiornato: "2026-08-23T08:00:00Z" },
+    { impronta: "2".repeat(64), nome: "Danitha, New Benalia's Light",
+      carte: { "90003": 99 }, colori: "WG" },
+    { impronta: "non valida", nome: "scartato", carte: { "1": 1 } },
+    { impronta: "3".repeat(64), nome: "", carte: { "4": 4 } },
+  ] });
+  assert.equal(esito.status, 200);
+  const contati = await esito.json();
+  assert.equal(contati.sincronizzati, 2);
+  assert.equal(contati.scartati, 2);
+
+  const stat = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/stats", { headers: { cookie: sessione } }), env);
+  const dati = await stat.json();
+  const giocato = dati.mazzi.find((m) => m.impronta === impronta);
+  assert.equal(giocato.nome, "Tritoni Pedine");
+  assert.equal(giocato.in_arena, true);
+  assert.equal(giocato.partite, 1);
+  const maiGiocato = dati.mazzi.find((m) => m.impronta === "2".repeat(64));
+  assert.equal(maiGiocato.nome, "Danitha, New Benalia's Light");
+  assert.equal(maiGiocato.partite, 0);
+  assert.equal(maiGiocato.win_rate, null);
+});
+
+test("il nome del mazzo resta privato: non entra nel meta pubblico", async () => {
+  const env = ambiente();
+  const mittente = "c".repeat(32);
+  const segreto = "d".repeat(64);
+  await collegaUnMox(env, mittente, segreto);
+  await sincronizza(env, { mittente, segreto, mazzi: [
+    { impronta: "4".repeat(64), nome: "Mazzo con il mio nome vero dentro",
+      carte: { "90010": 60 }, colori: "W" },
+  ] });
+  const meta = await worker.fetch(new Request(
+    "https://api.moxtracker.app/meta?formato=Standard"), env);
+  const testo = await meta.text();
+  assert.doesNotMatch(testo, /nome vero dentro/);
+});
+
+test("sincronizzare e' una fotografia: quello che togli da Arena sparisce", async () => {
+  const env = ambiente();
+  const mittente = "e".repeat(32);
+  const segreto = "f".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+  await sincronizza(env, { mittente, segreto, mazzi: [
+    { impronta: "5".repeat(64), nome: "Uno", carte: { "1": 60 } },
+    { impronta: "6".repeat(64), nome: "Due", carte: { "2": 60 } },
+  ] });
+  assert.equal(env.DB.conta("account_mazzo"), 2);
+  await sincronizza(env, { mittente, segreto, mazzi: [
+    { impronta: "5".repeat(64), nome: "Uno rinominato", carte: { "1": 60 } },
+  ] });
+  assert.equal(env.DB.conta("account_mazzo"), 1);
+  const stat = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/stats", { headers: { cookie: sessione } }), env);
+  const dati = await stat.json();
+  assert.equal(dati.mazzi.length, 1);
+  assert.equal(dati.mazzi[0].nome, "Uno rinominato");
+});
+
+test("i mazzi non partono senza il segreto dell'installazione collegata", async () => {
+  const env = ambiente();
+  const mittente = "1".repeat(32);
+  const segreto = "2".repeat(64);
+  await collegaUnMox(env, mittente, segreto);
+  const sbagliato = await sincronizza(env, { mittente, segreto: "3".repeat(64),
+    mazzi: [{ impronta: "7".repeat(64), nome: "Non deve entrare", carte: { "1": 60 } }] });
+  assert.equal(sbagliato.status, 403);
+  const estraneo = await sincronizza(env, { mittente: "9".repeat(32), segreto,
+    mazzi: [{ impronta: "8".repeat(64), nome: "Nemmeno questo", carte: { "1": 60 } }] });
+  assert.equal(estraneo.status, 403);
+  assert.equal(env.DB.conta("account_mazzo"), 0);
+});

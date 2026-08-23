@@ -76,6 +76,14 @@ function rankPartita(partita) {
   return `Livello ${partita.rank_livello} · classe non fornita da Arena`;
 }
 
+// Finche' Mox non ha mai mandato i mazzi, il sito non sa quali esistano
+// ancora in Arena: in quel caso non dice niente, invece di dedurlo.
+function etichettaMazzo(mazzo) {
+  if (!stato.statistiche?.sincronizzazione?.mazzi) return null;
+  if (mazzo.in_arena) return mazzo.partite ? "in Arena" : "in Arena, mai giocato";
+  return "non piu' in Arena";
+}
+
 function nomeMazzo(mazzo) {
   if (mazzo?.nome_personalizzato) return mazzo.nome_personalizzato;
   if (mazzo?.nome) return mazzo.nome;
@@ -239,8 +247,9 @@ function renderMazzi() {
     const identita = nodo("span", "personal-deck-identity");
     const nome = nodo("span", "personal-deck-name", nomeMazzo(mazzo));
     const meta = nodo("span", "personal-deck-meta",
-      [mazzo.formato || mazzo.evento || "Formato n.d.", mazzo.strategia, mazzo.modalita]
-        .filter(Boolean).join(" · "));
+      [etichettaMazzo(mazzo), mazzo.formato || mazzo.evento || "Formato n.d.",
+        mazzo.archetipo && mazzo.archetipo !== mazzo.nome ? mazzo.archetipo : null,
+        mazzo.strategia, mazzo.modalita].filter(Boolean).join(" · "));
     const immagini = nodo("span", "personal-deck-cards");
     for (const carta of mazzo.carte.slice().sort((a, b) => b.copie - a.copie).slice(0, 7)) {
       immagini.append(createCardThumbnail(carta));
