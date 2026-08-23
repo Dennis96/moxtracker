@@ -31,7 +31,8 @@
 .service-kpi strong > span { display: inline; color: inherit; font: inherit; }
 .ticket-status { border: 1px solid rgba(193,105,255,.32); border-radius: 999px; padding: 4px 9px; color: #d59aff; font-size: .72rem; white-space: nowrap; }
 .secret-link { display: block; margin-top: 12px; overflow-wrap: anywhere; color: #d59aff; }
-.message-author { text-transform: uppercase; letter-spacing: .06em; font-size: .67rem; color: #c269ff; }
+.message-author { display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; font-size: .67rem; color: #c269ff; }
+.message-text { margin: 0 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .hidden { display: none !important; }
 
 .account-main { max-width: 1320px; }

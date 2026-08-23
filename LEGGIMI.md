@@ -100,7 +100,14 @@ npm run prove
 Il conteggio aggiornato va preso dall'ultima esecuzione di `npm run prove`, non
 copiato in questo file durante lo sviluppo.
 
-Ultima esecuzione del 23/08: **110/110** verdi. Gli stack
+Ultima esecuzione del 23/08: **112/112** verdi.
+
+**Correzioni del 23/08 non ancora pubblicate.** Sono nel repository e verdi in
+locale, ma il servizio online ha ancora la versione precedente: la CSP che
+consente Turnstile (senza la quale i ticket anonimi non funzionano), il testo
+dei messaggi che non resta più attaccato al nome di chi scrive, e la frase su
+Discord tolta dal riquadro «Prima di inviare». Servono un deploy Pages e la
+verifica su `moxtracker.app`. Gli stack
 trace da fault injection R2/D1 durante quei test sono attesi e coperti.
 
 Per avviare il Worker locale:

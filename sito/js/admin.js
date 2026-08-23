@@ -25,9 +25,22 @@ async function api(percorso, opzioni = {}) {
 
 function voce(titolo, dettaglio, azione = null) {
   const riga = document.createElement("div"); riga.className = "service-row";
+  const testa = document.createElement("div"); testa.className = "service-row-head";
   const forte = document.createElement("strong"); forte.textContent = titolo;
-  const piccolo = document.createElement("small"); piccolo.textContent = dettaglio;
-  riga.append(forte, piccolo); if (azione) riga.append(azione); return riga;
+  testa.append(forte);
+  if (dettaglio) { const piccolo = document.createElement("small"); piccolo.textContent = dettaglio; testa.append(piccolo); }
+  riga.append(testa); if (azione) riga.append(azione); return riga;
+}
+
+// Il messaggio non e' un dettaglio della riga: e' il contenuto del ticket.
+// Passarlo a voce() lo attaccava al nome dell'autore e lo rimpiccioliva.
+function messaggio(autore, testo, quando) {
+  const riga = document.createElement("article"); riga.className = "service-row";
+  const chi = document.createElement("span"); chi.className = "message-author"; chi.textContent = autore;
+  const corpo = document.createElement("p"); corpo.className = "message-text"; corpo.textContent = testo;
+  riga.append(chi, corpo);
+  if (quando) { const data = document.createElement("small"); data.textContent = new Date(quando).toLocaleString("it-IT"); riga.append(data); }
+  return riga;
 }
 
 async function apriTicket(id) {
@@ -35,7 +48,7 @@ async function apriTicket(id) {
   $("admin-detail").classList.remove("hidden");
   $("admin-title").textContent = dato.ticket.titolo;
   $("admin-status").value = dato.ticket.stato;
-  const messaggi = dato.messaggi.map((m) => voce(m.autore, m.testo));
+  const messaggi = dato.messaggi.map((m) => messaggio(m.autore, m.testo, m.creato));
   const allegati = dato.allegati.map((a) => {
     const link = document.createElement("a"); link.className = "service-button";
     link.textContent = `Scarica ${a.nome}`;

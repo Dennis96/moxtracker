@@ -62,6 +62,29 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(js, /\/messages/);
 });
 
+test("la verifica anti-spam puo' davvero caricarsi", () => {
+  // Il 23/08/2026 il widget Turnstile non compariva e la pagina diceva
+  // "verifica anti-spam non caricata": la CSP fermava lo script e l'iframe,
+  // quindi nessun ticket anonimo poteva essere inviato.
+  const headers = leggi("_headers");
+  assert.match(headers, /script-src [^;]*https:\/\/challenges\.cloudflare\.com/);
+  assert.match(headers, /frame-src [^;]*https:\/\/challenges\.cloudflare\.com/);
+});
+
+test("il testo del ticket si legge, e non resta attaccato al nome di chi scrive", () => {
+  // Nell'amministrazione autore e messaggio finivano in <strong><small>
+  // affiancati: si leggeva "utenteTicket di prova". Ora il messaggio ha un
+  // paragrafo suo, in entrambe le pagine.
+  const supporto = leggi("js/supporto.js");
+  const admin = leggi("js/admin.js");
+  const css = leggi("css/account-support.css");
+  assert.match(supporto, /className = "message-text"/);
+  assert.match(admin, /className = "message-text"/);
+  assert.doesNotMatch(admin, /voce\(m\.autore, m\.testo\)/);
+  assert.match(css, /\.message-text \{/);
+  assert.match(css, /\.message-author \{ display: block/);
+});
+
 test("privacy dichiara account OAuth e ticket senza promettere anonimato falso", () => {
   const privacy = leggi("privacy.html");
   assert.match(privacy, /Account e ticket facoltativi/);

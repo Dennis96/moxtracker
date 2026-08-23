@@ -55,7 +55,7 @@ async function caricaTicket() {
     const titolo = document.createElement("h3"); titolo.textContent = dato.ticket.titolo;
     const stato = document.createElement("span"); stato.className = "ticket-status"; stato.textContent = dato.ticket.stato.replaceAll("_", " ");
     $("ticket-summary").replaceChildren(titolo, stato);
-    const messaggi = dato.messaggi.map((m) => { const r = document.createElement("article"); r.className = "service-row"; const a = document.createElement("span"); a.className = "message-author"; a.textContent = m.autore; const p = document.createElement("p"); p.textContent = m.testo; const d = document.createElement("small"); d.textContent = new Date(m.creato).toLocaleString("it-IT"); r.append(a, p, d); return r; });
+    const messaggi = dato.messaggi.map((m) => { const r = document.createElement("article"); r.className = "service-row"; const a = document.createElement("span"); a.className = "message-author"; a.textContent = m.autore; const p = document.createElement("p"); p.className = "message-text"; p.textContent = m.testo; const d = document.createElement("small"); d.textContent = new Date(m.creato).toLocaleString("it-IT"); r.append(a, p, d); return r; });
     const allegati = dato.allegati.map((file) => { const r = document.createElement("a"); r.className = "service-row"; r.textContent = `Scarica ${file.nome} (${Math.ceil(file.byte / 1024)} KiB)`; r.href = `${API_BASE}${percorso(`/attachments/${file.id}`)}`; r.referrerPolicy = "no-referrer"; return r; });
     $("ticket-messages").replaceChildren(...messaggi, ...allegati);
   } catch (e) { $("ticket-message").textContent = e.message; $("ticket-message").className = "service-message error"; }
