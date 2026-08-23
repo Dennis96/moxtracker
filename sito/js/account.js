@@ -5,7 +5,8 @@ const $ = (id) => document.getElementById(id);
 const numeri = new Intl.NumberFormat("it-IT");
 // Dieci partite per volta: a trenta la pagina diventava lunghissima e il
 // pulsante «Carica altre partite» non lo vedeva nessuno.
-const stato = { dashboard: null, statistiche: null, offset: 0, limite: 10,
+const PASSO_PARTITE = 10;
+const stato = { dashboard: null, statistiche: null, offset: 0, limite: PASSO_PARTITE,
   totale: 0, partite: [], filtri: { mazzo: "", esito: "", evento: "" } };
 
 function tema() {
@@ -456,7 +457,18 @@ function renderPartite() {
   }
   if (!stato.partite.length) contenitore.append(
     riga("Nessuna partita con questi filtri", "Prova ad azzerare i filtri."));
-  $("load-more").classList.toggle("hidden", stato.partite.length >= stato.totale);
+  aggiornaPulsantePartite();
+}
+
+// Lo stesso pulsante apre e richiude: quando sono state caricate tutte,
+// «Carica altre» non ha piu' senso e diventa il modo per tornare a dieci.
+function aggiornaPulsantePartite() {
+  const bottone = $("load-more");
+  const tutte = stato.partite.length >= stato.totale;
+  // Con dieci partite in tutto non c'e' niente da aprire ne' da richiudere.
+  bottone.classList.toggle("hidden", stato.totale <= PASSO_PARTITE);
+  bottone.textContent = tutte ? "Mostra meno partite" : "Carica altre partite";
+  bottone.dataset.azione = tutte ? "riduci" : "espandi";
 }
 
 async function apriPartita(id) {
@@ -599,7 +611,13 @@ $("clear-filters").addEventListener("click", () => {
   $("filter-deck").value = ""; $("filter-result").value = "";
   $("filter-event").value = ""; applicaFiltri();
 });
-$("load-more").addEventListener("click", () => caricaPartite(true));
+$("load-more").addEventListener("click", async () => {
+  if ($("load-more").dataset.azione !== "riduci") { await caricaPartite(true); return; }
+  await caricaPartite(false);
+  // Richiudendo dal fondo ci si ritroverebbe a meta' pagina, senza capire
+  // dove: si torna in cima all'elenco.
+  $("matches").scrollIntoView({ behavior: "smooth", block: "start" });
+});
 $("detail-dialog").addEventListener("click", (evento) => {
   if (evento.target === $("detail-dialog") || evento.target.closest("[data-close]")) {
     $("detail-dialog").close();

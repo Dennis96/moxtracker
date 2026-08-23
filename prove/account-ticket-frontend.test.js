@@ -62,6 +62,14 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(js, /\/messages/);
 });
 
+test("la cronologia parte corta e lo stesso pulsante la richiude", () => {
+  const js = leggi("js/account.js");
+  assert.match(js, /PASSO_PARTITE = 10/);
+  assert.match(js, /limite: PASSO_PARTITE/);
+  assert.match(js, /Mostra meno partite/);
+  assert.match(js, /Carica altre partite/);
+});
+
 test("gli script delle pagine private portano una versione, per la cache", () => {
   // Senza `?v=` (o con la stessa di prima) il browser continua a servire il
   // file vecchio anche dopo il deploy: successo il 23/08/2026 col menu Evento.
