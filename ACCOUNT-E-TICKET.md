@@ -45,7 +45,9 @@ stato viene dichiarato: gli altri documenti rimandano qui.
   il loro hash deve coincidere prima che vengano associati;
 - revoca dispositivo, export JSON e cancellazione completa di account,
   contributi, ticket e allegati;
-- **i mazzi che l'utente ha davvero in Arena**, mandati dal Mox collegato su
+- **i mazzi che l'utente ha davvero in Arena** — collaudato sul campo il
+  23/08/2026: consenso acceso in Mox, sincronizzazione riuscita, mazzi
+  visibili nell'account con i nomi veri — mandati dal Mox collegato su
   `POST /mox/account/decks` con mittente e segreto locale. Consenso separato e
   spento di partenza; il nome del mazzo resta nell'account e non entra mai
   nelle aggregazioni pubbliche; ogni invio sostituisce il precedente, quindi
