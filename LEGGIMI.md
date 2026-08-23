@@ -102,19 +102,18 @@ copiato in questo file durante lo sviluppo.
 
 Ultima esecuzione del 23/08: **112/112** verdi.
 
-**Lavoro del 23/08 non ancora pubblicato.** Sono nel repository e verdi in
-locale, ma il servizio online ha ancora la versione precedente: la CSP che
-consente Turnstile (senza la quale i ticket anonimi non funzionano), il testo
-dei messaggi che non resta più attaccato al nome di chi scrive, e la frase su
-Discord tolta dal riquadro «Prima di inviare»; il menu «Evento» della
-cronologia che elenca tutti gli eventi e non i soli Draft; e i mazzi veri di
-Arena sincronizzati nell'account (`POST /mox/account/decks`, tabella
-`account_mazzo`).
+**Pubblicato il 23/08/2026.** Sono online: la CSP che consente Turnstile
+(senza la quale nessun ticket anonimo poteva essere inviato), il testo dei
+messaggi che non resta più attaccato al nome di chi scrive, la nota su Discord
+tolta dal riquadro «Prima di inviare», il menu «Evento» che elenca tutti gli
+eventi e non i soli Draft, e i mazzi veri di Arena sincronizzati nell'account
+(`POST /mox/account/decks`, tabella `account_mazzo`).
 
-Per pubblicare servono, in quest'ordine: la migrazione
-`migrazioni/2026-08-23-account-mazzo.sql` sul D1 remoto, il deploy del Worker,
-il deploy Pages, e la verifica su `moxtracker.app`. Gli stack
-trace da fault injection R2/D1 durante quei test sono attesi e coperti.
+Ordine seguito: migrazione `migrazioni/2026-08-23-account-mazzo.sql` sul D1
+remoto, deploy del Worker, deploy Pages, verifica su `moxtracker.app`. Nella
+stessa giornata è stata pubblicata anche **Mox 2.9.13**: manifesto firmato nel
+secret `MOX_RELEASE_MANIFEST`, installer su R2 `moxtracker-releases`, release
+GitHub `mox-v2-beta2.9.13` con l'asset stabile `Mox-Windows-beta.zip`.
 
 Per avviare il Worker locale:
 

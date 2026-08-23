@@ -123,7 +123,7 @@ Questa tabella è l'unico posto dove il loro esito viene dichiarato.
 | 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti | da fare |
 | 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla | da fare |
 | 6 | Ticket con allegato | PNG/JPEG/WebP fino a 10 MB accettati, ZIP rifiutato, download solo autenticato | **in parte** il 23/08/2026: un JPEG da 74 KiB accettato e visibile nel ticket. Restano il rifiuto dello ZIP e il download dell'allegato |
-| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | **bloccata** il 23/08/2026: la pagina diceva «verifica anti-spam non caricata». Causa trovata e corretta nella CSP, da riprovare dopo il deploy |
+| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | **bloccata** il 23/08/2026: la pagina diceva «verifica anti-spam non caricata». Causa trovata: la CSP fermava script e iframe di Turnstile. Corretta e **pubblicata** il 23/08: la prova si può rifare |
 | 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` | **in parte** il 23/08/2026: l'amministratore vede il ticket e il suo allegato. Cambio stato e risposta non ancora provati |
 | 9 | Secondo account reale | non vede né i dati né i ticket del primo | **in parte** il 23/08/2026: il secondo account esiste e ha aperto un ticket. Resta da verificare che non veda dati e ticket del primo |
 
