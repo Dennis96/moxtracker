@@ -1,15 +1,16 @@
 # moxtracker — server, meta e sito di Mox
 
-> Stato verificato il **23/08/2026**. L'indice dei documenti è in
+> Stato verificato il **25/08/2026**. L'indice dei documenti è in
 > [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
 
 moxtracker è la parte online di Mox. Riceve, solo con consenso, le partite che
 il programma locale legge da MTG Arena; le conserva in Cloudflare D1, riconosce
 gli archetipi dalle carte e offre dati aggregati al sito.
 
-È un repository Git separato da `..\Codice`. Il ramo di sviluppo corrente è
-`frontend-v1`. Il 23/08/2026 tutto il lavoro del 22/08, che era rimasto solo
-sul disco pur essendo già pubblicato su Cloudflare, è stato consolidato in tre
+È un repository Git separato da `..\Codice`. La hotfix Draft 2.9.20 è stata
+pubblicata dal ramo `codex/draft-recupero-2920`. Il 23/08/2026 tutto il lavoro
+del 22/08, che era rimasto solo sul disco pur essendo già pubblicato su
+Cloudflare, è stato consolidato in tre
 commit locali: S2/rank/archetipi/immagini HOB, account e ticket, download
 manuale e documentazione. Il remoto è `github.com/Dennis96/moxtracker`.
 
@@ -18,8 +19,14 @@ manuale e documentazione. Il remoto è `github.com/Dennis96/moxtracker`.
 - **API pubblica:** `https://api.moxtracker.app`.
 - **Database:** Cloudflare D1.
 - **Ricezione:** `POST /partite`.
-- **Draft online:** `POST /draft`, `GET /draft/statistiche`,
+- **Draft online:** `POST /draft`, `POST /draft/recupera`, `GET /draft/statistiche`,
   `POST /contributi/elimina`; D1 separato e R2 privato con lifecycle a 730 giorni.
+  Dal 25/08/2026 Mox può recuperare il pool perso dopo un riavvio soltanto con
+  mittente, SHA-256 del segreto e coincidenza esatta di set, formato, mazzo e
+  riserva. La risposta non espone pick o identità e usa `no-store`. La rotta ha
+  un tetto separato di 10 richieste ogni 60 secondi per mittente, applicato
+  prima di D1 e R2. Pubblicata con Worker Version ID
+  `1b4470d3-57c9-4582-b91a-f5f708b75ff3`; 137/137 prove verdi.
   Dal 25/08/2026 il pacchetto porta anche il **mazzo davvero montato** dopo il
   Draft (`mazzo_giocato`), con tutte le versioni che Arena riscrive a ogni
   cambio: finisce nella tabella `draft_mazzo` e `GET /draft/statistiche`
