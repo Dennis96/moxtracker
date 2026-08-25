@@ -191,13 +191,22 @@ async function attesaRecuperoUpdater(ambiente, corrente) {
 }
 
 async function releaseMox(ambiente, indirizzo) {
+  const canale = indirizzo.searchParams.get("canale");
   if (indirizzo.searchParams.get("piattaforma") !== "win-x64" ||
-      indirizzo.searchParams.get("canale") !== "stable") {
+      (canale !== "stable" && canale !== "canary")) {
     return rispostaRelease({ errore: "piattaforma o canale non valido" }, 400);
   }
-  if (!ambiente.MOX_RELEASE_MANIFEST) return rispostaRelease({ disponibile: false });
+  // Il canary e' una release che sta su un manifesto suo e che vede una
+  // macchina sola - questa - prima del canale pubblico. Non ripiega mai sullo
+  // stable: se il manifesto canary non c'e', per quel canale non c'e' niente
+  // da aggiornare. Ripiegare vorrebbe dire far credere di stare collaudando
+  // una versione nuova mentre si riscarica quella di tutti.
+  const grezzo = canale === "canary"
+    ? ambiente.MOX_RELEASE_MANIFEST_CANARY
+    : ambiente.MOX_RELEASE_MANIFEST;
+  if (!grezzo) return rispostaRelease({ disponibile: false });
   let manifesto;
-  try { manifesto = JSON.parse(ambiente.MOX_RELEASE_MANIFEST); } catch {
+  try { manifesto = JSON.parse(grezzo); } catch {
     return rispostaRelease({ errore: "release non configurata" }, 503);
   }
   const obbligatori = ["versione", "url", "sha256", "dimensione", "firma"];

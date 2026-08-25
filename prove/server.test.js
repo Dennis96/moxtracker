@@ -71,6 +71,42 @@ test("release Mox resta spenta senza manifesto e pubblica quello firmato", async
   assert.equal(aggiornata.corpo.disponibile, false);
 });
 
+test("il canary vede la sua release, e non ripiega mai sullo stable", async () => {
+  // Serve a provare una release su questa macchina prima che vada a tutti.
+  // Se ripiegasse sullo stable, chi crede di collaudare la versione nuova si
+  // ritroverebbe a riscaricare quella che hanno gia' tutti.
+  const db = creaFintoD1(SCHEMA);
+  const percorso = "/mox/release?piattaforma=win-x64&canale=canary&corrente=2%20beta%202.9.22";
+  const stabile = {
+    versione: "2 beta 2.9.22", url: "https://example.invalid/vecchia.exe",
+    sha256: "a".repeat(64), dimensione: 1, firma: "f",
+  };
+  const canary = { ...stabile, versione: "2 beta 2.9.23",
+    url: "https://example.invalid/nuova.exe" };
+
+  const senza = await manda(db, null, "GET", percorso,
+    { MOX_RELEASE_MANIFEST: JSON.stringify(canary) });
+  assert.equal(senza.corpo.disponibile, false, "niente ripiego sullo stable");
+
+  const con = await manda(db, null, "GET", percorso,
+    { MOX_RELEASE_MANIFEST: JSON.stringify(stabile),
+      MOX_RELEASE_MANIFEST_CANARY: JSON.stringify(canary) });
+  assert.equal(con.corpo.disponibile, true);
+  assert.equal(con.corpo.versione, "2 beta 2.9.23");
+
+  // e chi resta sullo stable non vede il canary
+  const pubblico = await manda(db, null, "GET",
+    percorso.replace("canale=canary", "canale=stable"),
+    { MOX_RELEASE_MANIFEST: JSON.stringify(stabile),
+      MOX_RELEASE_MANIFEST_CANARY: JSON.stringify(canary) });
+  assert.equal(pubblico.corpo.disponibile, false);
+
+  const sconosciuto = await manda(db, null, "GET",
+    percorso.replace("canale=canary", "canale=beta"),
+    { MOX_RELEASE_MANIFEST_CANARY: JSON.stringify(canary) });
+  assert.equal(sconosciuto.stato, 400);
+});
+
 test("il ponte updater ritarda solo i client precedenti alla correzione", async () => {
   const db = creaFintoD1(SCHEMA);
   const manifesto = {
