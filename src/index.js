@@ -8,7 +8,7 @@ import { leggiMeta, leggiGiocoRisposta, leggiScontri } from "./lettura.js";
 import { leggiArchetipo } from "./dettaglio-archetipo.js";
 import {
   VERSIONI_DRAFT_ACCETTATE, collegaPartiteDraft, eliminaContributi,
-  riceviDraft, sha256, statisticheDraft,
+  recuperaDraft, riceviDraft, sha256, statisticheDraft,
 } from "./draft.js";
 import { gestisciAccount, pulisciCredenzialiScadute } from "./account.js";
 import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
@@ -271,6 +271,18 @@ export default {
         return await riceviDraft(richiesta, ambiente, risposta);
       } catch (guasto) {
         console.error("guasto ricevendo Draft", guasto);
+        return risposta({ errore: "guasto del server" }, 500);
+      }
+    }
+
+    if (indirizzo.pathname === "/draft/recupera") {
+      if (richiesta.method !== "POST") return risposta({ errore: "usa POST" }, 405);
+      try {
+        const esito = await recuperaDraft(richiesta, ambiente, risposta);
+        esito.headers.set("cache-control", "no-store");
+        return esito;
+      } catch (guasto) {
+        console.error("guasto recuperando Draft", guasto);
         return risposta({ errore: "guasto del server" }, 500);
       }
     }

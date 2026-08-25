@@ -52,6 +52,11 @@ function r2Finto() {
   return {
     oggetti,
     async put(chiave, valore) { oggetti.set(chiave, valore); },
+    async get(chiave) {
+      const valore = oggetti.get(chiave);
+      if (valore === undefined) return null;
+      return { async text() { return valore; } };
+    },
     async delete(chiavi) {
       for (const chiave of Array.isArray(chiavi) ? chiavi : [chiavi]) oggetti.delete(chiave);
     },
@@ -144,6 +149,67 @@ test("salva indice in D1 e traccia privata in R2 senza il segreto", async () => 
   assert.equal(doppione.corpo.gia_presenti, 1);
   assert.equal(env.DRAFT_RAW.oggetti.size, 1);
   assert.equal((await manda(env, "/draft/raw", null, "GET")).stato, 404);
+});
+
+test("recupera soltanto il proprio pool Draft con segreto, set e formato", async () => {
+  const env = ambiente();
+  const mazzo = {
+    quando: "2026-08-20T10:25:00Z",
+    mazzo: [[102, 2], [103, 21], [104, 17]],
+    riserva: [[105, 2]],
+  };
+  const salvato = esempio({
+    draft: "1".repeat(32), formato: "QuickDraft", pick: [],
+    pool_finale: [102, 102, 103, 104, 105], mazzo_giocato: [mazzo],
+  });
+  assert.equal((await manda(env, "/draft", salvato)).stato, 200);
+  assert.equal((await manda(env, "/draft", esempio({
+    draft: "2".repeat(32), set: "TLA", formato: "QuickDraft",
+    impronta_arena: "e".repeat(64),
+  }))).stato, 200);
+
+  const { stato, corpo } = await manda(env, "/draft/recupera", {
+    mittente: "b".repeat(32), segreto: "d".repeat(64),
+    set: "hob", formato: "QuickDraft", mazzo: mazzo.mazzo,
+    riserva: mazzo.riserva,
+  });
+  assert.equal(stato, 200);
+  assert.deepEqual(corpo, {
+    versione: 1,
+    recupero: {
+      set: "HOB", formato: "QuickDraft", completo: true,
+      iniziato: "2026-08-20T10:00:00Z",
+      pool_finale: [102, 102, 103, 104, 105],
+      mazzo_giocato: mazzo,
+    },
+  });
+  const serializzato = JSON.stringify(corpo);
+  for (const vietato of ["mittente", "segreto", "oggetto_r2", "candidati", "pick"]) {
+    assert.ok(!serializzato.includes(vietato), `non deve uscire ${vietato}`);
+  }
+});
+
+test("il recupero Draft rifiuta credenziali errate e non mescola gli eventi", async () => {
+  const env = ambiente();
+  assert.equal((await manda(env, "/draft", esempio({
+    formato: "QuickDraft", pick: [], pool_finale: [101, 102],
+  }))).stato, 200);
+
+  assert.equal((await manda(env, "/draft/recupera", {
+    mittente: "b".repeat(32), segreto: "e".repeat(64),
+    set: "HOB", formato: "QuickDraft", mazzo: [[101, 1]], riserva: [],
+  })).stato, 403);
+  assert.equal((await manda(env, "/draft/recupera", {
+    mittente: "c".repeat(32), segreto: "d".repeat(64),
+    set: "HOB", formato: "QuickDraft", mazzo: [[101, 1]], riserva: [],
+  })).stato, 403);
+  assert.deepEqual((await manda(env, "/draft/recupera", {
+    mittente: "b".repeat(32), segreto: "d".repeat(64),
+    set: "HOB", formato: "QuickDraft", mazzo: [[999, 40]], riserva: [],
+  })).corpo, { versione: 1, recupero: null });
+  assert.equal((await manda(env, "/draft/recupera", {
+    mittente: "b".repeat(32), segreto: "d".repeat(64), set: "HOB",
+  })).stato, 400);
 });
 
 test("riconcilia D1 e R2 senza esporre o leggere il contenuto grezzo", async () => {

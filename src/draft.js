@@ -430,6 +430,74 @@ export async function riceviDraft(richiesta, ambiente, risposta) {
   return risposta({ accettati, gia_presenti: giaPresenti, rifiutati });
 }
 
+export async function recuperaDraft(richiesta, ambiente, risposta) {
+  const lunghezza = Number(richiesta.headers.get("content-length") || 0);
+  if (lunghezza > 4096) return risposta({ errore: "richiesta troppo grande" }, 413);
+  let corpo;
+  try { corpo = await richiesta.json(); } catch {
+    return risposta({ errore: "corpo non leggibile" }, 400);
+  }
+  const set = typeof corpo?.set === "string" ? corpo.set.toUpperCase() : "";
+  const formato = corpo?.formato;
+  if (!stringaHex(corpo?.mittente, 32) || !stringaHex(corpo?.segreto, 64) ||
+      !/^[A-Z0-9]{3,6}$/.test(set) || !FORMATI.has(formato) ||
+      !elencoQuantita(corpo?.mazzo) || corpo.mazzo.length === 0 ||
+      !elencoQuantita(corpo?.riserva ?? [])) {
+    return risposta({ errore: "richiesta di recupero non valida" }, 400);
+  }
+
+  const contributore = await ambiente.DRAFT_DB.prepare(
+    "SELECT cancellazione_hash FROM contributori WHERE mittente = ?"
+  ).bind(corpo.mittente).first();
+  const hash = await sha256(corpo.segreto);
+  if (!contributore || contributore.cancellazione_hash !== hash) {
+    return risposta({ errore: "segreto non riconosciuto" }, 403);
+  }
+
+  // Set e formato sono obbligatori: se il log sa soltanto che c'e' un evento
+  // Draft, non deve mai ricevere per errore il pool di un evento differente.
+  // Si provano piu' righe per tollerare un oggetto R2 mancante o corrotto senza
+  // trasformare un guasto di archivio in una schermata vuota sul client.
+  const lista = JSON.stringify(corpo.mazzo);
+  const riserva = JSON.stringify(corpo.riserva ?? []);
+  const esito = await ambiente.DRAFT_DB.prepare(`SELECT id, iniziato,
+      set_code, formato, completo, oggetto_r2
+    FROM draft WHERE mittente = ? AND set_code = ? AND formato = ?
+      AND EXISTS (SELECT 1 FROM draft_mazzo m WHERE m.draft_id = draft.id
+        AND m.lista = ? AND COALESCE(m.riserva, '[]') = ?)
+    ORDER BY ricevuto DESC LIMIT 10`).bind(
+      corpo.mittente, set, formato, lista, riserva).all();
+  for (const riga of esito.results || []) {
+    const oggetto = await ambiente.DRAFT_RAW.get(riga.oggetto_r2);
+    if (!oggetto) continue;
+    let grezzo;
+    try { grezzo = JSON.parse(await oggetto.text()); } catch { continue; }
+    if (!grezzo || grezzo.draft !== riga.id || grezzo.mittente !== corpo.mittente ||
+        grezzo.set !== set || grezzo.formato !== formato ||
+        !elencoCarte(grezzo.pool_finale, LIMITI_DRAFT.pickMassimi) ||
+        grezzo.pool_finale.length === 0) continue;
+
+    let mazzoGiocato = null;
+    const versioni = grezzo.mazzo_giocato;
+    if (Array.isArray(versioni) && versioni.length) {
+      const ultimo = versioni[versioni.length - 1];
+      if (!controllaMazzoGiocato([ultimo])) mazzoGiocato = ultimo;
+    }
+    return risposta({
+      versione: 1,
+      recupero: {
+        set,
+        formato,
+        completo: Boolean(riga.completo),
+        iniziato: typeof riga.iniziato === "string" ? riga.iniziato : null,
+        pool_finale: grezzo.pool_finale,
+        mazzo_giocato: mazzoGiocato,
+      },
+    });
+  }
+  return risposta({ versione: 1, recupero: null });
+}
+
 function wilson(successi, n) {
   if (!n) return null;
   const z = 1.959963984540054;
