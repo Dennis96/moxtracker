@@ -26,6 +26,13 @@ manuale e documentazione. Il remoto è `github.com/Dennis96/moxtracker`.
   pubblica **solo i conteggi** (quanti Draft lo portano, quanti cambi in
   media), mai le liste. Un pacchetto senza quel campo resta valido: e' il caso
   di tutte le copie di Mox precedenti.
+  **Pubblicato il 25/08/2026**, migrazione applicata al D1 di produzione e
+  Worker online: `mazzo_montato` risponde `{draft: 0, versioni: 0}` perche'
+  nessuna versione di Mox lo manda ancora. Il server e' stato messo online
+  **prima** del client apposta: l'indicizzazione avviene alla ricezione, quindi
+  se il Worker fosse rimasto indietro i mazzi dei primi Draft sarebbero finiti
+  solo in R2, e recuperarli richiederebbe uno strumento di reindicizzazione che
+  non esiste.
 - **Lettura pubblica:** `GET /salute`, `/meta`, `/archetipo`,
   `/gioco-risposta`, `/scontri`.
 - **Release Mox:** `GET /mox/release`; senza manifesto firmato risponde
