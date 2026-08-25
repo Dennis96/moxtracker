@@ -212,6 +212,42 @@ test("il recupero Draft rifiuta credenziali errate e non mescola gli eventi", as
   })).stato, 400);
 });
 
+test("il recupero Draft ha un tetto prima di qualunque lettura R2", async () => {
+  const env = ambiente();
+  const mazzo = { quando: null, mazzo: [[101, 40]], riserva: [] };
+  assert.equal((await manda(env, "/draft", esempio({
+    formato: "QuickDraft", pick: [], pool_finale: [101],
+    mazzo_giocato: [mazzo],
+  }))).stato, 200);
+  let lettureR2 = 0;
+  const getVero = env.DRAFT_RAW.get.bind(env.DRAFT_RAW);
+  env.DRAFT_RAW.get = async (...argomenti) => {
+    lettureR2 += 1;
+    return getVero(...argomenti);
+  };
+  let queryD1 = 0;
+  const preparaVero = env.DRAFT_DB.prepare.bind(env.DRAFT_DB);
+  env.DRAFT_DB.prepare = (...argomenti) => {
+    queryD1 += 1;
+    return preparaVero(...argomenti);
+  };
+  let chiaveLimite = null;
+  env.TICKET_RATE_LIMITER = { limit: async ({ key }) => {
+    chiaveLimite = key;
+    return { success: false };
+  } };
+
+  const esito = await manda(env, "/draft/recupera", {
+    mittente: "b".repeat(32), segreto: "d".repeat(64),
+    set: "HOB", formato: "QuickDraft", mazzo: mazzo.mazzo, riserva: [],
+  });
+  assert.equal(esito.stato, 429);
+  assert.match(esito.corpo.errore, /troppe richieste/i);
+  assert.equal(chiaveLimite, `draft-recupera:${"b".repeat(32)}`);
+  assert.equal(queryD1, 0);
+  assert.equal(lettureR2, 0);
+});
+
 test("riconcilia D1 e R2 senza esporre o leggere il contenuto grezzo", async () => {
   const env = ambiente();
   assert.equal((await manda(env, "/draft", esempio())).stato, 200);

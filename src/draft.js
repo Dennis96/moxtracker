@@ -446,6 +446,18 @@ export async function recuperaDraft(richiesta, ambiente, risposta) {
     return risposta({ errore: "richiesta di recupero non valida" }, 400);
   }
 
+  // Il client chiede una sola volta per apertura, ma il costo va protetto sul
+  // server: una chiave distinta per mittente evita interferenze coi ticket e
+  // ferma la richiesta prima della query D1 e delle letture R2.
+  if (ambiente.TICKET_RATE_LIMITER) {
+    const limite = await ambiente.TICKET_RATE_LIMITER.limit({
+      key: `draft-recupera:${corpo.mittente}`,
+    });
+    if (!limite?.success) {
+      return risposta({ errore: "troppe richieste di recupero; riprova fra poco" }, 429);
+    }
+  }
+
   const contributore = await ambiente.DRAFT_DB.prepare(
     "SELECT cancellazione_hash FROM contributori WHERE mittente = ?"
   ).bind(corpo.mittente).first();
