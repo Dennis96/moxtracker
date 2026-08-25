@@ -20,6 +20,12 @@ manuale e documentazione. Il remoto è `github.com/Dennis96/moxtracker`.
 - **Ricezione:** `POST /partite`.
 - **Draft online:** `POST /draft`, `GET /draft/statistiche`,
   `POST /contributi/elimina`; D1 separato e R2 privato con lifecycle a 730 giorni.
+  Dal 25/08/2026 il pacchetto porta anche il **mazzo davvero montato** dopo il
+  Draft (`mazzo_giocato`), con tutte le versioni che Arena riscrive a ogni
+  cambio: finisce nella tabella `draft_mazzo` e `GET /draft/statistiche`
+  pubblica **solo i conteggi** (quanti Draft lo portano, quanti cambi in
+  media), mai le liste. Un pacchetto senza quel campo resta valido: e' il caso
+  di tutte le copie di Mox precedenti.
 - **Lettura pubblica:** `GET /salute`, `/meta`, `/archetipo`,
   `/gioco-risposta`, `/scontri`.
 - **Release Mox:** `GET /mox/release`; senza manifesto firmato risponde
@@ -66,6 +72,10 @@ mostrare colori, strategia e immagini degli archetipi riconosciuti.
   coda online e conserva i dati personali locali.
 - Gli archetipi sono dedotti sul server; se le carte non bastano, il risultato
   è «non identificato».
+- Il mazzo montato dopo un Draft si cancella **insieme al resto** quando il
+  contributore lo chiede: `draft_mazzo` è nella stessa transazione di
+  `draft_pick` e `draft_link`, ed è coperto da una prova dedicata. Sono liste
+  di carte di quella persona: lasciarle indietro renderebbe falsa la promessa.
 - Ogni percentuale deve restare legata a campione e aggiornamento. Sotto 30
   partite non si mostra una percentuale; per una coppia della matrice degli
   scontri la soglia è 100.

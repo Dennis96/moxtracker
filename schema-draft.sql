@@ -44,6 +44,24 @@ CREATE TABLE IF NOT EXISTS draft_pick (
 CREATE INDEX IF NOT EXISTS draft_pick_aggregati
   ON draft_pick (politica, fase, seguito, vicina);
 
+-- Il mazzo che il giocatore ha davvero montato, e i cambi fra una partita e
+-- l'altra: Arena riscrive `CourseDeck` ogni volta che tocchi il mazzo, e Mox
+-- le manda tutte con l'ora. Serve a rispondere a «cosa cambia l'utente del
+-- mazzo che gli abbiamo consigliato», che senza queste versioni non si sa.
+-- Le liste sono JSON compatto nella forma del client: [[carta, quantita], ...].
+CREATE TABLE IF NOT EXISTS draft_mazzo (
+  draft_id   TEXT NOT NULL,
+  versione   INTEGER NOT NULL,
+  quando     TEXT,
+  carte      INTEGER NOT NULL,
+  distinte   INTEGER NOT NULL,
+  lista      TEXT NOT NULL,
+  riserva    TEXT,
+  PRIMARY KEY (draft_id, versione)
+);
+
+CREATE INDEX IF NOT EXISTS draft_mazzo_ultima ON draft_mazzo (draft_id, versione DESC);
+
 CREATE TABLE IF NOT EXISTS draft_link (
   draft_id  TEXT NOT NULL,
   partita   TEXT NOT NULL,

@@ -14,6 +14,13 @@ export const LIMITI_DRAFT = {
   lettureMese: 8_000_000,
   pickMassimi: 45,
   offerteMassime: 20,
+  // Il mazzo montato arriva in piu' versioni: Arena riscrive `CourseDeck` a
+  // ogni cambio, anche fra una partita e l'altra. Trenta versioni sono molte
+  // piu' di quante se ne vedano in un evento vero, e tengono la scrittura D1
+  // dentro i limiti del piano gratuito.
+  versioniMazzoMassime: 30,
+  carteMazzoMassime: 120,
+  copieMassime: 40,
 };
 
 const ESADECIMALE = /^[0-9a-f]+$/;
@@ -51,6 +58,47 @@ function contieneCampoVietato(valore, profondita = 0) {
   return false;
 }
 
+function elencoQuantita(valore, massimo = LIMITI_DRAFT.carteMazzoMassime) {
+  if (!Array.isArray(valore) || valore.length > massimo) return false;
+  const viste = new Set();
+  for (const voce of valore) {
+    if (!Array.isArray(voce) || voce.length !== 2) return false;
+    const [carta, quante] = voce;
+    if (!interoTra(carta, 1, 9_999_999)) return false;
+    if (!interoTra(quante, 1, LIMITI_DRAFT.copieMassime)) return false;
+    if (viste.has(carta)) return false;
+    viste.add(carta);
+  }
+  return true;
+}
+
+// Il mazzo montato non decide niente e non entra in nessuna percentuale: si
+// conserva. Ma quello che si conserva si valida lo stesso, se no il primo
+// pacchetto malformato porta dentro l'indice una lista che nessuno sa leggere.
+function controllaMazzoGiocato(valore) {
+  if (!Array.isArray(valore)) return "mazzo giocato non valido";
+  if (valore.length > LIMITI_DRAFT.versioniMazzoMassime) {
+    return "troppe versioni del mazzo giocato";
+  }
+  for (const versione of valore) {
+    if (!versione || typeof versione !== "object" || Array.isArray(versione)) {
+      return "versione del mazzo non valida";
+    }
+    if (!elencoQuantita(versione.mazzo) || versione.mazzo.length === 0) {
+      return "carte del mazzo giocato non valide";
+    }
+    if ("riserva" in versione && versione.riserva !== null &&
+        !elencoQuantita(versione.riserva)) {
+      return "riserva del mazzo giocato non valida";
+    }
+    if ("quando" in versione && versione.quando !== null &&
+        (typeof versione.quando !== "string" || versione.quando.length > 40)) {
+      return "ora del mazzo giocato non valida";
+    }
+  }
+  return null;
+}
+
 function stessoPool(a, b) {
   return a.length === b.length && a.every((carta, indice) => carta === b[indice]);
 }
@@ -82,6 +130,10 @@ export function controllaDraft(dato) {
   }
   if (!elencoCarte(dato.pool_finale, LIMITI_DRAFT.pickMassimi)) {
     return "pool finale non valido";
+  }
+  if ("mazzo_giocato" in dato && dato.mazzo_giocato !== null) {
+    const guaio = controllaMazzoGiocato(dato.mazzo_giocato);
+    if (guaio) return guaio;
   }
 
   let numeroPrecedente = null;
@@ -270,6 +322,27 @@ async function salvaUno(db, r2, dato, ricevuto) {
       (draft_id, numero, fase, consiglio, scelta, seguito, vicina, campione,
        fonte, politica) VALUES ${valori}`).bind(...argomenti));
   }
+  // Il mazzo davvero montato, versione per versione. Sei campi per riga: otto
+  // righe per statement stanno dentro i 100 parametri di D1 Free, e trenta
+  // versioni al massimo fanno quattro statement.
+  const versioni = Array.isArray(dato.mazzo_giocato) ? dato.mazzo_giocato : [];
+  for (let i = 0; i < versioni.length; i += 8) {
+    const blocco = versioni.slice(i, i + 8);
+    const argomenti = [];
+    for (let scarto = 0; scarto < blocco.length; scarto += 1) {
+      const versione = blocco[scarto];
+      const carte = versione.mazzo.reduce((totale, [, quante]) => totale + quante, 0);
+      argomenti.push(
+        dato.draft, i + scarto + 1, versione.quando ?? null, carte,
+        versione.mazzo.length, JSON.stringify(versione.mazzo),
+        versione.riserva ? JSON.stringify(versione.riserva) : null,
+      );
+    }
+    const valori = blocco.map(() => "(?, ?, ?, ?, ?, ?, ?)").join(", ");
+    comandi.push(db.prepare(`INSERT INTO draft_mazzo
+      (draft_id, versione, quando, carte, distinte, lista, riserva)
+      VALUES ${valori}`).bind(...argomenti));
+  }
   try {
     await db.batch(comandi);
   } catch (guasto) {
@@ -396,10 +469,23 @@ export async function statisticheDraft(db, indirizzo) {
     FROM draft_link l JOIN draft d ON d.id = l.draft_id ${dove}`).bind(...argomenti).first();
   const partite = Number(collegati?.partite || 0);
   const vittorie = Number(collegati?.vittorie || 0);
+  // Quanti Draft portano il mazzo davvero montato, e quante volte in media
+  // l'utente lo ha cambiato. Sono due conteggi, non due percentuali: servono a
+  // sapere se il dato **arriva**, che e' la domanda aperta finche' non ci sono
+  // abbastanza Draft per confrontare consigliato e montato. Nessuna lista di
+  // carte esce da qui.
+  const mazzi = await db.prepare(`SELECT COUNT(DISTINCT m.draft_id) AS draft,
+      COUNT(*) AS versioni
+    FROM draft_mazzo m JOIN draft d ON d.id = m.draft_id ${dove}`)
+    .bind(...argomenti).first();
+  const conMazzo = Number(mazzi?.draft || 0);
+  const versioniMazzo = Number(mazzi?.versioni || 0);
   return {
     versione: 1, soglia_percentuali: 100, soglia_match: 30, filtri: { set, formato }, fasi,
     risultati: { campione: partite, win_rate: partite >= 30 ? vittorie / partite : null,
       intervallo_95: partite >= 30 ? wilson(vittorie, partite) : null },
+    mazzo_montato: { draft: conMazzo, versioni: versioniMazzo,
+      cambi_medi: conMazzo ? (versioniMazzo - conMazzo) / conMazzo : null },
     aggiornato: new Date().toISOString(),
   };
 }
@@ -444,8 +530,13 @@ export async function eliminaMittente(ambiente, mittente) {
   for (let i = 0; i < oggetti.length; i += 1000) {
     await ambiente.DRAFT_RAW.delete(oggetti.slice(i, i + 1000));
   }
+  // Il mazzo montato si cancella **insieme al resto**: e' una lista di carte
+  // di quella persona, e lasciarla indietro renderebbe falsa la promessa
+  // «cancelli e sparisce tutto». Va prima di `draft`, perche' dopo non ci
+  // sarebbe piu' il modo di risalire ai suoi id.
   if (contributoreDraft) await ambiente.DRAFT_DB.batch([
     ambiente.DRAFT_DB.prepare("DELETE FROM draft_link WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
+    ambiente.DRAFT_DB.prepare("DELETE FROM draft_mazzo WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
     ambiente.DRAFT_DB.prepare("DELETE FROM draft_pick WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
     ambiente.DRAFT_DB.prepare("DELETE FROM draft WHERE mittente = ?").bind(mittente),
   ]);
