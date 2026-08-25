@@ -16,6 +16,9 @@ enabled = true
 [vars]
 SITE_ORIGIN = "https://moxtracker.app"
 TURNSTILE_SITE_KEY = "0x4AAAAAAEYng_drA6IkCiE1"
+# Ponte temporaneo: i client fino alla 2.9.21 ricevono il manifesto dopo che
+# la loro GUI ha iniziato mainloop. La 2.9.22 corregge il difetto nel client.
+MOX_RELEASE_RECOVERY_DELAY_MS = "1500"
 
 # Pulizia giornaliera: allegati dei ticket chiusi dopo 90 giorni, intero
 # ticket dopo 365 giorni. La funzione e' idempotente e lavora a lotti.

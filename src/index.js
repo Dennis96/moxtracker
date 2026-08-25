@@ -169,25 +169,47 @@ function versioneMaggiore(a, b) {
   return false;
 }
 
-function releaseMox(ambiente, indirizzo) {
+const VERSIONE_UPDATER_CON_DISPATCH_SICURO = "2 beta 2.9.22";
+
+function rispostaRelease(corpo, stato = 200) {
+  const esito = risposta(corpo, stato);
+  // Il manifesto cambia a ogni pubblicazione: una risposta `disponibile:
+  // false` in cache impedirebbe ai client di vedere subito la nuova release.
+  esito.headers.set("cache-control", "no-store");
+  return esito;
+}
+
+async function attesaRecuperoUpdater(ambiente, corrente) {
+  if (!versioneMaggiore(VERSIONE_UPDATER_CON_DISPATCH_SICURO, corrente)) return;
+  const configurata = Number(ambiente.MOX_RELEASE_RECOVERY_DELAY_MS || 0);
+  if (!Number.isFinite(configurata) || configurata <= 0) return;
+  // Le versioni precedenti alla 2.9.22 possono ricevere il manifesto prima
+  // che Tk abbia iniziato mainloop e perdere per sempre il callback. Il ponte
+  // resta deliberatamente sotto il timeout di cinque secondi dei client.
+  const millisecondi = Math.min(Math.trunc(configurata), 4000);
+  await new Promise((risolvi) => setTimeout(risolvi, millisecondi));
+}
+
+async function releaseMox(ambiente, indirizzo) {
   if (indirizzo.searchParams.get("piattaforma") !== "win-x64" ||
       indirizzo.searchParams.get("canale") !== "stable") {
-    return risposta({ errore: "piattaforma o canale non valido" }, 400);
+    return rispostaRelease({ errore: "piattaforma o canale non valido" }, 400);
   }
-  if (!ambiente.MOX_RELEASE_MANIFEST) return risposta({ disponibile: false });
+  if (!ambiente.MOX_RELEASE_MANIFEST) return rispostaRelease({ disponibile: false });
   let manifesto;
   try { manifesto = JSON.parse(ambiente.MOX_RELEASE_MANIFEST); } catch {
-    return risposta({ errore: "release non configurata" }, 503);
+    return rispostaRelease({ errore: "release non configurata" }, 503);
   }
   const obbligatori = ["versione", "url", "sha256", "dimensione", "firma"];
   if (!manifesto || obbligatori.some((chiave) => !(chiave in manifesto))) {
-    return risposta({ errore: "release non configurata" }, 503);
+    return rispostaRelease({ errore: "release non configurata" }, 503);
   }
   const corrente = indirizzo.searchParams.get("corrente") || "0";
   if (!versioneMaggiore(manifesto.versione, corrente)) {
-    return risposta({ disponibile: false });
+    return rispostaRelease({ disponibile: false });
   }
-  return risposta({ disponibile: true, ...manifesto }, 200, true);
+  await attesaRecuperoUpdater(ambiente, corrente);
+  return rispostaRelease({ disponibile: true, ...manifesto });
 }
 
 async function scaricaReleaseMox(ambiente) {

@@ -26,7 +26,8 @@ async function manda(db, corpo, metodo = "POST", percorso = "/partite", extra = 
     body: metodo === "POST" ? JSON.stringify(corpo) : undefined,
   });
   const risposta = await server.fetch(richiesta, { DB: db, ...extra });
-  return { stato: risposta.status, corpo: await risposta.json() };
+  return { stato: risposta.status, corpo: await risposta.json(),
+    headers: risposta.headers };
 }
 
 test("il pacchetto di esempio e' quello che Mox produce davvero", () => {
@@ -62,11 +63,29 @@ test("release Mox resta spenta senza manifesto e pubblica quello firmato", async
   assert.equal(pronta.stato, 200);
   assert.equal(pronta.corpo.disponibile, true);
   assert.equal(pronta.corpo.versione, "2 beta 2.9.5");
+  assert.equal(pronta.headers.get("cache-control"), "no-store");
 
   const aggiornata = await manda(db, null, "GET",
     percorso.replace("2.9.4", "2.9.5"),
     { MOX_RELEASE_MANIFEST: JSON.stringify(manifesto) });
   assert.equal(aggiornata.corpo.disponibile, false);
+});
+
+test("il ponte updater ritarda solo i client precedenti alla correzione", async () => {
+  const db = creaFintoD1(SCHEMA);
+  const manifesto = {
+    versione: "2 beta 2.9.22", url: "https://example.invalid/Mox.exe",
+    sha256: "a".repeat(64), dimensione: 123, firma: "firma",
+  };
+  const inizio = Date.now();
+  const esito = await manda(db, null, "GET",
+    "/mox/release?piattaforma=win-x64&canale=stable&corrente=2%20beta%202.9.21",
+    { MOX_RELEASE_MANIFEST: JSON.stringify(manifesto),
+      MOX_RELEASE_RECOVERY_DELAY_MS: "25" });
+
+  assert.equal(esito.corpo.disponibile, true);
+  assert.ok(Date.now() - inizio >= 20);
+  assert.equal(esito.headers.get("cache-control"), "no-store");
 });
 
 test("una partita entra, e le sue carte con lei", async () => {
