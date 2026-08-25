@@ -214,6 +214,40 @@ export function controllaDraft(dato) {
   return null;
 }
 
+/** Perche' questa traccia non e' un campione buono per la policy, o `null`.
+ *
+ * Non e' una validazione: il pacchetto resta accettato e conservato. E' una
+ * marcatura, perche' il 25/08/2026 il server ha ricevuto un Premier segnato
+ * `completo` con nove scelte, sei minuti prima che Arena finisse davvero il
+ * Draft. Il server aveva fatto il suo - conserva quello che riceve - ma senza
+ * un segno quella riga sarebbe finita nella calibrazione come se fosse un
+ * Draft intero.
+ *
+ * I motivi sono in italiano perche' li legge chi guarda le statistiche.
+ */
+export function sospettoDraft(dato) {
+  const scelte = (dato.pick || []).reduce((totale, voce) => totale +
+    (voce.scelte?.length ?? (voce.scelta !== undefined ? 1 : 0)), 0);
+  if (!dato.completo) return null;
+  const pacchetti = (dato.pick || [])
+    .filter((voce) => Array.isArray(voce.posizione))
+    .map((voce) => voce.posizione[0]);
+  if (pacchetti.length) {
+    const ultimo = Math.max(...pacchetti);
+    // Arena da' tre pacchetti, ed e' gia' scritto nel controllo delle
+    // posizioni qui sopra: un Draft che si dichiara finito senza aver mai
+    // visto il terzo non e' finito.
+    if (ultimo < 3) return `dichiarato completo al pacchetto ${ultimo}`;
+  }
+  const pool = (dato.pool_finale || []).length;
+  if (pool && scelte && pool > scelte) {
+    // Legittimo - Mox aperto a meta' Draft non ha visto le prime scelte - ma
+    // non e' un campione completo della policy, e non deve sembrarlo.
+    return `pool di ${pool} carte con ${scelte} scelte registrate`;
+  }
+  return null;
+}
+
 function fase(numero) {
   if (numero <= 4) return "apertura";
   if (numero <= 17) return "direzione";
@@ -275,6 +309,7 @@ async function salvaUno(db, r2, dato, ricevuto) {
   const chiave = `${mese}/${dato.draft}.json`;
   await r2.put(chiave, grezzo, { httpMetadata: { contentType: "application/json" } });
   const politica = dato.pick[0] ? dato.pick[0].politica : "nessuna";
+  const sospetto = sospettoDraft(dato);
   const numeroPick = dato.pick.reduce((totale, voce) => totale +
     (voce.scelte?.length ?? (voce.scelta !== undefined ? 1 : 0)), 0);
   const comandi = [
@@ -283,12 +318,12 @@ async function salvaUno(db, r2, dato, ricevuto) {
         dato.mittente, segretoHash, ricevuto),
     db.prepare(`INSERT INTO draft
       (id, mittente, ricevuto, iniziato, set_code, formato, completo, pick,
-       politica, mox, impronta_arena, oggetto_r2, byte, versione)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
+       politica, mox, impronta_arena, oggetto_r2, byte, versione, sospetto)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
         dato.draft, dato.mittente, ricevuto, dato.iniziato ?? null, dato.set,
         dato.formato, dato.completo ? 1 : 0, numeroPick, politica,
         String(dato.mox || "").slice(0, 40), dato.impronta_arena ?? null,
-        chiave, byte, dato.versione),
+        chiave, byte, dato.versione, sospetto),
   ];
   const pickScelti = [];
   for (const voce of dato.pick) {
@@ -527,7 +562,12 @@ export async function statisticheDraft(db, indirizzo) {
   const argomenti = [];
   if (set) { condizioni.push("d.set_code = ?"); argomenti.push(set.toUpperCase()); }
   if (formato) { condizioni.push("d.formato = ?"); argomenti.push(formato); }
-  const dove = condizioni.length ? `WHERE ${condizioni.join(" AND ")}` : "";
+  // Le tracce marcate restano nel database e si possono contare a parte, ma
+  // fuori dalla misura della policy: un campione parziale spacciato per
+  // completo sposta i numeri senza che nessuno se ne accorga.
+  const buone = [...condizioni, "d.sospetto IS NULL"];
+  const dove = `WHERE ${buone.join(" AND ")}`;
+  const doveTutte = condizioni.length ? `WHERE ${condizioni.join(" AND ")}` : "";
   const esito = await db.prepare(`SELECT p.fase, p.politica,
       COUNT(*) AS pick, SUM(p.seguito) AS seguiti, SUM(p.vicina) AS vicine,
       SUM(CASE WHEN p.campione < 100 THEN 1 ELSE 0 END) AS pochi_dati
@@ -560,8 +600,14 @@ export async function statisticheDraft(db, indirizzo) {
     .bind(...argomenti).first();
   const conMazzo = Number(mazzi?.draft || 0);
   const versioniMazzo = Number(mazzi?.versioni || 0);
+  const marcate = await db.prepare(`SELECT COUNT(*) AS n FROM draft d
+    ${doveTutte ? `${doveTutte} AND` : "WHERE"} d.sospetto IS NOT NULL`)
+    .bind(...argomenti).first();
   return {
     versione: 1, soglia_percentuali: 100, soglia_match: 30, filtri: { set, formato }, fasi,
+    // Quante tracce sono state tenute fuori dalla misura, e non quali:
+    // il numero serve a sapere se il client sta sbagliando qualcosa.
+    tracce_marcate: Number(marcate?.n || 0),
     risultati: { campione: partite, win_rate: partite >= 30 ? vittorie / partite : null,
       intervallo_95: partite >= 30 ? wilson(vittorie, partite) : null },
     mazzo_montato: { draft: conMazzo, versioni: versioniMazzo,

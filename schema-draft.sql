@@ -19,7 +19,10 @@ CREATE TABLE IF NOT EXISTS draft (
   impronta_arena   TEXT,
   oggetto_r2       TEXT NOT NULL UNIQUE,
   byte             INTEGER NOT NULL,
-  versione         INTEGER NOT NULL
+  versione         INTEGER NOT NULL,
+  -- Perche' questa traccia non e' un campione buono per la policy. NULL vuol
+  -- dire «nessun sospetto»: si conserva tutto, si misura solo il resto.
+  sospetto         TEXT
 );
 
 CREATE INDEX IF NOT EXISTS draft_mittente_data ON draft (mittente, ricevuto);

@@ -47,6 +47,13 @@ function esempio(cambia = {}) {
   };
 }
 
+/** Lo stesso Draft, ma arrivato davvero in fondo ai tre pacchetti. */
+function esempioCompleto(cambia = {}) {
+  const base = esempio();
+  base.pick[1] = { ...base.pick[1], posizione: [3, 2] };
+  return { ...base, ...cambia };
+}
+
 function r2Finto() {
   const oggetti = new Map();
   return {
@@ -297,7 +304,7 @@ test("il raro doppio guasto viene trovato dalla riconciliazione", async () => {
 
 test("pubblica solo aggregati e nasconde percentuali sotto soglia", async () => {
   const env = ambiente();
-  await manda(env, "/draft", { draft: [esempio()] });
+  await manda(env, "/draft", { draft: [esempioCompleto()] });
   const { stato, corpo } = await manda(env, "/draft/statistiche?set=HOB", null, "GET");
   assert.equal(stato, 200);
   assert.equal(corpo.fasi[0].campione, 2);
@@ -428,4 +435,45 @@ test("una partita v2 si collega soltanto con la stessa impronta Arena e senza du
   diversa.draft = "d".repeat(64);
   assert.equal((await manda(env, "/partite", diversa)).stato, 200);
   assert.equal(env.DRAFT_DB.conta("draft_link"), 1);
+});
+
+test("una bozza dichiarata completa a meta' viene marcata, non creduta", async () => {
+  // Il 25/08/2026 e' arrivato un Premier `completo` con nove scelte, sei
+  // minuti prima che Arena finisse il Draft. Il contributo si conserva - e'
+  // roba vera - ma non puo' entrare nella misura della policy come se fosse
+  // un Draft intero.
+  const env = ambiente();
+  assert.equal((await manda(env, "/draft", esempio())).stato, 200);
+
+  const riga = env.DRAFT_DB.tutte("SELECT sospetto FROM draft")[0];
+  assert.equal(riga.sospetto, "dichiarato completo al pacchetto 1");
+
+  const { corpo } = await manda(env, "/draft/statistiche?set=HOB", null, "GET");
+  assert.equal(corpo.tracce_marcate, 1);
+  assert.deepEqual(corpo.fasi, [], "fuori dalla misura della policy");
+});
+
+test("un Draft arrivato in fondo non viene marcato", async () => {
+  const env = ambiente();
+  assert.equal((await manda(env, "/draft", esempioCompleto())).stato, 200);
+
+  const riga = env.DRAFT_DB.tutte("SELECT sospetto FROM draft")[0];
+  assert.equal(riga.sospetto, null);
+
+  const { corpo } = await manda(env, "/draft/statistiche?set=HOB", null, "GET");
+  assert.equal(corpo.tracce_marcate, 0);
+  assert.equal(corpo.fasi.length, 1);
+});
+
+test("il pool piu' grande delle scelte registrate resta un contributo parziale", async () => {
+  // Mox aperto a meta' Draft: le prime scelte non le ha viste. E' legittimo e
+  // si conserva, ma il campione non e' completo e non deve sembrarlo.
+  const env = ambiente();
+  const parziale = esempioCompleto({ pool_finale: [102, 103, 104, 105] });
+  delete parziale.pick[1].scelta;
+  delete parziale.pick[1].seguito_mox;
+  assert.equal((await manda(env, "/draft", parziale)).stato, 200);
+
+  const riga = env.DRAFT_DB.tutte("SELECT sospetto FROM draft")[0];
+  assert.match(riga.sospetto, /pool di 4 carte con 1 scelte registrate/);
 });
