@@ -139,6 +139,13 @@ stessa giornata è stata pubblicata anche **Mox 2.9.13**: manifesto firmato nel
 secret `MOX_RELEASE_MANIFEST`, installer su R2 `moxtracker-releases`, release
 GitHub `mox-v2-beta2.9.13` con l'asset stabile `Mox-Windows-beta.zip`.
 
+Dal 25/08/2026 `/mox/release` usa sempre `Cache-Control: no-store`. La variabile
+`MOX_RELEASE_RECOVERY_DELAY_MS = "1500"` è un ponte temporaneo per i client
+precedenti alla 2.9.22: la loro GUI avviava il controllo prima di `mainloop` e
+una risposta troppo rapida poteva perdere il callback. Non rimuovere il ponte
+finché le installazioni 2.9.20/2.9.21 non sono rientrate nella 2.9.22; il client
+nuovo non subisce l'attesa.
+
 Nel pomeriggio sono stati pubblicati anche: il pulsante di download senza il
 numero di versione (che restava indietro a ogni release), la cronologia che
 parte da dieci partite con lo stesso pulsante che la richiude, e le query di
