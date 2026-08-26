@@ -113,6 +113,25 @@ test("OAuth usa stato monouso e crea una sessione HttpOnly", async () => {
     .some((colonna) => colonna.name.includes("email")), false);
 });
 
+test("il preflight dell'account consente la rinomina PUT dal sito", async () => {
+  const env = ambiente();
+  const risposta = await worker.fetch(new Request(
+    `https://api.moxtracker.app/account/decks/${"a".repeat(64)}/name`, {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://moxtracker.app",
+        "access-control-request-method": "PUT",
+        "access-control-request-headers": "content-type",
+      },
+    }), env);
+
+  assert.equal(risposta.status, 204);
+  assert.equal(risposta.headers.get("access-control-allow-origin"),
+    "https://moxtracker.app");
+  assert.equal(risposta.headers.get("access-control-allow-credentials"), "true");
+  assert.match(risposta.headers.get("access-control-allow-methods"), /(?:^|,\s*)PUT(?:,|$)/);
+});
+
 test("Discord si collega alla sessione Google senza creare un secondo account", async () => {
   const env = ambiente();
   const sessioneGoogle = await accedi(env);

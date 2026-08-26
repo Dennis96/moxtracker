@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Questionario sviluppo sito Mox</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #100d18;
+      --panel: #191524;
+      --panel-2: #221c30;
+      --line: #3a304d;
+      --text: #f6f2ff;
+      --muted: #b9afca;
+      --purple: #a948ff;
+      --purple-2: #7427bb;
+      --green: #69f0ad;
+      --yellow: #ffd166;
+      --red: #ff7c8a;
+      --shadow: 0 18px 55px rgba(0, 0, 0, .34);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 78% -8%, rgba(142, 44, 215, .25), transparent 32rem),
+        radial-gradient(circle at 4% 18%, rgba(57, 188, 143, .09), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.45 Inter, "Segoe UI", system-ui, sans-serif;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    button { cursor: pointer; }
+
+    .hero {
+      padding: 32px max(20px, calc((100vw - 1180px) / 2));
+      border-bottom: 2px solid var(--purple);
+      background: linear-gradient(120deg, rgba(62, 26, 100, .96), rgba(17, 14, 28, .9));
+    }
+
+    .hero h1 { margin: 0 0 7px; font-size: clamp(26px, 4vw, 42px); }
+    .hero p { max-width: 850px; margin: 0; color: #ddd4ec; }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 12px max(20px, calc((100vw - 1180px) / 2));
+      border-bottom: 1px solid var(--line);
+      background: rgba(16, 13, 24, .94);
+      backdrop-filter: blur(14px);
+    }
+
+    .progress-wrap { flex: 1 1 250px; min-width: 220px; }
+    .progress-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 5px; color: var(--muted); font-size: 13px; }
+    .progress { height: 7px; overflow: hidden; border-radius: 999px; background: #332a43; }
+    .progress > span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--purple), var(--green)); transition: width .2s; }
+
+    .action {
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 1px solid #57466f;
+      border-radius: 7px;
+      background: #292236;
+      color: var(--text);
+    }
+
+    .action:hover { border-color: var(--purple); background: #352744; }
+    .action.primary { border-color: #b663fa; background: var(--purple-2); }
+    .action.danger { color: #ffd4d9; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 235px minmax(0, 1fr);
+      gap: 24px;
+      width: min(1180px, calc(100% - 40px));
+      margin: 28px auto 80px;
+    }
+
+    nav {
+      position: sticky;
+      top: 82px;
+      align-self: start;
+      max-height: calc(100vh - 105px);
+      overflow: auto;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(25, 21, 36, .92);
+      box-shadow: var(--shadow);
+    }
+
+    nav a {
+      display: block;
+      padding: 8px 9px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    nav a:hover { color: white; background: var(--panel-2); }
+
+    .intro, .locked, .section {
+      margin-bottom: 22px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(25, 21, 36, .92);
+      box-shadow: var(--shadow);
+    }
+
+    .intro, .locked { padding: 20px; }
+    .intro h2, .locked h2 { margin-top: 0; }
+    .intro ul, .locked ul { margin-bottom: 0; padding-left: 21px; }
+    .locked { border-left: 4px solid var(--green); }
+
+    .section-head {
+      padding: 20px 20px 13px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head h2 { margin: 0 0 4px; font-size: 22px; }
+    .section-head p { margin: 0; color: var(--muted); }
+
+    .questions { padding: 6px 18px 18px; }
+
+    .question {
+      padding: 17px 2px;
+      border-bottom: 1px solid rgba(91, 77, 115, .5);
+    }
+
+    .question:last-child { border-bottom: 0; }
+
+    .question h3 {
+      margin: 0 0 11px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .qid { margin-right: 7px; color: var(--purple); font-variant-numeric: tabular-nums; }
+
+    .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .choice { position: relative; }
+    .choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice span {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid #514362;
+      border-radius: 8px;
+      background: #231d2f;
+      color: #ded7e9;
+      transition: .15s ease;
+    }
+
+    .choice input:checked + span {
+      border-color: #c477ff;
+      background: #502778;
+      color: white;
+      box-shadow: 0 0 0 2px rgba(169, 72, 255, .16);
+    }
+
+    .choice input:focus-visible + span { outline: 2px solid var(--yellow); outline-offset: 2px; }
+    .recommended { color: var(--green); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+    details { margin-top: 9px; }
+    summary { width: max-content; color: var(--muted); cursor: pointer; font-size: 13px; }
+    textarea {
+      width: 100%;
+      min-height: 74px;
+      margin-top: 8px;
+      padding: 10px;
+      resize: vertical;
+      border: 1px solid #59496d;
+      border-radius: 7px;
+      background: #120f1b;
+      color: white;
+    }
+
+    textarea:focus { border-color: var(--purple); outline: 2px solid rgba(169, 72, 255, .18); }
+
+    .section-note { padding: 0 20px 20px; }
+    .section-note label { display: block; margin-bottom: 6px; color: var(--green); font-weight: 650; }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 40;
+      max-width: min(420px, calc(100vw - 40px));
+      padding: 12px 15px;
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      background: #173128;
+      color: white;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: .2s;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .footer-note { color: var(--muted); text-align: center; }
+
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; width: min(100% - 24px, 760px); margin-top: 16px; }
+      nav { position: static; display: flex; gap: 4px; overflow-x: auto; padding: 8px; white-space: nowrap; }
+      nav a { flex: 0 0 auto; }
+      .toolbar { position: static; }
+      .hero { padding: 24px 16px; }
+      .choices { display: grid; grid-template-columns: 1fr 1fr; }
+      .choice span { width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+      .choices { grid-template-columns: 1fr; }
+      .action { flex: 1 1 140px; }
+      .questions { padding-inline: 13px; }
+      .section-head { padding-inline: 15px; }
+    }
+
+    @media print {
+      body { background: white; color: black; }
+      .hero, .toolbar, nav, .intro { display: none; }
+      .layout { display: block; width: 100%; margin: 0; }
+      .section, .locked { box-shadow: none; break-inside: avoid; background: white; border-color: #aaa; }
+      .choice span { color: #333; background: white; }
+      .choice input:not(:checked) + span { display: none; }
+      .recommended { color: #333; }
+      textarea { color: black; background: white; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Decisioni per il sito Mox</h1>
+    <p>Questionario rapido: scegli una risposta per riga. Le scelte vengono salvate automaticamente solo in questo browser. Puoi aggiungere note e poi esportare tutto in Markdown.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Completamento</span><strong id="progressText">0 / 0</strong></div>
+      <div class="progress"><span id="progressBar"></span></div>
+    </div>
+    <button class="action" id="recommendedBtn" type="button">Compila con i consigliati</button>
+    <button class="action" id="copyBtn" type="button">Copia risposte</button>
+    <button class="action primary" id="downloadBtn" type="button">Scarica Markdown</button>
+    <button class="action danger" id="resetBtn" type="button">Azzera</button>
+  </div>
+
+  <div class="layout">
+    <nav id="nav" aria-label="Sezioni del questionario"></nav>
+    <main>
+      <section class="intro">
+        <h2>Come compilarlo</h2>
+        <ul>
+          <li>Le scelte marcate <strong>consigliato</strong> sono la proposta tecnica di partenza, non una decisione già presa.</li>
+          <li>Usa <strong>Decidi tu</strong> quando vuoi lasciare la scelta a Codex.</li>
+          <li>Usa <strong>Più avanti</strong> per togliere una funzione dal primo lancio.</li>
+          <li>Il pulsante “Compila con i consigliati” riempie soltanto le domande ancora vuote.</li>
+          <li>Alla fine scarica il file `.md` e allegalo nella nuova chat.</li>
+        </ul>
+      </section>
+
+      <section class="locked" id="decisioni-gia-prese">
+        <h2>Decisioni già prese — non serve rispondere</h2>
+        <ul>
+          <li>Il sito viene completato prima del lancio pubblico.</li>
+          <li>Nell’account compaiono i mazzi correnti di Arena, non la collezione.</li>
+          <li>Partite, Draft e mazzi richiedono consensi espliciti e separati.</li>
+          <li>La matrice degli scontri appare soltanto oltre una soglia dichiarata.</li>
+          <li>Log grezzi, tracce R2, segreti e dati personali non diventano pubblici.</li>
+          <li><code>tracce_marcate</code> resta un dato tecnico, non una statistica pubblica.</li>
+          <li>Prima del lavoro sul sito va superato il Draft reale con Mox 2.9.23.</li>
+        </ul>
+      </section>
+
+      <div id="form"></div>
+
+      <section class="section" id="note-finali">
+        <div class="section-head">
+          <h2>Note finali</h2>
+          <p>Scrivi qui idee, esempi di siti o richieste che non rientrano nelle domande.</p>
+        </div>
+        <div class="section-note">
+          <label for="finalNotes">Indicazioni aggiuntive</label>
+          <textarea id="finalNotes" placeholder="Per esempio: questa pagina mi piace, questa funzione non deve cambiare, questo è il tester principale…"></textarea>
+        </div>
+      </section>
+      <p class="footer-note">Il file non invia nulla in rete. Le risposte restano in locale finché non le esporti.</p>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const sections = [
+      {
+        id: "obiettivo",
+        title: "1. Obiettivo e lancio",
+        description: "Definisce cosa deve essere pronto e per chi.",
+        questions: [
+          ["Q01", "Pubblico principale al lancio", ["Giocatori italiani di ogni livello", "Soprattutto principianti", "Soprattutto competitivi", "Pubblico internazionale", "Decidi tu"], 0],
+          ["Q02", "Ruolo principale del sito", ["Compagno di Mox con statistiche pubbliche", "Sito autonomo di statistiche", "Pagina di presentazione e download", "Tutte e tre allo stesso livello", "Decidi tu"], 0],
+          ["Q03", "Azione principale della homepage", ["Scaricare Mox", "Consultare il meta", "Creare o aprire l’account", "Leggere come funziona", "Decidi tu"], 0],
+          ["Q04", "Stato da comunicare al lancio", ["Beta pubblica", "Versione stabile", "Accesso anticipato per amici", "Nessuna etichetta", "Decidi tu"], 0],
+          ["Q05", "Strategia di lancio", ["Prima beta chiusa, poi pubblica", "Pubblicazione pubblica appena superati i controlli", "Solo amici finché i dati non crescono", "Più avanti", "Decidi tu"], 0],
+          ["Q06", "Condizione più importante per il lancio", ["Zero difetti bloccanti e flussi principali collaudati", "Grafica completa", "Molti più dati statistici", "Tutte le funzioni previste", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "homepage",
+        title: "2. Homepage e navigazione",
+        description: "Decide cosa vede un nuovo visitatore nei primi secondi.",
+        questions: [
+          ["Q07", "In cima alla homepage", ["Spiegazione breve + download + schermata", "Subito le statistiche del meta", "Solo logo e download", "Presentazione estesa del progetto", "Decidi tu"], 0],
+          ["Q08", "Schermate o video di Mox", ["Due schermate reali ben curate", "Breve video dimostrativo", "Entrambi", "Nessun contenuto visivo", "Più avanti"], 0],
+          ["Q09", "Conteggi pubblici di partite e Draft", ["Sì, con data di aggiornamento", "Sì, arrotondati", "No", "Solo dopo più contributori", "Decidi tu"], 0],
+          ["Q10", "Confronto con 17lands/MTGA Draft Tool", ["Spiegazione neutrale delle differenze", "Evidenziare i vantaggi di Mox", "Non citarli", "Solo nella documentazione", "Decidi tu"], 0],
+          ["Q11", "Struttura del menu", ["Home, Meta, Draft, Account, Supporto", "Aggiungere Download", "Aggiungere Documentazione", "Aggiungere Download e Documentazione", "Decidi tu"], 0],
+          ["Q12", "Pagina note di versione", ["Sì, sintetica e aggiornata", "Solo collegamento a GitHub", "No", "Più avanti", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "meta",
+        title: "3. Meta e statistiche Constructed",
+        description: "Stabilisce filtri, soglie e modo di presentare i dati.",
+        questions: [
+          ["Q13", "Formato predefinito", ["Standard", "Ultimo formato usato", "Il formato con più dati", "Scelta obbligatoria", "Decidi tu"], 0],
+          ["Q14", "Archetipi sotto la soglia statistica", ["Visibili ma marcati come campione piccolo", "Nascosti", "In una sezione separata", "Visibili senza win rate", "Decidi tu"], 0],
+          ["Q15", "Metrica principale", ["Win rate con numero di partite", "Popolarità", "Numero di partite", "Punteggio combinato", "Decidi tu"], 0],
+          ["Q16", "Incertezza statistica", ["Etichette semplici: iniziale/discreto/solido", "Intervallo numerico", "Entrambi", "Non mostrarla", "Decidi tu"], 0],
+          ["Q17", "Filtri indispensabili al lancio", ["Formato, periodo, rank e BO1/BO3", "Solo formato e periodo", "Solo formato", "Tutti i filtri possibili", "Decidi tu"], 0],
+          ["Q18", "Periodi temporali", ["7, 14, 30 giorni e totale", "30 giorni e totale", "Solo totale", "Periodo personalizzato", "Decidi tu"], 0],
+          ["Q19", "Andamento nel tempo", ["Grafico per gli archetipi con dati sufficienti", "Solo frecce crescita/calo", "Non serve", "Più avanti", "Decidi tu"], 0],
+          ["Q20", "Archetipi non riconosciuti", ["Mostrarli come Non classificato", "Nasconderli dal pubblico", "Raggrupparli in Altro", "Farli vedere solo in amministrazione", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "archetipo",
+        title: "4. Pagina archetipo",
+        description: "Definisce lista, varianti e analisi di un mazzo del meta.",
+        questions: [
+          ["Q21", "Lista principale dell’archetipo", ["La più rappresentativa per frequenza", "Quella con win rate migliore", "La più recente", "Nessuna lista principale", "Decidi tu"], 0],
+          ["Q22", "Varianti del mazzo", ["Mostrare solo differenze significative", "Mostrare tutte", "Una sola variante", "Più avanti", "Decidi tu"], 0],
+          ["Q23", "Strumenti sulla decklist", ["Copia e importa in Arena", "Solo copia", "Copia, importa e download testo", "Nessuno", "Decidi tu"], 0],
+          ["Q24", "Informazioni da affiancare alla lista", ["Curva, tipi, colori e campione", "Solo curva di mana", "Analisi completa con carte chiave", "Solo lista", "Decidi tu"], 0],
+          ["Q25", "Immagini delle carte", ["Anteprima al passaggio/click", "Sempre visibili", "Solo nomi", "A scelta dell’utente", "Decidi tu"], 0],
+          ["Q26", "Matchup sotto soglia", ["Bloccati con soglia dichiarata", "Nascosti completamente", "Mostrati con forte avviso", "Più avanti", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "draft-pubblico",
+        title: "5. Draft pubblico",
+        description: "Decide cosa rendere comprensibile senza esporre diagnostica privata.",
+        questions: [
+          ["Q27", "Scopo principale della pagina Draft", ["Misurare come si comporta Mox", "Studiare i pick più frequenti", "Confrontare Mox e 17lands", "Spiegare il sistema", "Decidi tu"], 0],
+          ["Q28", "Separazione dei dati", ["Set + formato + politica", "Solo set e formato", "Solo set", "Tutto aggregato", "Decidi tu"], 0],
+          ["Q29", "Politiche Draft vecchie", ["Consultabili ma non predefinite", "Nascoste", "Confrontate con quella attuale", "Eliminate dalla pagina", "Decidi tu"], 0],
+          ["Q30", "Confronto con 17lands", ["Accordo e divergenze con campione", "Solo accordo complessivo", "Nessun confronto pubblico", "Pagina separata", "Decidi tu"], 0],
+          ["Q31", "Casi controversi come Montagna/Dori", ["Sezione trasparente con spiegazione", "Solo amministrazione", "Non mostrarli", "Più avanti", "Decidi tu"], 1],
+          ["Q32", "Statistiche del deck builder", ["Colori, terre, curva, splash e modifiche del giocatore", "Solo colori e terre", "Solo mazzo finale", "Nessuna statistica pubblica", "Decidi tu"], 0],
+          ["Q33", "Mazzo consigliato contro mazzo giocato", ["Confronto anonimo oltre soglia", "Mostrare solo il consigliato", "Mostrare solo il giocato", "Non mostrarli pubblicamente", "Decidi tu"], 0],
+          ["Q34", "Tracce incomplete", ["Escluse dagli aggregati e visibili solo al proprietario", "Incluse con avviso", "Eliminate", "Solo amministrazione", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "account",
+        title: "6. Account personale",
+        description: "Ordina dashboard, mazzi, partite e dispositivi.",
+        questions: [
+          ["Q35", "Prima sezione dopo l’accesso", ["Riepilogo personale", "I miei mazzi", "Le mie partite", "I miei Draft", "Decidi tu"], 0],
+          ["Q36", "Riepilogo personale", ["Partite, win rate, formati e ultimi Draft", "Solo attività recente", "Grafici dettagliati", "Non serve", "Decidi tu"], 0],
+          ["Q37", "Mazzi rimossi da Arena", ["Restano nello storico ma separati", "Scompaiono completamente", "Restano insieme ai correnti", "A scelta dell’utente", "Decidi tu"], 0],
+          ["Q38", "Versioni dello stesso mazzo", ["Mostrare differenze fra liste", "Mostrare solo l’ultima", "Trattarle come mazzi distinti", "Più avanti", "Decidi tu"], 0],
+          ["Q39", "Rinomina manuale", ["Consentita solo per il proprio account", "Consentita e usata anche dal classificatore", "Non consentita", "Più avanti", "Decidi tu"], 0],
+          ["Q40", "Stato sincronizzazione", ["Ultimo invio e consensi per dispositivo", "Solo ultimo invio", "Solo dispositivo collegato/non collegato", "Non mostrarlo", "Decidi tu"], 0],
+          ["Q41", "Avviso se Mox non invia più dati", ["Sì dopo alcuni giorni", "Solo in caso di errore", "No", "Più avanti", "Decidi tu"], 0],
+          ["Q42", "Export dati", ["Completo e anche per singola sezione", "Solo export completo", "Solo mazzi e Draft", "Non prioritario", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "draft-personali",
+        title: "7. Draft personali",
+        description: "Stabilisce cosa può studiare il proprietario di una traccia.",
+        questions: [
+          ["Q43", "Dettaglio di ogni pick", ["Scelta, alternative, punteggi e contesto colori", "Solo scelta e alternative", "Solo carta scelta", "Più avanti", "Decidi tu"], 0],
+          ["Q44", "Evoluzione dei colori", ["Timeline visiva durante il Draft", "Riepilogo testuale", "Non serve", "Più avanti", "Decidi tu"], 0],
+          ["Q45", "Mazzi da confrontare", ["Proposta Mox, montato e realmente giocato", "Proposta e giocato", "Solo giocato", "Solo proposta", "Decidi tu"], 0],
+          ["Q46", "Terre speciali e fixing", ["Sezione dedicata con contributo ai colori", "Trattate come le altre carte", "Solo nel mazzo", "Più avanti", "Decidi tu"], 0],
+          ["Q47", "Segnalazione di un consiglio sbagliato", ["Pulsante che prepara diagnostica con consenso", "Ticket manuale", "Nessuna funzione dedicata", "Più avanti", "Decidi tu"], 0],
+          ["Q48", "Confronto personale con 17lands", ["Mostrare quando i dati sono disponibili", "Usarlo solo internamente", "Non farlo", "Più avanti", "Decidi tu"], 1]
+        ]
+      },
+      {
+        id: "supporto",
+        title: "8. Supporto e amministrazione",
+        description: "Rende le segnalazioni utili senza raccogliere dati inutili.",
+        questions: [
+          ["Q49", "Ticket senza account", ["Consentiti con Turnstile e link segreto", "Richiedere sempre account", "Solo email", "Disabilitati al lancio", "Decidi tu"], 0],
+          ["Q50", "Categorie", ["Bug, Draft, dati, account, installazione, suggerimenti", "Bug, sviluppo e dati", "Solo bug e suggerimenti", "Decidi tu"], 0],
+          ["Q51", "Pacchetto diagnostico", ["Allegabile con spiegazione e consenso", "Solo istruzioni per inviarlo altrove", "Non accettare ZIP", "Più avanti", "Decidi tu"], 0],
+          ["Q52", "Notifica delle risposte", ["Email facoltativa", "Solo dashboard account", "Email obbligatoria", "Nessuna notifica", "Più avanti"], 0],
+          ["Q53", "Stati interni del ticket", ["Mantenere gli stati attuali", "Semplificarli", "Aggiungere priorità e area", "Decidi tu"], 0],
+          ["Q54", "Amministratori", ["Solo il responsabile al lancio", "Più amministratori", "Ruoli diversi supporto/sviluppo", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "privacy",
+        title: "9. Privacy e controllo",
+        description: "Decide cosa può vedere e cancellare l’utente.",
+        questions: [
+          ["Q55", "Pagina semplice “Cosa invia Mox”", ["Sì, con esempi concreti", "Basta l’informativa Privacy", "Solo dentro Mox", "Più avanti", "Decidi tu"], 0],
+          ["Q56", "Cancellazione selettiva", ["Partite, Draft e mazzi separatamente", "Solo cancellazione completa", "Solo Draft separati", "Più avanti", "Decidi tu"], 0],
+          ["Q57", "Cancellazione account", ["Immediata dopo doppia conferma", "Recuperabile per alcuni giorni", "Richiede ticket", "Decidi tu"], 0],
+          ["Q58", "Retention tracce Draft grezze", ["Mantenere 730 giorni", "Ridurre a 365 giorni", "Ridurre a 180 giorni", "Scelta dell’utente", "Decidi tu"], 0],
+          ["Q59", "Cronologia dei consensi", ["Mostrare stato e ultima modifica", "Mostrare solo stato attuale", "Non serve", "Più avanti", "Decidi tu"], 1],
+          ["Q60", "Dati sospetti", ["Conservarli privati ma escluderli dagli aggregati", "Eliminarli", "Includerli con avviso", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "grafica",
+        title: "10. Grafica, mobile e lingue",
+        description: "Fissa l’identità visiva e il comportamento su schermi piccoli.",
+        questions: [
+          ["Q61", "Identità grafica", ["Stesso design scuro/viola di Mox", "Più sobrio e statistico", "Ibrido Mox + dashboard moderna", "Ridisegno completo", "Decidi tu"], 2],
+          ["Q62", "Densità delle informazioni", ["Equilibrata con modalità compatta", "Molto compatta", "Schede spaziose", "Diversa per desktop/mobile", "Decidi tu"], 0],
+          ["Q63", "Tema chiaro", ["Più avanti", "Da fare al lancio", "Non serve", "Automatico dal sistema", "Decidi tu"], 0],
+          ["Q64", "Sfondo animato", ["Mantenerlo con pausa e riduzione automatica", "Solo desktop", "Rimuoverlo", "Sempre attivo", "Decidi tu"], 0],
+          ["Q65", "Tabelle su mobile", ["Trasformarle in schede", "Scorrimento orizzontale", "Versione compatta dedicata", "Decidi tu"], 0],
+          ["Q66", "Accessibilità", ["Tastiera, contrasto, 200% e movimento ridotto", "Solo requisiti essenziali", "Dopo il lancio", "Decidi tu"], 0],
+          ["Q67", "Lingue al lancio", ["Italiano e inglese", "Solo italiano", "Tutte le sette lingue di Mox", "Italiano, inglese e una terza", "Decidi tu"], 0],
+          ["Q68", "Nomi delle carte mancanti nella lingua scelta", ["Ripiego in inglese", "Mostrare ID", "Ripiego in italiano", "Decidi tu"], 0]
+        ]
+      },
+      {
+        id: "qualita",
+        title: "11. Qualità, pubblicazione e priorità",
+        description: "Impedisce di ripetere release fragili e regressioni difficili da trovare.",
+        questions: [
+          ["Q69", "Ambiente di anteprima", ["Obbligatorio prima della produzione", "Solo per modifiche grandi", "Non serve", "Più avanti", "Decidi tu"], 0],
+          ["Q70", "Blocco automatico della pubblicazione", ["Test + build + smoke test + working tree pulita", "Solo suite automatica", "Checklist manuale", "Nessun blocco", "Decidi tu"], 0],
+          ["Q71", "Screenshot automatici", ["Desktop e mobile a ogni release", "Solo prima delle release importanti", "Manuali", "Non servono", "Decidi tu"], 0],
+          ["Q72", "Controlli giornalieri dei dati", ["Integrità D1/R2 e tracce sospette", "Solo disponibilità API", "Nessun controllo automatico", "Più avanti", "Decidi tu"], 0],
+          ["Q73", "Monitoraggio del sito", ["API, login, download e pagine principali", "Solo API e download", "Solo errori Worker", "Più avanti", "Decidi tu"], 0],
+          ["Q74", "Prima fase di lavoro", ["Stabilizzazione dei difetti già trovati", "Grafica e usabilità", "Nuove statistiche", "Account e supporto", "Decidi tu"], 0],
+          ["Q75", "Seconda fase", ["Homepage e navigazione", "Meta e archetipi", "Draft pubblico e personale", "Account e supporto", "Decidi tu"], 2],
+          ["Q76", "Numero di tester prima del lancio", ["3–5 con checklist", "1–2 amici", "10 o più", "Solo il proprietario", "Decidi tu"], 0],
+          ["Q77", "Canale principale del feedback beta", ["Ticket del sito", "Messaggi diretti", "Modulo separato", "Più canali", "Decidi tu"], 0],
+          ["Q78", "Autorizzazione alla pubblicazione", ["Sempre esplicita dopo review e schermate", "Automatica se tutti i test passano", "Solo per release grandi", "Decidi tu"], 0]
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = "mox-site-questionnaire-v1";
+    const form = document.getElementById("form");
+    const nav = document.getElementById("nav");
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+    const finalNotes = document.getElementById("finalNotes");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { answers: {}, notes: {}, sectionNotes: {}, finalNotes: "" }; }
+      catch { return { answers: {}, notes: {}, sectionNotes: {}, finalNotes: "" }; }
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      state.finalNotes = finalNotes.value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateProgress();
+    }
+
+    function questionCount() {
+      return sections.reduce((sum, section) => sum + section.questions.length, 0);
+    }
+
+    function updateProgress() {
+      const total = questionCount();
+      const answered = Object.keys(state.answers).filter(id => state.answers[id]).length;
+      progressText.textContent = `${answered} / ${total}`;
+      progressBar.style.width = `${total ? (answered / total) * 100 : 0}%`;
+      document.title = `Questionario sito Mox — ${answered}/${total}`;
+    }
+
+    function render() {
+      nav.innerHTML = "";
+      form.innerHTML = "";
+
+      sections.forEach(section => {
+        const navLink = document.createElement("a");
+        navLink.href = `#${section.id}`;
+        navLink.textContent = section.title;
+        nav.appendChild(navLink);
+
+        const sectionElement = document.createElement("section");
+        sectionElement.className = "section";
+        sectionElement.id = section.id;
+
+        const head = document.createElement("div");
+        head.className = "section-head";
+        const h2 = document.createElement("h2");
+        h2.textContent = section.title;
+        const description = document.createElement("p");
+        description.textContent = section.description;
+        head.append(h2, description);
+        sectionElement.appendChild(head);
+
+        const questions = document.createElement("div");
+        questions.className = "questions";
+
+        section.questions.forEach(([id, text, options, recommendedIndex]) => {
+          const article = document.createElement("article");
+          article.className = "question";
+          const title = document.createElement("h3");
+          const qid = document.createElement("span");
+          qid.className = "qid";
+          qid.textContent = id;
+          title.append(qid, document.createTextNode(text));
+          article.appendChild(title);
+
+          const choices = document.createElement("div");
+          choices.className = "choices";
+          options.forEach((option, index) => {
+            const label = document.createElement("label");
+            label.className = "choice";
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = id;
+            input.value = option;
+            input.checked = state.answers[id] === option;
+            input.addEventListener("change", () => {
+              state.answers[id] = option;
+              saveState();
+            });
+            const visual = document.createElement("span");
+            visual.append(document.createTextNode(option));
+            if (index === recommendedIndex) {
+              const recommended = document.createElement("small");
+              recommended.className = "recommended";
+              recommended.textContent = "consigliato";
+              visual.appendChild(recommended);
+            }
+            label.append(input, visual);
+            choices.appendChild(label);
+          });
+          article.appendChild(choices);
+
+          const details = document.createElement("details");
+          const summary = document.createElement("summary");
+          summary.textContent = state.notes[id] ? "Nota aggiunta" : "Aggiungi una nota facoltativa";
+          const note = document.createElement("textarea");
+          note.placeholder = "Precisazione, alternativa o esempio…";
+          note.value = state.notes[id] || "";
+          note.addEventListener("input", () => {
+            state.notes[id] = note.value;
+            summary.textContent = note.value.trim() ? "Nota aggiunta" : "Aggiungi una nota facoltativa";
+            saveState();
+          });
+          details.append(summary, note);
+          article.appendChild(details);
+          questions.appendChild(article);
+        });
+
+        sectionElement.appendChild(questions);
+
+        const sectionNote = document.createElement("div");
+        sectionNote.className = "section-note";
+        const noteLabel = document.createElement("label");
+        noteLabel.htmlFor = `${section.id}-note`;
+        noteLabel.textContent = "Nota generale sulla sezione";
+        const noteArea = document.createElement("textarea");
+        noteArea.id = `${section.id}-note`;
+        noteArea.placeholder = "Qualcosa che manca o che vuoi spiegare meglio…";
+        noteArea.value = state.sectionNotes[section.id] || "";
+        noteArea.addEventListener("input", () => {
+          state.sectionNotes[section.id] = noteArea.value;
+          saveState();
+        });
+        sectionNote.append(noteLabel, noteArea);
+        sectionElement.appendChild(sectionNote);
+        form.appendChild(sectionElement);
+      });
+
+      finalNotes.value = state.finalNotes || "";
+      finalNotes.addEventListener("input", saveState);
+      updateProgress();
+    }
+
+    function markdown() {
+      const lines = [
+        "# Risposte al questionario per il sito Mox",
+        "",
+        `Compilato: ${new Date().toLocaleString("it-IT")}`,
+        "",
+        "## Decisioni già stabilite",
+        "",
+        "- Sito prima del lancio pubblico.",
+        "- Mazzi correnti di Arena, non collezione.",
+        "- Consensi separati per partite, Draft e mazzi.",
+        "- Matchup solo oltre soglia dichiarata.",
+        "- Dati privati e diagnostici non pubblici.",
+        "- Lavoro sul sito solo dopo il Draft reale 2.9.23.",
+        ""
+      ];
+
+      sections.forEach(section => {
+        lines.push(`## ${section.title}`, "");
+        section.questions.forEach(([id, text]) => {
+          const answer = state.answers[id] || "NON RISPOSTO";
+          lines.push(`- **${id} — ${text}:** ${answer}`);
+          if ((state.notes[id] || "").trim()) lines.push(`  - Nota: ${state.notes[id].trim().replace(/\n/g, " ")}`);
+        });
+        if ((state.sectionNotes[section.id] || "").trim()) {
+          lines.push("", `**Nota sulla sezione:** ${state.sectionNotes[section.id].trim()}`);
+        }
+        lines.push("");
+      });
+
+      if ((finalNotes.value || "").trim()) lines.push("## Note finali", "", finalNotes.value.trim(), "");
+      const unanswered = questionCount() - Object.keys(state.answers).filter(id => state.answers[id]).length;
+      lines.push("## Stato compilazione", "", `Domande senza risposta: ${unanswered}.`, "");
+      return lines.join("\n");
+    }
+
+    document.getElementById("recommendedBtn").addEventListener("click", () => {
+      sections.forEach(section => section.questions.forEach(([id, , options, recommendedIndex]) => {
+        if (!state.answers[id]) state.answers[id] = options[recommendedIndex];
+      }));
+      saveState();
+      render();
+      showToast("Scelte consigliate applicate alle domande vuote");
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const value = markdown();
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch {
+        const helper = document.createElement("textarea");
+        helper.value = value;
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand("copy");
+        helper.remove();
+      }
+      showToast("Risposte copiate negli appunti");
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const blob = new Blob([markdown()], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "RISPOSTE-QUESTIONARIO-SITO-MOX.md";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast("File Markdown creato");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (!confirm("Vuoi davvero cancellare tutte le risposte salvate in questo browser?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = { answers: {}, notes: {}, sectionNotes: {}, finalNotes: "" };
+      render();
+      showToast("Questionario azzerato");
+    });
+
+    render();
+  </script>
+</body>
+</html>

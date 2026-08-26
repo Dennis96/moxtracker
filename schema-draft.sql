@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS draft (
 
 CREATE INDEX IF NOT EXISTS draft_mittente_data ON draft (mittente, ricevuto);
 CREATE INDEX IF NOT EXISTS draft_set_formato ON draft (set_code, formato, ricevuto);
+CREATE INDEX IF NOT EXISTS draft_sospetto ON draft (sospetto)
+  WHERE sospetto IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS draft_impronta_arena
   ON draft (impronta_arena) WHERE impronta_arena IS NOT NULL;
 

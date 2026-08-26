@@ -3,9 +3,10 @@ import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const RADICE = resolve(fileURLToPath(new URL("../sito", import.meta.url)));
+const RADICE = resolve(process.env.MOX_SITO_DIR ||
+  fileURLToPath(new URL("../.dist/sito", import.meta.url)));
 const PORTA = Number(process.env.MOX_SITO_PORTA || 8790);
-const API = "https://api.moxtracker.app";
+const API = String(process.env.MOX_API_ORIGIN || "https://api.moxtracker.app").replace(/\/$/, "");
 const TIPI = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],

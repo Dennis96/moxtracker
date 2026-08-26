@@ -191,7 +191,31 @@ npm run sito-locale
 ```
 
 Poi aprire `http://127.0.0.1:8790`. L'anteprima inoltra in sola lettura le
-richieste `/api` all'API pubblica, senza inviare partite o Draft.
+richieste `/api` all'API pubblica, senza inviare partite o Draft. Prima di
+avviare il server, il comando genera in `.dist/sito` lo stesso artefatto che
+può essere caricato su Pages. Ogni asset locale riceve automaticamente un
+identificatore derivato dall'hash dell'intero sito; il manifesto contiene hash
+dei file e commit Git. I suffissi `?v=` non si aggiornano più a mano.
+
+Per usare un'API di anteprima separata:
+
+```powershell
+$env:MOX_API_ORIGIN = "https://api-preview.example.invalid"
+npm run sito-locale
+```
+
+`npm run sito:release` esegue soltanto il piano locale: richiede working tree
+pulita, ramo sorgente configurato, suite verde e build riproducibile. Non
+pubblica finché non viene aggiunto `--deploy`. Una pubblicazione preview crea
+un record ignorato da Git in `.release`; la produzione richiede lo stesso
+commit/build della preview, smoke test riusciti, screenshot desktop/mobile e
+la conferma esplicita `PUBBLICA-SITO-PRODUZIONE`.
+
+Il ricalcolo una tantum dei flag Draft è separato dal Worker. `npm run
+draft:sospetti:help` mostra i comandi, ma non apre R2. Anche la sola analisi
+richiede una conferma esplicita per leggere le tracce private; la modalità di
+scrittura richiede una seconda conferma e verifica D1 dopo gli aggiornamenti.
+Non eseguirlo come test ordinario.
 
 ## Prima di pubblicare
 
@@ -201,17 +225,14 @@ richieste `/api` all'API pubblica, senza inviare partite o Draft.
 4. committare e inviare il ramo soltanto quando la consegna è pronta;
 5. per account/ticket seguire tutti i prerequisiti di `ACCOUNT-E-TICKET.md`;
 6. pubblicare prima il Worker se il frontend dipende da nuovi campi;
-6-bis. **se hai toccato un `.js` o un `.css`, alza il `?v=` che lo richiama
-   nelle pagine HTML.** Il 23/08/2026 il codice nuovo era online ma i browser
-   continuavano a servire quello vecchio dalla cache, perché l'indirizzo con
-   la vecchia query era identico: sembrava che la correzione non fosse
-   partita;
+6-bis. generare e controllare `.dist/sito/build-manifest.json`; non distribuire
+   direttamente la cartella sorgente `sito`;
 7. verificare sia `moxtracker.app` sia la beta Pages dopo ogni deploy;
 8. verificare che l'asset stabile `Mox-Windows-beta.zip` appartenga alla release
    GitHub più recente;
 9. controllare desktop, mobile, privacy, soglie e assenza di numeri finti.
 
-Il pulsante di download è stato attivato per la beta controllata dopo il primo
+Il pulsante di download è stato attivato per la beta aperta dopo il primo
 Draft reale Prendi Due e il fix 2.9.1; il dominio principale è online.
 
 Non eseguire `npm run database-vero` o `npm run pubblica` come semplice prova:

@@ -53,7 +53,7 @@ function headersPrivati(richiesta, ambiente, altri = {}) {
     headers["access-control-allow-origin"] = origine;
     headers["access-control-allow-credentials"] = "true";
     headers["access-control-allow-headers"] = "content-type";
-    headers["access-control-allow-methods"] = "GET, POST, DELETE, OPTIONS";
+    headers["access-control-allow-methods"] = "GET, POST, PUT, DELETE, OPTIONS";
   }
   return headers;
 }

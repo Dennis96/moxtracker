@@ -1,5 +1,7 @@
 node_modules/
 .wrangler/
+.dist/
+.release/
 .dev.vars
 *.log
 id-database.txt
