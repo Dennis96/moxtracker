@@ -47,7 +47,14 @@ function elencoCarte(valore, massimo = LIMITI_DRAFT.offerteMassime) {
 function contieneCampoVietato(valore, profondita = 0) {
   if (profondita > 12 || valore === null) return false;
   if (Array.isArray(valore)) {
-    return valore.some((dentro) => contieneCampoVietato(dentro, profondita + 1));
+    // `some` risponde true/false, e il nome del campo si perdeva per strada:
+    // chi riceveva il rifiuto leggeva «campo vietato: true». Trovato il
+    // 26/08/2026 dai casi condivisi con Mox, dove il nome usciva giusto.
+    for (const dentro of valore) {
+      const trovato = contieneCampoVietato(dentro, profondita + 1);
+      if (trovato) return trovato;
+    }
+    return false;
   }
   if (typeof valore !== "object") return false;
   for (const [chiave, dentro] of Object.entries(valore)) {
@@ -240,7 +247,7 @@ export function sospettoDraft(dato) {
     if (ultimo < 3) return `dichiarato completo al pacchetto ${ultimo}`;
   }
   const pool = (dato.pool_finale || []).length;
-  if (pool && scelte && pool > scelte) {
+  if (pool > scelte) {
     // Legittimo - Mox aperto a meta' Draft non ha visto le prime scelte - ma
     // non e' un campione completo della policy, e non deve sembrarlo.
     return `pool di ${pool} carte con ${scelte} scelte registrate`;

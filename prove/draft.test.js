@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import server from "../src/index.js";
-import { controllaDraft, riconciliaStorageDraft } from "../src/draft.js";
+import { controllaDraft, riconciliaStorageDraft, sospettoDraft } from "../src/draft.js";
 import { creaFintoD1 } from "./finto-d1.js";
 
 const QUI = fileURLToPath(new URL(".", import.meta.url));
@@ -476,4 +476,16 @@ test("il pool piu' grande delle scelte registrate resta un contributo parziale",
 
   const riga = env.DRAFT_DB.tutte("SELECT sospetto FROM draft")[0];
   assert.match(riga.sospetto, /pool di 4 carte con 1 scelte registrate/);
+});
+
+test("un Draft completo con pool ma zero scelte viene marcato", () => {
+  const senzaScelte = esempioCompleto({ pick: [], pool_finale: [101, 102, 103] });
+  assert.equal(controllaDraft(senzaScelte), null, "il contributo resta conservabile");
+  assert.equal(sospettoDraft(senzaScelte),
+    "pool di 3 carte con 0 scelte registrate");
+});
+
+test("un Draft esplicitamente incompleto non viene marcato", () => {
+  const incompleto = esempioCompleto({ completo: false, pick: [], pool_finale: [101] });
+  assert.equal(sospettoDraft(incompleto), null);
 });
