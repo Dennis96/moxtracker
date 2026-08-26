@@ -73,7 +73,10 @@ if (manifesto.commit_git !== commit) throw new Error("manifesto e commit Git non
 
 const ramoPages = ambiente === "production"
   ? CONFIG.production_branch
-  : `preview-${commit.slice(0, 12)}`;
+  : CONFIG.preview_branch;
+if (!ramoPages || !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(ramoPages)) {
+  throw new Error(`ramo Pages non valido per ${ambiente}`);
+}
 const comando = [
   "wrangler", "pages", "deploy", ".dist/sito",
   `--project-name=${CONFIG.project_name}`,

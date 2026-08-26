@@ -52,6 +52,8 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
 
 test("il gate release richiede tree pulita, preview equivalente e conferma produzione", () => {
   const script = readFileSync(join(RADICE, "strumenti", "release_sito.mjs"), "utf8");
+  const configurazione = JSON.parse(readFileSync(
+    join(RADICE, "release-sito.config.json"), "utf8"));
   assert.match(script, /status", "--porcelain", "--untracked-files=all/);
   assert.match(script, /rev-parse", "@\{u\}"/);
   assert.match(script, /PUBBLICA-SITO-PRODUZIONE/);
@@ -59,4 +61,6 @@ test("il gate release richiede tree pulita, preview equivalente e conferma produ
   assert.match(script, /--commit-hash=/);
   assert.match(script, /smokeTest/);
   assert.match(script, /node_modules\/wrangler\/bin\/wrangler\.js/);
+  assert.match(script, /CONFIG\.preview_branch/);
+  assert.equal(configurazione.preview_branch, "preview");
 });

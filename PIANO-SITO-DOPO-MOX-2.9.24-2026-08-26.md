@@ -52,7 +52,9 @@ fissare soglie o conclusioni di prodotto.
 7. Fermarsi prima di qualunque deploy Pages. La preview remota richiede una
    nuova autorizzazione esplicita.
 8. Dopo l'autorizzazione, pubblicare la preview dello stesso commit, eseguire gli
-   smoke test e conservare il record generato in `.release`.
+   smoke test e conservare il record generato in `.release`. L'alias stabile da
+   condividere è `https://preview.moxtracker.pages.dev`; il deployment conserva
+   anche un URL univoco per la tracciabilità tecnica.
 
 ### Criteri di uscita della fase 1
 

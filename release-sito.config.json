@@ -1,5 +1,6 @@
 {
   "project_name": "moxtracker",
   "source_branch": "main",
+  "preview_branch": "preview",
   "production_branch": "main"
 }
