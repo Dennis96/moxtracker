@@ -2,7 +2,10 @@ import { execFileSync } from "node:child_process";
 
 import { sospettoDraft } from "../src/draft.js";
 
-const DATABASE = "moxtracker-draft-index";
+// Usare il binding del wrangler.toml: con Wrangler 4.123 il nome del database
+// viene elencato correttamente ma `d1 execute <nome> --remote` puo' rispondere
+// 7403; il binding risolve lo stesso UUID e funziona in modo affidabile.
+const DATABASE = "DRAFT_DB";
 const BUCKET = "moxtracker-draft-raw";
 const CONFERMA_LETTURA = "LEGGI-TRACCE-DRAFT-PRIVATE";
 const CONFERMA_RICHIESTA = "AGGIORNA-DRAFT-SOSPETTI";

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -28,4 +29,9 @@ test("l'help del backfill non accede ai servizi remoti", () => {
   const esito = esegui("--help");
   assert.equal(esito.status, 0);
   assert.match(esito.stdout, /conferma-lettura/);
+});
+
+test("il backfill usa il binding D1 configurato", () => {
+  const script = readFileSync(new URL(`../${SCRIPT}`, import.meta.url), "utf8");
+  assert.match(script, /const DATABASE = "DRAFT_DB"/);
 });
