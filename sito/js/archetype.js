@@ -4,18 +4,6 @@ import { deckLabel, formatInteger, formatPercent, sampleSufficient, shortFingerp
 import { classificationSummary, deckArchetypeId, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
 import { createCardListItem, parseReferenceLine } from "./card-images.js";
 
-function setupTheme() {
-  const root = document.documentElement;
-  const button = document.querySelector("#theme-toggle");
-  const saved = localStorage.getItem("mox-theme");
-  if (saved === "light" || saved === "dark") root.dataset.theme = saved;
-  else root.dataset.theme = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-  button.addEventListener("click", () => {
-    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
-    localStorage.setItem("mox-theme", root.dataset.theme);
-  });
-}
-
 function tag(text, className = "") {
   const node = document.createElement("span"); node.className = className; node.textContent = text; return node;
 }
@@ -309,5 +297,4 @@ async function load() {
   }
 }
 
-setupTheme();
 load();

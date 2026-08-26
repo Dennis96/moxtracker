@@ -9,16 +9,16 @@
   <link rel="icon" href="./assets/mox.ico">
   <link rel="stylesheet" href="./css/site.css?v=20260823-3">
   <link rel="stylesheet" href="./css/card-images.css">
-  <link rel="stylesheet" href="./css/ui-fixes.css">
+  <script type="module" src="./js/site-shell.js"></script>
   <script type="module" src="./js/main.js?v=20260823-4"></script>
 </head>
-<body>
+<body data-page="home">
   <a class="skip-link" href="#meta">Vai al Meta Explorer</a>
   <header class="site-header">
     <nav class="nav" aria-label="Navigazione principale">
-      <a class="brand" href="#top" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-      <div class="nav-links"><a href="#meta">Meta</a><a href="./draft.html"><span class="nav-label-desktop">Metodo Draft</span><span class="nav-label-mobile">Draft</span></a><a href="./supporto.html">Supporto</a><a href="./account.html">Account</a></div>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+      <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="#meta">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
     </nav>
   </header>
 
@@ -130,7 +130,7 @@
   </main>
 
   <footer class="site-footer">
-    <nav aria-label="Footer"><a href="#top">MOX</a><span>•</span><a href="#metodo">Metodologia</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a href="./supporto.html">Supporto</a><span>•</span><a href="./account.html">Account</a><span>•</span><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
+    <nav aria-label="Footer"><a data-route="home" href="./index.html">MOX</a><span>•</span><a data-route="meta" href="#meta">Meta</a><span>•</span><a data-route="draft" href="./draft.html">Draft</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a data-route="support" href="./supporto.html">Supporto</a><span>•</span><a data-route="account" href="./account.html">Account</a><span>•</span><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
   </footer>
 </body>
 </html>

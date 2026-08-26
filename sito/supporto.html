@@ -5,15 +5,16 @@
   <meta name="theme-color" content="#07080d"><meta name="description" content="Invia e segui un ticket di supporto MOX.">
   <title>Supporto — MOX Arena Assistant</title>
   <link rel="icon" href="./assets/mox.ico"><link rel="stylesheet" href="./css/site.css?v=20260823-1">
-  <link rel="stylesheet" href="./css/account-support.css?v=20260823-1"><link rel="stylesheet" href="./css/ui-fixes.css">
+  <link rel="stylesheet" href="./css/account-support.css?v=20260823-1">
+  <script type="module" src="./js/site-shell.js"></script>
   <script type="module" src="./js/supporto.js?v=20260823-1"></script>
 </head>
-<body>
+<body data-page="support">
   <a class="skip-link" href="#supporto">Vai al supporto</a>
   <header class="site-header"><nav class="nav" aria-label="Navigazione principale">
-    <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-    <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a></div>
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+    <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+    <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
+    <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./index.html#meta">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
   </nav></header>
   <main id="supporto" class="service-main">
     <section class="service-hero"><span class="eyebrow">Segnalazioni tracciabili</span><h1>Supporto MOX</h1><p>Segnala un bug, un problema nei dati o una funzione da sviluppare. Se non accedi riceverai un link segreto: conservalo, perché è l’unico modo per rileggere il ticket.</p></section>
@@ -32,5 +33,5 @@
       <aside class="panel service-card"><h2>Prima di inviare</h2><p>Allega soltanto screenshot PNG, JPEG o WebP. Gli ZIP diagnostici non vengono accettati finché non sarà disponibile una scansione automatica sicura; puoi riportare nel testo l'identificativo creato da Mox.</p><div class="service-actions"><a class="service-button" href="./account.html">Vai al tuo account</a><a class="service-button" href="./privacy.html">Privacy</a></div></aside>
     </section>
   </main>
-  <footer class="site-footer"><nav><a href="./index.html">MOX</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a href="./account.html">Account</a></nav></footer>
+  <footer class="site-footer"><nav aria-label="Footer"><a data-route="home" href="./index.html">MOX</a><span>•</span><a data-route="meta" href="./index.html#meta">Meta</a><span>•</span><a data-route="draft" href="./draft.html">Draft</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a data-route="support" href="./supporto.html">Supporto</a><span>•</span><a data-route="account" href="./account.html">Account</a></nav></footer>
 </body></html>

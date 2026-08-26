@@ -74,29 +74,40 @@ test("la vista variante e una pagina focus distinta e non replica la panoramica 
   assert.match(css, /\.detail-page\.variant-mode \.detail-hero/);
 });
 
-test("tema chiaro mantiene leggibili hero dettaglio e ritorno dalla variante", () => {
-  const css = leggi("../sito/css/step53.css");
-  assert.match(css, /html\[data-theme="light"\] \.detail-hero \.detail-heading h1/);
-  assert.match(css, /html\[data-theme="light"\] \.detail-hero \.back-link/);
-  assert.match(css, /html\[data-theme="light"\] \.variant-focus-back/);
-  assert.match(css, /html\[data-theme="light"\] \.variant-focus-heading \.eyebrow/);
-  assert.match(css, /html\[data-theme="light"\] \.variant-metric-card > strong/);
+test("il sito usa un solo tema scuro senza preferenze locali residue", () => {
+  for (const file of ["tokens.css", "site.css", "step53.css"]) {
+    const css = leggi(`../sito/css/${file}`);
+    assert.doesNotMatch(css, /data-theme=["']light["']/);
+    assert.doesNotMatch(css, /theme-toggle/);
+  }
+  for (const file of ["main.js", "draft.js", "archetype.js", "account.js", "supporto.js", "admin.js"]) {
+    const source = leggi(`../sito/js/${file}`);
+    assert.doesNotMatch(source, /mox-theme|setupTheme|function tema/);
+  }
 });
 
-test("navigazione primaria distingue Meta e Metodo Draft e il light mode resta leggibile", () => {
-  for (const page of ["index.html", "draft.html", "archetipo.html", "privacy.html"]) {
+test("navigazione primaria e menu mobile sono uniformi in tutte le pagine", () => {
+  const pagine = ["index.html", "draft.html", "archetipo.html", "account.html", "supporto.html", "privacy.html", "admin.html"];
+  for (const page of pagine) {
     const html = leggi(`../sito/${page}`);
-    const nav = html.match(/<div class="nav-links">([\s\S]*?)<\/div>/)?.[1] || "";
+    const nav = html.match(/<div id="primary-nav" class="nav-links">([\s\S]*?)<\/div>/)?.[1] || "";
+    assert.match(html, /<body[^>]*data-page="[^"]+"[^>]*>/);
+    assert.match(html, /id="nav-toggle"[^>]+aria-controls="primary-nav"[^>]+aria-expanded="false"/);
+    assert.equal((nav.match(/data-route=/g) || []).length, 5);
+    assert.match(nav, />Home</);
     assert.match(nav, />Meta</);
-    assert.match(nav, /Metodo Draft/);
-    assert.doesNotMatch(nav, />Matchup</);
-    assert.doesNotMatch(nav, />Metodo</);
-    assert.match(html, /css\/ui-fixes\.css/);
+    assert.match(nav, />Draft</);
+    assert.match(nav, />Account</);
+    assert.match(nav, />Supporto</);
+    assert.match(html, /js\/site-shell\.js/);
+    assert.doesNotMatch(html, /theme-toggle|css\/ui-fixes\.css/);
   }
 
-  const css = leggi("../sito/css/ui-fixes.css");
-  assert.match(css, /html\[data-theme="light"\] \.final-cta/);
-  assert.match(css, /html\[data-theme="light"\] \.draft-hero h1/);
-  assert.match(css, /html\[data-theme="light"\] \.draft-flow/);
-  assert.match(css, /html\[data-theme="light"\] \.draft-flow \.flow-card/);
+  const css = leggi("../sito/css/site.css");
+  const shell = leggi("../sito/js/site-shell.js");
+  assert.match(css, /\.nav-links\[data-open\] \{ display: flex; \}/);
+  assert.match(css, /:focus-visible/);
+  assert.doesNotMatch(css, /nav-links a:nth-child/);
+  assert.match(shell, /aria-expanded/);
+  assert.match(shell, /evento\.key === "Escape"/);
 });

@@ -4,16 +4,6 @@ const $ = (id) => document.getElementById(id);
 const percentuale = new Intl.NumberFormat("it-IT", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const numero = new Intl.NumberFormat("it-IT");
 
-function tema() {
-  const salvato = localStorage.getItem("mox-theme");
-  if (salvato === "light" || salvato === "dark") document.documentElement.dataset.theme = salvato;
-  $("theme-toggle").addEventListener("click", () => {
-    const nuovo = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = nuovo;
-    localStorage.setItem("mox-theme", nuovo);
-  });
-}
-
 function intervallo(valore) {
   return Array.isArray(valore) ? `${percentuale.format(valore[0])}–${percentuale.format(valore[1])}` : "—";
 }
@@ -56,6 +46,5 @@ async function carica() {
   }
 }
 
-tema();
 $("draft-filters").addEventListener("submit", (evento) => { evento.preventDefault(); carica(); });
 carica();

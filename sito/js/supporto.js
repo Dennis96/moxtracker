@@ -7,11 +7,6 @@ let token = parametri.get("token");
 let turnstileToken = "";
 let turnstileId = null;
 
-function tema() {
-  const salvato = localStorage.getItem("mox-theme"); if (salvato) document.documentElement.dataset.theme = salvato;
-  $("theme-toggle").addEventListener("click", () => { const prossimo = document.documentElement.dataset.theme === "light" ? "dark" : "light"; document.documentElement.dataset.theme = prossimo; localStorage.setItem("mox-theme", prossimo); });
-}
-
 async function api(percorso, opzioni = {}) {
   const risposta = await fetch(`${API_BASE}${percorso}`, { credentials: "include", ...opzioni,
     headers: { accept: "application/json", ...(opzioni.headers || {}) } });
@@ -61,7 +56,6 @@ async function caricaTicket() {
   } catch (e) { $("ticket-message").textContent = e.message; $("ticket-message").className = "service-message error"; }
 }
 
-tema();
 $("ticket-form").addEventListener("submit", async (evento) => {
   evento.preventDefault(); const bottone = $("ticket-submit"); bottone.disabled = true;
   try {

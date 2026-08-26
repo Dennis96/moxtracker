@@ -13,9 +13,10 @@ body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-button, select, input { font: inherit; }
+button, select, input, textarea { font: inherit; }
 a { color: inherit; }
-button, a, select, input { -webkit-tap-highlight-color: transparent; }
+button, a, select, input, textarea, summary { -webkit-tap-highlight-color: transparent; }
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid #cf7aff; outline-offset: 3px; }
 
 .skip-link { position: fixed; left: 12px; top: -60px; z-index: 1000; padding: 10px 14px; background: var(--text); color: var(--bg); border-radius: 8px; }
 .skip-link:focus { top: 12px; }
@@ -30,12 +31,11 @@ button, a, select, input { -webkit-tap-highlight-color: transparent; }
 .brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font-size: 1.45rem; font-weight: 950; font-style: italic; letter-spacing: .02em; }
 .brand img { width: 31px; height: 31px; object-fit: contain; }
 .brand span { background: linear-gradient(135deg, #d87aff, #8d36ff 58%, #f147ac); -webkit-background-clip: text; color: transparent; }
-.nav-links { display: flex; gap: 28px; margin-left: auto; }
-.nav-links a { text-decoration: none; color: var(--muted); font-weight: 650; }
+.nav-links { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.nav-links a { padding: 7px 10px; border-radius: 8px; text-decoration: none; color: var(--muted); font-weight: 650; }
 .nav-links a:hover { color: var(--text); }
-.nav-label-mobile { display: none; }
-.theme-toggle { width: 76px; height: 38px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); border-radius: 10px; cursor: pointer; }
-.theme-toggle:hover { box-shadow: var(--glow); }
+.nav-links a[aria-current="page"] { color: #d17cff; background: rgba(160,58,255,.10); box-shadow: inset 0 0 0 1px rgba(191,105,255,.22); }
+.nav-toggle { display: none; min-height: 44px; margin-left: auto; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface); color: var(--text); cursor: pointer; font-weight: 750; }
 
 .beta-banner { min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 18px; border-bottom: 1px solid rgba(184,91,255,.24); background: linear-gradient(90deg, rgba(111,31,183,.19), rgba(225,50,169,.10), rgba(111,31,183,.19)); color: var(--muted); text-align: center; font-size: .8rem; }
 .beta-banner strong { color: #ce83ff; text-transform: uppercase; letter-spacing: .055em; font-size: .72rem; }
@@ -50,7 +50,6 @@ main { overflow: hidden; }
     url('../assets/backgrounds/gestore-cristallo.webp') center right / cover no-repeat;
 }
 .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 72% 48%, rgba(151,55,255,.14), transparent 26rem); pointer-events: none; }
-html[data-theme="light"] .hero { background: linear-gradient(92deg, rgba(244,243,248,.97), rgba(244,243,248,.86) 43%, rgba(244,243,248,.24)), url('../assets/backgrounds/gestore-cristallo.webp') center right / cover no-repeat; }
 .hero-inner { width: var(--page); max-width: 1780px; margin: 0 auto; min-height: 440px; position: relative; display: flex; align-items: center; }
 .hero-copy { position: relative; z-index: 3; padding: 46px 0 52px; width: min(57%, 860px); }
 .hero-kicker { margin: 0 0 2px; font-size: clamp(5rem, 8vw, 8.8rem); font-weight: 1000; line-height: .78; letter-spacing: -.07em; font-style: italic; background: linear-gradient(180deg, #dc75ff 0%, #a43bff 46%, #7125ed 100%); -webkit-background-clip: text; color: transparent; text-shadow: 0 0 42px rgba(153,62,255,.28); }
@@ -246,14 +245,11 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 
 @media (max-width: 720px) {
   :root { --page: calc(100% - 22px); }
-  .nav { height: 62px; gap: 18px; }
-  .nav-links { gap: 15px; }
-  .nav { gap: 13px; }
-  .nav-links { gap: 11px; }
-  .nav-links a:nth-child(n+3) { display: none; }
-  .nav-label-desktop { display: none; }
-  .nav-label-mobile { display: inline; }
-  .theme-toggle { width: 58px; }
+  .nav { position: relative; height: 62px; gap: 13px; }
+  .nav-toggle { display: inline-flex; align-items: center; gap: 7px; }
+  .nav-links { display: none; position: absolute; top: calc(100% + 1px); left: 0; right: 0; z-index: 40; margin-left: 0; padding: 8px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; background: rgba(7,8,13,.98); box-shadow: var(--shadow); flex-direction: column; align-items: stretch; }
+  .nav-links[data-open] { display: flex; }
+  .nav-links a { width: 100%; min-height: 44px; display: flex; align-items: center; padding: 10px 12px; }
   .beta-banner { align-items: flex-start; gap: 4px; flex-direction: column; text-align: left; padding-inline: 11px; }
   .hero { min-height: 500px; background-position: 72% center; }
   .hero-inner { min-height: 500px; align-items: flex-start; }

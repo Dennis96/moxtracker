@@ -3,16 +3,6 @@ import { API_BASE } from "./config.js";
 const $ = (id) => document.getElementById(id);
 let ticketCorrente = null;
 
-function tema() {
-  const salvato = localStorage.getItem("mox-theme");
-  if (salvato) document.documentElement.dataset.theme = salvato;
-  $("theme-toggle").addEventListener("click", () => {
-    const prossimo = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = prossimo;
-    localStorage.setItem("mox-theme", prossimo);
-  });
-}
-
 async function api(percorso, opzioni = {}) {
   const risposta = await fetch(`${API_BASE}${percorso}`, {
     credentials: "include", ...opzioni,
@@ -76,7 +66,6 @@ async function caricaTicket() {
   }
 }
 
-tema();
 $("admin-filter").addEventListener("change", caricaTicket);
 $("admin-form").addEventListener("submit", async (evento) => {
   evento.preventDefault(); if (!ticketCorrente) return;

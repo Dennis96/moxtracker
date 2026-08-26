@@ -9,16 +9,16 @@
   <link rel="icon" href="./assets/mox.ico">
   <link rel="stylesheet" href="./css/site.css?v=20260823-1">
   <link rel="stylesheet" href="./css/draft.css">
-  <link rel="stylesheet" href="./css/ui-fixes.css">
+  <script type="module" src="./js/site-shell.js"></script>
   <script type="module" src="./js/draft.js"></script>
 </head>
-<body class="draft-page">
+<body class="draft-page" data-page="draft">
   <a class="skip-link" href="#laboratorio">Vai ai risultati Draft</a>
   <header class="site-header">
     <nav class="nav" aria-label="Navigazione principale">
-      <a class="brand" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-      <div class="nav-links"><a href="./index.html#meta">Meta</a><a href="#laboratorio" aria-current="page"><span class="nav-label-desktop">Metodo Draft</span><span class="nav-label-mobile">Draft</span></a><a href="./supporto.html">Supporto</a><a href="./account.html">Account</a></div>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+      <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./index.html#meta">Meta</a><a data-route="draft" href="#laboratorio">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
     </nav>
   </header>
 
@@ -92,6 +92,6 @@
       </section>
     </section>
   </main>
-  <footer class="site-footer"><nav aria-label="Footer"><a href="./index.html">MOX</a><span>•</span><a href="./index.html#metodo">Metodologia</a><span>•</span><a href="./privacy.html">Privacy</a></nav></footer>
+  <footer class="site-footer"><nav aria-label="Footer"><a data-route="home" href="./index.html">MOX</a><span>•</span><a data-route="meta" href="./index.html#meta">Meta</a><span>•</span><a data-route="draft" href="./draft.html">Draft</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a data-route="support" href="./supporto.html">Supporto</a><span>•</span><a data-route="account" href="./account.html">Account</a></nav></footer>
 </body>
 </html>

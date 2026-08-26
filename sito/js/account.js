@@ -9,16 +9,6 @@ const PASSO_PARTITE = 10;
 const stato = { dashboard: null, statistiche: null, offset: 0, limite: PASSO_PARTITE,
   totale: 0, partite: [], filtri: { mazzo: "", esito: "", evento: "" } };
 
-function tema() {
-  const salvato = localStorage.getItem("mox-theme");
-  if (salvato) document.documentElement.dataset.theme = salvato;
-  $("theme-toggle").addEventListener("click", () => {
-    const prossimo = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = prossimo;
-    localStorage.setItem("mox-theme", prossimo);
-  });
-}
-
 async function api(percorso, opzioni = {}) {
   const risposta = await fetch(`${API_BASE}${percorso}`, {
     credentials: "include", ...opzioni,
@@ -564,7 +554,6 @@ async function carica() {
   }
 }
 
-tema();
 $("login-google").href = `${API_BASE}/auth/google?ritorno=${encodeURIComponent("/account.html")}`;
 $("login-discord").href = `${API_BASE}/auth/discord?ritorno=${encodeURIComponent("/account.html")}`;
 $("link-google").href = `${API_BASE}/auth/google?ritorno=${encodeURIComponent("/account.html")}`;

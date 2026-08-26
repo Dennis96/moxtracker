@@ -5,15 +5,16 @@
   <meta name="theme-color" content="#07080d"><meta name="description" content="Amministrazione privata dei ticket MOX.">
   <title>Amministrazione ticket — MOX</title>
   <link rel="icon" href="./assets/mox.ico"><link rel="stylesheet" href="./css/site.css?v=20260823-1">
-  <link rel="stylesheet" href="./css/account-support.css?v=20260823-1"><link rel="stylesheet" href="./css/ui-fixes.css">
+  <link rel="stylesheet" href="./css/account-support.css?v=20260823-1">
+  <script type="module" src="./js/site-shell.js"></script>
   <script type="module" src="./js/admin.js?v=20260823-1"></script>
 </head>
-<body>
+<body data-page="admin">
   <a class="skip-link" href="#admin">Vai ai ticket</a>
   <header class="site-header"><nav class="nav" aria-label="Navigazione principale">
-    <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-    <div class="nav-links"><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></div>
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambia tema">☀ / ☾</button>
+    <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+    <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
+    <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./index.html#meta">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
   </nav></header>
   <main id="admin" class="service-main">
     <section class="service-hero"><span class="eyebrow">Area riservata</span><h1>Ticket MOX</h1><p>Accesso consentito soltanto agli account promossi ad amministratore. Ogni modifica viene registrata.</p></section>
