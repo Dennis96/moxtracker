@@ -34,4 +34,5 @@ test("l'help del backfill non accede ai servizi remoti", () => {
 test("il backfill usa il binding D1 configurato", () => {
   const script = readFileSync(new URL(`../${SCRIPT}`, import.meta.url), "utf8");
   assert.match(script, /const DATABASE = "DRAFT_DB"/);
+  assert.match(script, /node_modules\/wrangler\/bin\/wrangler\.js/);
 });

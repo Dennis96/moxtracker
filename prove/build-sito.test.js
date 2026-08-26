@@ -58,4 +58,5 @@ test("il gate release richiede tree pulita, preview equivalente e conferma produ
   assert.match(script, /preview-record/);
   assert.match(script, /--commit-hash=/);
   assert.match(script, /smokeTest/);
+  assert.match(script, /node_modules\/wrangler\/bin\/wrangler\.js/);
 });

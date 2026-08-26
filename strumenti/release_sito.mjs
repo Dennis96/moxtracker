@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 const RADICE = fileURLToPath(new URL("..", import.meta.url));
 const CONFIG = JSON.parse(readFileSync(join(RADICE, "release-sito.config.json"), "utf8"));
 const CONFERMA_PRODUZIONE = "PUBBLICA-SITO-PRODUZIONE";
-const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
-const NPM = process.platform === "win32" ? "npm.cmd" : "npm";
+const WRANGLER_CLI = fileURLToPath(
+  new URL("../node_modules/wrangler/bin/wrangler.js", import.meta.url));
 
 function argomento(nome, predefinito = null) {
   const prefisso = `--${nome}=`;
@@ -66,7 +66,7 @@ if (upstream !== commit) {
   throw new Error("release rifiutata: HEAD non coincide con l'upstream remoto");
 }
 
-esegui(NPM, ["run", "prove"]);
+esegui(process.execPath, ["--test", "prove/*.test.js"]);
 esegui(process.execPath, ["strumenti/build_sito.mjs"]);
 const manifesto = JSON.parse(readFileSync(join(RADICE, ".dist", "sito", "build-manifest.json"), "utf8"));
 if (manifesto.commit_git !== commit) throw new Error("manifesto e commit Git non coincidono");
@@ -114,7 +114,8 @@ if (ambiente === "production") {
   });
 }
 
-const uscita = execFileSync(NPX, comando, { cwd: RADICE, encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
+const uscita = execFileSync(process.execPath, [WRANGLER_CLI, ...comando.slice(1)],
+  { cwd: RADICE, encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
 process.stdout.write(uscita);
 const url = uscita.match(/https:\/\/[a-z0-9-]+\.moxtracker\.pages\.dev/i)?.[0];
 if (!url) throw new Error("deploy riuscito ma URL non riconosciuto: record non scritto");

@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 import { sospettoDraft } from "../src/draft.js";
 
@@ -9,11 +10,12 @@ const DATABASE = "DRAFT_DB";
 const BUCKET = "moxtracker-draft-raw";
 const CONFERMA_LETTURA = "LEGGI-TRACCE-DRAFT-PRIVATE";
 const CONFERMA_RICHIESTA = "AGGIORNA-DRAFT-SOSPETTI";
-const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+const WRANGLER_CLI = fileURLToPath(
+  new URL("../node_modules/wrangler/bin/wrangler.js", import.meta.url));
 
 function wrangler(argomenti, opzioni = {}) {
   try {
-    return execFileSync(NPX, ["wrangler", ...argomenti], {
+    return execFileSync(process.execPath, [WRANGLER_CLI, ...argomenti], {
       cwd: new URL("..", import.meta.url),
       encoding: "utf8",
       maxBuffer: 16 * 1024 * 1024,
