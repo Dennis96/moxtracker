@@ -146,6 +146,30 @@ una risposta troppo rapida poteva perdere il callback. Non rimuovere il ponte
 finché le installazioni 2.9.20/2.9.21 non sono rientrate nella 2.9.22; il client
 nuovo non subisce l'attesa.
 
+**Dal 26/08/2026 `/mox/release` ha due canali.** `canale=stable` legge
+`MOX_RELEASE_MANIFEST` come sempre; `canale=canary` legge
+`MOX_RELEASE_MANIFEST_CANARY`, un manifesto suo, e **non ripiega mai sullo
+stable**: se il canary non c'è, per quel canale non c'è niente da aggiornare.
+Serve a provare una release su una macchina sola prima che vada a tutti, e
+ripiegare vorrebbe dire far credere di collaudare la versione nuova mentre si
+riscarica quella che hanno già tutti. Un canale sconosciuto resta un 400.
+
+**Le tracce Draft incoerenti si marcano, non si buttano.** La colonna
+`sospetto` di `draft` porta il motivo — in italiano, perché lo legge chi guarda
+le statistiche — oppure `NULL` per le tracce buone. `sospettoDraft` in
+`src/draft.js` ne riconosce due: un Draft che si dichiara finito senza aver mai
+visto il terzo pacchetto, e un pool più grande delle scelte registrate (che è
+legittimo — Mox aperto a metà Draft — ma non è un campione completo).
+`/draft/statistiche` misura solo le tracce senza sospetto e conta le altre in
+`tracce_marcate`. Nasce da un Premier arrivato il 25/08 segnato `completo` con
+nove scelte, sei minuti prima che Arena finisse davvero: il server aveva fatto
+il suo, ma senza un segno quella riga sarebbe entrata nella misura della policy
+come un Draft intero. Migrazione: `migrazioni/2026-08-25-draft-sospetto.sql`,
+applicata al database vero il 26/08/2026.
+
+Il 26/08/2026 è stata pubblicata **Mox 2.9.23**: manifesto firmato su entrambi
+i canali, installer su R2, release GitHub `mox-v2-beta2.9.23`.
+
 Nel pomeriggio sono stati pubblicati anche: il pulsante di download senza il
 numero di versione (che restava indietro a ogni release), la cronologia che
 parte da dieci partite con lo stesso pulsante che la richiude, e le query di
