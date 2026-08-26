@@ -76,15 +76,12 @@ function preparaAggiornamenti(righe) {
   return { aggiornamenti, riepilogo };
 }
 
-function sqlAggiornamenti(aggiornamenti) {
-  const comandi = aggiornamenti.map(({ id, attuale, calcolato }) => {
-    const confronto = attuale === null
-      ? "sospetto IS NULL"
-      : `sospetto = ${valoreSql(attuale)}`;
-    return `UPDATE draft SET sospetto = ${valoreSql(calcolato)} ` +
-      `WHERE id = '${id}' AND ${confronto};`;
-  });
-  return ["BEGIN IMMEDIATE;", ...comandi, "COMMIT;"].join("\n");
+function sqlAggiornamento({ id, attuale, calcolato }) {
+  const confronto = attuale === null
+    ? "sospetto IS NULL"
+    : `sospetto = ${valoreSql(attuale)}`;
+  return `UPDATE draft SET sospetto = ${valoreSql(calcolato)} ` +
+    `WHERE id = '${id}' AND ${confronto}`;
 }
 
 function argomento(nome) {
@@ -118,10 +115,13 @@ if (!applica) {
   process.exit(aggiornamenti.length ? 2 : 0);
 }
 
-if (aggiornamenti.length) {
+for (const aggiornamento of aggiornamenti) {
+  // D1 remoto rifiuta BEGIN/SAVEPOINT via SQL (errore 7500). Ogni UPDATE e'
+  // condizionato al valore letto: in caso di interruzione lo script si puo'
+  // rilanciare e completera' soltanto le righe ancora mancanti.
   wrangler([
     "d1", "execute", DATABASE, "--remote", "--yes", "--command",
-    sqlAggiornamenti(aggiornamenti),
+    sqlAggiornamento(aggiornamento),
   ]);
 }
 const dopo = new Map(leggiRigheD1().map((riga) => [riga.id, riga.sospetto ?? null]));
