@@ -2180,6 +2180,366 @@
       }
     },
     {
+      "nome": "set con una cifra che non e' ASCII",
+      "atteso": "set non valido",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2.9.24",
+        "set": "AB٣",
+        "formato": "PremierDraft",
+        "iniziato": "2026-08-26T10:00:00Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              101,
+              102,
+              103
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 101,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 101,
+                "rango_mox": 1,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 102,
+                "rango_mox": 2,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 103,
+                "rango_mox": 3,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelta": 102
+          },
+          {
+            "numero": 2,
+            "offerte": [
+              104,
+              105,
+              106
+            ],
+            "pool_prima": [
+              102
+            ],
+            "consiglio_mox": 104,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 104,
+                "rango_mox": 1,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 105,
+                "rango_mox": 2,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 106,
+                "rango_mox": 3,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              2
+            ],
+            "scelta": 105
+          },
+          {
+            "numero": 3,
+            "offerte": [
+              107,
+              108,
+              109
+            ],
+            "pool_prima": [
+              102,
+              105
+            ],
+            "consiglio_mox": 107,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 107,
+                "rango_mox": 1,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 108,
+                "rango_mox": 2,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 109,
+                "rango_mox": 3,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              3
+            ],
+            "scelta": 108
+          }
+        ],
+        "pool_finale": [
+          102,
+          105,
+          108
+        ]
+      }
+    },
+    {
+      "nome": "set in minuscolo",
+      "atteso": "set non valido",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2.9.24",
+        "set": "hob",
+        "formato": "PremierDraft",
+        "iniziato": "2026-08-26T10:00:00Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              101,
+              102,
+              103
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 101,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 101,
+                "rango_mox": 1,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 102,
+                "rango_mox": 2,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 103,
+                "rango_mox": 3,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelta": 102
+          },
+          {
+            "numero": 2,
+            "offerte": [
+              104,
+              105,
+              106
+            ],
+            "pool_prima": [
+              102
+            ],
+            "consiglio_mox": 104,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 104,
+                "rango_mox": 1,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 105,
+                "rango_mox": 2,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 106,
+                "rango_mox": 3,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              2
+            ],
+            "scelta": 105
+          },
+          {
+            "numero": 3,
+            "offerte": [
+              107,
+              108,
+              109
+            ],
+            "pool_prima": [
+              102,
+              105
+            ],
+            "consiglio_mox": 107,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 107,
+                "rango_mox": 1,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 108,
+                "rango_mox": 2,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              },
+              {
+                "carta": 109,
+                "rango_mox": 3,
+                "campione": 4200,
+                "valore_17lands": 0.56,
+                "intervallo_95": [
+                  0.54,
+                  0.58
+                ],
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              3
+            ],
+            "scelta": 108
+          }
+        ],
+        "pool_finale": [
+          102,
+          105,
+          108
+        ]
+      }
+    },
+    {
       "nome": "un campo vietato in fondo al pacchetto",
       "atteso": "campo vietato: draftId",
       "pacchetto": {
