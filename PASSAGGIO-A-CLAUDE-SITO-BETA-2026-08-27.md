@@ -100,7 +100,12 @@ in privato e non viene trasformata in rifiuto o cancellazione.
 5. Far eseguire la checklist a 3–5 tester.
 6. Approvare o scartare la formula del punteggio Meta dopo un campione con più
    archetipi pubblicabili.
-7. Pubblicare il sito in produzione, soltanto dopo preview equivalente e nuova
+7. Sincronizzare lo stato corrente dei due consensi da Mox al Worker. Oggi il
+   protocollo non invia quel dato e il sito, per non dedurlo in modo falso,
+   rimanda esplicitamente alle Opzioni di Mox. Per soddisfare alla lettera la
+   decisione di prodotto “mostrare i consensi attivi” serve un intervento
+   coordinato client + API/schema, con migrazione remota autorizzata in seguito.
+8. Pubblicare il sito in produzione, soltanto dopo preview equivalente e nuova
    conferma esplicita.
 
 Il primo Draft reale con Mox 2.9.24 resta utile per assestare i numeri ma, come
