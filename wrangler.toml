@@ -15,6 +15,7 @@ enabled = true
 
 [vars]
 SITE_ORIGIN = "https://moxtracker.app"
+PREVIEW_ORIGIN = "https://preview.moxtracker.pages.dev"
 TURNSTILE_SITE_KEY = "0x4AAAAAAEYng_drA6IkCiE1"
 # Ponte temporaneo: i client fino alla 2.9.21 ricevono il manifesto dopo che
 # la loro GUI ha iniziato mainloop. La 2.9.22 corregge il difetto nel client.

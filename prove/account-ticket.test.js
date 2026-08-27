@@ -17,6 +17,7 @@ function ambiente() {
   return {
     DB: creaFintoD1(principale), DRAFT_DB: creaFintoD1(draft),
     SITE_ORIGIN: "https://moxtracker.app",
+    PREVIEW_ORIGIN: "https://preview.moxtracker.pages.dev",
     GOOGLE_CLIENT_ID: "google-client", GOOGLE_CLIENT_SECRET: "google-secret",
     DISCORD_CLIENT_ID: "discord-client", DISCORD_CLIENT_SECRET: "discord-secret",
     TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
@@ -132,6 +133,36 @@ test("il preflight dell'account consente la rinomina PUT dal sito", async () => 
   assert.match(risposta.headers.get("access-control-allow-methods"), /(?:^|,\s*)PUT(?:,|$)/);
 });
 
+test("la preview ha CORS e ritorno OAuth esatti senza aprirli ad altri siti", async () => {
+  const env = ambiente();
+  const preflight = async (origin) => worker.fetch(new Request(
+    `https://api.moxtracker.app/account/decks/${"a".repeat(64)}/name`, {
+      method: "OPTIONS",
+      headers: {
+        origin,
+        "access-control-request-method": "PUT",
+        "access-control-request-headers": "content-type",
+      },
+    }), env);
+  const preview = await preflight("https://preview.moxtracker.pages.dev");
+  assert.equal(preview.status, 204);
+  assert.equal(preview.headers.get("access-control-allow-origin"),
+    "https://preview.moxtracker.pages.dev");
+  assert.equal((await preflight("https://preview-moxtracker.pages.dev")).status, 403);
+
+  const ritorno = encodeURIComponent("https://preview.moxtracker.pages.dev/account.html");
+  const inizio = await worker.fetch(new Request(
+    `https://api.moxtracker.app/auth/google?ritorno=${ritorno}`), env);
+  const statoCookie = primaCookie(inizio);
+  const stato = new URL(inizio.headers.get("location")).searchParams.get("state");
+  const fine = await worker.fetch(new Request(
+    `https://api.moxtracker.app/auth/google/callback?code=codice&state=${stato}`,
+    { headers: { cookie: statoCookie } }), env);
+  assert.equal(fine.headers.get("location"),
+    "https://preview.moxtracker.pages.dev/account.html");
+  assert.match(fine.headers.get("set-cookie"), /SameSite=None/);
+});
+
 test("Discord si collega alla sessione Google senza creare un secondo account", async () => {
   const env = ambiente();
   const sessioneGoogle = await accedi(env);
@@ -207,6 +238,46 @@ test("un codice collega Mox solo insieme al segreto dell'installazione", async (
   assert.equal(env.DB.conta("account_codice_mox"), 0);
 });
 
+test("Mox sincronizza i consensi correnti senza farli dedurre dagli upload", async () => {
+  const env = ambiente();
+  const mittente = "1".repeat(32);
+  const segreto = "2".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+
+  const nonBooleani = await worker.fetch(new Request(
+    "https://api.moxtracker.app/mox/account/consents", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ mittente, segreto, partite: 1, draft: false }),
+    }), env);
+  assert.equal(nonBooleani.status, 400);
+
+  const segretoErrato = await worker.fetch(new Request(
+    "https://api.moxtracker.app/mox/account/consents", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ mittente, segreto: "3".repeat(64),
+        partite: true, draft: false }),
+    }), env);
+  assert.equal(segretoErrato.status, 403);
+
+  const sincronizzati = await worker.fetch(new Request(
+    "https://api.moxtracker.app/mox/account/consents", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ mittente, segreto, partite: true, draft: false }),
+    }), env);
+  assert.equal(sincronizzati.status, 200);
+  assert.equal((await sincronizzati.json()).aggiornato, true);
+
+  const dashboard = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/dashboard", { headers: { cookie: sessione } }), env);
+  const dati = await dashboard.json();
+  assert.equal(dati.dispositivi.length, 1);
+  assert.equal(dati.dispositivi[0].consenso_partite, true);
+  assert.equal(dati.dispositivi[0].consenso_draft, false);
+  assert.match(dati.dispositivi[0].consensi_aggiornati, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(env.DB.conta("partite"), 0,
+    "lo stato dei consensi non dipende dalla presenza di contributi");
+});
+
 test("dashboard personale espone statistiche, mazzi e partite cliccabili", async () => {
   const env = ambiente();
   const sessione = await accedi(env);
@@ -235,6 +306,36 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
   }), env);
   assert.equal(ingresso.status, 200);
 
+  const draftId = "d".repeat(32);
+  const tracciaDraft = {
+    versione: 1, draft: draftId, mittente, segreto_cancellazione: segreto,
+    set: "HOB", formato: "PickTwoDraft", completo: false,
+    pick: [{ numero: 1, offerte: [103441, 102], pool_prima: [],
+      consiglio_mox: 103441, consigli_mox: [103441], politica: "mox-2.9.24",
+      candidati: [{ carta: 103441, rango_mox: 1, campione: 100 }], scelta: 103441 }],
+    pool_finale: [103441],
+    mazzo_giocato: [{ quando: "2026-08-22T18:30:00Z",
+      mazzo: [[103441, 4], [102, 36]], riserva: [] }],
+  };
+  env.DRAFT_RAW = {
+    async get(chiave) {
+      return chiave === "draft/account-dashboard.json"
+        ? { json: async () => structuredClone(tracciaDraft) } : null;
+    },
+  };
+  await env.DRAFT_DB.batch([
+    env.DRAFT_DB.prepare(`INSERT INTO draft
+      (id, mittente, ricevuto, iniziato, set_code, formato, completo, pick,
+       politica, mox, impronta_arena, oggetto_r2, byte, versione, sospetto)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(draftId, mittente, "2026-08-22T18:35:00Z", "2026-08-22T18:20:00Z",
+        "HOB", "PickTwoDraft", 0, 1, "mox-2.9.24", "2.9.24", null,
+        "draft/account-dashboard.json", 1024, 1, null),
+    env.DRAFT_DB.prepare(
+      "INSERT INTO draft_link (draft_id, partita, esito) VALUES (?, ?, ?)")
+      .bind(draftId, "2222222222", "persa"),
+  ]);
+
   const stats = await worker.fetch(new Request("https://api.moxtracker.app/account/stats", {
     headers: { cookie: sessione, origin: "https://moxtracker.app" },
   }), env);
@@ -254,6 +355,24 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
   assert.deepEqual(quadro.andamento_rank.map((p) => `${p.classe} ${p.livello}`), ["Gold 3"]);
   assert.equal(quadro.avversari.partite_totali, 1);
   assert.equal(quadro.avversari.non_riconosciuti, 1);
+
+  const dashboard = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/dashboard", { headers: { cookie: sessione } }), env);
+  const panoramica = await dashboard.json();
+  assert.equal(panoramica.draft.length, 1);
+  assert.deepEqual({ partite: panoramica.draft[0].partite,
+    vittorie: panoramica.draft[0].vittorie,
+    sconfitte: panoramica.draft[0].sconfitte },
+  { partite: 1, vittorie: 0, sconfitte: 1 });
+  const dettaglioDraft = await worker.fetch(new Request(
+    `https://api.moxtracker.app/account/drafts/${draftId}`,
+    { headers: { cookie: sessione } }), env);
+  const archivio = await dettaglioDraft.json();
+  assert.equal(dettaglioDraft.status, 200);
+  assert.deepEqual(archivio.partite, [{ partita: "2222222222", esito: "persa" }]);
+  assert.equal(archivio.traccia.mittente, undefined);
+  assert.equal(archivio.traccia.segreto_cancellazione, undefined);
+  assert.equal(archivio.traccia.mazzo_giocato.length, 1);
 
   const rinominato = await worker.fetch(new Request(
     `https://api.moxtracker.app/account/decks/${"a".repeat(64)}/name`, {

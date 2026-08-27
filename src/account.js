@@ -36,9 +36,15 @@ function origineSito(ambiente) {
   return String(ambiente.SITE_ORIGIN || "https://moxtracker.app").replace(/\/$/, "");
 }
 
+function originiSito(ambiente) {
+  return [origineSito(ambiente), ambiente.PREVIEW_ORIGIN]
+    .filter(Boolean)
+    .map((origine) => String(origine).replace(/\/$/, ""));
+}
+
 function origineConsentita(richiesta, ambiente) {
   const origine = richiesta.headers.get("origin");
-  return origine && origine === origineSito(ambiente) ? origine : null;
+  return origine && originiSito(ambiente).includes(origine) ? origine : null;
 }
 
 function headersPrivati(richiesta, ambiente, altri = {}) {
@@ -81,7 +87,9 @@ function scadenza(daOra) {
 }
 
 function cookieSessione(token, durata = Math.floor(DURATA_SESSIONE / 1000)) {
-  return `mox_sessione=${encodeURIComponent(token)}; Path=/; Max-Age=${durata}; HttpOnly; Secure; SameSite=Lax`;
+  // La preview Pages e l'API sono su siti diversi: None e' necessario per le
+  // richieste fetch con credenziali. CORS resta limitato alle due origini esatte.
+  return `mox_sessione=${encodeURIComponent(token)}; Path=/; Max-Age=${durata}; HttpOnly; Secure; SameSite=None`;
 }
 
 function cookieStato(token, durata = Math.floor(DURATA_STATO / 1000)) {
@@ -113,7 +121,8 @@ function ritornoSicuro(indirizzo, ambiente) {
   const richiesto = indirizzo.searchParams.get("ritorno") || "/account.html";
   try {
     const destinazione = new URL(richiesto, `${base}/`);
-    return destinazione.origin === new URL(base).origin
+    const consentite = originiSito(ambiente).map((origine) => new URL(origine).origin);
+    return consentite.includes(destinazione.origin)
       ? destinazione.toString() : `${base}/account.html`;
   } catch { return `${base}/account.html`; }
 }
@@ -281,10 +290,19 @@ async function richiedeUtente(richiesta, ambiente) {
 }
 
 async function dispositivi(db, accountId) {
-  const esito = await db.prepare(`SELECT mittente, nome, collegato
+  const esito = await db.prepare(`SELECT mittente, nome, collegato,
+      consenso_partite, consenso_draft, consensi_aggiornati
     FROM account_dispositivo WHERE account_id = ? ORDER BY collegato DESC`)
     .bind(accountId).all();
-  return esito.results || [];
+  return (esito.results || []).map((dispositivo) => ({
+    ...dispositivo,
+    consenso_partite: dispositivo.consenso_partite === null ||
+      dispositivo.consenso_partite === undefined ? null
+      : Boolean(dispositivo.consenso_partite),
+    consenso_draft: dispositivo.consenso_draft === null ||
+      dispositivo.consenso_draft === undefined ? null
+      : Boolean(dispositivo.consenso_draft),
+  }));
 }
 
 function percentuale(parte, totale) {
@@ -671,10 +689,16 @@ async function riepilogoDashboard(ambiente, accountId) {
     .bind(...mittenti).all();
   let draft = { results: [] };
   if (ambiente.DRAFT_DB) {
-    draft = await ambiente.DRAFT_DB.prepare(`SELECT id, ricevuto, iniziato, set_code,
-      formato, completo, pick, mox FROM draft WHERE mittente IN (${segni})
-      AND (completo = 1 OR pick > 0)
-      ORDER BY ricevuto DESC LIMIT 100`).bind(...mittenti).all();
+    draft = await ambiente.DRAFT_DB.prepare(`SELECT d.id, d.ricevuto, d.iniziato,
+      d.set_code, d.formato, d.completo, d.pick, d.mox,
+      COUNT(l.partita) AS partite,
+      COALESCE(SUM(CASE WHEN l.esito = 'vinta' THEN 1 ELSE 0 END), 0) AS vittorie,
+      COALESCE(SUM(CASE WHEN l.esito = 'persa' THEN 1 ELSE 0 END), 0) AS sconfitte
+      FROM draft d LEFT JOIN draft_link l ON l.draft_id = d.id
+      WHERE d.mittente IN (${segni}) AND (d.completo = 1 OR d.pick > 0)
+      GROUP BY d.id, d.ricevuto, d.iniziato, d.set_code, d.formato,
+        d.completo, d.pick, d.mox
+      ORDER BY d.ricevuto DESC LIMIT 100`).bind(...mittenti).all();
   }
   const totalePartite = await ambiente.DB.prepare(
     `SELECT COUNT(*) AS n FROM partite WHERE mittente IN (${segni})`).bind(...mittenti).first();
@@ -842,6 +866,35 @@ async function sincronizzaMazzi(richiesta, ambiente) {
   await ambiente.DB.batch(comandi);
   return rispostaAccount(richiesta, ambiente,
     { sincronizzati: validi.length, scartati: corpo.mazzi.length - validi.length });
+}
+
+// Mox e' la sorgente autorevole dei due interruttori. Il sito conserva solo
+// l'ultima fotografia esplicita ricevuta dal client collegato: non deduce mai
+// un consenso dalla presenza di upload, che potrebbe essere storico o in coda.
+async function sincronizzaConsensi(richiesta, ambiente) {
+  const corpo = await corpoJson(richiesta);
+  if (!hex(corpo?.mittente, 32) || !hex(corpo?.segreto, 64) ||
+      typeof corpo?.partite !== "boolean" || typeof corpo?.draft !== "boolean") {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "stato consensi non valido" }, 400);
+  }
+  const dispositivo = await ambiente.DB.prepare(`SELECT account_id, segreto_hash
+    FROM account_dispositivo WHERE mittente = ?`).bind(corpo.mittente).first();
+  if (!dispositivo) {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "installazione non collegata a un account" }, 403);
+  }
+  if (dispositivo.segreto_hash !== await sha256(corpo.segreto)) {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "segreto locale non coerente" }, 403);
+  }
+  const aggiornato = new Date().toISOString();
+  await ambiente.DB.batch([ambiente.DB.prepare(`UPDATE account_dispositivo
+    SET consenso_partite = ?, consenso_draft = ?, consensi_aggiornati = ?
+    WHERE mittente = ? AND account_id = ?`).bind(
+      corpo.partite ? 1 : 0, corpo.draft ? 1 : 0, aggiornato,
+      corpo.mittente, dispositivo.account_id)]);
+  return rispostaAccount(richiesta, ambiente, { aggiornato: true, quando: aggiornato });
 }
 
 async function mazziSincronizzati(db, accountId) {
@@ -1044,7 +1097,7 @@ export async function gestisciAccount(richiesta, ambiente, indirizzo) {
   const percorso = indirizzo.pathname;
   const accountRoute = percorso.startsWith("/account/") || percorso === "/account" ||
     percorso.startsWith("/auth/") || percorso === "/mox/account/link" ||
-    percorso === "/mox/account/decks";
+    percorso === "/mox/account/decks" || percorso === "/mox/account/consents";
   if (!accountRoute) return null;
   if (richiesta.method === "OPTIONS") return preflightAccount(richiesta, ambiente);
   const oauth = percorso.match(/^\/auth\/(google|discord)$/);
@@ -1062,6 +1115,9 @@ export async function gestisciAccount(richiesta, ambiente, indirizzo) {
   // non con la sessione del browser, che sul desktop non esiste.
   if (percorso === "/mox/account/decks") return richiesta.method === "POST"
     ? sincronizzaMazzi(richiesta, ambiente)
+    : rispostaAccount(richiesta, ambiente, { errore: "usa POST" }, 405);
+  if (percorso === "/mox/account/consents") return richiesta.method === "POST"
+    ? sincronizzaConsensi(richiesta, ambiente)
     : rispostaAccount(richiesta, ambiente, { errore: "usa POST" }, 405);
 
   const richiesto = await richiedeUtente(richiesta, ambiente);

@@ -28,6 +28,27 @@ for (const [nome, url, atteso, statoAtteso = 200] of controlli) {
   }
 }
 
+const origineSito = new URL(base).origin;
+if (!["localhost", "127.0.0.1", "::1"].includes(new URL(base).hostname)) {
+  try {
+    const risposta = await fetch(`${api}/account/me`, {
+      method: "OPTIONS",
+      headers: {
+        origin: origineSito,
+        "access-control-request-method": "GET",
+      },
+    });
+    const valido = risposta.status === 204 &&
+      risposta.headers.get("access-control-allow-origin") === origineSito &&
+      risposta.headers.get("access-control-allow-credentials") === "true";
+    console.log(`${valido ? "OK" : "ERRORE"} CORS account: HTTP ${risposta.status}`);
+    if (!valido) fallimenti += 1;
+  } catch (errore) {
+    fallimenti += 1;
+    console.error(`ERRORE CORS account: ${errore.message}`);
+  }
+}
+
 const release = await fetch("https://github.com/Dennis96/moxtracker/releases/latest/download/Mox-Windows-beta.zip",
   { method: "HEAD", redirect: "follow" });
 console.log(`${release.ok ? "OK" : "ERRORE"} download: HTTP ${release.status}`);

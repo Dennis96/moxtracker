@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const QUI = fileURLToPath(new URL(".", import.meta.url));
 const leggi = percorso => readFileSync(QUI + "../sito/" + percorso, "utf8");
+const leggiRadice = percorso => readFileSync(QUI + "../" + percorso, "utf8");
 
 test("pre-lancio collega il download MOX allo ZIP stabile della release GitHub", () => {
   const configurazione = leggi("js/config.js");
@@ -34,6 +35,14 @@ test("pre-lancio locale usa il proxy omonimo e produzione l'API pubblica", () =>
   assert.match(leggi("js/config.js"), /window\.location\.origin.*\/api/);
   assert.match(leggi("js/config.js"), /https:\/\/api\.moxtracker\.app/);
   assert.match(leggi("_headers"), /connect-src https:\/\/api\.moxtracker\.app/);
+});
+
+test("il monitor della beta controlla preview, API e CORS account", () => {
+  const workflow = leggiRadice(".github/workflows/monitoraggio-beta.yml");
+  const smoke = leggiRadice("strumenti/smoke_beta.mjs");
+  assert.match(workflow, /MOX_SITE_URL: https:\/\/preview\.moxtracker\.pages\.dev/);
+  assert.match(smoke, /access-control-request-method/);
+  assert.match(smoke, /access-control-allow-credentials/);
 });
 
 test("pre-lancio compatta i matchup ancora non pubblicabili", () => {

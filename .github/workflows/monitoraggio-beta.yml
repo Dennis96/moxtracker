@@ -12,6 +12,9 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      MOX_SITE_URL: https://preview.moxtracker.pages.dev
+      MOX_API_URL: https://api.moxtracker.app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

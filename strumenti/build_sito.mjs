@@ -18,6 +18,9 @@ const ESTENSIONI_VERSIONATE = new Set([
 async function fileDentro(cartella) {
   const risultati = [];
   for (const voce of await readdir(cartella, { withFileTypes: true })) {
+    // Wrangler può creare cache operative dentro la cartella passata a Pages.
+    // Non sono sorgenti del sito e non devono cambiare build ID o finire online.
+    if (voce.name === ".wrangler") continue;
     const percorso = join(cartella, voce.name);
     if (voce.isDirectory()) risultati.push(...await fileDentro(percorso));
     else if (voce.isFile()) risultati.push(percorso);

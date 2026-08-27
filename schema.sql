@@ -119,7 +119,12 @@ CREATE TABLE IF NOT EXISTS account_dispositivo (
   account_id     TEXT NOT NULL,
   nome           TEXT NOT NULL,
   segreto_hash   TEXT NOT NULL,
-  collegato      TEXT NOT NULL
+  collegato      TEXT NOT NULL,
+  -- Stato corrente dichiarato da Mox. NULL significa che questa versione del
+  -- client non lo ha ancora sincronizzato: il sito non deve dedurlo dagli invii.
+  consenso_partite INTEGER CHECK (consenso_partite IS NULL OR consenso_partite IN (0, 1)),
+  consenso_draft   INTEGER CHECK (consenso_draft IS NULL OR consenso_draft IN (0, 1)),
+  consensi_aggiornati TEXT
 );
 CREATE INDEX IF NOT EXISTS account_dispositivo_account
   ON account_dispositivo (account_id, collegato);

@@ -54,6 +54,15 @@ stato viene dichiarato: gli altri documenti rimandano qui.
   ciò che l'utente toglie da Arena sparisce anche qui. I mazzi giocati e poi
   cancellati restano visibili come storico, e senza nessuna sincronizzazione
   il sito non scrive etichette che non può sapere;
+- **stato corrente dei consensi Mox** — il client collegato invia una
+  fotografia esplicita con `POST /mox/account/consents` e corpo JSON
+  `{ "mittente": "…", "segreto": "…", "partite": true, "draft": false }`.
+  `partite` e `draft` devono essere booleani reali; mittente e segreto devono
+  appartenere a un dispositivo già collegato. Il Worker non deduce mai il
+  consenso dalla presenza di upload: finché Mox non ha sincronizzato lo stato,
+  la dashboard mostra correttamente uno stato sconosciuto. Dopo il
+  collegamento Mox deve chiamare l'endpoint una prima volta e ripeterlo dopo
+  ogni cambio dei due interruttori;
 - contributo anonimo ancora possibile senza account.
 
 ## Ticket

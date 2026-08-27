@@ -50,7 +50,9 @@ test("account espone OAuth, dispositivi, statistiche e dettagli privati", () => 
 test("account separa mazzi correnti e storico, mostra invii, versioni ed export per sezione", () => {
   const html = leggi("account.html");
   const js = leggi("js/account.js");
+  const traduzioniDinamiche = leggi("js/translate.js");
   assert.match(html, /id="last-send"/);
+  assert.match(html, /lo stato corrente compare per ciascun dispositivo/);
   assert.match(html, /data-export="matches"/);
   assert.match(html, /data-export="draft"/);
   assert.match(html, /data-export="decks"/);
@@ -63,8 +65,16 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /Nessuna differenza di carte/);
   assert.match(js, /Versioni con lo stesso nome/);
   assert.match(js, /giorni senza nuovi invii/);
+  assert.match(js, /Stato consensi non ancora sincronizzato da Mox/);
+  assert.match(js, /consenso_partite/);
+  assert.match(js, /consenso_draft/);
+  assert.match(js, /Record collegato/);
+  assert.match(js, /Riepilogo Mox/);
+  assert.match(js, /pick-by-pick resta fuori dalla prima beta/);
+  assert.match(traduzioniDinamiche, /Mox ha registrato/);
   assert.match(js, /renderProfiloMazzo/);
   assert.match(js, /PERCORSO_ACCOUNT/);
+  assert.match(js, /window\.location\.origin/);
   assert.match(js, /\/account\/delete-section/);
 });
 

@@ -3,8 +3,9 @@ import { createCardThumbnail, resolveCard } from "./card-images.js?v=20260822-9"
 import { renderProfiloMazzo } from "./deck-profile.js";
 
 const $ = (id) => document.getElementById(id);
-const LINGUA = document.documentElement.lang === "en" ? "en-US" : "it-IT";
-const PERCORSO_ACCOUNT = document.documentElement.lang === "en" ? "/en/account.html" : "/account.html";
+const INGLESE = document.documentElement.lang === "en";
+const LINGUA = INGLESE ? "en-US" : "it-IT";
+const PERCORSO_ACCOUNT = `${window.location.origin}${INGLESE ? "/en/account.html" : "/account.html"}`;
 const numeri = new Intl.NumberFormat(LINGUA);
 // Dieci partite per volta: a trenta la pagina diventava lunghissima e il
 // pulsante «Carica altre partite» non lo vedeva nessuno.
@@ -49,6 +50,23 @@ function dataOra(valore) {
   const data = new Date(valore);
   return Number.isNaN(data.getTime()) ? "Data non disponibile"
     : data.toLocaleString(LINGUA, { dateStyle: "short", timeStyle: "short" });
+}
+
+function statoConsensi(dispositivo) {
+  if (dispositivo.consenso_partite === null || dispositivo.consenso_partite === undefined ||
+      dispositivo.consenso_draft === null || dispositivo.consenso_draft === undefined) {
+    return INGLESE ? "Consent status not yet synchronized by Mox"
+      : "Stato consensi non ancora sincronizzato da Mox";
+  }
+  const partite = dispositivo.consenso_partite
+    ? (INGLESE ? "Matches on" : "Partite attive")
+    : (INGLESE ? "Matches off" : "Partite disattive");
+  const draft = dispositivo.consenso_draft
+    ? (INGLESE ? "Draft on" : "Draft attivo")
+    : (INGLESE ? "Draft off" : "Draft disattivo");
+  const aggiornato = dispositivo.consensi_aggiornati
+    ? ` · ${INGLESE ? "updated" : "aggiornati"} ${dataOra(dispositivo.consensi_aggiornati)}` : "";
+  return `${partite} · ${draft}${aggiornato}`;
 }
 
 function durata(secondi) {
@@ -372,10 +390,14 @@ function renderDraft() {
   for (const draft of stato.dashboard.draft) {
     const bottone = nodo("button", "limited-card trace-card");
     bottone.type = "button";
+    const partite = Number(draft.partite || 0);
+    const risultato = partite
+      ? `${Number(draft.vittorie || 0)}–${Number(draft.sconfitte || 0)}`
+      : `${draft.pick} pick`;
     bottone.append(nodo("span", "eyebrow", "Traccia Draft"),
       nodo("strong", "", `${draft.set_code} · ${draft.formato}`),
-      nodo("span", "limited-record", `${draft.pick} pick`),
-      nodo("small", "", draft.completo ? "Traccia completa" : "Traccia parziale"));
+      nodo("span", "limited-record", risultato),
+      nodo("small", "", `${draft.pick} pick · ${draft.completo ? "Traccia completa" : "Traccia parziale"}`));
     bottone.addEventListener("click", () => apriDraft(draft.id));
     contenitore.append(bottone);
   }
@@ -411,9 +433,28 @@ async function apriDraft(id) {
     const dato = await api(`/account/drafts/${id}`);
     const d = dato.draft;
     const traccia = dato.traccia;
+    const partiteCollegate = Array.isArray(dato.partite) ? dato.partite : [];
+    const vittorie = partiteCollegate.filter((p) => p.esito === "vinta").length;
+    const sconfitte = partiteCollegate.filter((p) => p.esito === "persa").length;
     const contenuto = [metriche([["Set", d.set_code], ["Formato", d.formato],
       ["Pick registrati", d.pick], ["Stato", d.completo ? "Completo" : "Parziale"],
+      ["Record collegato", partiteCollegate.length ? `${vittorie}–${sconfitte}` : "Nessuna partita collegata"],
       ["Inizio", dataOra(d.iniziato)]])];
+    if (traccia?.pick?.length) {
+      let scelte = 0;
+      let seguite = 0;
+      for (const pick of traccia.pick) {
+        const fatte = pick.scelte ?? (pick.scelta !== undefined ? [pick.scelta] : []);
+        const consigli = pick.consigli_mox ?? (pick.consiglio_mox !== undefined
+          ? [pick.consiglio_mox] : []);
+        scelte += fatte.length;
+        seguite += fatte.filter((carta) => consigli.includes(carta)).length;
+      }
+      const riepilogo = nodo("section", "draft-mox-summary");
+      riepilogo.append(nodo("h3", "", "Riepilogo Mox"), nodo("p", "detail-note",
+        `Mox ha registrato ${scelte} scelte; ${seguite} coincidevano con il consiglio salvato. Il dettaglio pick-by-pick resta fuori dalla prima beta.`));
+      contenuto.push(riepilogo);
+    }
     if (traccia?.pool_finale?.length) contenuto.push(listaCarte("Pool finale",
       traccia.pool_finale.map((arena_id) => ({ arena_id, copie: 1,
         nome: dato.nomi_carte?.[String(arena_id)],
@@ -450,6 +491,8 @@ async function apriDraft(id) {
     }
     if (!traccia) contenuto.push(nodo("p", "detail-note",
       "Il dettaglio del pool non è disponibile, ma l'indice del Draft è conservato."));
+    if (traccia && !versioni.length) contenuto.push(nodo("p", "detail-warning",
+      "Mox non ha registrato una versione del mazzo montato per questo Draft."));
     if (traccia && Number(d.pick) < traccia.pool_finale.length) contenuto.push(
       nodo("p", "detail-warning",
         `Il pool contiene ${traccia.pool_finale.length} carte, ma Mox registrò soltanto ${d.pick} pick: la cronologia delle scelte è parziale.`));
@@ -609,7 +652,8 @@ async function carica() {
         await api(`/account/devices/${d.mittente}`, { method: "DELETE" });
         await carica();
       });
-      return riga(d.nome, `Collegato ${dataOra(d.collegato)}`, b);
+      const collegato = INGLESE ? "Linked" : "Collegato";
+      return riga(d.nome, `${collegato} ${dataOra(d.collegato)} · ${statoConsensi(d)}`, b);
     }), "Nessun dispositivo collegato");
     mostraElenco($("tickets"), ticket.ticket.map((t) => {
       const link = nodo("a", "service-button", "Apri");

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -21,7 +21,18 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
   const seconda = genera();
   assert.equal(seconda, prima, "stesse sorgenti devono produrre lo stesso manifesto");
 
+  const cacheWrangler = join(RADICE, "sito", ".wrangler", "prova-build");
+  try {
+    mkdirSync(cacheWrangler, { recursive: true });
+    writeFileSync(join(cacheWrangler, "cache-operativa.json"), "{\"non\":\"sorgente\"}\n");
+    assert.equal(genera(), prima,
+      "una cache operativa di Wrangler non deve cambiare il manifesto");
+  } finally {
+    rmSync(cacheWrangler, { recursive: true, force: true });
+  }
+
   const manifesto = JSON.parse(prima);
+  assert.equal(Object.keys(manifesto.file).some((nome) => nome.includes(".wrangler")), false);
   assert.match(manifesto.build_id, /^[0-9a-f]{16}$/);
   for (const [percorso, hash] of Object.entries(manifesto.file)) {
     const corpo = readFileSync(join(BUILD, percorso));
