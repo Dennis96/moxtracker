@@ -19,7 +19,7 @@
 .flow-notes strong { color: var(--text); }
 .draft-controls-panel { margin-bottom: 16px; }
 .draft-updated { color: #c065ff; font-size: .82rem; }
-.draft-filters { display: grid; grid-template-columns: minmax(180px, 300px) minmax(200px, 300px) auto; gap: 12px; align-items: end; }
+.draft-filters { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(180px, 1fr) minmax(150px, .8fr) auto; gap: 12px; align-items: end; }
 .draft-filters label { color: var(--muted); font-size: .74rem; font-weight: 800; text-transform: uppercase; }
 .draft-filters input { display: block; width: 100%; min-height: 43px; margin-top: 6px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-3); color: var(--text); padding: 0 13px; text-transform: uppercase; }
 .draft-filters .select-wrap { margin-top: 6px; }
@@ -37,6 +37,10 @@
 .phase-card dt { color: var(--muted); }
 .phase-card dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 800; }
 .phase-card .phase-note { margin: 14px 0 0; color: var(--warning); font-size: .76rem; line-height: 1.4; }
+.event-card { color: var(--text); text-align: left; cursor: pointer; }
+.event-card:hover { border-color: var(--line-strong); box-shadow: var(--glow); }
+.event-card .eyebrow { margin-bottom: 5px; }
+.event-open { display: block; margin-top: 16px; color: #ce7cff; font-size: .78rem; font-weight: 750; }
 .draft-empty { grid-column: 1 / -1; min-height: 170px; display: grid; place-items: center; text-align: center; border: 1px dashed var(--line-strong); border-radius: 11px; color: var(--muted); padding: 24px; }
 @media (max-width: 980px) { .draft-summary, .phase-grid, .flow-grid { grid-template-columns: 1fr 1fr; } .flow-card:nth-child(2)::after { display: none; } .draft-hero img { opacity: .55; } }
 @media (max-width: 640px) { .draft-hero { min-height: 300px; } .draft-hero-inner { min-height: 300px; } .draft-hero img { display: none; } .draft-filters, .flow-grid, .flow-notes { grid-template-columns: 1fr; } .flow-card:not(:last-child)::after { content: "↓"; right: auto; left: calc(50% - 16px); top: auto; bottom: -23px; } .draft-summary, .phase-grid, .method-grid { grid-template-columns: 1fr; } .draft-summary { gap: 9px; } .draft-metric { min-height: 112px; } }

@@ -960,6 +960,69 @@ async function eliminaAccount(richiesta, ambiente, utente) {
     { "set-cookie": cookieSessione("", 0) });
 }
 
+async function eliminaSezione(richiesta, ambiente, utente) {
+  const corpo = await corpoJson(richiesta);
+  const sezione = String(corpo?.sezione || "").toLowerCase();
+  const conferme = { partite: "PARTITE", draft: "DRAFT", mazzi: "MAZZI" };
+  if (!conferme[sezione] || corpo?.conferma !== conferme[sezione]) {
+    return rispostaAccount(richiesta, ambiente, { errore: "conferma richiesta" }, 400);
+  }
+  const device = await dispositivi(ambiente.DB, utente.id);
+  const mittenti = device.map((d) => d.mittente);
+  if (sezione === "mazzi") {
+    const prima = await ambiente.DB.prepare(
+      "SELECT COUNT(*) AS n FROM account_mazzo WHERE account_id = ?").bind(utente.id).first();
+    await ambiente.DB.batch([
+      ambiente.DB.prepare("DELETE FROM account_mazzo WHERE account_id = ?").bind(utente.id),
+      ambiente.DB.prepare("DELETE FROM account_mazzo_nome WHERE account_id = ?").bind(utente.id),
+    ]);
+    return rispostaAccount(richiesta, ambiente,
+      { eliminato: "mazzi", righe: Number(prima?.n || 0) });
+  }
+  if (!mittenti.length) return rispostaAccount(richiesta, ambiente,
+    { eliminato: sezione, righe: 0 });
+  const segni = mittenti.map(() => "?").join(", ");
+  if (sezione === "partite") {
+    const righe = await ambiente.DB.prepare(
+      `SELECT id FROM partite WHERE mittente IN (${segni})`).bind(...mittenti).all();
+    const linkDaTogliere = (righe.results || []).map((riga) => ambiente.DRAFT_DB?.prepare(
+      "DELETE FROM draft_link WHERE partita = ?").bind(riga.id)).filter(Boolean);
+    if (linkDaTogliere.length) await ambiente.DRAFT_DB.batch(linkDaTogliere);
+    await ambiente.DB.batch([
+      ambiente.DB.prepare(`DELETE FROM carte_mazzo WHERE partita IN
+        (SELECT id FROM partite WHERE mittente IN (${segni}))`).bind(...mittenti),
+      ambiente.DB.prepare(`DELETE FROM carte_avversario WHERE partita IN
+        (SELECT id FROM partite WHERE mittente IN (${segni}))`).bind(...mittenti),
+      ambiente.DB.prepare(`DELETE FROM partite WHERE mittente IN (${segni})`).bind(...mittenti),
+      ambiente.DB.prepare(`DELETE FROM contributori WHERE mittente IN (${segni})`).bind(...mittenti),
+    ]);
+    return rispostaAccount(richiesta, ambiente,
+      { eliminato: "partite", righe: (righe.results || []).length });
+  }
+  if (!ambiente.DRAFT_DB) return rispostaAccount(richiesta, ambiente,
+    { errore: "archivio Draft non disponibile" }, 503);
+  const righe = await ambiente.DRAFT_DB.prepare(
+    `SELECT id, oggetto_r2 FROM draft WHERE mittente IN (${segni})`).bind(...mittenti).all();
+  const oggetti = (righe.results || []).map((riga) => riga.oggetto_r2);
+  if (oggetti.length && !ambiente.DRAFT_RAW) return rispostaAccount(richiesta, ambiente,
+    { errore: "archivio Draft non disponibile" }, 503);
+  for (let i = 0; i < oggetti.length; i += 1000) {
+    await ambiente.DRAFT_RAW.delete(oggetti.slice(i, i + 1000));
+  }
+  await ambiente.DRAFT_DB.batch([
+    ambiente.DRAFT_DB.prepare(`DELETE FROM draft_link WHERE draft_id IN
+      (SELECT id FROM draft WHERE mittente IN (${segni}))`).bind(...mittenti),
+    ambiente.DRAFT_DB.prepare(`DELETE FROM draft_mazzo WHERE draft_id IN
+      (SELECT id FROM draft WHERE mittente IN (${segni}))`).bind(...mittenti),
+    ambiente.DRAFT_DB.prepare(`DELETE FROM draft_pick WHERE draft_id IN
+      (SELECT id FROM draft WHERE mittente IN (${segni}))`).bind(...mittenti),
+    ambiente.DRAFT_DB.prepare(`DELETE FROM draft WHERE mittente IN (${segni})`).bind(...mittenti),
+    ambiente.DRAFT_DB.prepare(`DELETE FROM contributori WHERE mittente IN (${segni})`).bind(...mittenti),
+  ]);
+  return rispostaAccount(richiesta, ambiente,
+    { eliminato: "draft", righe: (righe.results || []).length });
+}
+
 // Sessioni, stati OAuth e codici Mox scaduti: nessuno li toglieva.
 //
 // Venivano cancellati solo quando qualcuno li usava: chi comincia un accesso e
@@ -1047,6 +1110,9 @@ export async function gestisciAccount(richiesta, ambiente, indirizzo) {
   }
   if (percorso === "/account/delete" && richiesta.method === "POST") {
     return eliminaAccount(richiesta, ambiente, richiesto);
+  }
+  if (percorso === "/account/delete-section" && richiesta.method === "POST") {
+    return eliminaSezione(richiesta, ambiente, richiesto);
   }
   const revoca = percorso.match(/^\/account\/devices\/([0-9a-f]{32})$/);
   if (revoca && richiesta.method === "DELETE") {

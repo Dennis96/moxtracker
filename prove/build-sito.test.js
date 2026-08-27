@@ -48,6 +48,28 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
   const headers = readFileSync(join(BUILD, "_headers"), "utf8");
   assert.match(headers, /\/draft\n  Cache-Control: no-store/);
   assert.match(headers, /\/js\/\*\n  Cache-Control: public, max-age=31556952, immutable/);
+
+  for (const pagina of ["index.html", "draft.html", "archetipo.html", "account.html",
+    "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html"]) {
+    const inglese = readFileSync(join(BUILD, "en", pagina), "utf8");
+    assert.match(inglese, /<html lang="en"/);
+    assert.match(inglese, /\.\.\/js\/translate\.js\?v=/);
+    assert.doesNotMatch(inglese, /(?:src|href)="\.\/assets\//,
+      `${pagina}: asset non riscritto per /en/`);
+  }
+  assert.match(readFileSync(join(BUILD, "en", "index.html"), "utf8"),
+    /Your assistant for MTG Arena/);
+  assert.match(readFileSync(join(BUILD, "en", "draft.html"), "utf8"),
+    /<title>How Mox improves Draft — MOX Arena Assistant<\/title>/);
+  assert.match(readFileSync(join(BUILD, "en", "account.html"), "utf8"),
+    /<title>My MOX — MOX Arena Assistant<\/title>/);
+  for (const pagina of ["privacy.html", "supporto.html", "cosa-invia-mox.html", "note-versione.html"]) {
+    const inglese = readFileSync(join(BUILD, "en", pagina), "utf8");
+    assert.doesNotMatch(inglese,
+      /Cloudflare ospita|Il percorso consigliato|Il pacchetto contiene|Mox controlla il pacchetto/,
+      `${pagina}: testo italiano residuo nella pagina inglese`);
+  }
+  assert.match(headers, /\/en\/\n  Cache-Control: no-store/);
 });
 
 test("il gate release richiede tree pulita, preview equivalente e conferma produzione", () => {

@@ -3,6 +3,7 @@ import { fetchArchetipo } from "./api.js";
 import { deckLabel, formatInteger, formatPercent, sampleSufficient, shortFingerprint } from "./format.js";
 import { classificationSummary, deckArchetypeId, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
 import { createCardListItem, parseReferenceLine } from "./card-images.js";
+import { renderProfiloMazzo } from "./deck-profile.js";
 
 function tag(text, className = "") {
   const node = document.createElement("span"); node.className = className; node.textContent = text; return node;
@@ -96,6 +97,33 @@ function protectedDecklistBlock() {
   return box;
 }
 
+function testoArena(cards) {
+  const righe = cards.filter(card => card.nome && Number(card.copie) > 0)
+    .map(card => `${Number(card.copie)} ${titleCase(card.nome)}`);
+  return righe.length ? `Deck\n${righe.join("\n")}\n` : "";
+}
+
+function preparaAzioniDecklist(cards) {
+  const copia = document.querySelector("#copy-variant-deck");
+  const scarica = document.querySelector("#download-variant-deck");
+  const testo = testoArena(cards);
+  copia.hidden = !testo;
+  scarica.hidden = !testo;
+  copia.onclick = testo ? async () => {
+    await navigator.clipboard.writeText(testo);
+    copia.textContent = "Copiato";
+    setTimeout(() => { copia.textContent = "Copia per Arena"; }, 1600);
+  } : null;
+  scarica.onclick = testo ? () => {
+    const url = URL.createObjectURL(new Blob([testo], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "mox-deck-arena.txt";
+    link.click();
+    URL.revokeObjectURL(url);
+  } : null;
+}
+
 function renderVariantDecklist(variant) {
   const host = document.querySelector("#variant-focus-decklist");
   host.replaceChildren();
@@ -106,6 +134,8 @@ function renderVariantDecklist(variant) {
     badge.textContent = "Non pubblicata";
     badge.className = "variant-state-badge is-locked";
     host.append(protectedDecklistBlock());
+    preparaAzioniDecklist([]);
+    document.querySelector("#variant-focus-profile").replaceChildren();
     return;
   }
 
@@ -115,6 +145,9 @@ function renderVariantDecklist(variant) {
   list.className = "decklist-cards variant-focus-card-list";
   for (const card of cards) list.append(cardLine(card));
   host.append(list);
+  preparaAzioniDecklist(cards);
+  renderProfiloMazzo(document.querySelector("#variant-focus-profile"), cards,
+    { campione: `Lista osservata in ${formatInteger(variant.partite)} partite.` });
 
   const unknown = cards.filter(card => !card.nome).length;
   if (unknown) {
@@ -177,8 +210,9 @@ function renderVariants(data) {
   const host = document.querySelector("#variants-list");
   host.replaceChildren();
   const variants = Array.isArray(data.varianti) ? data.varianti : [];
-  setText("#variants-count", `${variants.length} ${variants.length === 1 ? "variante osservata" : "varianti osservate"}`);
-  if (!variants.length) {
+  const totale = Number(data.varianti_osservate || variants.length);
+  setText("#variants-count", `${totale} ${totale === 1 ? "variante osservata" : "varianti osservate"}`);
+  if (!variants.length && !data.altre_varianti) {
     const empty = document.createElement("p"); empty.className = "variants-empty";
     empty.textContent = "Nessuna variante osservata nel filtro corrente.";
     host.append(empty);
@@ -190,7 +224,8 @@ function renderVariants(data) {
     const article = document.createElement("article"); article.className = "variant-card variant-summary-card";
     const head = document.createElement("div"); head.className = "variant-head";
     const identity = document.createElement("div");
-    const title = document.createElement("strong"); title.textContent = `Variante osservata #${index + 1}`;
+    const title = document.createElement("strong"); title.textContent = index === 0
+      ? "Lista più rappresentativa" : `Variante osservata #${index + 1}`;
     const sub = document.createElement("small"); sub.textContent = `ID ${String(variant.variante_id || "").slice(0, 8) || "n.d."}`;
     identity.append(title, sub);
 
@@ -221,6 +256,14 @@ function renderVariants(data) {
     // qui conserviamo la decklist inline quando la soglia la rende pubblica.
     if (!recognized) renderObservedDecklistInline(article, variant);
     host.append(article);
+  }
+  if (data.altre_varianti) {
+    const altre = document.createElement("article");
+    altre.className = "variant-card variant-summary-card other-variants";
+    const quante = Number(data.altre_varianti.varianti || 0);
+    const partite = Number(data.altre_varianti.partite || 0);
+    altre.innerHTML = `<div class="variant-head"><div><strong>Altre varianti</strong><small>${quante} ${quante === 1 ? "lista sotto soglia" : "liste sotto soglia"}</small></div><div class="variant-metrics"><span><b>${formatInteger(partite)}</b> partite aggregate</span><span>Dati e decklist non pubblicati</span></div></div>`;
+    host.append(altre);
   }
 }
 
@@ -254,6 +297,20 @@ function renderReferences(data) {
   }
 }
 
+function renderRepresentativeProfile(data) {
+  const osservata = (Array.isArray(data.varianti) ? data.varianti : [])
+    .find((variante) => variante.decklist_pubblicabile === true);
+  if (osservata) {
+    renderProfiloMazzo(document.querySelector("#deck-profile"), observedDecklistCards(osservata),
+      { campione: `Lista rappresentativa osservata in ${formatInteger(osservata.partite)} partite.` });
+    return;
+  }
+  const riferimento = (data.liste_riferimento || []).find((ref) => Array.isArray(ref.lista));
+  const carte = (riferimento?.lista || []).map(parseReferenceLine);
+  renderProfiloMazzo(document.querySelector("#deck-profile"), carte,
+    { campione: "Lista di catalogo: non è un campione osservato degli utenti MOX." });
+}
+
 function renderError(message) {
   const node = document.querySelector("#detail-error"); node.hidden = false; node.textContent = message;
   document.querySelector("#detail-summary").classList.add("muted-content");
@@ -264,6 +321,8 @@ async function load() {
   const params = new URLSearchParams(location.search);
   const formato = params.get("formato") || DEFAULT_FORMAT;
   const rank = params.get("rank") || "";
+  const periodo = params.get("periodo") || "30";
+  const modalita = params.get("modalita") || "";
   const impronta = params.get("impronta");
   const id = params.get("id");
   const variantId = params.get("variante") || "";
@@ -276,21 +335,23 @@ async function load() {
       renderError("Manca l'identificativo dell'archetipo o del mazzo.");
       return;
     }
-    const data = await fetchArchetipo(id ? { formato, rank, id } : { formato, rank, impronta });
+    const filtri = { formato, rank, periodo, modalita };
+    const data = await fetchArchetipo(id ? { ...filtri, id } : { ...filtri, impronta });
     const selection = variantId ? selectedVariant(data, variantId) : null;
     if (variantId && !selection) {
       renderError("La variante selezionata non è presente nei dati del filtro corrente.");
       return;
     }
 
-    renderDeck(data, { formato, rank }, selection);
-    renderVariantFocus(data, selection, { formato, rank });
+    renderDeck(data, filtri, selection);
+    renderVariantFocus(data, selection, filtri);
 
     const unclassified = data.tipo_dettaglio === "non_classificato";
     if (!selection) {
       renderVariants(data);
       document.querySelector("#reference-panel").hidden = unclassified;
       if (!unclassified) renderReferences(data);
+      renderRepresentativeProfile(data);
     }
   } catch (error) {
     renderError(error.message || "Impossibile leggere i dati del meta.");

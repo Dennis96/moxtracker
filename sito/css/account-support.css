@@ -44,6 +44,10 @@
 .section-count { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; color: var(--muted); font-size: .75rem; }
 .account-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
 .account-kpis .service-kpi strong { font-size: clamp(1.2rem, 2.4vw, 1.8rem); }
+.account-sync { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px; color: var(--muted); font-size: .78rem; }
+.account-sync strong { color: var(--text); }
+.account-sync .stale-send { color: #ffc28f; text-decoration: underline dotted; text-underline-offset: 3px; }
+.deck-versions { display: grid; gap: 8px; }
 .account-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .account-insights .section-heading { display: grid; gap: 10px; }
 .account-insights .section-count { justify-self: start; }
@@ -61,6 +65,12 @@
 .form-dot.win, .game-chip.win { color: #7ff0b4; background: rgba(41,184,112,.15); border: 1px solid rgba(73,224,145,.25); }
 .form-dot.loss, .game-chip.loss { color: #ff9ea2; background: rgba(230,76,86,.13); border: 1px solid rgba(255,107,113,.24); }
 .personal-table, .match-list { display: grid; margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.personal-deck-group { display: grid; }
+.personal-deck-group + .personal-deck-group { border-top: 2px solid var(--line-strong); }
+.personal-deck-group-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px; background: var(--surface); }
+.personal-deck-group-head h3 { margin: 0; }
+.personal-deck-group > .detail-note { margin: 0 16px 12px; padding: 0; border: 0; background: transparent; }
+.draft-deck-versions { display: grid; gap: 8px; }
 .personal-deck-row, .personal-match-row { width: 100%; min-width: 0; border: 0; border-bottom: 1px solid var(--line); background: var(--surface-2); color: var(--text); text-align: left; cursor: pointer; }
 .personal-deck-row:last-child, .personal-match-row:last-child { border-bottom: 0; }
 .personal-deck-row:hover, .personal-match-row:hover { background: var(--surface-3); }

@@ -17,7 +17,7 @@ test("account espone OAuth, dispositivi, statistiche e dettagli privati", () => 
   assert.match(html, /Continua con Google/);
   assert.match(html, /Continua con Discord/);
   assert.match(html, /Genera codice/);
-  assert.match(html, /Esporta JSON/);
+  assert.match(html, /Esporta tutto/);
   assert.match(html, /Elimina dati e account/);
   assert.match(html, /I miei mazzi/);
   assert.match(html, /Le mie partite/);
@@ -47,14 +47,41 @@ test("account espone OAuth, dispositivi, statistiche e dettagli privati", () => 
   assert.match(css, /@media \(max-width: 760px\)/);
 });
 
+test("account separa mazzi correnti e storico, mostra invii, versioni ed export per sezione", () => {
+  const html = leggi("account.html");
+  const js = leggi("js/account.js");
+  assert.match(html, /id="last-send"/);
+  assert.match(html, /data-export="matches"/);
+  assert.match(html, /data-export="draft"/);
+  assert.match(html, /data-export="decks"/);
+  assert.match(html, /data-delete-section="partite"/);
+  assert.match(html, /data-delete-section="draft"/);
+  assert.match(html, /data-delete-section="mazzi"/);
+  assert.match(js, /gruppoMazzi\("In Arena"/);
+  assert.match(js, /sincronizzati \? "Storico" : "Dalle partite"/);
+  assert.match(js, /Versioni del mazzo giocato/);
+  assert.match(js, /Nessuna differenza di carte/);
+  assert.match(js, /Versioni con lo stesso nome/);
+  assert.match(js, /giorni senza nuovi invii/);
+  assert.match(js, /renderProfiloMazzo/);
+  assert.match(js, /PERCORSO_ACCOUNT/);
+  assert.match(js, /\/account\/delete-section/);
+});
+
 test("supporto distingue ticket anonimo e account e limita gli allegati", () => {
   const html = leggi("supporto.html");
   const js = leggi("js/supporto.js");
   assert.match(html, /Bug/);
+  assert.match(html, /value="draft"/);
+  assert.match(html, /value="account"/);
+  assert.match(html, /value="installazione"/);
+  assert.match(html, /value="suggerimenti"/);
   assert.match(html, /Problema dati/);
-  assert.match(html, /Richiesta sviluppo/);
-  assert.match(html, /max 10 MB/);
-  assert.doesNotMatch(html, /\.zip|ZIP diagnostico/);
+  assert.match(html, /Suggerimenti/);
+  assert.match(html, /rapporto\.json/);
+  assert.match(html, /256 KiB/);
+  assert.match(html, /Player\.log non va allegato qui/);
+  assert.doesNotMatch(html, /accept="[^"]*(?:zip|text\/plain)/i);
   assert.match(html, /turnstile-widget/);
   assert.match(html, /link segreto/i);
   assert.match(js, /FormData/);

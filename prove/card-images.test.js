@@ -66,8 +66,25 @@ test("media Scryfall usa small per thumbnail e normal per hover", () => {
     small: "https://cards.scryfall.io/small/a.jpg",
     normal: "https://cards.scryfall.io/normal/a.jpg",
     artist: "Artist",
+    manaValue: null,
+    typeLine: null,
+    colors: [],
+    producedMana: [],
+    oracleText: null,
     fetchedAt: 123,
   });
+});
+
+test("media Scryfall conserva i metadati per curva, tipi e fixing", () => {
+  const media = extractCardMedia({
+    name: "Dual Land", cmc: 0, type_line: "Land", color_identity: ["W", "U"],
+    produced_mana: ["W", "U"], oracle_text: "{T}: Add {W} or {U}.",
+    image_uris: { small: "small", normal: "normal" },
+  });
+  assert.equal(media.manaValue, 0);
+  assert.equal(media.typeLine, "Land");
+  assert.deepEqual(media.colors, ["W", "U"]);
+  assert.deepEqual(media.producedMana, ["W", "U"]);
 });
 
 test("media Scryfall supporta carte bifronte senza image_uris principale", () => {

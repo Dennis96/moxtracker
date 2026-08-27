@@ -37,6 +37,10 @@ export function deckIsClassified(deck) {
 }
 
 export function classificationSummary(deck) {
+  if (deck?.tipo_dettaglio === "altro") {
+    const gruppi = Number(deck.impronte_raggruppate || 0);
+    return gruppi ? `${gruppi} liste non riconosciute raggruppate` : "Liste non riconosciute raggruppate";
+  }
   if (!deckIsClassified(deck)) return "Archetipo non ancora confermato";
   const bits = [];
   const colors = deckColors(deck);
@@ -95,13 +99,15 @@ export function deckDetailUrl(deck, apiFilters = {}) {
   const params = new URLSearchParams();
   if (apiFilters.formato) params.set("formato", apiFilters.formato);
   if (apiFilters.rank) params.set("rank", apiFilters.rank);
+  if (apiFilters.periodo) params.set("periodo", apiFilters.periodo);
   const id = deckArchetypeId(deck);
   if (id) {
     params.set("id", id);
   } else if (typeof deck?.impronta === "string" && deck.impronta.trim()) {
     params.set("impronta", deck.impronta.trim());
   }
-  const mode = deckMode(deck);
+  const mode = apiFilters.modalita || deckMode(deck);
   if (mode) params.set("modalita", mode);
+  if (!params.has("id") && !params.has("impronta")) return null;
   return `./archetipo.html?${params.toString()}`;
 }

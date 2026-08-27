@@ -1,5 +1,7 @@
-const nf = new Intl.NumberFormat("it-IT", { useGrouping: "always" });
-const df = new Intl.DateTimeFormat("it-IT", {
+const locale = typeof document !== "undefined" && document.documentElement.lang === "en"
+  ? "en-US" : "it-IT";
+const nf = new Intl.NumberFormat(locale, { useGrouping: "always" });
+const df = new Intl.DateTimeFormat(locale, {
   day: "2-digit", month: "2-digit", year: "numeric",
   hour: "2-digit", minute: "2-digit",
 });

@@ -12,6 +12,7 @@ import {
 } from "./draft.js";
 import { gestisciAccount, pulisciCredenzialiScadute } from "./account.js";
 import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
+import { controllaStorageGiornaliero } from "./monitoraggio.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -321,7 +322,9 @@ export default {
     if (indirizzo.pathname === "/draft/statistiche") {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
       try {
-        return risposta(await statisticheDraft(ambiente.DRAFT_DB, indirizzo), 200, true);
+        const esito = await statisticheDraft(ambiente.DRAFT_DB, indirizzo);
+        if (esito.errore) return risposta({ errore: esito.errore }, esito.stato || 400, true);
+        return risposta(esito, 200, true);
       } catch (guasto) {
         console.error("guasto leggendo statistiche Draft", guasto);
         return risposta({ errore: "guasto del server" }, 500);
@@ -344,6 +347,7 @@ export default {
     contesto.waitUntil(Promise.all([
       pulisciTicketScaduti(ambiente),
       pulisciCredenzialiScadute(ambiente),
+      controllaStorageGiornaliero(ambiente),
     ]));
   },
 };

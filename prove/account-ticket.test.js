@@ -369,6 +369,33 @@ test("gli allegati controllano il contenuto e restano scaricabili solo dal propr
   assert.deepEqual(new Uint8Array(await scaricato.arrayBuffer()), png);
 });
 
+test("rapporto.json deve essere piccolo, strutturato e privo di campi sensibili", async () => {
+  const env = ambiente();
+  env.TICKET_FILES = fileTicketFinti();
+  const creato = await worker.fetch(new Request("https://api.moxtracker.app/ticket", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ categoria: "draft", titolo: "Diagnostica Draft",
+      testo: "Allego il rapporto anonimo generato direttamente da Mox.",
+      turnstile_token: "token-valido" }),
+  }), env);
+  const { ticket, token } = await creato.json();
+  const percorso = `https://api.moxtracker.app/ticket/${ticket.id}/attachments?token=${token}`;
+
+  const valido = new FormData();
+  valido.append("file", new File([JSON.stringify({ diagnostica: "abcdef123456",
+    creato: "2026-08-27T10:00:00Z", mox: "2.9.24", sistema: { windows: "Windows" } })],
+  "rapporto.json", { type: "application/json" }));
+  assert.equal((await worker.fetch(new Request(percorso,
+    { method: "POST", body: valido }), env)).status, 201);
+
+  const sensibile = new FormData();
+  sensibile.append("file", new File([JSON.stringify({ diagnostica: "abcdef123456",
+    creato: "2026-08-27T10:00:00Z", mox: "2.9.24", token: "segreto" })],
+  "rapporto.json", { type: "application/json" }));
+  assert.equal((await worker.fetch(new Request(percorso,
+    { method: "POST", body: sensibile }), env)).status, 415);
+});
+
 test("i ticket autenticati compaiono nella cronologia dell'account", async () => {
   const env = ambiente();
   const sessione = await accedi(env);
@@ -654,6 +681,60 @@ test("cancellare l'account porta via anche i mazzi sincronizzati", async () => {
     }), env);
   assert.equal(eliminato.status, 200);
   assert.equal(env.DB.conta("account_mazzo"), 0);
+});
+
+test("l'account cancella partite, Draft e mazzi per sezione con conferma distinta", async () => {
+  const env = ambiente();
+  env.DRAFT_RAW = fileTicketFinti();
+  const mittente = "4".repeat(32);
+  const segreto = "5".repeat(64);
+  const sessione = await collegaUnMox(env, mittente, segreto);
+  await sincronizza(env, { mittente, segreto, mazzi: [
+    { impronta: "6".repeat(64), nome: "Da cancellare", carte: { "1": 60 } },
+  ] });
+  const inviata = await worker.fetch(new Request("https://api.moxtracker.app/partite", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify([partitaPersonale({ id: "4400000001", mittente, segreto })]),
+  }), env);
+  assert.equal(inviata.status, 200);
+  await env.DRAFT_RAW.put("draft/account-test.json", "{}");
+  await env.DRAFT_DB.batch([
+    env.DRAFT_DB.prepare("INSERT INTO contributori (mittente, cancellazione_hash, creato) VALUES (?, ?, ?)")
+      .bind(mittente, "7".repeat(64), "2026-08-22T18:24:00Z"),
+    env.DRAFT_DB.prepare(`INSERT INTO draft
+      (id, mittente, ricevuto, iniziato, set_code, formato, completo, pick,
+       politica, mox, impronta_arena, oggetto_r2, byte, versione, sospetto)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind("draft-account-test", mittente, "2026-08-22T18:24:00Z",
+        "2026-08-22T18:00:00Z", "HOB", "PremierDraft", 1, 42,
+        "mox-2.9.24", "2.9.24", null, "draft/account-test.json", 2, 1, null),
+    env.DRAFT_DB.prepare("INSERT INTO draft_pick (draft_id, numero, fase, consiglio, scelta, seguito, vicina, campione, fonte, politica) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind("draft-account-test", 1, "P1P1", 1, 1, 1, 0, 100, "test", "mox-2.9.24"),
+  ]);
+
+  const senzaConferma = await worker.fetch(new Request(
+    "https://api.moxtracker.app/account/delete-section", {
+      method: "POST", headers: { cookie: sessione, "content-type": "application/json" },
+      body: JSON.stringify({ sezione: "partite", conferma: "NO" }),
+    }), env);
+  assert.equal(senzaConferma.status, 400);
+  assert.equal(env.DB.conta("partite"), 1);
+
+  for (const [sezione, conferma] of [["partite", "PARTITE"], ["draft", "DRAFT"], ["mazzi", "MAZZI"]]) {
+    const risposta = await worker.fetch(new Request(
+      "https://api.moxtracker.app/account/delete-section", {
+        method: "POST", headers: { cookie: sessione, "content-type": "application/json" },
+        body: JSON.stringify({ sezione, conferma }),
+      }), env);
+    assert.equal(risposta.status, 200, sezione);
+  }
+  assert.equal(env.DB.conta("partite"), 0);
+  assert.equal(env.DB.conta("account_mazzo"), 0);
+  assert.equal(env.DRAFT_DB.conta("draft"), 0);
+  assert.equal(env.DRAFT_DB.conta("draft_pick"), 0);
+  assert.equal(env.DRAFT_RAW.oggetti.has("draft/account-test.json"), false);
+  assert.equal(env.DB.conta("account_dispositivo"), 1,
+    "la cancellazione selettiva non scollega Mox");
 });
 
 test("l'export contiene anche i mazzi veri di Arena", async () => {

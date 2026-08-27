@@ -76,9 +76,10 @@
                   <span class="variant-section-kicker">Lista effettivamente osservata</span>
                   <h3 id="variant-decklist-title">Decklist della variante</h3>
                 </div>
-                <span id="variant-focus-decklist-state" class="variant-state-badge is-locked">Verifica soglia</span>
+                <div class="variant-decklist-actions"><button id="copy-variant-deck" class="variant-action" type="button" hidden>Copia per Arena</button><button id="download-variant-deck" class="variant-action" type="button" hidden>Esporta .txt</button><span id="variant-focus-decklist-state" class="variant-state-badge is-locked">Verifica soglia</span></div>
               </div>
               <div id="variant-focus-decklist"></div>
+              <div id="variant-focus-profile" class="deck-profile"></div>
             </section>
 
             <aside class="variant-advanced-panel" aria-labelledby="variant-advanced-title">
@@ -134,6 +135,14 @@
             <h2 id="decklist-detail-title" class="panel-title"><span class="icon" aria-hidden="true">▤</span><span id="reference-title-label">Lista di riferimento del catalogo</span></h2>
             <p class="panel-lead">Decklist curate di mox-meta. Sono riferimenti pubblici del catalogo e non decklist osservate degli utenti MOX.</p>
             <div id="reference-lists" class="reference-lists"><p>Caricamento…</p></div>
+          </div>
+        </section>
+
+        <section id="deck-profile-panel" class="panel detail-section" aria-labelledby="deck-profile-title">
+          <div class="panel-inner">
+            <h2 id="deck-profile-title" class="panel-title"><span class="icon" aria-hidden="true">⌁</span>Profilo della lista rappresentativa</h2>
+            <p class="panel-lead">Curva, tipi, identità colore, terre speciali e fixing calcolati dalla prima lista osservata pubblicabile; in assenza, dalla lista pubblica del catalogo.</p>
+            <div id="deck-profile" class="deck-profile"><p class="detail-note">Caricamento…</p></div>
           </div>
         </section>
       </div>

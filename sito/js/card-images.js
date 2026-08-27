@@ -1,5 +1,5 @@
 const SCRYFALL_API = "https://api.scryfall.com";
-const CACHE_KEY = "mox-scryfall-card-cache-v3";
+const CACHE_KEY = "mox-scryfall-card-cache-v4";
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MISSING_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 500;
@@ -92,6 +92,11 @@ export function extractCardMedia(card, fetchedAt = Date.now()) {
     small,
     normal,
     artist: cleanName(card.artist || face?.artist) || null,
+    manaValue: Number.isFinite(Number(card.cmc)) ? Number(card.cmc) : null,
+    typeLine: cleanName(card.type_line || face?.type_line) || null,
+    colors: Array.isArray(card.color_identity) ? card.color_identity : [],
+    producedMana: Array.isArray(card.produced_mana) ? card.produced_mana : [],
+    oracleText: cleanName(card.oracle_text || face?.oracle_text) || null,
     fetchedAt,
   };
 }

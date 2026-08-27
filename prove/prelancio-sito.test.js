@@ -40,3 +40,25 @@ test("pre-lancio compatta i matchup ancora non pubblicabili", () => {
   assert.match(leggi("js/render.js"), /is-unavailable/);
   assert.match(leggi("css/site.css"), /matchup-panel\.is-unavailable/);
 });
+
+test("homepage presenta Mox con due schermate reali e pagine di trasparenza", () => {
+  const home = leggi("index.html");
+  assert.match(home, /mox-draft-scelta\.png/);
+  assert.match(home, /mox-draft-mazzo\.png/);
+  assert.match(home, /id="home-games"/);
+  assert.match(home, /id="home-drafts"/);
+  assert.match(home, /cosa-invia-mox\.html/);
+  assert.match(home, /note-versione\.html/);
+  assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
+  assert.match(leggi("note-versione.html"), /2\.9\.24/);
+});
+
+test("il reset del Meta ripristina anche periodo, modalita e rank", () => {
+  const main = leggi("js/main.js");
+  assert.match(main, /state\.apiFilters = \{ formato: DEFAULT_FORMAT, rank: "", periodo: "30", modalita: "" \}/);
+  assert.match(main, /#period-filter["']\)\.value = "30"/);
+  assert.match(main, /#mode-filter["']\)\.value = ""/);
+  assert.match(main, /#rank-min["']\)\.value = "0"/);
+  assert.match(main, /#rank-max["']\)\.value = "5"/);
+  assert.match(leggi("css/site.css"), /@media \(max-width: 1500px\)[\s\S]*?explorer-controls/);
+});

@@ -13,6 +13,7 @@
     "sito:build": "node strumenti/build_sito.mjs",
     "sito-locale": "npm run sito:build && node strumenti/anteprima_sito.mjs",
     "sito:release": "node strumenti/release_sito.mjs",
+    "sito:smoke": "node strumenti/smoke_beta.mjs",
     "database-locale": "wrangler d1 execute moxtracker --local --file=schema.sql",
     "database-draft-locale": "wrangler d1 execute moxtracker-draft-index --local --file=schema-draft.sql",
     "database-vero": "wrangler d1 execute moxtracker --remote --file=schema.sql",

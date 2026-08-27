@@ -57,6 +57,36 @@ test("variante riconosciuta: da 30 partite la decklist e pubblica, catalogo semp
   assert.ok(r.corpo.liste_riferimento[0].lista.length >= 1);
 });
 
+test("varianti riconosciute sotto soglia confluiscono in Altre varianti", async () => {
+  const db = creaFintoD1(SCHEMA);
+  inserisciPartite(db, {
+    impronta: IMPRONTA_RICONOSCIUTA, partite: 40, contributori: 1,
+    carte: CARTE_AURE, prefisso: "p",
+  });
+  inserisciPartite(db, {
+    impronta: "5".repeat(64), partite: 12, contributori: 1,
+    carte: CARTE_AURE, prefisso: "s",
+  });
+  const r = await leggiArchetipo(db, url("/archetipo?formato=Standard&id=aure-mono-bianco"));
+  assert.equal(r.stato, 200);
+  assert.equal(r.corpo.varianti_osservate, 2);
+  assert.equal(r.corpo.varianti.length, 1);
+  assert.deepEqual(r.corpo.altre_varianti, { varianti: 1, partite: 12 });
+  assert.equal(JSON.stringify(r.corpo.altre_varianti).includes("555555"), false);
+});
+
+test("dettaglio archetipo conserva periodo modalita e intervallo rank", async () => {
+  const db = creaFintoD1(SCHEMA);
+  inserisciPartite(db, {
+    impronta: IMPRONTA_RICONOSCIUTA, partite: 30, contributori: 1, carte: CARTE_AURE,
+  });
+  const r = await leggiArchetipo(db, url("/archetipo?formato=Standard&rank=Gold,Platinum&periodo=30&modalita=BO1&id=aure-mono-bianco"));
+  assert.equal(r.stato, 200);
+  assert.equal(r.corpo.filtri.rank, "Gold,Platinum");
+  assert.equal(r.corpo.filtri.periodo, "30");
+  assert.equal(r.corpo.filtri.modalita, "BO1");
+});
+
 test("decklist osservata richiede 30 partite, indipendentemente dal numero di installazioni", async () => {
   const casi = [
     { partite: 29, contributori: 10, pubblicabile: false },

@@ -32,7 +32,7 @@
         <div>
           <span class="eyebrow">Trasparenza sull'algoritmo</span>
           <h1 id="draft-title">Come Mox migliora il Draft</h1>
-          <p>Mox consiglia in tempo reale sul tuo PC. Se scegli di contribuire, i Draft anonimi ci aiutano a verificare le politiche e a rendere i consigli futuri più precisi.</p>
+          <p>Mox consiglia in tempo reale sul tuo PC. Se scegli di contribuire, i Draft anonimi ci aiutano a capire quali segnali sono affidabili e a rendere i consigli futuri più precisi.</p>
         </div>
         <img src="./assets/branding/mox-marchio.webp" alt="" aria-hidden="true">
       </div>
@@ -44,7 +44,7 @@
         <div class="flow-grid">
           <article class="flow-card"><span class="flow-number">1</span><h3>Draft con Mox</h3><p>Il consiglio viene calcolato localmente mentre giochi.</p></article>
           <article class="flow-card"><span class="flow-number">2</span><h3>Consenso separato</h3><p>Solo chi lo attiva invia un resoconto anonimo del Draft.</p></article>
-          <article class="flow-card"><span class="flow-number">3</span><h3>Confronto rigoroso</h3><p>Confrontiamo politiche, dati pubblici e risultati aggregati.</p></article>
+          <article class="flow-card"><span class="flow-number">3</span><h3>Campioni separati</h3><p>Set, evento e periodo restano separati per non mescolare segnali diversi.</p></article>
           <article class="flow-card"><span class="flow-number">4</span><h3>Aggiornamento verificato</h3><p>Una regola cambia soltanto se le prove mostrano un miglioramento stabile.</p></article>
         </div>
         <div class="flow-notes"><p><strong>Sul tuo PC:</strong> consigli e statistiche personali.</p><p><strong>Sul sito:</strong> solo aggregati pubblici; le tracce anonime complete restano in un archivio privato.</p></div>
@@ -53,12 +53,13 @@
       <section class="panel draft-controls-panel" aria-labelledby="filters-title">
         <div class="panel-inner">
           <div class="panel-heading-row">
-            <div><h2 id="filters-title" class="panel-title"><span class="icon" aria-hidden="true">⌁</span>Dati di verifica</h2><p class="panel-lead">Aggregati usati per controllare l'algoritmo, non statistiche personali. Le percentuali compaiono da 100 pick; i risultati di gioco da 30 match collegati.</p></div>
+            <div><h2 id="filters-title" class="panel-title"><span class="icon" aria-hidden="true">⌁</span>Draft condivisi</h2><p class="panel-lead">Esplora i contributi pubblicabili per espansione, evento Arena e periodo. Nessuna statistica personale o traccia incompleta compare qui.</p></div>
             <time id="draft-updated" class="draft-updated"></time>
           </div>
           <form id="draft-filters" class="draft-filters">
             <label>Set <input id="draft-set" maxlength="6" autocomplete="off" placeholder="Tutti (es. HOB)"></label>
-            <label>Formato <span class="select-wrap"><select id="draft-format"><option value="">Tutti</option><option value="PremierDraft">Premier Draft</option><option value="QuickDraft">Quick Draft</option><option value="TradDraft">Traditional Draft</option></select></span></label>
+            <label>Evento Arena <span class="select-wrap"><select id="draft-format"><option value="">Tutti</option><option value="PremierDraft">Premier Draft</option><option value="QuickDraft">Quick Draft</option><option value="TradDraft">Traditional Draft</option><option value="PickTwoDraft">Pick-Two Draft</option></select></span></label>
+            <label>Periodo <span class="select-wrap"><select id="draft-period"><option value="7">7 giorni</option><option value="14">14 giorni</option><option value="30" selected>30 giorni</option><option value="totale">Tutto</option></select></span></label>
             <button class="cta" type="submit">Aggiorna</button>
           </form>
         </div>
@@ -66,16 +67,23 @@
 
       <div id="draft-error" class="detail-error" hidden></div>
       <section id="draft-summary" class="draft-summary" aria-live="polite">
-        <article class="draft-metric"><span>Decisioni analizzate</span><strong id="draft-picks">—</strong><small>Campione reale della vista</small></article>
-        <article class="draft-metric"><span>Accordo con il consiglio</span><strong id="draft-agreement">—</strong><small id="draft-agreement-note">Servono almeno 100 pick</small></article>
-        <article class="draft-metric"><span>Alternative equivalenti</span><strong id="draft-close">—</strong><small>Scelte coperte dall'incertezza statistica</small></article>
-        <article class="draft-metric"><span>Risultati collegati</span><strong id="draft-matches">—</strong><small id="draft-match-note">Win rate da almeno 30 match</small></article>
+        <article class="draft-metric"><span>Draft completi</span><strong id="draft-count">—</strong><small>Tracce valide nella vista</small></article>
+        <article class="draft-metric"><span>Scelte registrate</span><strong id="draft-picks">—</strong><small>Decisioni aggregate, non profili giocatore</small></article>
+        <article class="draft-metric"><span>Partite collegate</span><strong id="draft-matches">—</strong><small>Risultati associati ai Draft</small></article>
+        <article class="draft-metric"><span>Win rate</span><strong id="draft-winrate">—</strong><small id="draft-match-note">Pubblicato da almeno 30 match</small></article>
       </section>
 
-      <section class="panel draft-phases-panel" aria-labelledby="phases-title">
+      <section class="panel draft-phases-panel" aria-labelledby="events-title">
         <div class="panel-inner">
-          <div class="panel-heading-row"><div><h2 id="phases-title" class="panel-title magenta"><span class="icon" aria-hidden="true">▥</span>Verifica per fase</h2><p class="panel-lead">Apertura (pick 1–4), direzione, struttura e chiusura del mazzo.</p></div><span id="draft-policy" class="threshold-badge">Politica: —</span></div>
-          <div id="draft-phases" class="phase-grid"><div class="skeleton"></div></div>
+          <div class="panel-heading-row"><div><h2 id="events-title" class="panel-title magenta"><span class="icon" aria-hidden="true">▥</span>Espansioni ed eventi</h2><p class="panel-lead">Apri un gruppo per applicare set ed evento ai filtri.</p></div></div>
+          <div id="draft-events" class="phase-grid"><div class="skeleton"></div></div>
+        </div>
+      </section>
+
+      <section class="panel draft-phases-panel" aria-labelledby="insights-title">
+        <div class="panel-inner">
+          <div class="panel-heading-row"><div><h2 id="insights-title" class="panel-title"><span class="icon" aria-hidden="true">◈</span>Colori e carte</h2><p class="panel-lead">Le combinazioni di colore e le carte migliori appariranno solo quando l'indice pubblico avrà un campione affidabile per set, evento e periodo.</p></div><span class="threshold-badge">In raccolta</span></div>
+          <div class="draft-empty"><div><strong>Nessun numero prematuro</strong><p>Le tracce grezze, le calibrazioni interne e i confronti fra politiche restano privati e non vengono usati per riempire questa pagina.</p></div></div>
         </div>
       </section>
 
@@ -84,14 +92,14 @@
           <h2 id="draft-method-title" class="panel-title"><span class="icon" aria-hidden="true">ⓘ</span>Le garanzie del metodo</h2>
           <div class="method-grid">
             <article class="method-card"><div class="method-icon">1</div><div><strong>Consiglio locale</strong><p>Mox mantiene una scelta principale, ma dichiara quando esistono alternative statisticamente equivalenti.</p></div></article>
-            <article class="method-card"><div class="method-icon">±</div><div><strong>Campione e incertezza</strong><p>Ogni percentuale pubblicata porta il campione e l'intervallo Wilson al 95%.</p></div></article>
-            <article class="method-card"><div class="method-icon">⌁</div><div><strong>Politiche confrontabili</strong><p>Ogni versione resta separata: possiamo misurare un cambiamento senza riscrivere il passato.</p></div></article>
+            <article class="method-card"><div class="method-icon">±</div><div><strong>Campione e incertezza</strong><p>Ogni percentuale pubblicata porta il campione e un intervallo di affidabilità.</p></div></article>
+            <article class="method-card"><div class="method-icon">⌁</div><div><strong>Segnali separati</strong><p>Set, evento e periodo non vengono mescolati per creare numeri più attraenti ma meno utili.</p></div></article>
             <article class="method-card"><div class="method-icon">◉</div><div><strong>Privacy e controllo</strong><p>I dati completi anonimi restano privati; il sito espone solo aggregati e il consenso è revocabile.</p></div></article>
           </div>
         </div>
       </section>
     </section>
   </main>
-  <footer class="site-footer"><nav aria-label="Footer"><a data-route="home" href="./index.html">MOX</a><span>•</span><a data-route="meta" href="./index.html#meta">Meta</a><span>•</span><a data-route="draft" href="./draft.html">Draft</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a data-route="support" href="./supporto.html">Supporto</a><span>•</span><a data-route="account" href="./account.html">Account</a></nav></footer>
+  <footer class="site-footer"><nav aria-label="Footer"><a data-route="home" href="./index.html">MOX</a><span>•</span><a data-route="meta" href="./index.html#meta">Meta</a><span>•</span><a href="./cosa-invia-mox.html">Cosa invia Mox</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a data-route="support" href="./supporto.html">Supporto</a><span>•</span><a data-route="account" href="./account.html">Account</a></nav></footer>
 </body>
 </html>

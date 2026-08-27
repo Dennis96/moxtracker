@@ -1,4 +1,5 @@
 const pagina = document.body.dataset.page || "";
+const inglese = document.documentElement.lang === "en";
 
 const percorsi = {
   home: "./index.html",
@@ -16,6 +17,20 @@ for (const link of document.querySelectorAll("[data-route]")) {
     (destinazione === "account" && pagina === "admin");
   if (attivo) link.setAttribute("aria-current", "page");
   else link.removeAttribute("aria-current");
+}
+
+const navigazione = document.querySelector("#primary-nav");
+if (navigazione && !document.querySelector(".language-link")) {
+  const lingua = document.createElement("a");
+  lingua.className = "language-link";
+  lingua.hreflang = inglese ? "it" : "en";
+  lingua.lang = inglese ? "it" : "en";
+  lingua.textContent = inglese ? "IT" : "EN";
+  const file = location.pathname.split("/").filter(Boolean).pop() || "index.html";
+  lingua.href = inglese ? `../${file}${location.search}${location.hash}`
+    : `./en/${file}${location.search}${location.hash}`;
+  lingua.setAttribute("aria-label", inglese ? "Versione italiana" : "English version");
+  navigazione.append(lingua);
 }
 
 const bottone = document.querySelector("#nav-toggle");

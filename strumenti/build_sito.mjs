@@ -7,6 +7,10 @@ import { fileURLToPath } from "node:url";
 const RADICE = fileURLToPath(new URL("..", import.meta.url));
 const SORGENTE = join(RADICE, "sito");
 const USCITA = join(RADICE, ".dist", "sito");
+const PAGINE_PUBBLICHE = new Set([
+  "index.html", "draft.html", "archetipo.html", "account.html",
+  "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html",
+]);
 const ESTENSIONI_VERSIONATE = new Set([
   ".css", ".ico", ".js", ".png", ".svg", ".webp",
 ]);
@@ -63,6 +67,39 @@ function trasforma(testo, tipo, buildId) {
   return risultato;
 }
 
+function traduciTesto(testo, traduzioni) {
+  const traduci = (valore) => {
+    const iniziale = valore.match(/^\s*/)?.[0] || "";
+    const finale = valore.match(/\s*$/)?.[0] || "";
+    const chiave = valore.trim();
+    return chiave && traduzioni[chiave] ? iniziale + traduzioni[chiave] + finale : valore;
+  };
+  return testo
+    .replace(/<html\s+lang="it"/, '<html lang="en"')
+    .replace(/>([^<>]+)</g, (_, valore) => `>${traduci(valore)}<`)
+    .replace(/\b(aria-label|title|placeholder|content|alt)="([^"]+)"/g,
+      (_, attributo, valore) => `${attributo}="${traduzioni[valore] || valore}"`);
+}
+
+function paginaInglese(testo, traduzioni, nome) {
+  const profondita = nome.split("/").length;
+  const prefisso = "../".repeat(profondita);
+  let risultato = traduciTesto(testo, traduzioni);
+  risultato = risultato.replace(
+    /((?:src|href)=["'])(\.\/(?:assets|css|js)\/)/gi,
+    (_, prima, percorso) => prima + prefisso + percorso.slice(2),
+  );
+  risultato = risultato.replace(
+    /(<head[^>]*>)/i,
+    `$1\n  <link rel="alternate" hreflang="it" href="${prefisso}${nome}">`,
+  );
+  risultato = risultato.replace(
+    /(<\/head>)/i,
+    `  <script type="module" src="${prefisso}js/translate.js"></script>\n$1`,
+  );
+  return risultato;
+}
+
 function shaGit() {
   try {
     return execFileSync("git", [
@@ -80,6 +117,10 @@ function intestazioniCache(nomiHtml) {
     const base = basename(nome, ".html");
     pagine.add(`/${nome.replaceAll(sep, "/")}`);
     if (base !== "index") pagine.add(`/${nome.slice(0, -5).replaceAll(sep, "/")}`);
+    else {
+      const cartella = dirname(nome).replaceAll(sep, "/");
+      if (cartella !== ".") pagine.add(`/${cartella}/`);
+    }
   }
   const noStore = [...pagine].sort().map((pagina) =>
     `${pagina}\n  Cache-Control: no-store`).join("\n\n");
@@ -100,6 +141,7 @@ async function main() {
   }
   const sorgenteSha256 = hashSorgente.digest("hex");
   const buildId = sorgenteSha256.slice(0, 16);
+  const traduzioni = JSON.parse(contenuti.get("i18n/en.json")?.toString("utf8") || "{}");
 
   const uscitaRisolta = resolve(USCITA);
   const radiceRisolta = resolve(RADICE);
@@ -123,6 +165,19 @@ async function main() {
     await writeFile(destinazione, uscita);
     hashFile[relativo] = createHash("sha256").update(uscita).digest("hex");
     if (tipo === ".html") html.push(relativo);
+  }
+
+  for (const nome of PAGINE_PUBBLICHE) {
+    const corpo = contenuti.get(nome);
+    if (!corpo) throw new Error(`pagina pubblica mancante: ${nome}`);
+    const relativo = `en/${nome}`;
+    const destinazione = join(uscitaRisolta, relativo);
+    await mkdir(dirname(destinazione), { recursive: true });
+    const tradotta = paginaInglese(corpo.toString("utf8"), traduzioni, nome);
+    const uscita = Buffer.from(trasforma(tradotta, ".html", buildId));
+    await writeFile(destinazione, uscita);
+    hashFile[relativo] = createHash("sha256").update(uscita).digest("hex");
+    html.push(relativo);
   }
 
   const headersBase = (contenuti.get("_headers") || Buffer.from("")).toString("utf8").trimEnd();

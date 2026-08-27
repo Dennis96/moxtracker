@@ -3,14 +3,32 @@
 import { preflightAccount, rispostaAccount, utenteDallaSessione } from "./account.js";
 import { sha256 } from "./draft.js";
 
-const CATEGORIE = new Set(["bug", "sviluppo", "dati"]);
+const CATEGORIE = new Set([
+  "bug", "draft", "dati", "account", "installazione", "suggerimenti", "sviluppo",
+]);
 const STATI = new Set([
   "ricevuto", "da_verificare", "pianificato", "in_lavorazione", "risolto", "chiuso",
 ]);
 const TIPI_ALLEGATO = new Set([
-  "image/png", "image/jpeg", "image/webp",
+  "image/png", "image/jpeg", "image/webp", "application/json",
 ]);
 const BYTE_MASSIMI = 10 * 1024 * 1024;
+const BYTE_RAPPORTO_MASSIMI = 256 * 1024;
+
+function rapportoDiagnosticoValido(valore) {
+  if (!valore || typeof valore !== "object" || Array.isArray(valore)) return false;
+  if (!/^[0-9a-f]{12}$/i.test(String(valore.diagnostica || ""))) return false;
+  if (!valore.creato || Number.isNaN(Date.parse(valore.creato))) return false;
+  if (!String(valore.mox || "").trim()) return false;
+  const vietate = /(?:segreto|password|token|mittente|email|player.?log)/i;
+  const visita = (dato) => {
+    if (!dato || typeof dato !== "object") return true;
+    if (Array.isArray(dato)) return dato.every(visita);
+    return Object.entries(dato).every(([chiave, contenuto]) =>
+      !vietate.test(chiave) && visita(contenuto));
+  };
+  return visita(valore);
+}
 
 async function firmaAllegatoValida(file) {
   const byte = new Uint8Array(await file.slice(0, 16).arrayBuffer());
@@ -20,6 +38,11 @@ async function firmaAllegatoValida(file) {
   if (file.type === "image/webp") {
     return inizia(0x52, 0x49, 0x46, 0x46) &&
       byte[8] === 0x57 && byte[9] === 0x45 && byte[10] === 0x42 && byte[11] === 0x50;
+  }
+  if (file.type === "application/json") {
+    if (file.name.toLowerCase() !== "rapporto.json" || file.size > BYTE_RAPPORTO_MASSIMI) return false;
+    try { return rapportoDiagnosticoValido(JSON.parse(await file.text())); }
+    catch { return false; }
   }
   return false;
 }
@@ -212,7 +235,7 @@ async function aggiungiAllegato(richiesta, ambiente, indirizzo, id) {
   if (!(file instanceof File) || !TIPI_ALLEGATO.has(file.type) || file.size > BYTE_MASSIMI ||
       !await firmaAllegatoValida(file)) {
     return rispostaAccount(richiesta, ambiente,
-      { errore: "usa un vero PNG, JPEG o WebP fino a 10 MB" }, 415);
+      { errore: "usa rapporto.json di Mox (max 256 KiB) o un vero PNG, JPEG o WebP (max 10 MB)" }, 415);
   }
   const quanti = await ambiente.DB.prepare(
     "SELECT COUNT(*) AS n FROM ticket_allegato WHERE ticket_id = ?").bind(id).first();

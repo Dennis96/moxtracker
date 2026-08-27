@@ -30,12 +30,26 @@ function filtri(indirizzo, extra = []) {
 
   const condizioni = ["formato = ?", ...extra];
   const argomenti = [formato];
+  const periodo = indirizzo.searchParams.get("periodo") || "30";
+  if (!["7", "14", "30", "totale"].includes(periodo)) {
+    return { errore: "periodo non valido" };
+  }
+  if (periodo !== "totale") {
+    condizioni.push("COALESCE(quando, ricevuta) >= ?");
+    argomenti.push(new Date(Date.now() - Number(periodo) * 86400000).toISOString());
+  }
+  const modalita = (indirizzo.searchParams.get("modalita") || "").toUpperCase();
+  if (modalita && !["BO1", "BO3"].includes(modalita)) {
+    return { errore: "modalita non valida" };
+  }
+  if (modalita === "BO3") condizioni.push("lower(COALESCE(evento, '')) LIKE '%traditional%'");
+  if (modalita === "BO1") condizioni.push("lower(COALESCE(evento, '')) NOT LIKE '%traditional%'");
   if (classi.length) {
     condizioni.push(`rank_classe IN (${classi.map(() => "?").join(", ")})`);
     argomenti.push(...classi);
   }
   return {
-    formato,
+    formato, periodo, modalita: modalita || null,
     rank: classi.length ? classi.join(",") : null,
     classi,
     where: "WHERE " + condizioni.join(" AND "),
@@ -133,13 +147,15 @@ export async function leggiMeta(db, indirizzo) {
   // L'impronta serve al collegamento tecnico con il dettaglio, ma non e' un
   // nome da mostrare al visitatore. La classificazione resta del motore: qui
   // cambiamo soltanto il testo pubblico dei casi che il motore non riconosce.
-  mazzi = mazzi.map((mazzo) => mazzettoPubblico(mazzo));
+  mazzi = raggruppaBrew(mazzi.map((mazzo) => mazzettoPubblico(mazzo)),
+    testa.partite_totali, SOGLIA_META);
 
   return {
     stato: 200,
     corpo: {
       ...testa,
-      filtri: { formato: filtro.formato, rank: filtro.rank },
+      filtri: { formato: filtro.formato, rank: filtro.rank,
+        periodo: filtro.periodo, modalita: filtro.modalita },
       soglia_percentuali: SOGLIA_META,
       raggruppamento: catalogo.disponibile
         ? "archetipo_con_fallback_impronta"
@@ -160,6 +176,30 @@ function mazzettoPubblico(mazzo) {
     nome: "Mazzo non classificato",
     archetipo: "Mazzo non classificato",
   };
+}
+
+function raggruppaBrew(mazzi, totale, soglia) {
+  const riconosciuti = mazzi.filter((mazzo) => mazzo.archetipo_id);
+  const brew = mazzi.filter((mazzo) => !mazzo.archetipo_id);
+  if (!brew.length) return riconosciuti;
+  const partite = brew.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0);
+  const vittorie = brew.reduce((somma, mazzo) => somma + Number(mazzo.vittorie || 0), 0);
+  const sufficienti = partite >= soglia;
+  riconosciuti.push({
+    nome: "Altro (Brew)", archetipo: "Altro (Brew)", archetipo_id: null,
+    tipo_dettaglio: "altro", strategia: null, colori: [], modalita: null,
+    classificazione: null, livelli_classificazione: [], impronta: null,
+    impronte_raggruppate: brew.reduce((somma, mazzo) =>
+      somma + Number(mazzo.impronte_raggruppate || 1), 0),
+    varianti_rilevate: brew.reduce((somma, mazzo) =>
+      somma + Number(mazzo.varianti_rilevate || 1), 0),
+    partite, vittorie, sconfitte: partite - vittorie,
+    dati_sufficienti: sufficienti,
+    win_rate: sufficienti ? percentuale(vittorie, partite) : null,
+    quota_meta: sufficienti ? percentuale(partite, totale) : null,
+  });
+  return riconosciuti.sort((a, b) => b.partite - a.partite ||
+    String(a.nome).localeCompare(String(b.nome)));
 }
 
 export async function leggiGiocoRisposta(db, indirizzo) {
@@ -199,7 +239,8 @@ export async function leggiGiocoRisposta(db, indirizzo) {
     corpo: {
       ...testa,
       partite_con_iniziativa_nota: alGioco.partite + allaRisposta.partite,
-      filtri: { formato: filtro.formato, rank: filtro.rank },
+      filtri: { formato: filtro.formato, rank: filtro.rank,
+        periodo: filtro.periodo, modalita: filtro.modalita },
       soglia_percentuali: SOGLIA_META,
       al_gioco: alGioco,
       alla_risposta: allaRisposta,
@@ -215,7 +256,8 @@ export async function leggiScontri(db, indirizzo) {
     stato: 200,
     corpo: {
       ...testa,
-      filtri: { formato: filtro.formato, rank: filtro.rank },
+      filtri: { formato: filtro.formato, rank: filtro.rank,
+        periodo: filtro.periodo, modalita: filtro.modalita },
       soglia_coppia: SOGLIA_SCONTRI,
       disponibile: false,
       scontri: [],

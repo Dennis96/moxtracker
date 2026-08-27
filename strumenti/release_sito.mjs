@@ -26,7 +26,7 @@ function esegui(comando, argomenti) {
 }
 
 async function smokeTest(base) {
-  const percorsi = ["/", "/draft", "/account", "/supporto", "/privacy"];
+  const percorsi = ["/", "/draft", "/account", "/supporto", "/privacy", "/en/"];
   const risultati = [];
   for (const percorso of percorsi) {
     const url = new URL(percorso, base);
@@ -103,7 +103,7 @@ if (ambiente === "production") {
   const preview = JSON.parse(readFileSync(recordPreview, "utf8"));
   if (preview.ambiente !== "preview" || preview.commit !== commit ||
       preview.build_id !== manifesto.build_id || !Array.isArray(preview.smoke_test) ||
-      preview.smoke_test.length < 5 || preview.smoke_test.some((riga) => riga.stato !== 200)) {
+      preview.smoke_test.length < 6 || preview.smoke_test.some((riga) => riga.stato !== 200)) {
     throw new Error("il record preview non corrisponde esattamente alla build corrente");
   }
   proveVisive = ["desktop-screenshot", "mobile-screenshot"].map((nome) => {

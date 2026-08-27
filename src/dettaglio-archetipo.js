@@ -4,6 +4,7 @@ import { decklistPubblicabile } from "./privacy-pubblica.js";
 
 const SOGLIA_PERCENTUALI = 30;
 const IMPRONTA = /^[0-9a-f]{64}$/i;
+const CLASSI_RANK = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Mythic"];
 
 function numero(valore) {
   const n = Number(valore);
@@ -20,19 +21,27 @@ function parametri(indirizzo) {
   const id = (indirizzo.searchParams.get("id") || "").trim();
   const impronta = (indirizzo.searchParams.get("impronta") || "").trim();
   const rank = (indirizzo.searchParams.get("rank") || "").trim();
+  const classi = rank ? rank.split(",").map((voce) => voce.trim()).filter(Boolean) : [];
+  const periodo = indirizzo.searchParams.get("periodo") || "30";
+  const modalita = (indirizzo.searchParams.get("modalita") || "").toUpperCase();
   if (!formato || formato.length > 40) return { errore: "formato mancante o non valido" };
-  if (rank.length > 20) return { errore: "rank non valido" };
+  if (rank.length > 80 || classi.some((voce) => !CLASSI_RANK.includes(voce))) {
+    return { errore: "rank non valido" };
+  }
+  if (!["7", "14", "30", "totale"].includes(periodo)) return { errore: "periodo non valido" };
+  if (modalita && !["BO1", "BO3"].includes(modalita)) return { errore: "modalita non valida" };
   if (id && impronta) return { errore: "specifica id oppure impronta, non entrambi" };
   if (id) {
     if (id.length > 100 || !/^[a-z0-9-]+$/i.test(id)) {
       return { errore: "id archetipo non valido" };
     }
-    return { formato, id, impronta: null, rank: rank || null, tipo: "riconosciuto" };
+    return { formato, id, impronta: null, rank: rank || null, classi, periodo,
+      modalita: modalita || null, tipo: "riconosciuto" };
   }
   if (impronta) {
     if (!IMPRONTA.test(impronta)) return { errore: "impronta non valida" };
     return { formato, id: null, impronta: impronta.toLowerCase(), rank: rank || null,
-      tipo: "non_classificato" };
+      classi, periodo, modalita: modalita || null, tipo: "non_classificato" };
   }
   return { errore: "id archetipo o impronta mancanti" };
 }
@@ -65,10 +74,16 @@ function cartaPubblica(riga) {
 function dove(p) {
   const condizioni = ["formato = ?", "impronta_mazzo IS NOT NULL"];
   const argomenti = [p.formato];
-  if (p.rank) {
-    condizioni.push("rank_classe = ?");
-    argomenti.push(p.rank);
+  if (p.classi?.length) {
+    condizioni.push(`rank_classe IN (${p.classi.map(() => "?").join(", ")})`);
+    argomenti.push(...p.classi);
   }
+  if (p.periodo !== "totale") {
+    condizioni.push("COALESCE(quando, ricevuta) >= ?");
+    argomenti.push(new Date(Date.now() - Number(p.periodo) * 86400000).toISOString());
+  }
+  if (p.modalita === "BO3") condizioni.push("lower(COALESCE(evento, '')) LIKE '%traditional%'");
+  if (p.modalita === "BO1") condizioni.push("lower(COALESCE(evento, '')) NOT LIKE '%traditional%'");
   if (p.impronta) {
     condizioni.push("impronta_mazzo = ?");
     argomenti.push(p.impronta);
@@ -156,7 +171,7 @@ export async function leggiArchetipo(db, indirizzo) {
   let partite = 0;
   let vittorie = 0;
   const livelli = new Set();
-  const varianti = righe.map((riga) => {
+  const variantiOsservate = righe.map((riga) => {
     const classificazione = classificazioni.get(String(riga.impronta || ""));
     if (classificazione?.livello_classificazione) livelli.add(classificazione.livello_classificazione);
     partite += numero(riga.partite);
@@ -167,6 +182,16 @@ export async function leggiArchetipo(db, indirizzo) {
   const prima = classificazioni.get(String(righe[0].impronta || ""));
   const sufficienti = partite >= SOGLIA_PERCENTUALI;
   const riconosciuto = p.tipo === "riconosciuto";
+  const varianti = riconosciuto
+    ? variantiOsservate.filter((voce) => voce.decklist_pubblicabile)
+    : variantiOsservate;
+  const piccole = riconosciuto
+    ? variantiOsservate.filter((voce) => !voce.decklist_pubblicabile)
+    : [];
+  const altreVarianti = piccole.length ? {
+    varianti: piccole.length,
+    partite: piccole.reduce((somma, voce) => somma + voce.partite, 0),
+  } : null;
   const ref = riconosciuto ? riferimenti(p.id) : [];
   const nome = riconosciuto
     ? prima?.nome_pubblico || prima?.archetipo || ref[0]?.nome_pubblico || p.id
@@ -182,7 +207,8 @@ export async function leggiArchetipo(db, indirizzo) {
       archetipo_catalogo: riconosciuto ? (prima?.archetipo_catalogo || null) : null,
       strategia: riconosciuto ? (prima?.strategia || null) : null,
       colori: riconosciuto ? (prima?.colori || []) : [],
-      filtri: { formato: p.formato, rank: p.rank },
+      filtri: { formato: p.formato, rank: p.rank, periodo: p.periodo,
+        modalita: p.modalita },
       soglia_percentuali: SOGLIA_PERCENTUALI,
       partite,
       vittorie,
@@ -190,9 +216,10 @@ export async function leggiArchetipo(db, indirizzo) {
       dati_sufficienti: sufficienti,
       win_rate: sufficienti ? percentuale(vittorie, partite) : null,
       quota_meta: sufficienti ? percentuale(partite, totaleMeta) : null,
-      varianti_osservate: varianti.length,
+      varianti_osservate: variantiOsservate.length,
       livelli_classificazione: [...livelli].sort(),
       varianti,
+      altre_varianti: altreVarianti,
       liste_riferimento: ref,
       nota_varianti: "Le varianti osservate provengono dai contributi MOXTRACKER e rispettano le soglie di pubblicazione. Le liste di riferimento provengono separatamente dal catalogo mox-meta.",
     },

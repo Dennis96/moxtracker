@@ -565,60 +565,55 @@ function wilson(successi, n) {
 export async function statisticheDraft(db, indirizzo) {
   const set = indirizzo.searchParams.get("set");
   const formato = indirizzo.searchParams.get("formato");
+  const periodo = indirizzo.searchParams.get("periodo") || "30";
+  if (!["7", "14", "30", "totale"].includes(periodo)) {
+    return { errore: "periodo Draft non valido", stato: 400 };
+  }
   const condizioni = [];
   const argomenti = [];
   if (set) { condizioni.push("d.set_code = ?"); argomenti.push(set.toUpperCase()); }
   if (formato) { condizioni.push("d.formato = ?"); argomenti.push(formato); }
-  // Le tracce marcate restano nel database e si possono contare a parte, ma
-  // fuori dalla misura della policy: un campione parziale spacciato per
-  // completo sposta i numeri senza che nessuno se ne accorga.
-  const buone = [...condizioni, "d.sospetto IS NULL"];
-  const dove = `WHERE ${buone.join(" AND ")}`;
-  const doveTutte = condizioni.length ? `WHERE ${condizioni.join(" AND ")}` : "";
-  const esito = await db.prepare(`SELECT p.fase, p.politica,
-      COUNT(*) AS pick, SUM(p.seguito) AS seguiti, SUM(p.vicina) AS vicine,
-      SUM(CASE WHEN p.campione < 100 THEN 1 ELSE 0 END) AS pochi_dati
-    FROM draft_pick p JOIN draft d ON d.id = p.draft_id ${dove}
-    GROUP BY p.fase, p.politica ORDER BY p.politica, p.fase`).bind(...argomenti).all();
-  const fasi = (esito.results || []).map((r) => {
-    const pick = Number(r.pick);
-    const seguiti = Number(r.seguiti || 0);
-    return {
-      fase: r.fase, politica: r.politica, campione: pick,
-      accordo_mox: pick >= 100 ? seguiti / pick : null,
-      intervallo_95: pick >= 100 ? wilson(seguiti, pick) : null,
-      alternative_vicine: Number(r.vicine || 0),
-      dati_insufficienti: Number(r.pochi_dati || 0),
-    };
-  });
+  if (periodo !== "totale") {
+    condizioni.push("d.ricevuto >= ?");
+    argomenti.push(new Date(Date.now() - Number(periodo) * 86400000).toISOString());
+  }
+  // L'endpoint e' pubblico: entrano solo tracce affidabili. Politiche,
+  // marcature, confronti interni e versioni del mazzo restano strumenti di
+  // sviluppo e non vengono serializzati nella risposta.
+  condizioni.push("d.sospetto IS NULL");
+  const dove = `WHERE ${condizioni.join(" AND ")}`;
+  const totali = await db.prepare(`SELECT COUNT(*) AS draft,
+      COALESCE(SUM(d.pick), 0) AS pick, MAX(d.ricevuto) AS aggiornato
+    FROM draft d ${dove}`).bind(...argomenti).first();
+  const gruppi = await db.prepare(`SELECT d.set_code AS set_code,
+      d.formato AS formato, COUNT(*) AS draft, COALESCE(SUM(d.pick), 0) AS pick,
+      MAX(d.ricevuto) AS aggiornato
+    FROM draft d ${dove}
+    GROUP BY d.set_code, d.formato
+    ORDER BY draft DESC, d.set_code ASC, d.formato ASC`).bind(...argomenti).all();
   const collegati = await db.prepare(`SELECT COUNT(*) AS partite,
       SUM(CASE WHEN l.esito = 'vinta' THEN 1 ELSE 0 END) AS vittorie
     FROM draft_link l JOIN draft d ON d.id = l.draft_id ${dove}`).bind(...argomenti).first();
   const partite = Number(collegati?.partite || 0);
   const vittorie = Number(collegati?.vittorie || 0);
-  // Quanti Draft portano il mazzo davvero montato, e quante volte in media
-  // l'utente lo ha cambiato. Sono due conteggi, non due percentuali: servono a
-  // sapere se il dato **arriva**, che e' la domanda aperta finche' non ci sono
-  // abbastanza Draft per confrontare consigliato e montato. Nessuna lista di
-  // carte esce da qui.
-  const mazzi = await db.prepare(`SELECT COUNT(DISTINCT m.draft_id) AS draft,
-      COUNT(*) AS versioni
-    FROM draft_mazzo m JOIN draft d ON d.id = m.draft_id ${dove}`)
-    .bind(...argomenti).first();
-  const conMazzo = Number(mazzi?.draft || 0);
-  const versioniMazzo = Number(mazzi?.versioni || 0);
-  const marcate = await db.prepare(`SELECT COUNT(*) AS n FROM draft d
-    ${doveTutte ? `${doveTutte} AND` : "WHERE"} d.sospetto IS NOT NULL`)
-    .bind(...argomenti).first();
   return {
-    versione: 1, soglia_percentuali: 100, soglia_match: 30, filtri: { set, formato }, fasi,
-    // Quante tracce sono state tenute fuori dalla misura, e non quali:
-    // il numero serve a sapere se il client sta sbagliando qualcosa.
-    tracce_marcate: Number(marcate?.n || 0),
+    versione: 2,
+    filtri: { set, formato, periodo },
+    totali: {
+      draft: Number(totali?.draft || 0),
+      pick: Number(totali?.pick || 0),
+      aggiornato: totali?.aggiornato || null,
+    },
+    eventi: (gruppi.results || []).map((riga) => ({
+      set: riga.set_code,
+      formato: riga.formato,
+      draft: Number(riga.draft || 0),
+      pick: Number(riga.pick || 0),
+      aggiornato: riga.aggiornato || null,
+    })),
     risultati: { campione: partite, win_rate: partite >= 30 ? vittorie / partite : null,
       intervallo_95: partite >= 30 ? wilson(vittorie, partite) : null },
-    mazzo_montato: { draft: conMazzo, versioni: versioniMazzo,
-      cambi_medi: conMazzo ? (versioniMazzo - conMazzo) / conMazzo : null },
+    approfondimenti: { colori: [], carte: [], disponibili: false },
     aggiornato: new Date().toISOString(),
   };
 }

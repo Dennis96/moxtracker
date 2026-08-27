@@ -1,15 +1,17 @@
 import { DEFAULT_FORMAT, DOWNLOAD_URL, FORMATS, RANKS } from "./config.js?v=20260822-3";
-import { fetchMeta, fetchScontri } from "./api.js";
+import { fetchMeta, fetchScontri, fetchStatisticheDraft } from "./api.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
 
 const state = {
-  apiFilters: { formato: DEFAULT_FORMAT, rank: "" },
+  apiFilters: { formato: DEFAULT_FORMAT, rank: "", periodo: "30", modalita: "" },
   localFilters: { search: "", colors: [], strategy: "" },
   meta: null,
   sort: { key: "partite", direction: "desc" },
   controllers: new Map(),
 };
+const LOCALE = document.documentElement.lang === "en" ? "en-US" : "it-IT";
+const ASSET_BASE = document.documentElement.lang === "en" ? "../assets" : "./assets";
 
 function controllerFor(key) {
   state.controllers.get(key)?.abort();
@@ -20,6 +22,8 @@ function controllerFor(key) {
 
 function setupApiFilters() {
   const format = document.querySelector("#format-filter");
+  const period = document.querySelector("#period-filter");
+  const mode = document.querySelector("#mode-filter");
   for (const value of FORMATS) {
     const option = document.createElement("option");
     option.value = value; option.textContent = value; format.append(option);
@@ -42,7 +46,7 @@ function setupApiFilters() {
   for (const classe of classi) {
     const voce = document.createElement("li");
     const icona = document.createElement("img");
-    icona.src = `./assets/rank/${classe.toLowerCase()}.webp`;
+    icona.src = `${ASSET_BASE}/rank/${classe.toLowerCase()}.webp`;
     // Niente lazy: sono sei icone da tre chilobyte in cima alla pagina, e
     // rimandarle significa solo mostrare sei buchi al primo sguardo.
     icona.alt = ""; icona.width = 24; icona.height = 24; icona.decoding = "async";
@@ -74,12 +78,18 @@ function setupApiFilters() {
     const elenco = scelti();
     // Tutte le classi equivale a nessun filtro: cosi' restano dentro anche le
     // partite che il rank non ce l'hanno.
-    state.apiFilters = { formato: format.value,
+    state.apiFilters = { ...state.apiFilters, formato: format.value,
       rank: elenco.length === classi.length ? "" : elenco.join(",") };
     disegna();
     loadAll();
   };
   format.addEventListener("change", cambiato);
+  for (const select of [period, mode]) {
+    select.addEventListener("change", () => {
+      state.apiFilters = { ...state.apiFilters, periodo: period.value, modalita: mode.value };
+      loadAll();
+    });
+  }
   for (const cursore of [minimo, massimo]) {
     cursore.addEventListener("input", disegna);
     cursore.addEventListener("change", cambiato);
@@ -119,10 +129,17 @@ function setupLocalFilters() {
 
   clear.addEventListener("click", () => {
     state.localFilters = { search: "", colors: [], strategy: "" };
+    state.apiFilters = { formato: DEFAULT_FORMAT, rank: "", periodo: "30", modalita: "" };
     search.value = "";
     strategy.value = "";
+    document.querySelector("#format-filter").value = DEFAULT_FORMAT;
+    document.querySelector("#period-filter").value = "30";
+    document.querySelector("#mode-filter").value = "";
+    document.querySelector("#rank-min").value = "0";
+    document.querySelector("#rank-max").value = "5";
+    document.querySelector("#rank-min").dispatchEvent(new Event("input"));
     document.querySelectorAll("[data-color]").forEach(button => button.setAttribute("aria-pressed", "false"));
-    renderCurrentMeta();
+    loadAll();
   });
 }
 
@@ -177,10 +194,33 @@ async function loadMeta() {
   const controller = controllerFor("meta");
   try {
     state.meta = await fetchMeta(state.apiFilters, { signal: controller.signal });
+    document.querySelector("#home-games").textContent = new Intl.NumberFormat(LOCALE).format(state.meta.partite_totali || 0);
+    aggiornaDataHome(state.meta.aggiornato);
     syncClassificationControls(state.meta.mazzi, state.meta.catalogo_archetipi);
     renderMeta(state.meta, state.sort, state.localFilters, state.apiFilters);
   } catch (error) {
     if (error.name !== "AbortError") renderMetaError(error);
+  }
+}
+
+function aggiornaDataHome(valore) {
+  if (!valore) return;
+  const elemento = document.querySelector("#home-updated");
+  const nuova = new Date(valore);
+  const corrente = elemento.dataset.iso ? new Date(elemento.dataset.iso) : null;
+  if (!corrente || nuova > corrente) {
+    elemento.dataset.iso = nuova.toISOString();
+    elemento.textContent = nuova.toLocaleDateString(LOCALE, { day: "2-digit", month: "short", year: "numeric" });
+  }
+}
+
+async function loadDraftSummary() {
+  try {
+    const dati = await fetchStatisticheDraft();
+    document.querySelector("#home-drafts").textContent = new Intl.NumberFormat(LOCALE).format(dati.totali?.draft || 0);
+    aggiornaDataHome(dati.totali?.aggiornato || dati.aggiornato);
+  } catch {
+    document.querySelector("#home-drafts").textContent = "In raccolta";
   }
 }
 
@@ -212,3 +252,4 @@ setupApiFilters();
 setupLocalFilters();
 setupDownload();
 loadAll();
+loadDraftSummary();

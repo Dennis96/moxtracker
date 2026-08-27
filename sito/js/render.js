@@ -30,8 +30,9 @@ export function renderMetaLoading() {
 function metaCell(text, className = "") { return el("td", className, text); }
 
 function renderDeckIdentity(deck, apiFilters) {
-  const link = el("a", "deck-link");
-  link.href = deckDetailUrl(deck, apiFilters);
+  const url = deckDetailUrl(deck, apiFilters);
+  const link = el(url ? "a" : "div", "deck-link");
+  if (url) link.href = url;
   const wrap = el("div", "deck");
   const archetypeId = deckArchetypeId(deck);
   const classified = deckIsClassified(deck);
@@ -59,7 +60,7 @@ function renderDeckIdentity(deck, apiFilters) {
     const core = createCoreStrip(deck.carte_core || []);
     if (core.childNodes.length) text.append(core);
   }
-  wrap.append(mark, text, el("span", "row-chevron", "›"));
+  wrap.append(mark, text, el("span", "row-chevron", url ? "›" : ""));
   link.append(wrap);
   return link;
 }
@@ -129,12 +130,14 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
   const mobile = el("div", "mobile-meta");
   for (const deck of decks) {
     const classified = deckIsClassified(deck);
-    const card = el("a", "mobile-deck"); card.href = deckDetailUrl(deck, apiFilters);
+    const url = deckDetailUrl(deck, apiFilters);
+    const card = el(url ? "a" : "div", "mobile-deck");
+    if (url) card.href = url;
     const head = el("div", "mobile-deck-head");
     const title = el("div");
     title.append(el("strong", "", deckLabel(deck)), el("small", "", classificationSummary(deck)));
     if (!classified && deck.impronta) title.append(el("small", "", `ID tecnico ${shortFingerprint(deck.impronta)}`));
-    head.append(title, el("span", "", `${formatInteger(deck.partite)} pt. ›`)); card.append(head);
+    head.append(title, el("span", "", `${formatInteger(deck.partite)} pt.${url ? " ›" : ""}`)); card.append(head);
     if (classified) {
       const core = createCoreStrip(deck.carte_core || []);
       if (core.childNodes.length) card.append(core);

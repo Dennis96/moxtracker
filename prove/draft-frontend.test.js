@@ -8,18 +8,20 @@ const html = readFileSync(QUI + "../sito/draft.html", "utf8");
 const js = readFileSync(QUI + "../sito/js/draft.js", "utf8");
 const css = readFileSync(QUI + "../sito/css/draft.css", "utf8");
 
-test("Metodo Draft spiega il miglioramento verificabile ed espone soglie senza numeri finti", () => {
+test("Draft pubblico separa set evento e periodo senza esporre diagnostica interna", () => {
   assert.match(html, /Come Mox migliora il Draft/);
   assert.match(html, /Consenso separato/);
   assert.match(html, /nessuna modifica avviene automaticamente/);
   assert.match(html, /solo aggregati pubblici/);
-  assert.match(html, /100 pick/);
   assert.match(html, /30 match/);
-  assert.match(js, /accordo_mox === null/);
+  assert.match(html, /Evento Arena/);
+  assert.match(html, /id="draft-period"/);
+  assert.match(html, /Espansioni ed eventi/);
+  assert.doesNotMatch(html, /Accordo con il consiglio|Verifica per fase|Politica:/);
+  assert.doesNotMatch(js, /accordo_mox|draft-policy|tracce_marcate|mazzo_montato/);
   assert.match(js, /Dati insufficienti/);
-  for (const fase of ["apertura", "direzione", "struttura", "chiusura"]) {
-    assert.ok(js.includes("riga.fase") || html.includes(fase));
-  }
+  assert.match(js, /riga\.set/);
+  assert.match(js, /riga\.formato/);
 });
 
 test("Metodo Draft ha una disposizione mobile esplicita", () => {

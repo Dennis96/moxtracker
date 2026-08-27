@@ -42,10 +42,19 @@ test("liste di riferimento restano compatibili con API pre-S1-A", () => {
 
 test("la panoramica archetipo mostra solo il riepilogo delle varianti riconosciute", () => {
   const source = leggi("../sito/js/archetype.js");
+  const detail = leggi("../sito/archetipo.html");
   assert.match(source, /Apri variante →/);
+  assert.match(source, /Lista più rappresentativa/);
+  assert.match(source, /Altre varianti/);
+  assert.match(source, /navigator\.clipboard\.writeText/);
+  assert.match(source, /mox-deck-arena\.txt/);
   assert.match(source, /Decklist pubblicata/);
   assert.match(source, /Decklist da 30 partite/);
   assert.match(source, /if \(!recognized\) renderObservedDecklistInline\(article, variant\)/);
+  assert.match(source, /renderRepresentativeProfile/);
+  assert.match(source, /renderProfiloMazzo/);
+  assert.match(detail, /Profilo della lista rappresentativa/);
+  assert.match(detail, /terre speciali e fixing/i);
 });
 
 test("la vista variante e una pagina focus distinta e non replica la panoramica archetipo", () => {

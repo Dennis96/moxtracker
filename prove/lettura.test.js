@@ -9,20 +9,20 @@ const SCHEMA = QUI + "../schema.sql";
 
 function aggiungi(db, {
   id, impronta="a".repeat(64), formato="Standard", esito="vinta",
-  su=1, rank="Gold", ricevuta="2026-08-18T21:00:00Z"
+  su=1, rank="Gold", ricevuta="2026-08-18T21:00:00Z", evento="Ladder"
 }) {
   db.prepare(`INSERT INTO partite
-    (id, mittente, ricevuta, formato, esito, su_gioco, rank_classe,
+    (id, mittente, ricevuta, formato, evento, esito, su_gioco, rank_classe,
      impronta_mazzo, versione, dato)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, '{}')`)
-    .bind(id, "f".repeat(32), ricevuta, formato, esito, su, rank, impronta).esegui();
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, '{}')`)
+    .bind(id, "f".repeat(32), ricevuta, formato, evento, esito, su, rank, impronta).esegui();
 }
 
 function url(percorso) {
   return new URL("https://x.invalid" + percorso);
 }
 
-test("meta nasconde percentuali sotto 30 e le mostra da 30", async () => {
+test("meta raggruppa le liste Brew in Altro e applica la soglia al gruppo", async () => {
   const db = creaFintoD1(SCHEMA);
   for (let i = 0; i < 30; i += 1) {
     aggiungi(db, {
@@ -40,13 +40,21 @@ test("meta nasconde percentuali sotto 30 e le mostra da 30", async () => {
   const r = await leggiMeta(db, url("/meta?formato=Standard"));
   assert.equal(r.stato, 200);
   assert.equal(r.corpo.partite_totali, 59);
-  assert.equal(r.corpo.mazzi[0].partite, 30);
-  assert.equal(r.corpo.mazzi[0].win_rate, 60);
-  assert.equal(r.corpo.mazzi[0].quota_meta, 50.85);
-  assert.equal(r.corpo.mazzi[1].partite, 29);
-  assert.equal(r.corpo.mazzi[1].win_rate, null);
-  assert.equal(r.corpo.mazzi[1].quota_meta, null);
-  assert.equal(r.corpo.mazzi[0].nome, "Mazzo non classificato");
+  assert.equal(r.corpo.mazzi.length, 1);
+  assert.equal(r.corpo.mazzi[0].partite, 59);
+  assert.equal(r.corpo.mazzi[0].win_rate, 79.66);
+  assert.equal(r.corpo.mazzi[0].quota_meta, 100);
+  assert.equal(r.corpo.mazzi[0].nome, "Altro (Brew)");
+  assert.equal(r.corpo.mazzi[0].impronte_raggruppate, 2);
+});
+
+test("Altro resta visibile ma senza percentuali sotto 30 partite", async () => {
+  const db = creaFintoD1(SCHEMA);
+  for (let i = 0; i < 29; i += 1) aggiungi(db, { id: `c${String(i).padStart(9, "0")}` });
+  const r = await leggiMeta(db, url("/meta?formato=Standard"));
+  assert.equal(r.corpo.mazzi[0].partite, 29);
+  assert.equal(r.corpo.mazzi[0].win_rate, null);
+  assert.equal(r.corpo.mazzi[0].quota_meta, null);
 });
 
 test("meta filtra il rank", async () => {
@@ -56,6 +64,19 @@ test("meta filtra il rank", async () => {
   const r = await leggiMeta(db, url("/meta?formato=Standard&rank=Gold"));
   assert.equal(r.corpo.partite_totali, 1);
   assert.equal(r.corpo.filtri.rank, "Gold");
+});
+
+test("meta separa periodo e BO1/BO3", async () => {
+  const db = creaFintoD1(SCHEMA);
+  aggiungi(db, { id: "a000000001", evento: "Ladder" });
+  aggiungi(db, { id: "a000000002", evento: "Traditional_Ladder" });
+  const bo1 = await leggiMeta(db, url("/meta?formato=Standard&periodo=30&modalita=BO1"));
+  const bo3 = await leggiMeta(db, url("/meta?formato=Standard&periodo=30&modalita=BO3"));
+  assert.equal(bo1.corpo.partite_totali, 1);
+  assert.equal(bo3.corpo.partite_totali, 1);
+  assert.equal(bo3.corpo.filtri.modalita, "BO3");
+  const nonValido = await leggiMeta(db, url("/meta?formato=Standard&periodo=365"));
+  assert.equal(nonValido.stato, 400);
 });
 
 test("gioco-risposta usa la stessa soglia di 30 per le percentuali", async () => {

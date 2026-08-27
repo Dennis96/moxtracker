@@ -70,6 +70,10 @@
 .variant-state-badge { flex:0 0 auto; padding:5px 8px; border:1px solid var(--line); border-radius:999px; font-size:.68rem; font-weight:850; }
 .variant-state-badge.is-public { color:#75e3c6; border-color:rgba(95,218,186,.32); background:rgba(44,165,135,.07); }
 .variant-state-badge.is-locked { color:#d19a62; border-color:rgba(216,151,84,.3); background:rgba(180,110,45,.06); }
+.variant-decklist-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+.variant-action { min-height:34px; padding:0 10px; border:1px solid var(--line-strong); border-radius:8px; background:rgba(155,63,255,.08); color:#d58cff; cursor:pointer; font-weight:750; }
+.variant-action:hover { background:rgba(155,63,255,.15); }
+.other-variants { opacity:.82; }
 #variant-focus-decklist { padding:12px; }
 .variant-focus-card-list { margin:0; padding:0; grid-template-columns:repeat(2,minmax(0,1fr)); }
 .variant-decklist-locked { min-height:150px; }
@@ -113,3 +117,8 @@
   .reference-decklist { columns:1; }
   .detail-page.variant-mode .detail-heading { min-height:125px; }
 }
+.deck-profile { display: grid; gap: 12px; margin-top: 16px; }
+.deck-profile-block { display: grid; gap: 8px; padding: 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.deck-profile-values { display: flex; flex-wrap: wrap; gap: 7px; }
+.deck-profile-values span { padding: 6px 9px; border-radius: 999px; background: var(--surface-3); color: var(--muted); font-size: .74rem; }
+.deck-profile-values b { color: var(--text); }

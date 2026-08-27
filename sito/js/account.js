@@ -1,8 +1,11 @@
 import { API_BASE } from "./config.js";
 import { createCardThumbnail, resolveCard } from "./card-images.js?v=20260822-9";
+import { renderProfiloMazzo } from "./deck-profile.js";
 
 const $ = (id) => document.getElementById(id);
-const numeri = new Intl.NumberFormat("it-IT");
+const LINGUA = document.documentElement.lang === "en" ? "en-US" : "it-IT";
+const PERCORSO_ACCOUNT = document.documentElement.lang === "en" ? "/en/account.html" : "/account.html";
+const numeri = new Intl.NumberFormat(LINGUA);
 // Dieci partite per volta: a trenta la pagina diventava lunghissima e il
 // pulsante «Carica altre partite» non lo vedeva nessuno.
 const PASSO_PARTITE = 10;
@@ -45,7 +48,7 @@ function dataOra(valore) {
   if (!valore) return "Data non disponibile";
   const data = new Date(valore);
   return Number.isNaN(data.getTime()) ? "Data non disponibile"
-    : data.toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
+    : data.toLocaleString(LINGUA, { dateStyle: "short", timeStyle: "short" });
 }
 
 function durata(secondi) {
@@ -229,38 +232,57 @@ function renderAvversari() {
     `${dati.non_riconosciuti} partite restano fuori dalle statistiche: il log non mostrava abbastanza carte avversarie per una classificazione affidabile.`));
 }
 
+function creaRigaMazzo(mazzo) {
+  const bottone = nodo("button", "personal-deck-row");
+  bottone.type = "button";
+  const identita = nodo("span", "personal-deck-identity");
+  const nome = nodo("span", "personal-deck-name", nomeMazzo(mazzo));
+  const meta = nodo("span", "personal-deck-meta",
+    [etichettaMazzo(mazzo), mazzo.formato || mazzo.evento || "Formato n.d.",
+      mazzo.archetipo && mazzo.archetipo !== mazzo.nome ? mazzo.archetipo : null,
+      mazzo.strategia, mazzo.modalita].filter(Boolean).join(" · "));
+  const immagini = nodo("span", "personal-deck-cards");
+  for (const carta of mazzo.carte.slice().sort((a, b) => b.copie - a.copie).slice(0, 7)) {
+    immagini.append(createCardThumbnail(carta));
+  }
+  identita.append(nome, meta, immagini);
+  const dati = nodo("span", "personal-deck-numbers");
+  for (const [etichetta, valore] of [
+    ["Partite", mazzo.partite], ["V / S", `${mazzo.vittorie} / ${mazzo.sconfitte}`],
+    ["Win rate", percentuale(mazzo.win_rate)],
+  ]) {
+    const voce = nodo("span");
+    voce.append(nodo("small", "", etichetta), nodo("strong", "", String(valore)));
+    dati.append(voce);
+  }
+  bottone.append(identita, dati, nodo("span", "row-chevron", "›"));
+  bottone.addEventListener("click", () => apriMazzo(mazzo));
+  return bottone;
+}
+
+function gruppoMazzi(titolo, descrizione, mazzi) {
+  const gruppo = nodo("section", "personal-deck-group");
+  const testa = nodo("div", "personal-deck-group-head");
+  testa.append(nodo("h3", "", titolo), nodo("span", "section-count", String(mazzi.length)));
+  gruppo.append(testa, nodo("p", "detail-note", descrizione));
+  for (const mazzo of mazzi) gruppo.append(creaRigaMazzo(mazzo));
+  return gruppo;
+}
+
 function renderMazzi() {
   const contenitore = $("decks");
   contenitore.replaceChildren();
   const totale = stato.statistiche.mazzi.length;
   $("deck-count").textContent = `${totale} ${totale === 1 ? "mazzo" : "mazzi"}`;
-  for (const mazzo of stato.statistiche.mazzi) {
-    const bottone = nodo("button", "personal-deck-row");
-    bottone.type = "button";
-    const identita = nodo("span", "personal-deck-identity");
-    const nome = nodo("span", "personal-deck-name", nomeMazzo(mazzo));
-    const meta = nodo("span", "personal-deck-meta",
-      [etichettaMazzo(mazzo), mazzo.formato || mazzo.evento || "Formato n.d.",
-        mazzo.archetipo && mazzo.archetipo !== mazzo.nome ? mazzo.archetipo : null,
-        mazzo.strategia, mazzo.modalita].filter(Boolean).join(" · "));
-    const immagini = nodo("span", "personal-deck-cards");
-    for (const carta of mazzo.carte.slice().sort((a, b) => b.copie - a.copie).slice(0, 7)) {
-      immagini.append(createCardThumbnail(carta));
-    }
-    identita.append(nome, meta, immagini);
-    const dati = nodo("span", "personal-deck-numbers");
-    for (const [etichetta, valore] of [
-      ["Partite", mazzo.partite], ["V / S", `${mazzo.vittorie} / ${mazzo.sconfitte}`],
-      ["Win rate", percentuale(mazzo.win_rate)],
-    ]) {
-      const voce = nodo("span");
-      voce.append(nodo("small", "", etichetta), nodo("strong", "", String(valore)));
-      dati.append(voce);
-    }
-    bottone.append(identita, dati, nodo("span", "row-chevron", "›"));
-    bottone.addEventListener("click", () => apriMazzo(mazzo));
-    contenitore.append(bottone);
-  }
+  const sincronizzati = Boolean(stato.statistiche?.sincronizzazione?.mazzi);
+  const correnti = sincronizzati ? stato.statistiche.mazzi.filter((m) => m.in_arena) : [];
+  const storici = sincronizzati ? stato.statistiche.mazzi.filter((m) => !m.in_arena)
+    : stato.statistiche.mazzi;
+  if (correnti.length) contenitore.append(gruppoMazzi("In Arena",
+    "Fotografia dell'ultima sincronizzazione di Mox.", correnti));
+  if (storici.length) contenitore.append(gruppoMazzi(sincronizzati ? "Storico" : "Dalle partite",
+    sincronizzati ? "Liste non più presenti in Arena, conservate insieme alle partite giocate."
+      : "Mox non ha ancora inviato la fotografia dei mazzi attuali.", storici));
   if (!totale) contenitore.append(riga("Nessun mazzo disponibile",
     "Le partite senza decklist restano comunque nella cronologia."));
 }
@@ -308,12 +330,30 @@ function apriMazzo(mazzo) {
       messaggio.className = "service-message error";
     } finally { salva.disabled = false; }
   });
-  mostraDialogo("Mazzo personale", nomeMazzo(mazzo), [
+  const versioni = stato.statistiche.mazzi.filter((altro) => altro.impronta !== mazzo.impronta &&
+    nomeMazzo(altro).trim().toLocaleLowerCase(LINGUA) === nomeMazzo(mazzo).trim().toLocaleLowerCase(LINGUA));
+  const bloccoVersioni = nodo("section", "deck-versions");
+  if (versioni.length) {
+    bloccoVersioni.append(nodo("h3", "", "Versioni con lo stesso nome"));
+    const base = new Map(mazzo.carte.map((c) => [Number(c.arena_id), Number(c.copie)]));
+    for (const versione of versioni) {
+      const confronto = new Map(versione.carte.map((c) => [Number(c.arena_id), Number(c.copie)]));
+      const cambi = [...new Set([...base.keys(), ...confronto.keys()])]
+        .map((id) => ({ id, delta: (confronto.get(id) || 0) - (base.get(id) || 0) }))
+        .filter((c) => c.delta);
+      bloccoVersioni.append(riga(`${versione.in_arena ? "In Arena" : "Storico"} · ${dataOra(versione.ultima)}`,
+        cambi.length ? `${cambi.length} carte con quantità diversa` : "Nessuna differenza di carte"));
+    }
+  }
+  const contenuto = [
     metriche([["Partite", mazzo.partite], ["Vittorie", mazzo.vittorie],
       ["Sconfitte", mazzo.sconfitte], ["Win rate", percentuale(mazzo.win_rate)],
       ["Ultima partita", dataOra(mazzo.ultima)]]),
-    rinomina, listaCarte("Decklist osservata", mazzo.carte), azioni,
-  ]);
+    rinomina, listaCarte("Decklist osservata", mazzo.carte),
+  ];
+  if (versioni.length) contenuto.push(bloccoVersioni);
+  contenuto.push(azioni);
+  mostraDialogo("Mazzo personale", nomeMazzo(mazzo), contenuto);
 }
 
 function renderDraft() {
@@ -378,6 +418,36 @@ async function apriDraft(id) {
       traccia.pool_finale.map((arena_id) => ({ arena_id, copie: 1,
         nome: dato.nomi_carte?.[String(arena_id)],
         ...(dato.stampe_carte?.[String(arena_id)] || {}) }))));
+    const versioni = Array.isArray(traccia?.mazzo_giocato) ? traccia.mazzo_giocato : [];
+    if (versioni.length) {
+      const blocco = nodo("section", "draft-deck-versions");
+      blocco.append(nodo("h3", "", `Versioni del mazzo giocato (${versioni.length})`),
+        nodo("p", "detail-note", "Ogni versione è una fotografia salvata da Arena. Le differenze sono mostrate rispetto alla versione precedente."));
+      let precedente = new Map();
+      versioni.forEach((versione, indice) => {
+        const carte = new Map([...(versione.mazzo || []), ...(versione.riserva || [])]
+          .map(([idCarta, copie]) => [Number(idCarta), Number(copie)]));
+        const cambi = [...new Set([...precedente.keys(), ...carte.keys()])]
+          .map((idCarta) => ({ idCarta, delta: (carte.get(idCarta) || 0) - (precedente.get(idCarta) || 0) }))
+          .filter((voce) => voce.delta);
+        const dettaglio = indice === 0 ? `${carte.size} carte distinte`
+          : cambi.length ? cambi.map(({ idCarta, delta }) =>
+            `${delta > 0 ? "+" : ""}${delta} ${dato.nomi_carte?.[String(idCarta)] || `#${idCarta}`}`).join(" · ")
+            : "Nessuna differenza di carte";
+        blocco.append(riga(`Versione ${indice + 1} · ${dataOra(versione.quando)}`, dettaglio));
+        precedente = carte;
+      });
+      contenuto.push(blocco);
+      const ultima = versioni.at(-1);
+      const carteProfilo = [...(ultima.mazzo || []), ...(ultima.riserva || [])]
+        .map(([arena_id, copie]) => ({ arena_id, copie,
+          nome: dato.nomi_carte?.[String(arena_id)],
+          ...(dato.stampe_carte?.[String(arena_id)] || {}) }));
+      const profilo = nodo("section", "deck-profile");
+      contenuto.push(profilo);
+      renderProfiloMazzo(profilo, carteProfilo,
+        { campione: `Ultima delle ${versioni.length} versioni registrate da Arena.` });
+    }
     if (!traccia) contenuto.push(nodo("p", "detail-note",
       "Il dettaglio del pool non è disponibile, ma l'indice del Draft è conservato."));
     if (traccia && Number(d.pick) < traccia.pool_finale.length) contenuto.push(
@@ -523,6 +593,15 @@ async function carica() {
     $("link-google").classList.toggle("hidden", provider.has("google"));
     $("link-discord").classList.toggle("hidden", provider.has("discord"));
     $("admin-link").classList.toggle("hidden", !dashboard.account.amministratore);
+    const invii = [...dashboard.partite.map((p) => p.quando),
+      ...dashboard.draft.map((d) => d.ricevuto || d.iniziato)]
+      .filter(Boolean).map((v) => new Date(v)).filter((v) => !Number.isNaN(v.getTime()));
+    const ultimoInvio = invii.length ? new Date(Math.max(...invii.map((v) => v.getTime()))) : null;
+    $("last-send").textContent = ultimoInvio ? dataOra(ultimoInvio.toISOString()) : "nessun invio ricevuto";
+    const giorniFermo = ultimoInvio ? Math.floor((Date.now() - ultimoInvio.getTime()) / 86400000) : null;
+    $("last-send").classList.toggle("stale-send", giorniFermo === null || giorniFermo >= 3);
+    $("last-send").title = giorniFermo === null ? "Nessun contributo ricevuto"
+      : giorniFermo >= 3 ? `${giorniFermo} giorni senza nuovi invii: verifica Mox e i consensi.` : "Invio recente";
     mostraElenco($("devices"), dashboard.dispositivi.map((d) => {
       const b = nodo("button", "service-button danger", "Revoca");
       b.type = "button";
@@ -554,32 +633,57 @@ async function carica() {
   }
 }
 
-$("login-google").href = `${API_BASE}/auth/google?ritorno=${encodeURIComponent("/account.html")}`;
-$("login-discord").href = `${API_BASE}/auth/discord?ritorno=${encodeURIComponent("/account.html")}`;
-$("link-google").href = `${API_BASE}/auth/google?ritorno=${encodeURIComponent("/account.html")}`;
-$("link-discord").href = `${API_BASE}/auth/discord?ritorno=${encodeURIComponent("/account.html")}`;
+$("login-google").href = `${API_BASE}/auth/google?ritorno=${encodeURIComponent(PERCORSO_ACCOUNT)}`;
+$("login-discord").href = `${API_BASE}/auth/discord?ritorno=${encodeURIComponent(PERCORSO_ACCOUNT)}`;
+$("link-google").href = `${API_BASE}/auth/google?ritorno=${encodeURIComponent(PERCORSO_ACCOUNT)}`;
+$("link-discord").href = `${API_BASE}/auth/discord?ritorno=${encodeURIComponent(PERCORSO_ACCOUNT)}`;
 $("create-link").addEventListener("click", async () => {
   try {
     const dato = await api("/account/link-code", { method: "POST" });
     $("link-code").textContent = dato.codice;
-    $("link-message").textContent = `Scade alle ${new Date(dato.scade).toLocaleTimeString("it-IT")}.`;
+    $("link-message").textContent = `Scade alle ${new Date(dato.scade).toLocaleTimeString(LINGUA)}.`;
   } catch (e) { $("link-message").textContent = e.message; }
 });
 $("logout").addEventListener("click", async () => {
   await api("/account/logout", { method: "POST" }); location.reload();
 });
-$("export-data").addEventListener("click", async () => {
+for (const bottone of document.querySelectorAll("[data-export]")) bottone.addEventListener("click", async () => {
   try {
     const dato = await api("/account/export");
-    const url = URL.createObjectURL(new Blob([JSON.stringify(dato, null, 2)],
+    const sezione = bottone.dataset.export;
+    const esportato = sezione === "all" ? dato : sezione === "matches"
+      ? { versione: dato.versione, esportato: dato.esportato, partite: dato.partite || [] }
+      : sezione === "draft"
+        ? { versione: dato.versione, esportato: dato.esportato, draft: dato.draft || [] }
+        : { versione: dato.versione, esportato: dato.esportato,
+          nomi_mazzi: dato.nomi_mazzi || [], mazzi_arena: dato.mazzi_arena || [] };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(esportato, null, 2)],
       { type: "application/json" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `mox-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `mox-export-${sezione}-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   } catch (e) { $("account-message").textContent = e.message; }
 });
+for (const bottone of document.querySelectorAll("[data-delete-section]")) {
+  bottone.addEventListener("click", async () => {
+    const sezione = bottone.dataset.deleteSection;
+    const conferma = sezione.toUpperCase();
+    if (prompt(`Scrivi ${conferma} per cancellare definitivamente questa sezione`) !== conferma) return;
+    try {
+      const esito = await api("/account/delete-section", { method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ sezione, conferma }) });
+      $("account-message").textContent = `${esito.righe} elementi cancellati dalla sezione ${sezione}.`;
+      $("account-message").className = "service-message success";
+      await carica();
+    } catch (e) {
+      $("account-message").textContent = e.message;
+      $("account-message").className = "service-message error";
+    }
+  });
+}
 $("delete-account").addEventListener("click", async () => {
   if (!confirm("Eliminare definitivamente account, contributi, ticket e allegati?")) return;
   if (prompt("Scrivi ELIMINA per confermare") !== "ELIMINA") return;

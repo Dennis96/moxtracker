@@ -140,15 +140,12 @@ test("il mazzo montato non fa sforare i limiti di D1 Free", async () => {
   assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 30);
 });
 
-test("le statistiche dicono se il mazzo montato sta arrivando, senza liste", async () => {
+test("le statistiche pubbliche non espongono diagnostica del mazzo montato", async () => {
   const env = ambiente();
   await manda(env, "/draft", esempio({ mazzo_giocato: DUE_VERSIONI }));
   const richiesta = new Request("https://esempio.invalid/draft/statistiche");
   const risposta = await server.fetch(richiesta, env);
   const corpo = await risposta.json();
-  assert.equal(corpo.mazzo_montato.draft, 1);
-  assert.equal(corpo.mazzo_montato.versioni, 2);
-  assert.equal(corpo.mazzo_montato.cambi_medi, 1);
-  // Il pubblico vede conteggi, mai le carte di qualcuno.
+  assert.equal("mazzo_montato" in corpo, false);
   assert.equal(JSON.stringify(corpo).includes("101"), false);
 });

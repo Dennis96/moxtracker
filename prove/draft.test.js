@@ -302,16 +302,24 @@ test("il raro doppio guasto viene trovato dalla riconciliazione", async () => {
   assert.equal(rapporto.orfani_r2.length, 1);
 });
 
-test("pubblica solo aggregati e nasconde percentuali sotto soglia", async () => {
+test("pubblica solo aggregati Draft semplici e nasconde diagnostica e percentuali sotto soglia", async () => {
   const env = ambiente();
   await manda(env, "/draft", { draft: [esempioCompleto()] });
   const { stato, corpo } = await manda(env, "/draft/statistiche?set=HOB", null, "GET");
   assert.equal(stato, 200);
-  assert.equal(corpo.fasi[0].campione, 2);
-  assert.equal(corpo.fasi[0].accordo_mox, null);
-  assert.equal(corpo.soglia_percentuali, 100);
+  assert.equal(corpo.totali.draft, 1);
+  assert.equal(corpo.totali.pick, 2);
+  assert.equal(corpo.eventi[0].set, "HOB");
+  assert.equal(corpo.eventi[0].formato, "PremierDraft");
   assert.equal(corpo.risultati.win_rate, null);
-  assert.ok(!JSON.stringify(corpo).includes("offerte"));
+  assert.ok(!JSON.stringify(corpo).match(/offerte|politica|tracce_marcate|mazzo_montato/));
+});
+
+test("un periodo Draft non valido viene rifiutato come richiesta errata", async () => {
+  const env = ambiente();
+  const { stato, corpo } = await manda(env, "/draft/statistiche?periodo=ieri", null, "GET");
+  assert.equal(stato, 400);
+  assert.equal(corpo.errore, "periodo Draft non valido");
 });
 
 test("cancella Draft e oggetti solo col segreto corretto", async () => {
@@ -449,8 +457,8 @@ test("una bozza dichiarata completa a meta' viene marcata, non creduta", async (
   assert.equal(riga.sospetto, "dichiarato completo al pacchetto 1");
 
   const { corpo } = await manda(env, "/draft/statistiche?set=HOB", null, "GET");
-  assert.equal(corpo.tracce_marcate, 1);
-  assert.deepEqual(corpo.fasi, [], "fuori dalla misura della policy");
+  assert.equal(corpo.totali.draft, 0, "fuori dagli aggregati pubblici");
+  assert.deepEqual(corpo.eventi, []);
 });
 
 test("un Draft arrivato in fondo non viene marcato", async () => {
@@ -461,8 +469,8 @@ test("un Draft arrivato in fondo non viene marcato", async () => {
   assert.equal(riga.sospetto, null);
 
   const { corpo } = await manda(env, "/draft/statistiche?set=HOB", null, "GET");
-  assert.equal(corpo.tracce_marcate, 0);
-  assert.equal(corpo.fasi.length, 1);
+  assert.equal(corpo.totali.draft, 1);
+  assert.equal(corpo.eventi.length, 1);
 });
 
 test("il pool piu' grande delle scelte registrate resta un contributo parziale", async () => {
