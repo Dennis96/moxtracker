@@ -147,5 +147,12 @@ test("le statistiche pubbliche non espongono diagnostica del mazzo montato", asy
   const risposta = await server.fetch(richiesta, env);
   const corpo = await risposta.json();
   assert.equal("mazzo_montato" in corpo, false);
-  assert.equal(JSON.stringify(corpo).includes("101"), false);
+  // Non cercare l'ID della carta nel JSON intero: le cifre possono comparire
+  // per caso nei millisecondi di `aggiornato`. La forma pubblica e' il vero
+  // contratto che impedisce di far uscire liste o diagnostica privata.
+  assert.deepEqual(Object.keys(corpo).sort(), [
+    "aggiornato", "approfondimenti", "eventi", "filtri", "risultati", "totali", "versione",
+  ]);
+  assert.deepEqual(Object.keys(corpo.eventi[0]).sort(), ["aggiornato", "draft", "formato", "pick", "set"]);
+  assert.deepEqual(corpo.approfondimenti, { colori: [], carte: [], disponibili: false });
 });
