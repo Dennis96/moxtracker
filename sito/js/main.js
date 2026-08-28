@@ -2,6 +2,7 @@ import { DEFAULT_FORMAT, DOWNLOAD_URL, FORMATS, RANKS } from "./config.js?v=2026
 import { fetchMeta, fetchScontri, fetchStatisticheDraft } from "./api.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
+import { traduciDocumento } from "./translate.js";
 
 const state = {
   apiFilters: { formato: DEFAULT_FORMAT, rank: "", periodo: "30", modalita: "" },
@@ -98,7 +99,10 @@ function setupApiFilters() {
 }
 
 function renderCurrentMeta() {
-  if (state.meta) renderMeta(state.meta, state.sort, state.localFilters, state.apiFilters);
+  if (state.meta) {
+    renderMeta(state.meta, state.sort, state.localFilters, state.apiFilters);
+    traduciDocumento();
+  }
 }
 
 function setupLocalFilters() {
@@ -198,8 +202,9 @@ async function loadMeta() {
     aggiornaDataHome(state.meta.aggiornato);
     syncClassificationControls(state.meta.mazzi, state.meta.catalogo_archetipi);
     renderMeta(state.meta, state.sort, state.localFilters, state.apiFilters);
+    traduciDocumento();
   } catch (error) {
-    if (error.name !== "AbortError") renderMetaError(error);
+    if (error.name !== "AbortError") { renderMetaError(error); traduciDocumento(); }
   }
 }
 
@@ -227,8 +232,8 @@ async function loadDraftSummary() {
 async function loadScontri() {
   renderScontriLoading();
   const controller = controllerFor("scontri");
-  try { renderScontri(await fetchScontri(state.apiFilters, { signal: controller.signal })); }
-  catch (error) { if (error.name !== "AbortError") renderScontriError(error); }
+  try { renderScontri(await fetchScontri(state.apiFilters, { signal: controller.signal })); traduciDocumento(); }
+  catch (error) { if (error.name !== "AbortError") { renderScontriError(error); traduciDocumento(); } }
 }
 
 function loadAll() { loadMeta(); loadScontri(); }

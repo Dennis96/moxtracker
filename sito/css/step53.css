@@ -25,6 +25,7 @@
 .reference-lists { margin-top:12px; display:grid; gap:8px; }
 .reference-details { border:1px solid var(--line); border-radius:9px; overflow:hidden; }
 .reference-details summary { border:0; }
+.reference-copy { margin:0 16px 10px; }
 .reference-decklist { list-style:none; margin:0; padding:0 16px 14px; columns:2; column-gap:24px; color:var(--muted); font-size:.82rem; }
 .reference-decklist li { break-inside:avoid; margin:0 0 5px; }
 .sideboard-title { display:block; padding:5px 16px 8px; }

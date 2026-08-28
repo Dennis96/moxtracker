@@ -62,6 +62,11 @@ test("homepage presenta Mox con due schermate reali e pagine di trasparenza", ()
   assert.match(home, /id="home-drafts"/);
   assert.match(home, /cosa-invia-mox\.html/);
   assert.match(home, /note-versione\.html/);
+  assert.match(home, /tiene il conto delle partite/);
+  assert.match(home, /archivio di risultati e mazzi/);
+  assert.match(home, /contributi anonimi alimentano le statistiche pubbliche/);
+  assert.match(home, /condivisione con gli amici sarà una scelta separata/);
+  assert.match(home, /Più persone scaricano e usano Mox/);
   assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
   assert.match(leggi("note-versione.html"), /2\.9\.24/);
 });

@@ -58,7 +58,7 @@ function headersPrivati(richiesta, ambiente, altri = {}) {
   if (origine) {
     headers["access-control-allow-origin"] = origine;
     headers["access-control-allow-credentials"] = "true";
-    headers["access-control-allow-headers"] = "content-type";
+    headers["access-control-allow-headers"] = "content-type, authorization";
     headers["access-control-allow-methods"] = "GET, POST, PUT, DELETE, OPTIONS";
   }
   return headers;
@@ -125,6 +125,18 @@ function ritornoSicuro(indirizzo, ambiente) {
     return consentite.includes(destinazione.origin)
       ? destinazione.toString() : `${base}/account.html`;
   } catch { return `${base}/account.html`; }
+}
+
+function ritornoOAuth(ritorno, sessione, ambiente) {
+  const preview = ambiente.PREVIEW_ORIGIN && String(ambiente.PREVIEW_ORIGIN).replace(/\/$/, "");
+  if (!preview) return ritorno;
+  const destinazione = new URL(ritorno);
+  if (destinazione.origin !== new URL(preview).origin) return ritorno;
+  // pages.dev e api.moxtracker.app sono siti diversi: alcuni browser bloccano
+  // il cookie terza parte. Il frammento non viaggia in rete e viene conservato
+  // solo nella sessionStorage della preview, poi passato come Bearer via HTTPS.
+  destinazione.hash = `mox_session=${encodeURIComponent(sessione)}`;
+  return destinazione.toString();
 }
 
 async function iniziaOAuth(provider, richiesta, ambiente, indirizzo) {
@@ -248,7 +260,7 @@ async function completaOAuth(provider, richiesta, ambiente, indirizzo) {
     await ambiente.DB.batch([ambiente.DB.prepare(`INSERT INTO account_sessione
       (hash, account_id, creato, scade) VALUES (?, ?, ?, ?)`).bind(
         await sha256(sessione), accountId, ora, scadenza(DURATA_SESSIONE))]);
-    return reindirizza(registrato.ritorno, cookieSessione(sessione));
+    return reindirizza(ritornoOAuth(registrato.ritorno, sessione, ambiente), cookieSessione(sessione));
   } catch (guasto) {
     console.error("guasto OAuth", provider, String(guasto));
     return rispostaAccount(richiesta, ambiente, { errore: "accesso OAuth non riuscito" }, 502,
@@ -257,7 +269,9 @@ async function completaOAuth(provider, richiesta, ambiente, indirizzo) {
 }
 
 export async function utenteDallaSessione(richiesta, ambiente) {
-  const token = cookie(richiesta, "mox_sessione");
+  const daCookie = cookie(richiesta, "mox_sessione");
+  const bearer = richiesta.headers.get("authorization") || "";
+  const token = daCookie || bearer.match(/^Bearer ([0-9a-f]{64})$/i)?.[1] || null;
   if (!token) return null;
   const hash = await sha256(token);
   const riga = await ambiente.DB.prepare(`SELECT a.id, a.nome, a.avatar, a.ruolo, s.scade

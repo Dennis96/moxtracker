@@ -15,6 +15,9 @@ test("Draft pubblico separa set evento e periodo senza esporre diagnostica inter
   assert.match(html, /solo aggregati pubblici/);
   assert.match(html, /30 match/);
   assert.match(html, /Evento Arena/);
+  assert.match(html, /<select id="draft-set">/);
+  assert.match(html, /Tutti i set/);
+  assert.doesNotMatch(html, /<input id="draft-set"/);
   assert.match(html, /id="draft-period"/);
   assert.match(html, /Espansioni ed eventi/);
   assert.doesNotMatch(html, /Accordo con il consiglio|Verifica per fase|Politica:/);
@@ -22,6 +25,7 @@ test("Draft pubblico separa set evento e periodo senza esporre diagnostica inter
   assert.match(js, /Dati insufficienti/);
   assert.match(js, /riga\.set/);
   assert.match(js, /riga\.formato/);
+  assert.match(js, /function aggiornaSet/);
 });
 
 test("Metodo Draft ha una disposizione mobile esplicita", () => {

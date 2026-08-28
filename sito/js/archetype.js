@@ -4,6 +4,7 @@ import { deckLabel, formatInteger, formatPercent, sampleSufficient, shortFingerp
 import { classificationSummary, deckArchetypeId, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
 import { createCardListItem, parseReferenceLine } from "./card-images.js";
 import { renderProfiloMazzo } from "./deck-profile.js";
+import { traduciDocumento } from "./translate.js";
 
 function tag(text, className = "") {
   const node = document.createElement("span"); node.className = className; node.textContent = text; return node;
@@ -103,17 +104,34 @@ function testoArena(cards) {
   return righe.length ? `Deck\n${righe.join("\n")}\n` : "";
 }
 
+function testoArenaRiferimento(riferimento) {
+  const lista = (riferimento.lista || []).map(String).map((riga) => riga.trim()).filter(Boolean);
+  const sideboard = (riferimento.sideboard || []).map(String).map((riga) => riga.trim()).filter(Boolean);
+  if (!lista.length) return "";
+  return `Deck\n${lista.join("\n")}${sideboard.length ? `\n\nSideboard\n${sideboard.join("\n")}` : ""}\n`;
+}
+
+function preparaCopiaArena(bottone, testo) {
+  bottone.hidden = !testo;
+  bottone.onclick = testo ? async (evento) => {
+    evento.preventDefault();
+    try {
+      await navigator.clipboard.writeText(testo);
+      bottone.textContent = "Copiato";
+      setTimeout(() => { bottone.textContent = "Copia per Arena"; }, 1600);
+    } catch {
+      bottone.textContent = "Copia non riuscita";
+      setTimeout(() => { bottone.textContent = "Copia per Arena"; }, 1600);
+    }
+  } : null;
+}
+
 function preparaAzioniDecklist(cards) {
   const copia = document.querySelector("#copy-variant-deck");
   const scarica = document.querySelector("#download-variant-deck");
   const testo = testoArena(cards);
-  copia.hidden = !testo;
+  preparaCopiaArena(copia, testo);
   scarica.hidden = !testo;
-  copia.onclick = testo ? async () => {
-    await navigator.clipboard.writeText(testo);
-    copia.textContent = "Copiato";
-    setTimeout(() => { copia.textContent = "Copia per Arena"; }, 1600);
-  } : null;
   scarica.onclick = testo ? () => {
     const url = URL.createObjectURL(new Blob([testo], { type: "text/plain;charset=utf-8" }));
     const link = document.createElement("a");
@@ -281,9 +299,12 @@ function renderReferences(data) {
     const details = document.createElement("details"); details.className = "reference-details";
     const summary = document.createElement("summary");
     summary.textContent = [ref.nome_pubblico || ref.nome, ref.modalita].filter(Boolean).join(" • ");
+    const copia = document.createElement("button"); copia.type = "button"; copia.className = "variant-action reference-copy";
+    copia.textContent = "Copia per Arena";
+    preparaCopiaArena(copia, testoArenaRiferimento(ref));
     const list = document.createElement("ul"); list.className = "reference-decklist";
     for (const line of ref.lista || []) list.append(createCardListItem(parseReferenceLine(line)));
-    details.append(summary, list);
+    details.append(summary, copia, list);
     if ((ref.sideboard || []).length) {
       const sideTitle = document.createElement("strong"); sideTitle.className = "sideboard-title"; sideTitle.textContent = "Sideboard";
       const side = document.createElement("ul"); side.className = "reference-decklist";
@@ -353,8 +374,10 @@ async function load() {
       if (!unclassified) renderReferences(data);
       renderRepresentativeProfile(data);
     }
+    traduciDocumento();
   } catch (error) {
     renderError(error.message || "Impossibile leggere i dati del meta.");
+    traduciDocumento();
   }
 }
 

@@ -47,6 +47,9 @@ test("la panoramica archetipo mostra solo il riepilogo delle varianti riconosciu
   assert.match(source, /Lista più rappresentativa/);
   assert.match(source, /Altre varianti/);
   assert.match(source, /navigator\.clipboard\.writeText/);
+  assert.match(source, /function testoArenaRiferimento/);
+  assert.match(source, /Copia per Arena/);
+  assert.match(source, /Sideboard\\n/);
   assert.match(source, /mox-deck-arena\.txt/);
   assert.match(source, /Decklist pubblicata/);
   assert.match(source, /Decklist da 30 partite/);

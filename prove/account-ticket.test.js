@@ -122,7 +122,7 @@ test("il preflight dell'account consente la rinomina PUT dal sito", async () => 
       headers: {
         origin: "https://moxtracker.app",
         "access-control-request-method": "PUT",
-        "access-control-request-headers": "content-type",
+        "access-control-request-headers": "content-type, authorization",
       },
     }), env);
 
@@ -130,6 +130,7 @@ test("il preflight dell'account consente la rinomina PUT dal sito", async () => 
   assert.equal(risposta.headers.get("access-control-allow-origin"),
     "https://moxtracker.app");
   assert.equal(risposta.headers.get("access-control-allow-credentials"), "true");
+  assert.match(risposta.headers.get("access-control-allow-headers"), /authorization/i);
   assert.match(risposta.headers.get("access-control-allow-methods"), /(?:^|,\s*)PUT(?:,|$)/);
 });
 
@@ -141,7 +142,7 @@ test("la preview ha CORS e ritorno OAuth esatti senza aprirli ad altri siti", as
       headers: {
         origin,
         "access-control-request-method": "PUT",
-        "access-control-request-headers": "content-type",
+        "access-control-request-headers": "content-type, authorization",
       },
     }), env);
   const preview = await preflight("https://preview.moxtracker.pages.dev");
@@ -158,8 +159,8 @@ test("la preview ha CORS e ritorno OAuth esatti senza aprirli ad altri siti", as
   const fine = await worker.fetch(new Request(
     `https://api.moxtracker.app/auth/google/callback?code=codice&state=${stato}`,
     { headers: { cookie: statoCookie } }), env);
-  assert.equal(fine.headers.get("location"),
-    "https://preview.moxtracker.pages.dev/account.html");
+  assert.match(fine.headers.get("location"),
+    /^https:\/\/preview\.moxtracker\.pages\.dev\/account\.html#mox_session=[0-9a-f]{64}$/i);
   assert.match(fine.headers.get("set-cookie"), /SameSite=None/);
 });
 

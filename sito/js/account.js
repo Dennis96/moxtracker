@@ -1,11 +1,13 @@
 import { API_BASE } from "./config.js";
 import { createCardThumbnail, resolveCard } from "./card-images.js?v=20260822-9";
 import { renderProfiloMazzo } from "./deck-profile.js";
+import { traduciDocumento } from "./translate.js";
 
 const $ = (id) => document.getElementById(id);
 const INGLESE = document.documentElement.lang === "en";
 const LINGUA = INGLESE ? "en-US" : "it-IT";
 const PERCORSO_ACCOUNT = `${window.location.origin}${INGLESE ? "/en/account.html" : "/account.html"}`;
+const CHIAVE_SESSIONE_PREVIEW = "mox-preview-session";
 const numeri = new Intl.NumberFormat(LINGUA);
 // Dieci partite per volta: a trenta la pagina diventava lunghissima e il
 // pulsante «Carica altre partite» non lo vedeva nessuno.
@@ -13,13 +15,27 @@ const PASSO_PARTITE = 10;
 const stato = { dashboard: null, statistiche: null, offset: 0, limite: PASSO_PARTITE,
   totale: 0, partite: [], filtri: { mazzo: "", esito: "", evento: "" } };
 
+function sessionePreview() {
+  const frammento = new URLSearchParams(location.hash.slice(1));
+  const dalRitorno = frammento.get("mox_session");
+  if (dalRitorno && /^[0-9a-f]{64}$/i.test(dalRitorno)) {
+    sessionStorage.setItem(CHIAVE_SESSIONE_PREVIEW, dalRitorno);
+    history.replaceState(null, "", `${location.pathname}${location.search}`);
+  }
+  return sessionStorage.getItem(CHIAVE_SESSIONE_PREVIEW) || "";
+}
+
+function eliminaSessionePreview() { sessionStorage.removeItem(CHIAVE_SESSIONE_PREVIEW); }
+
 async function api(percorso, opzioni = {}) {
+  const token = sessionePreview();
   const risposta = await fetch(`${API_BASE}${percorso}`, {
     credentials: "include", ...opzioni,
-    headers: { accept: "application/json", ...(opzioni.headers || {}) },
+    headers: { accept: "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), ...(opzioni.headers || {}) },
   });
   let corpo = null;
   try { corpo = await risposta.json(); } catch { /* risposta non JSON */ }
+  if (risposta.status === 401) eliminaSessionePreview();
   if (!risposta.ok) throw Object.assign(
     new Error(corpo?.errore || `Errore ${risposta.status}`), { stato: risposta.status });
   return corpo;
@@ -667,6 +683,7 @@ async function carica() {
     renderDraft();
     popolaFiltri();
     await caricaPartite(false);
+    traduciDocumento();
   } catch (errore) {
     $("account-loading").classList.add("hidden");
     $("account-login").classList.remove("hidden");
@@ -674,6 +691,7 @@ async function carica() {
       $("login-message").textContent = errore.message;
       $("login-message").className = "service-message error";
     }
+    traduciDocumento();
   }
 }
 
@@ -689,7 +707,8 @@ $("create-link").addEventListener("click", async () => {
   } catch (e) { $("link-message").textContent = e.message; }
 });
 $("logout").addEventListener("click", async () => {
-  await api("/account/logout", { method: "POST" }); location.reload();
+  try { await api("/account/logout", { method: "POST" }); }
+  finally { eliminaSessionePreview(); location.reload(); }
 });
 for (const bottone of document.querySelectorAll("[data-export]")) bottone.addEventListener("click", async () => {
   try {

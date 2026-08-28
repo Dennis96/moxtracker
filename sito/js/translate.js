@@ -1,5 +1,6 @@
-const risposta = await fetch(new URL("../i18n/en.json", import.meta.url));
-const traduzioni = await risposta.json();
+const inglese = document.documentElement.lang === "en";
+const risposta = inglese ? await fetch(new URL("../i18n/en.json", import.meta.url)) : null;
+const traduzioni = risposta ? await risposta.json() : {};
 const attributi = ["aria-label", "title", "placeholder"];
 const schemi = [
   [/^(\d[\d.,]*) partita$/, "$1 match"],
@@ -47,9 +48,18 @@ function traduciNodo(nodo) {
   for (const figlio of nodo.childNodes) traduciNodo(figlio);
 }
 
-traduciNodo(document.documentElement);
-new MutationObserver((mutazioni) => {
-  for (const mutazione of mutazioni) {
-    for (const nodo of mutazione.addedNodes) traduciNodo(nodo);
-  }
-}).observe(document.body, { childList: true, subtree: true });
+// I moduli che riempiono dashboard e filtri importano questa funzione alla fine
+// del loro render: MutationObserver da solo puo' perdere nodi creati prima
+// che il modulo di traduzione sia pronto.
+export function traduciDocumento(nodo = document.documentElement) {
+  if (inglese) traduciNodo(nodo);
+}
+
+if (inglese) {
+  traduciDocumento();
+  new MutationObserver((mutazioni) => {
+    for (const mutazione of mutazioni) {
+      for (const nodo of mutazione.addedNodes) traduciDocumento(nodo);
+    }
+  }).observe(document.body, { childList: true, subtree: true });
+}

@@ -67,6 +67,8 @@ main { overflow: hidden; }
 .product-intro { display: grid; grid-template-columns: minmax(280px, .72fr) minmax(0, 1.28fr); gap: clamp(22px, 4vw, 58px); align-items: center; padding: clamp(28px, 5vw, 58px) 0 20px; }
 .product-intro h2 { margin: 7px 0 14px; font-size: clamp(2rem, 4vw, 3.8rem); line-height: 1; letter-spacing: -.045em; }
 .product-intro p { color: var(--muted); line-height: 1.62; }
+.product-intro .product-note { font-size: .86rem; color: #cfaee5; }
+.hero-community { max-width: 690px; color: #d8c3e8 !important; font-size: .92rem; }
 .inline-links { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 20px; }
 .inline-links a { color: #d185ff; font-weight: 750; text-underline-offset: 4px; }
 .product-shots { display: grid; grid-template-columns: minmax(180px, .45fr) minmax(360px, 1fr); gap: 14px; align-items: end; }

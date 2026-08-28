@@ -1,4 +1,5 @@
 import { fetchStatisticheDraft } from "./api.js";
+import { traduciDocumento } from "./translate.js";
 
 const $ = (id) => document.getElementById(id);
 const lingua = document.documentElement.lang === "en" ? "en-US" : "it-IT";
@@ -7,6 +8,16 @@ const numero = new Intl.NumberFormat(lingua);
 
 function intervallo(valore) {
   return Array.isArray(valore) ? `${percentuale.format(valore[0])}–${percentuale.format(valore[1])}` : "—";
+}
+
+function aggiornaSet(eventi) {
+  const campo = $("draft-set");
+  const selezionato = campo.value;
+  const setDisponibili = [...new Set(eventi.map((riga) => String(riga.set || "").trim())
+    .filter(Boolean))].sort();
+  campo.replaceChildren(new Option("Tutti i set", ""));
+  for (const set of setDisponibili) campo.append(new Option(set, set));
+  campo.value = setDisponibili.includes(selezionato) ? selezionato : "";
 }
 
 function disegna(dati) {
@@ -21,8 +32,10 @@ function disegna(dati) {
   const aggiornato = totali.aggiornato || dati.aggiornato;
   $("draft-updated").textContent = aggiornato ? `Aggiornato ${new Date(aggiornato).toLocaleString(lingua)}` : "";
   const eventi = Array.isArray(dati.eventi) ? dati.eventi : [];
+  aggiornaSet(eventi);
   if (!eventi.length) {
     $("draft-events").innerHTML = '<div class="draft-empty"><div><strong>Stiamo raccogliendo i primi Draft</strong><p>Gli aggregati compariranno dopo i contributi inviati con consenso.</p></div></div>';
+    traduciDocumento();
     return;
   }
   $("draft-events").replaceChildren(...eventi.map((riga) => {
@@ -34,18 +47,20 @@ function disegna(dati) {
     card.innerHTML = `<span class="eyebrow">${riga.formato}</span><h3>${riga.set}</h3><dl><dt>Draft</dt><dd>${numero.format(riga.draft)}</dd><dt>Scelte</dt><dd>${numero.format(riga.pick)}</dd></dl><span class="event-open">Filtra questo gruppo →</span>`;
     return card;
   }));
+  traduciDocumento();
 }
 
 async function carica() {
   $("draft-error").hidden = true;
   $("draft-events").innerHTML = '<div class="skeleton"></div>';
   try {
-    const dati = await fetchStatisticheDraft({ set: $("draft-set").value.trim().toUpperCase(), formato: $("draft-format").value, periodo: $("draft-period").value });
+    const dati = await fetchStatisticheDraft({ set: $("draft-set").value, formato: $("draft-format").value, periodo: $("draft-period").value });
     disegna(dati);
   } catch (guasto) {
     $("draft-error").textContent = `Statistiche Draft non disponibili: ${guasto.message}`;
     $("draft-error").hidden = false;
     $("draft-events").innerHTML = '<div class="draft-empty">I dati Draft non sono disponibili.</div>';
+    traduciDocumento();
   }
 }
 

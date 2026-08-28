@@ -75,6 +75,8 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /renderProfiloMazzo/);
   assert.match(js, /PERCORSO_ACCOUNT/);
   assert.match(js, /window\.location\.origin/);
+  assert.match(js, /mox-preview-session/);
+  assert.match(js, /authorization: `Bearer \$\{token\}`/);
   assert.match(js, /\/account\/delete-section/);
 });
 
