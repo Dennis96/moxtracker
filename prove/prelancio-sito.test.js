@@ -7,11 +7,13 @@ const QUI = fileURLToPath(new URL(".", import.meta.url));
 const leggi = percorso => readFileSync(QUI + "../sito/" + percorso, "utf8");
 const leggiRadice = percorso => readFileSync(QUI + "../" + percorso, "utf8");
 
-test("pre-lancio collega il download MOX allo ZIP stabile della release GitHub", () => {
+test("pre-lancio collega il download MOX al pacchetto GitHub pubblicato", () => {
   const configurazione = leggi("js/config.js");
-  assert.match(configurazione, /https:\/\/github\.com\/Dennis96\/moxtracker\/releases\/latest\/download\/Mox-Windows-beta\.zip/);
+  const download = "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.26/Mox-v2-beta2.9.26-con-python.zip";
+  assert.match(configurazione, new RegExp(download.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   const home = leggi("index.html");
-  assert.equal((home.match(/data-download href="https:\/\/github\.com\/Dennis96\/moxtracker\/releases\/latest\/download\/Mox-Windows-beta\.zip"/g) || []).length, 2);
+  assert.equal((home.match(new RegExp(`data-download href="${download}"`, "g")) || []).length, 2);
+  assert.match(leggi("note-versione.html"), new RegExp(`data-download href="${download}"`));
   assert.doesNotMatch(home, /data-download aria-disabled="true"/);
   // Il numero di versione scritto a mano nel pulsante invecchia a ogni
   // release: il 23/08/2026 il sito serviva gia' la 2.9.13 e i due pulsanti
@@ -43,6 +45,8 @@ test("il monitor della beta controlla preview, API e CORS account", () => {
   assert.match(workflow, /MOX_SITE_URL: https:\/\/preview\.moxtracker\.pages\.dev/);
   assert.match(smoke, /access-control-request-method/);
   assert.match(smoke, /access-control-allow-credentials/);
+  assert.match(smoke, /valoreOpzione\("--site"\)/);
+  assert.match(smoke, /readFile\(new URL\("\.\.\/sito\/js\/config\.js"/);
 });
 
 test("pre-lancio compatta i matchup ancora non pubblicabili", () => {

@@ -1,5 +1,15 @@
-const base = String(process.env.MOX_SITE_URL || "https://moxtracker.app").replace(/\/$/, "");
-const api = String(process.env.MOX_API_URL || "https://api.moxtracker.app").replace(/\/$/, "");
+import { readFile } from "node:fs/promises";
+
+function valoreOpzione(nome) {
+  const indice = process.argv.indexOf(nome);
+  return indice >= 0 ? process.argv[indice + 1] : null;
+}
+
+const base = String(valoreOpzione("--site") || process.env.MOX_SITE_URL || "https://moxtracker.app").replace(/\/$/, "");
+const api = String(valoreOpzione("--api") || process.env.MOX_API_URL || "https://api.moxtracker.app").replace(/\/$/, "");
+const configurazioneSito = await readFile(new URL("../sito/js/config.js", import.meta.url), "utf8");
+const download = configurazioneSito.match(/^export const DOWNLOAD_URL = "([^"\r\n]+)";\r?$/m)?.[1];
+if (!download) throw new Error("download MOX non configurato");
 const controlli = [
   ["home", `${base}/`, /MOX/i],
   ["draft", `${base}/draft`, /Draft/i],
@@ -49,7 +59,7 @@ if (!["localhost", "127.0.0.1", "::1"].includes(new URL(base).hostname)) {
   }
 }
 
-const release = await fetch("https://github.com/Dennis96/moxtracker/releases/latest/download/Mox-Windows-beta.zip",
+const release = await fetch(download,
   { method: "HEAD", redirect: "follow" });
 console.log(`${release.ok ? "OK" : "ERRORE"} download: HTTP ${release.status}`);
 if (!release.ok) fallimenti += 1;
