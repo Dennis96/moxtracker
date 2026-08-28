@@ -7,10 +7,14 @@ test("il selettore lingua torna davvero all'italiano dalla home inglese", () => 
   assert.equal(linkLinguaAlternativa("/en/", true), "../index.html");
   assert.equal(linkLinguaAlternativa("/en/draft.html", true, "?periodo=30", "#metodo"),
     "../draft.html?periodo=30#metodo");
+  assert.equal(linkLinguaAlternativa("/en/draft", true, "?periodo=30", "#metodo"),
+    "../draft?periodo=30#metodo");
 });
 
 test("il selettore lingua conserva pagina, filtri e ancora passando all'inglese", () => {
   assert.equal(linkLinguaAlternativa("/", false), "./en/index.html");
   assert.equal(linkLinguaAlternativa("/account.html", false, "?tab=draft", "#dettaglio"),
     "./en/account.html?tab=draft#dettaglio");
+  assert.equal(linkLinguaAlternativa("/account", false, "?tab=draft", "#dettaglio"),
+    "./en/account?tab=draft#dettaglio");
 });
