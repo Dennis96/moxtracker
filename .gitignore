@@ -2,6 +2,9 @@ node_modules/
 .wrangler/
 .dist/
 .release/
+# Materiale locale prodotto dal flusso di pubblicazione Mox: non appartiene
+# alla build del sito e non deve bloccare il gate di release della preview.
+build/
 .dev.vars
 *.log
 id-database.txt
