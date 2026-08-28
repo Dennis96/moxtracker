@@ -1,3 +1,5 @@
+import { linkLinguaAlternativa } from "./language-link.js";
+
 const pagina = document.body.dataset.page || "";
 const inglese = document.documentElement.lang === "en";
 
@@ -26,9 +28,8 @@ if (navigazione && !document.querySelector(".language-link")) {
   lingua.hreflang = inglese ? "it" : "en";
   lingua.lang = inglese ? "it" : "en";
   lingua.textContent = inglese ? "IT" : "EN";
-  const file = location.pathname.split("/").filter(Boolean).pop() || "index.html";
-  lingua.href = inglese ? `../${file}${location.search}${location.hash}`
-    : `./en/${file}${location.search}${location.hash}`;
+  lingua.href = linkLinguaAlternativa(location.pathname, inglese,
+    location.search, location.hash);
   lingua.setAttribute("aria-label", inglese ? "Versione italiana" : "English version");
   navigazione.append(lingua);
 }
