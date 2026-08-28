@@ -4,6 +4,31 @@ Ambiente da provare: `https://preview.moxtracker.pages.dev`.
 
 La produzione del sito non fa parte di queste prove. Usa un account di test: non usare l'account personale per revoca consenso o eliminazione account.
 
+## Da riprovare adesso, in quest'ordine
+
+Queste sono le prove che coprono le correzioni appena pubblicate. Le altre
+sezioni restano come controllo completo della beta.
+
+1. **Inglese nel Meta:** apri `https://preview.moxtracker.pages.dev/en/#meta`.
+   I campi devono dire “Archetype / deck”, “All ranks” e “All strategies”, non
+   restare in italiano dopo il caricamento dei dati.
+2. **Filtro Set nei Draft:** apri Draft. Il campo Set è un menu, non una casella
+   da compilare: scegli `HOB`, poi torna a “Tutti i set” e verifica che i dati
+   cambino senza errori.
+3. **Lista di riferimento:** nel dettaglio di un archetipo apri la lista del
+   catalogo, premi “Copia per Arena” e incolla il testo in Blocco note o in
+   Arena. Deve contenere `Deck` e, se presente, `Sideboard`.
+4. **Ticket anonimo:** apri Supporto senza avere effettuato l'accesso. Il
+   riquadro Turnstile deve caricarsi senza “Impossibile connettersi al sito
+   web”; completa la verifica e invia un solo ticket di prova.
+5. **Accesso Google:** da Account, scegli Google. Dopo la scelta deve tornare
+   alla preview già autenticato, non fermarsi con la pagina di login visibile.
+6. **Account dopo l'accesso:** solo dopo il punto 5, esegui rinomina deck,
+   export, revoca e cancellazione descritti nella sezione 3, sempre e solo con
+   l'account di test.
+7. **Download:** il pulsante deve aprire lo ZIP Mox 2.9.27. Non serve
+   installarlo: controlla nome e versione del file proposto.
+
 ## 1. Lingua e navigazione
 
 1. Apri la home in italiano e premi `EN`: deve aprirsi la home inglese.
