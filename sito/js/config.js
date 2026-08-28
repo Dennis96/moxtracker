@@ -10,4 +10,4 @@ export const RANKS = ["", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "My
 // Il nome dell'asset GitHub fa parte della release: aggiornarlo insieme a ogni
 // nuova beta, invece di puntare a un alias che GitHub non crea automaticamente.
 // Il canale firmato /mox/release + /mox/download.exe resta separato per l'autoupdate.
-export const DOWNLOAD_URL = "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.26/Mox-v2-beta2.9.26-con-python.zip";
+export const DOWNLOAD_URL = "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.27/Mox-v2-beta2.9.27-con-python.zip";

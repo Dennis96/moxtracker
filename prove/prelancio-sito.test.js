@@ -9,7 +9,7 @@ const leggiRadice = percorso => readFileSync(QUI + "../" + percorso, "utf8");
 
 test("pre-lancio collega il download MOX al pacchetto GitHub pubblicato", () => {
   const configurazione = leggi("js/config.js");
-  const download = "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.26/Mox-v2-beta2.9.26-con-python.zip";
+  const download = "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.27/Mox-v2-beta2.9.27-con-python.zip";
   assert.match(configurazione, new RegExp(download.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   const home = leggi("index.html");
   assert.equal((home.match(new RegExp(`data-download href="${download}"`, "g")) || []).length, 2);
@@ -68,7 +68,7 @@ test("homepage presenta Mox con due schermate reali e pagine di trasparenza", ()
   assert.match(home, /condivisione con gli amici sarà una scelta separata/);
   assert.match(home, /Più persone scaricano e usano Mox/);
   assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
-  assert.match(leggi("note-versione.html"), /2\.9\.24/);
+  assert.match(leggi("note-versione.html"), /2\.9\.27/);
 });
 
 test("il reset del Meta ripristina anche periodo, modalita e rank", () => {

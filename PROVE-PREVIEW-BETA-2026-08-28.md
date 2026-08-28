@@ -13,14 +13,14 @@ La produzione del sito non fa parte di queste prove. Usa un account di test: non
 
 ## 2. Pagine pubbliche
 
-1. Home: verifica testo, immagini e pulsante Download. Il download deve proporre il pacchetto Windows 2.9.26; non è necessario installarlo di nuovo.
+1. Home: verifica testo, immagini e pulsante Download. Il download deve proporre il pacchetto Windows 2.9.27; non è necessario installarlo di nuovo.
 2. Meta: cambia formato, periodo, rango e modalita; cerca una carta; apri almeno un archetipo e una sua variante. I filtri devono aggiornare dati e URL senza errori.
 3. Draft: cambia set, evento e periodo. Devono comparire solo dati aggregati, senza nomi, identificativi di dispositivo, singole partite o diagnostica personale.
 4. Support: controlla che le istruzioni sulla privacy siano coerenti con l'open beta.
 
 ## 3. Account e consensi
 
-1. Accedi con l'account di test e collega Mox seguendo il flusso previsto dall'app 2.9.26.
+1. Accedi con l'account di test e collega Mox seguendo il flusso previsto dall'app 2.9.27.
 2. Verifica che lo stato dei due consensi (partite e Draft) sia comprensibile e che una modifica nell'app si rifletta nell'account dopo la sincronizzazione.
 3. Rinomina un deck dall'account, aggiorna la pagina e verifica che il nuovo nome resti salvato.
 4. Esporta i dati dell'account e verifica che il file contenga solo dati dell'account di test.
