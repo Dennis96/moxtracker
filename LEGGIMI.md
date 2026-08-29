@@ -28,9 +28,15 @@ D1 sono passaggi separati e richiedono autorizzazione esplicita.
 Per riprendere il lavoro leggere nell'ordine:
 
 1. [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md)
-2. [RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md](RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md)
-3. [ACCOUNT-E-TICKET.md](ACCOUNT-E-TICKET.md), solo per account e supporto.
-4. [CHECKLIST-BETA-SITO-2026-08-27.md](CHECKLIST-BETA-SITO-2026-08-27.md), prima di un collaudo beta.
+2. [STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md), sempre prima di nuovo lavoro.
+3. [RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md](RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md)
+4. [ACCOUNT-E-TICKET.md](ACCOUNT-E-TICKET.md), solo per account e supporto.
+5. [CHECKLIST-BETA-SITO-2026-08-27.md](CHECKLIST-BETA-SITO-2026-08-27.md), prima di un collaudo beta.
 
 Il codice, la cronologia Git e `npm run prove` prevalgono sempre sui documenti
 storici.
+
+Dopo ogni deploy preview riuscito aggiornare subito
+[STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md): commit, URL, modifiche,
+verifiche e confini non toccati. Non creare un secondo handoff per lo stesso
+scopo.
