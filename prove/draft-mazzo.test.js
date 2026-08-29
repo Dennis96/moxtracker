@@ -154,5 +154,8 @@ test("le statistiche pubbliche non espongono diagnostica del mazzo montato", asy
     "aggiornato", "approfondimenti", "eventi", "filtri", "risultati", "totali", "versione",
   ]);
   assert.deepEqual(Object.keys(corpo.eventi[0]).sort(), ["aggiornato", "draft", "formato", "pick", "set"]);
-  assert.deepEqual(corpo.approfondimenti, { colori: [], carte: [], disponibili: false });
+  assert.deepEqual(corpo.approfondimenti?.fonte_mox?.colori, []);
+  assert.deepEqual(corpo.approfondimenti?.fonte_mox?.carte, []);
+  assert.equal(corpo.approfondimenti?.fonte_mox?.disponibili, false);
+  assert.equal(corpo.approfondimenti?.fonte_17lands?.disponibile, false);
 });

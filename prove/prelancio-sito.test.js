@@ -71,6 +71,9 @@ test("homepage presenta Mox con due schermate reali e pagine di trasparenza", ()
   assert.match(home, /Più persone scaricano e usano Mox/);
   assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
   assert.match(leggi("note-versione.html"), /Tutte le note di versione/);
+  assert.match(leggi("download.html"), /Scarica Mox/);
+  assert.match(leggi("download.html"), /data-download href="https:\/\/api\.moxtracker\.app\/mox\/download\.exe"/);
+  assert.match(home, /Scarica Mox e contribuisci al Meta/);
 });
 
 test("il reset del Meta ripristina anche periodo, modalita e rank", () => {

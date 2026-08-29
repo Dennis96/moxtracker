@@ -488,5 +488,57 @@
   "Questo è il tuo link segreto: conservalo. Se hai scelto le notifiche email, conferma prima l’indirizzo dal messaggio ricevuto.": "This is your secret link: keep it. If you chose email notifications, first confirm the address from the message you received.",
   "Le notifiche email sono facoltative: l'indirizzo viene chiesto solo per il singolo ticket, dopo una spunta esplicita e una conferma dal messaggio ricevuto. Le email non contengono testo o allegati del ticket, ma un link privato per aprirlo; l'indirizzo e i relativi token vengono eliminati con il ticket.": "Email notifications are optional: the address is requested only for the individual ticket, after explicit consent and confirmation from the received message. Emails do not contain ticket text or attachments, but a private link to open it; the address and related tokens are deleted with the ticket.",
   "Disattiva notifiche email": "Turn off email notifications",
-  "Notifiche email disattivate": "Email notifications turned off"
+  "Notifiche email disattivate": "Email notifications turned off",
+  "Servono almeno 10 Draft completi con metadati carta verificati prima di mostrare i colori.": "At least 10 complete Drafts with verified card metadata are required before showing colors.",
+  "In raccolta": "Collecting data",
+  "Aggregati Mox": "Mox aggregates",
+  "Risultati in raccolta": "Results are being collected",
+  "Carte nei mazzi": "Cards in",
+  "Nessuna carta supera ancora le soglie.": "No card meets the thresholds yet.",
+  "Il win rate descrive i mazzi che contengono la carta, non dimostra che la carta ne sia la causa.": "Win rate describes decks containing the card; it does not prove the card caused the result.",
+  "17Lands — fonte separata": "17Lands — separate source",
+  "Non viene sommata ai dati Mox.": "It is not combined with Mox data.",
+  "Dataset pubblici e attribuzione": "Public datasets and attribution",
+  "Dati insufficienti": "Insufficient data"
+  ,"Scarica Mox e contribuisci al Meta": "Download Mox and contribute to the Meta"
+  ,"Istruzioni di installazione": "Installation instructions"
+  ,"Scarica e installa Mox per Windows.": "Download and install Mox for Windows."
+  ,"Scarica Mox per Windows": "Download Mox for Windows"
+  ,"Windows 10/11": "Windows 10/11"
+  ,"Scarica Mox": "Download Mox"
+  ,"L'installer scarica sempre l'ultima release stabile. Il download è una richiesta tecnica, non una conferma di installazione.": "The installer always downloads the latest stable release. A download is a technical request, not confirmation of installation."
+  ,"Scarica": "Download"
+  ,"Apri il file": "Open the file"
+  ,"Installa": "Install"
+  ,"Segui le istruzioni Windows; Mox resta sul tuo PC.": "Follow the Windows instructions; Mox stays on your PC."
+  ,"Scegli i consensi": "Choose consent settings"
+  ,"Contributi a Meta e Draft sono separati, facoltativi e revocabili.": "Meta and Draft contributions are separate, optional, and revocable."
+  ,"Prima di installare puoi leggere": "Before installing, you can read"
+  ,"cosa invia Mox": "what Mox sends"
+  ,"Il download dell'installer incrementa soltanto un contatore aggregato di richieste servite. Non registra IP, user-agent, account o conferma di installazione; il numero non equivale a persone o installazioni.": "Downloading the installer increments only an aggregate counter of served requests. It does not record IP addresses, user agents, accounts, or installation confirmation; the number does not equal people or installations."
+  ,"Guida e domande frequenti su Mox.": "Mox guide and frequently asked questions."
+  ,"Come funziona Mox": "How Mox works"
+  ,"Guida breve": "Quick guide"
+  ,"Mox legge localmente i log di MTG Arena per assisterti durante il Draft, tenere i risultati e conservare i tuoi mazzi. Nessun contributo pubblico parte senza il consenso corrispondente.": "Mox reads MTG Arena logs locally to assist during Draft, track results, and keep your decks. No public contribution is sent without the relevant consent."
+  ,"Mox durante la scelta Draft": "Mox during a Draft pick"
+  ,"Durante il Draft, il consiglio resta sul tuo PC.": "During Draft, the recommendation stays on your PC."
+  ,"Mox propone il mazzo Draft": "Mox suggests the Draft deck"
+  ,"Al termine, Mox propone una base di mazzo.": "At the end, Mox suggests a deck foundation."
+  ,"Meta spiegato": "Understanding Meta"
+  ,"Il Meta mostra soltanto aggregati anonimi. Win rate e quota Meta richiedono almeno 30 partite; il Meta score resta nascosto finché almeno cinque archetipi sopra soglia non sono stabili in due finestre mobili di 30 giorni.": "Meta shows only anonymous aggregates. Win rate and Meta share require at least 30 matches; the Meta score remains hidden until at least five archetypes above threshold are stable over two rolling 30-day windows."
+  ,"Quando sarà disponibile, il Meta score combinerà il limite inferiore Wilson del win rate (70%) e la popolarità normalizzata (30%). Non sostituisce mai campione, intervallo, win rate e quota Meta.": "When available, the Meta score will combine the Wilson lower bound for win rate (70%) and normalized popularity (30%). It never replaces sample size, interval, win rate, and Meta share."
+  ,"Domande frequenti": "Frequently asked questions"
+  ,"Come scarico Mox?": "How do I download Mox?"
+  ,"Apri la": "Open the"
+  ,"pagina Download": "Download page"
+  ,"e usa l'installer Windows della release stabile.": "and use the stable Windows release installer."
+  ,"I miei dati sono pubblici?": "Is my data public?"
+  ,"No. I dati personali restano nell'account; il sito pubblico mostra solo aggregati con soglie dichiarate.": "No. Personal data stays in the account; the public site shows only aggregates with declared thresholds."
+  ,"Come funziona il Draft pubblico?": "How does public Draft work?"
+  ,"Set, evento e periodo rimangono separati. Le fonti Mox e 17Lands, quando disponibili, non vengono sommate.": "Set, event, and period remain separate. Mox and 17Lands sources, when available, are not combined."
+  ,"Come chiedo supporto?": "How do I request support?"
+  ,"Apri un": "Open a"
+  ,"ticket": "ticket"
+  ,"Le notifiche email sono facoltative, richiedono conferma e non contengono testo o allegati del ticket.": "Email notifications are optional, require confirmation, and contain no ticket text or attachments."
+  ,"Guida": "Guide"
 }

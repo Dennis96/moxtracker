@@ -385,6 +385,21 @@ async function salvaUno(db, r2, dato, ricevuto) {
       (draft_id, versione, quando, carte, distinte, lista, riserva)
       VALUES ${valori}`).bind(...argomenti));
   }
+  // Le singole carte dell'ultima lista non sono più rinchiuse nel JSON: il
+  // sito può aggregarle senza aprire R2. Restano comunque private finché le
+  // soglie della risposta pubblica non sono soddisfatte.
+  const ultimaVersione = versioni.at(-1);
+  if (ultimaVersione) {
+    const carte = ultimaVersione.mazzo || [];
+    for (let i = 0; i < carte.length; i += 25) {
+      const blocco = carte.slice(i, i + 25);
+      const valori = blocco.map(() => "(?, ?, ?, ?)").join(", ");
+      const argomenti = blocco.flatMap(([arenaId, copie]) =>
+        [dato.draft, versioni.length, arenaId, copie]);
+      comandi.push(db.prepare(`INSERT INTO draft_mazzo_carta
+        (draft_id, versione, arena_id, copie) VALUES ${valori}`).bind(...argomenti));
+    }
+  }
   try {
     await db.batch(comandi);
   } catch (guasto) {
@@ -562,13 +577,91 @@ function wilson(successi, n) {
   return [Math.max(0, centro - raggio), Math.min(1, centro + raggio)];
 }
 
+const SOGLIE_APPROFONDIMENTI_DRAFT = Object.freeze({
+  draft: 10,
+  draft_carte: 20,
+  match: 30,
+});
+
+function percentualePubblica(vittorie, campione, soglia = SOGLIE_APPROFONDIMENTI_DRAFT.match) {
+  const n = Number(campione || 0);
+  return n >= soglia ? Number(vittorie || 0) / n : null;
+}
+
+async function approfondimentiDraft(db, dove, argomenti, colore, set, formato) {
+  // Tutte le query usano soltanto gli indici D1: i JSON completi restano R2
+  // privato. `json_each` legge colori del catalogo importato, mai input utente.
+  const base = `WITH ultima AS (
+      SELECT draft_id, MAX(versione) AS versione FROM draft_mazzo_carta GROUP BY draft_id
+    ), mazzo_colore AS (
+      SELECT DISTINCT mc.draft_id, json_each.value AS colore
+      FROM draft_mazzo_carta mc
+      JOIN ultima u ON u.draft_id = mc.draft_id AND u.versione = mc.versione
+      JOIN draft d ON d.id = mc.draft_id
+      JOIN draft_catalogo_carta c ON c.set_code = d.set_code AND c.arena_id = mc.arena_id
+      JOIN json_each(c.colori)
+      ${dove}
+    )`;
+  const colori = await db.prepare(`${base}
+    SELECT mc.colore, COUNT(DISTINCT mc.draft_id) AS draft,
+      COUNT(DISTINCT l.partita) AS campione,
+      COALESCE(SUM(CASE WHEN l.esito = 'vinta' THEN 1 ELSE 0 END), 0) AS vittorie
+    FROM mazzo_colore mc LEFT JOIN draft_link l ON l.draft_id = mc.draft_id
+    GROUP BY mc.colore ORDER BY campione DESC, draft DESC, mc.colore`).bind(...argomenti).all();
+
+  let carte = [];
+  if (colore && /^[WUBRG]$/.test(colore)) {
+    const righe = await db.prepare(`${base}
+      SELECT c.arena_id, c.nome, COUNT(DISTINCT d.id) AS draft,
+        COUNT(DISTINCT l.partita) AS campione,
+        COALESCE(SUM(CASE WHEN l.esito = 'vinta' THEN 1 ELSE 0 END), 0) AS vittorie
+      FROM draft d
+      JOIN draft_mazzo_carta mc ON mc.draft_id = d.id
+      JOIN ultima u ON u.draft_id = mc.draft_id AND u.versione = mc.versione
+      JOIN draft_catalogo_carta c ON c.set_code = d.set_code AND c.arena_id = mc.arena_id
+      JOIN json_each(c.colori) colore_carta
+      LEFT JOIN draft_link l ON l.draft_id = d.id
+      ${dove} AND colore_carta.value = ?
+      GROUP BY c.arena_id, c.nome
+      ORDER BY campione DESC, draft DESC, c.nome LIMIT 30`).bind(...argomenti, colore).all();
+    carte = (righe.results || []).map(riga => ({
+      arena_id: Number(riga.arena_id), nome: riga.nome, draft: Number(riga.draft),
+      campione: Number(riga.campione),
+      vittorie: Number(riga.vittorie),
+      win_rate: percentualePubblica(riga.vittorie, riga.campione),
+      intervallo_95: Number(riga.campione) >= SOGLIE_APPROFONDIMENTI_DRAFT.match
+        ? wilson(Number(riga.vittorie), Number(riga.campione)) : null,
+    })).filter(riga => riga.draft >= SOGLIE_APPROFONDIMENTI_DRAFT.draft_carte)
+      .sort((a, b) => Number(b.intervallo_95?.[0] || -1) - Number(a.intervallo_95?.[0] || -1) ||
+        b.campione - a.campione || a.nome.localeCompare(b.nome));
+  }
+  const esterne = await db.prepare(`SELECT fonte, set_code, formato, arena_id, nome, colori,
+      metrica, vittorie, campione, dataset_aggiornato
+    FROM draft_stat_esterna
+    WHERE (? IS NULL OR set_code = ?) AND (? IS NULL OR formato = ?)
+      AND metrica = 'gih_win_rate'
+    ORDER BY campione DESC, nome ASC LIMIT 100`).bind(
+      set || null, set || null, formato || null, formato || null).all();
+  // La query esterna richiede i filtri espliciti, passati separatamente dal
+  // `WHERE` SQL interno, per evitare di riusare testo SQL come dato.
+  return { colori: (colori.results || []).map(riga => ({
+    colore: riga.colore, draft: Number(riga.draft), campione: Number(riga.campione),
+    vittorie: Number(riga.vittorie), win_rate: percentualePubblica(riga.vittorie, riga.campione),
+    intervallo_95: Number(riga.campione) >= SOGLIE_APPROFONDIMENTI_DRAFT.match
+      ? wilson(Number(riga.vittorie), Number(riga.campione)) : null,
+  })).filter(riga => riga.draft >= SOGLIE_APPROFONDIMENTI_DRAFT.draft), carte,
+    esterne: esterne.results || [] };
+}
+
 export async function statisticheDraft(db, indirizzo) {
   const set = indirizzo.searchParams.get("set");
   const formato = indirizzo.searchParams.get("formato");
+  const colore = (indirizzo.searchParams.get("colore") || "").toUpperCase();
   const periodo = indirizzo.searchParams.get("periodo") || "30";
   if (!["7", "14", "30", "totale"].includes(periodo)) {
     return { errore: "periodo Draft non valido", stato: 400 };
   }
+  if (colore && !/^[WUBRG]$/.test(colore)) return { errore: "colore Draft non valido", stato: 400 };
   const condizioni = [];
   const argomenti = [];
   if (set) { condizioni.push("d.set_code = ?"); argomenti.push(set.toUpperCase()); }
@@ -596,9 +689,10 @@ export async function statisticheDraft(db, indirizzo) {
     FROM draft_link l JOIN draft d ON d.id = l.draft_id ${dove}`).bind(...argomenti).first();
   const partite = Number(collegati?.partite || 0);
   const vittorie = Number(collegati?.vittorie || 0);
+  const approfondimenti = await approfondimentiDraft(db, dove, argomenti, colore, set?.toUpperCase() || null, formato || null);
   return {
-    versione: 2,
-    filtri: { set, formato, periodo },
+    versione: 3,
+    filtri: { set, formato, periodo, colore: colore || null },
     totali: {
       draft: Number(totali?.draft || 0),
       pick: Number(totali?.pick || 0),
@@ -613,7 +707,26 @@ export async function statisticheDraft(db, indirizzo) {
     })),
     risultati: { campione: partite, win_rate: partite >= 30 ? vittorie / partite : null,
       intervallo_95: partite >= 30 ? wilson(vittorie, partite) : null },
-    approfondimenti: { colori: [], carte: [], disponibili: false },
+    approfondimenti: {
+      fonte_mox: {
+        colori: approfondimenti.colori,
+        carte: approfondimenti.carte,
+        colore_selezionato: colore || null,
+        soglie: SOGLIE_APPROFONDIMENTI_DRAFT,
+        disponibili: approfondimenti.colori.length > 0,
+        nota: "Il win rate descrive i mazzi che contengono la carta, non dimostra che la carta ne sia la causa.",
+      },
+      fonte_17lands: {
+        carte: approfondimenti.esterne.map(riga => ({
+          ...riga, arena_id: Number(riga.arena_id), vittorie: Number(riga.vittorie),
+          campione: Number(riga.campione), win_rate: percentualePubblica(riga.vittorie, riga.campione, 1),
+        })),
+        disponibile: approfondimenti.esterne.length > 0,
+        attribuzione: "17Lands public datasets, CC BY 4.0",
+        url: "https://api.17lands.com/public_datasets",
+        metrica: "GIH win rate",
+      },
+    },
     aggiornato: new Date().toISOString(),
   };
 }
@@ -664,6 +777,7 @@ export async function eliminaMittente(ambiente, mittente) {
   // sarebbe piu' il modo di risalire ai suoi id.
   if (contributoreDraft) await ambiente.DRAFT_DB.batch([
     ambiente.DRAFT_DB.prepare("DELETE FROM draft_link WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
+    ambiente.DRAFT_DB.prepare("DELETE FROM draft_mazzo_carta WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
     ambiente.DRAFT_DB.prepare("DELETE FROM draft_mazzo WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
     ambiente.DRAFT_DB.prepare("DELETE FROM draft_pick WHERE draft_id IN (SELECT id FROM draft WHERE mittente = ?)").bind(mittente),
     ambiente.DRAFT_DB.prepare("DELETE FROM draft WHERE mittente = ?").bind(mittente),

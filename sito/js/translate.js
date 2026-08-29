@@ -22,6 +22,7 @@ const schemi = [
   [/^Percentuali pubblicate da (\d[\d.,]*) partite\.$/,
     "Percentages are published from $1 matches."],
   [/^Statistiche Draft non disponibili: (.+)$/, "Draft statistics unavailable: $1"],
+  [/^Carte nei mazzi ([WUBRG])$/, "Cards in $1 decks"],
   [/^Mox ha registrato (\d+) scelte; (\d+) coincidevano con il consiglio salvato\. Il dettaglio pick-by-pick resta fuori dalla prima beta\.$/,
     "Mox recorded $1 choices; $2 matched the saved recommendation. Pick-by-pick details remain outside the first beta."],
 ];

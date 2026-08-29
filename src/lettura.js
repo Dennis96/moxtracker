@@ -2,10 +2,47 @@ import { aggregaMeta, catalogoPronto, infoCatalogo } from "./archetipi.js";
 
 export const SOGLIA_META = 30;
 export const SOGLIA_SCONTRI = 100;
+export const POLICY_META_SCORE = Object.freeze({
+  peso_qualita: 0.7,
+  peso_popolarita: 0.3,
+  archetipi_minimi: 5,
+  partite_per_archetipo: SOGLIA_META,
+  finestre_30_giorni: 2,
+});
 
 function percentuale(parte, totale) {
   if (!totale) return null;
   return Math.round((parte * 10000) / totale) / 100;
+}
+
+// Limite inferiore Wilson al 95%: e' il valore prudente, non il win rate
+// osservato. Viene esportato e testato separatamente per poter cambiare la
+// politica senza nascondere il metodo dietro un numero opaco.
+export function limiteWilson(successi, tentativi) {
+  const n = Number(tentativi);
+  const k = Number(successi);
+  if (!Number.isFinite(n) || !Number.isFinite(k) || n <= 0 || k < 0 || k > n) return null;
+  const z = 1.959963984540054;
+  const p = k / n;
+  const d = 1 + z * z / n;
+  const centro = (p + z * z / (2 * n)) / d;
+  const raggio = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d;
+  return Math.max(0, Math.min(1, centro - raggio));
+}
+
+export function candidatiMetaScore(mazzi, policy = POLICY_META_SCORE) {
+  const validi = (mazzi || []).filter(mazzo => Number(mazzo.partite) >= policy.partite_per_archetipo);
+  const logMassimo = Math.max(...validi.map(mazzo => Math.log1p(Number(mazzo.partite))), 0);
+  return validi.map(mazzo => {
+    const qualita = limiteWilson(mazzo.vittorie, mazzo.partite);
+    const popolarita = logMassimo ? Math.log1p(Number(mazzo.partite)) / logMassimo : 0;
+    return {
+      id: mazzo.archetipo_id || mazzo.impronta || mazzo.nome,
+      qualita,
+      popolarita,
+      indice: qualita === null ? null : policy.peso_qualita * qualita + policy.peso_popolarita * popolarita,
+    };
+  }).sort((a, b) => Number(b.indice) - Number(a.indice) || String(a.id).localeCompare(String(b.id)));
 }
 
 // Le classi che Arena espone. Una partita puo' arrivare senza classe - il
@@ -150,6 +187,14 @@ export async function leggiMeta(db, indirizzo) {
   mazzi = raggruppaBrew(mazzi.map((mazzo) => mazzettoPubblico(mazzo)),
     testa.partite_totali, SOGLIA_META);
 
+  // Il motore e' pronto, ma la risposta pubblica non espone ancora gli indici:
+  // il campione reale non soddisfa le due finestre indipendenti richieste.
+  // Tenere il contratto esplicito evita che un frontend futuro mostri per
+  // errore una graduatoria sperimentale come se fosse una percentuale.
+  const candidati = candidatiMetaScore(mazzi);
+  const prontoOra = candidati.length >= POLICY_META_SCORE.archetipi_minimi &&
+    filtro.periodo === "30";
+
   return {
     stato: 200,
     corpo: {
@@ -161,6 +206,16 @@ export async function leggiMeta(db, indirizzo) {
         ? "archetipo_con_fallback_impronta"
         : "impronta_mazzo",
       catalogo_archetipi: catalogo,
+      meta_score: {
+        disponibile: false,
+        pronto_nella_finestra_corrente: prontoOra,
+        richiede_finestre_30_giorni: POLICY_META_SCORE.finestre_30_giorni,
+        policy: { peso_qualita: POLICY_META_SCORE.peso_qualita,
+          peso_popolarita: POLICY_META_SCORE.peso_popolarita,
+          archetipi_minimi: POLICY_META_SCORE.archetipi_minimi,
+          partite_per_archetipo: POLICY_META_SCORE.partite_per_archetipo },
+        motivo: "L'indice resta in validazione finché cinque archetipi sopra soglia non sono stabili in due finestre mobili di 30 giorni.",
+      },
       nota: catalogo.disponibile
         ? "Gli archetipi sono riconosciuti da un nucleo di carte caratteristiche; la somiglianza completa al 90% identifica invece una variante quasi uguale al riferimento. I casi ambigui restano identificati soltanto dalla loro impronta."
         : "Il catalogo archetipi server non e' ancora generato: i mazzi restano raggruppati per impronta esatta.",

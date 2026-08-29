@@ -26,6 +26,10 @@ test("Draft pubblico separa set evento e periodo senza esporre diagnostica inter
   assert.match(js, /riga\.set/);
   assert.match(js, /riga\.formato/);
   assert.match(js, /function aggiornaSet/);
+  assert.match(html, /id="draft-insights"/);
+  assert.match(html, /id="draft-17lands"/);
+  assert.match(js, /fonte_17lands/);
+  assert.match(js, /Non viene sommata ai dati Mox/);
 });
 
 test("Metodo Draft ha una disposizione mobile esplicita", () => {

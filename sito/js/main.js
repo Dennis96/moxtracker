@@ -1,5 +1,5 @@
 import { DEFAULT_FORMAT, DOWNLOAD_URL, FORMATS, RANKS } from "./config.js?v=20260822-3";
-import { fetchMeta, fetchScontri, fetchStatisticheDraft } from "./api.js";
+import { fetchMeta, fetchProvaSociale, fetchScontri, fetchStatisticheDraft } from "./api.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
 import { traduciDocumento } from "./translate.js";
@@ -229,6 +229,13 @@ async function loadDraftSummary() {
   }
 }
 
+async function loadProvaSociale() {
+  try {
+    const dati = await fetchProvaSociale();
+    document.querySelector("#home-downloads").textContent = new Intl.NumberFormat(LOCALE).format(dati.richieste_download || 0);
+  } catch { document.querySelector("#home-downloads").textContent = "In raccolta"; }
+}
+
 async function loadScontri() {
   renderScontriLoading();
   const controller = controllerFor("scontri");
@@ -258,3 +265,4 @@ setupLocalFilters();
 setupDownload();
 loadAll();
 loadDraftSummary();
+loadProvaSociale();

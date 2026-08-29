@@ -228,6 +228,12 @@ async function scaricaReleaseMox(ambiente) {
   }
   const oggetto = await ambiente.MOX_RELEASES.get("Mox-Installer-win-x64.exe");
   if (!oggetto) return risposta({ errore: "installer non trovato" }, 404);
+  if (ambiente.DB) {
+    await ambiente.DB.batch([ambiente.DB.prepare(`INSERT INTO metrica_pubblica
+      (chiave, valore, aggiornato) VALUES ('richieste_download', 1, ?)
+      ON CONFLICT(chiave) DO UPDATE SET valore = valore + 1, aggiornato = excluded.aggiornato`)
+      .bind(new Date().toISOString())]);
+  }
   return new Response(oggetto.body, {
     headers: {
       ...INTESTAZIONI,
@@ -237,6 +243,20 @@ async function scaricaReleaseMox(ambiente) {
       "cache-control": "no-store",
     },
   });
+}
+
+async function provaSociale(ambiente) {
+  const [partite, collegamenti, download, draft] = await Promise.all([
+    ambiente.DB.prepare("SELECT COUNT(*) AS n FROM partite").first(),
+    ambiente.DB.prepare("SELECT COUNT(*) AS n FROM account_dispositivo").first(),
+    ambiente.DB.prepare("SELECT valore AS n, aggiornato FROM metrica_pubblica WHERE chiave = 'richieste_download'").first(),
+    ambiente.DRAFT_DB ? ambiente.DRAFT_DB.prepare("SELECT COUNT(*) AS n FROM draft WHERE sospetto IS NULL").first() : null,
+  ]);
+  return risposta({ richieste_download: Number(download?.n || 0), collegamenti_mox: Number(collegamenti?.n || 0),
+    contributi_partite: Number(partite?.n || 0), contributi_draft: Number(draft?.n || 0),
+    aggiornato: download?.aggiornato || null,
+    nota: "Le richieste di download non equivalgono a installazioni o persone.",
+  }, 200, true);
 }
 
 export default {
@@ -265,6 +285,11 @@ export default {
     if (indirizzo.pathname === "/mox/download.exe") {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
       return scaricaReleaseMox(ambiente);
+    }
+
+    if (indirizzo.pathname === "/prova-sociale") {
+      if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      return provaSociale(ambiente);
     }
 
     if (indirizzo.pathname === "/meta") {

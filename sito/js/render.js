@@ -82,6 +82,9 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
       ? "partita non ha il rank completo e resta fuori da questo filtro."
       : "partite non hanno il rank completo e restano fuori da questo filtro."}`;
   }
+  if (data.meta_score?.disponibile === false && data.meta_score?.motivo) {
+    nota.textContent += ` Meta score: ${data.meta_score.motivo}`;
+  }
 
   let decks = filterMetaDecks(Array.isArray(data.mazzi) ? data.mazzi : [], localFilters);
   document.querySelector("#meta-visible").textContent = `${formatInteger(decks.length)} ${decks.length === 1 ? "gruppo mostrato" : "gruppi mostrati"}`;

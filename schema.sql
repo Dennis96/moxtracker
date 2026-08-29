@@ -41,6 +41,14 @@ CREATE INDEX IF NOT EXISTS partite_per_mittente ON partite (mittente, ricevuta);
 CREATE INDEX IF NOT EXISTS partite_per_formato ON partite (formato, quando);
 CREATE INDEX IF NOT EXISTS partite_per_mazzo ON partite (impronta_mazzo);
 
+-- Soli contatori aggregati. `richieste_download` misura richieste servite,
+-- non persone né installazioni, e non conserva IP, user-agent o identificativi.
+CREATE TABLE IF NOT EXISTS metrica_pubblica (
+  chiave TEXT PRIMARY KEY,
+  valore INTEGER NOT NULL DEFAULT 0,
+  aggiornato TEXT NOT NULL
+);
+
 -- Le carte stanno in tabelle a parte, non dentro il JSON, perche' e' su
 -- queste che si fara' il riconoscimento degli archetipi: «quante carte di
 -- questa lista compaiono in quel mazzo» e' una domanda che a un database si
@@ -142,6 +150,17 @@ CREATE TABLE IF NOT EXISTS account_mazzo_nome (
 );
 CREATE INDEX IF NOT EXISTS account_mazzo_nome_account
   ON account_mazzo_nome (account_id, aggiornato);
+
+-- Nascondere e' una preferenza reversibile, non una cancellazione: Mox puo'
+-- continuare a sincronizzare il mazzo senza farlo ricomparire nell'archivio.
+CREATE TABLE IF NOT EXISTS account_mazzo_nascosto (
+  account_id TEXT NOT NULL,
+  impronta   TEXT NOT NULL,
+  aggiornato TEXT NOT NULL,
+  PRIMARY KEY (account_id, impronta)
+);
+CREATE INDEX IF NOT EXISTS account_mazzo_nascosto_account
+  ON account_mazzo_nascosto (account_id, aggiornato);
 
 -- Ticket e messaggi. Un ticket anonimo e' accessibile soltanto tramite il
 -- token segreto restituito alla creazione, anch'esso salvato come hash.

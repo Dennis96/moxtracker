@@ -10,6 +10,8 @@ const MIGRAZIONE = readFileSync(
   `${RADICE}/migrazioni/2026-08-27-account-consensi.sql`, "utf8");
 const MIGRAZIONE_EMAIL = readFileSync(
   `${RADICE}/migrazioni/2026-08-29-ticket-email.sql`, "utf8");
+const MIGRAZIONE_NASCOSTI = readFileSync(
+  `${RADICE}/migrazioni/2026-08-29-account-mazzo-nascosto.sql`, "utf8");
 
 function colonneConsensi(db) {
   return db.prepare("PRAGMA table_info(account_dispositivo)").all()
@@ -56,4 +58,13 @@ test("bootstrap e migrazione creano le stesse tabelle per email ticket", () => {
     assert.deepEqual(daBootstrap, daMigrazione);
   }
   assert.ok(migrato.prepare("SELECT name FROM sqlite_master WHERE name = 'ticket_notifica_accesso_ticket'").get());
+});
+
+test("la preferenza di nascondere un mazzo e' reversibile e appartiene all'account", () => {
+  const db = new DatabaseSync(":memory:"); db.exec(SCHEMA);
+  const migrato = new DatabaseSync(":memory:"); migrato.exec(MIGRAZIONE_NASCOSTI);
+  for (const database of [db, migrato]) {
+    database.prepare("INSERT INTO account_mazzo_nascosto (account_id, impronta, aggiornato) VALUES ('a', 'b', 'c')").run();
+    assert.equal(database.prepare("SELECT COUNT(*) AS n FROM account_mazzo_nascosto WHERE account_id = 'a'").get().n, 1);
+  }
 });
