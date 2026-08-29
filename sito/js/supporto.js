@@ -53,14 +53,39 @@ async function rapportoDaZip(file) {
     rapportoByte = new Uint8Array(await new Response(new Blob([dati]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
   } else throw new Error("Questo browser non può leggere il pacchetto diagnostico ZIP");
   if (rapportoByte.byteLength !== rapporto.scompresso) throw new Error("Rapporto ZIP incompleto");
-  try { JSON.parse(new TextDecoder().decode(rapportoByte)); } catch { throw new Error("rapporto.json non valido"); }
-  return new File([rapportoByte], "rapporto.json", { type: "application/json" });
+  return fileRapportoMox(rapportoByte);
+}
+
+// Mox anonimizza il rapporto, ma la diagnostica recente conserva unicamente le
+// ultime cifre dell'impronta del Draft. Per il ticket non servono: le togliamo
+// prima dell'invio, insieme a qualunque campo che il server considera privato.
+function ripulisciRapportoMox(valore, chiave = "") {
+  if (/(?:segreto|password|token|mittente|email|player.?log|impronta)/i.test(chiave)) return undefined;
+  if (Array.isArray(valore)) return valore.map((voce) => ripulisciRapportoMox(voce))
+    .filter((voce) => voce !== undefined);
+  if (!valore || typeof valore !== "object") return valore;
+  return Object.fromEntries(Object.entries(valore).flatMap(([nome, contenuto]) => {
+    const pulito = ripulisciRapportoMox(contenuto, nome);
+    return pulito === undefined ? [] : [[nome, pulito]];
+  }));
+}
+
+function fileRapportoMox(byte) {
+  let rapporto;
+  try { rapporto = JSON.parse(new TextDecoder().decode(byte)); }
+  catch { throw new Error("rapporto.json non valido"); }
+  const pulito = ripulisciRapportoMox(rapporto);
+  return new File([JSON.stringify(pulito)], "rapporto.json", { type: "application/json" });
 }
 
 async function allegatoDaInviare(file) {
   if (!file) return null;
   const nome = file.name.toLocaleLowerCase("it-IT");
-  return file.type === "application/zip" || nome.endsWith(".zip") ? rapportoDaZip(file) : file;
+  if (file.type === "application/zip" || nome.endsWith(".zip")) return rapportoDaZip(file);
+  if (file.type === "application/json" || nome === "rapporto.json") {
+    return fileRapportoMox(await file.arrayBuffer());
+  }
+  return file;
 }
 
 async function preparaTurnstile() {

@@ -130,6 +130,96 @@ async function copiaTestoArena(bottone, testo) {
   setTimeout(() => { bottone.textContent = etichetta; }, 1600);
 }
 
+function angoliArrotondati(contesto, x, y, larghezza, altezza, raggio = 20) {
+  const r = Math.min(raggio, larghezza / 2, altezza / 2);
+  contesto.beginPath();
+  contesto.moveTo(x + r, y);
+  contesto.arcTo(x + larghezza, y, x + larghezza, y + altezza, r);
+  contesto.arcTo(x + larghezza, y + altezza, x, y + altezza, r);
+  contesto.arcTo(x, y + altezza, x, y, r);
+  contesto.arcTo(x, y, x + larghezza, y, r);
+  contesto.closePath();
+}
+
+function testoCanvas(contesto, testo, massimo) {
+  const pulito = String(testo || "").replace(/\s+/g, " ").trim();
+  if (contesto.measureText(pulito).width <= massimo) return pulito;
+  let accorciato = pulito;
+  while (accorciato.length && contesto.measureText(`${accorciato}…`).width > massimo) {
+    accorciato = accorciato.slice(0, -1);
+  }
+  return `${accorciato}…`;
+}
+
+function blobCanvas(canvas) {
+  return new Promise((resolve, reject) => canvas.toBlob((blob) => {
+    if (blob) resolve(blob); else reject(new Error("Immagine non creata"));
+  }, "image/png"));
+}
+
+async function immagineCondivisibileMazzo(mazzo) {
+  const carte = (mazzo.carte || []).filter((carta) => carta?.nome && Number(carta?.copie) > 0)
+    .sort((a, b) => Number(b.copie) - Number(a.copie) || String(a.nome).localeCompare(String(b.nome), LINGUA));
+  if (!carte.length) throw new Error("Decklist non disponibile");
+  const larghezza = 1200;
+  const righe = Math.ceil(carte.length / 2);
+  const altezza = Math.max(1120, 730 + righe * 52 + 100);
+  const canvas = document.createElement("canvas");
+  canvas.width = larghezza; canvas.height = altezza;
+  const contesto = canvas.getContext("2d");
+  if (!contesto) throw new Error("Il browser non può creare l'immagine");
+
+  const sfondo = contesto.createLinearGradient(0, 0, larghezza, altezza);
+  sfondo.addColorStop(0, "#10081f"); sfondo.addColorStop(.52, "#171027"); sfondo.addColorStop(1, "#07080e");
+  contesto.fillStyle = sfondo; contesto.fillRect(0, 0, larghezza, altezza);
+  contesto.fillStyle = "rgba(181, 70, 255, .16)"; contesto.beginPath();
+  contesto.arc(1040, 130, 300, 0, Math.PI * 2); contesto.fill();
+  contesto.fillStyle = "#b950ff"; contesto.fillRect(64, 64, 10, 94);
+  contesto.font = "800 34px system-ui, sans-serif"; contesto.fillStyle = "#d47bff";
+  contesto.fillText("MOX • MAZZO PERSONALE", 94, 96);
+  contesto.font = "900 62px system-ui, sans-serif"; contesto.fillStyle = "#f7f2ff";
+  contesto.fillText(testoCanvas(contesto, nomeMazzo(mazzo), 1030), 64, 180);
+  contesto.font = "500 26px system-ui, sans-serif"; contesto.fillStyle = "#bfb2ce";
+  const meta = [mazzo.formato || mazzo.evento, mazzo.archetipo, mazzo.strategia].filter(Boolean).join(" • ");
+  contesto.fillText(testoCanvas(contesto, meta || "Statistiche registrate da Mox", 1060), 64, 224);
+
+  const metricheImmagine = [
+    ["PARTITE", String(mazzo.partite ?? 0)], ["VITTORIE", String(mazzo.vittorie ?? 0)],
+    ["SCONFITTE", String(mazzo.sconfitte ?? 0)], ["WIN RATE", percentuale(mazzo.win_rate)],
+  ];
+  metricheImmagine.forEach(([etichetta, valore], indice) => {
+    const x = 64 + indice * 272;
+    angoliArrotondati(contesto, x, 276, 246, 142); contesto.fillStyle = "#211833"; contesto.fill();
+    contesto.strokeStyle = "#6b3d92"; contesto.lineWidth = 2; contesto.stroke();
+    contesto.font = "800 18px system-ui, sans-serif"; contesto.fillStyle = "#bdb0ce"; contesto.fillText(etichetta, x + 22, 311);
+    contesto.font = "900 42px system-ui, sans-serif"; contesto.fillStyle = "#cf62ff"; contesto.fillText(valore, x + 22, 372);
+  });
+  contesto.font = "800 30px system-ui, sans-serif"; contesto.fillStyle = "#f7f2ff";
+  contesto.fillText(`DECKLIST • ${carte.reduce((totale, carta) => totale + Number(carta.copie), 0)} CARTE`, 64, 492);
+
+  const larghezzaColonna = 520;
+  carte.forEach((carta, indice) => {
+    const colonna = indice % 2; const riga = Math.floor(indice / 2);
+    const x = 64 + colonna * 556; const y = 524 + riga * 52;
+    angoliArrotondati(contesto, x, y, larghezzaColonna, 40, 10); contesto.fillStyle = "#191326"; contesto.fill();
+    contesto.font = "900 21px system-ui, sans-serif"; contesto.fillStyle = "#cf62ff";
+    contesto.fillText(`${Number(carta.copie)}×`, x + 16, y + 27);
+    contesto.font = "600 21px system-ui, sans-serif"; contesto.fillStyle = "#f7f2ff";
+    contesto.fillText(testoCanvas(contesto, carta.nome, 420), x + 72, y + 27);
+  });
+  contesto.font = "500 19px system-ui, sans-serif"; contesto.fillStyle = "#bfb2ce";
+  contesto.fillText(`Ultima partita: ${dataOra(mazzo.ultima)} • moxtracker.app`, 64, altezza - 42);
+  const nome = nomeMazzo(mazzo).toLocaleLowerCase("it-IT").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "mazzo";
+  return new File([await blobCanvas(canvas)], `mox-${nome}.png`, { type: "image/png" });
+}
+
+function scaricaFile(file) {
+  const url = URL.createObjectURL(file);
+  const collegamento = document.createElement("a");
+  collegamento.href = url; collegamento.download = file.name; collegamento.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function mazzoDellaPartita(partita) {
   return stato.statistiche?.mazzi.find((m) => m.impronta === partita.impronta_mazzo &&
     String(m.formato || "") === String(partita.formato || "")) || null;
@@ -338,24 +428,29 @@ function apriMazzo(mazzo) {
     try { await copiaTestoArena(copia, testoArenaMazzo(mazzo)); }
     catch (errore) { copia.textContent = "Copia non riuscita"; setTimeout(() => { copia.textContent = "Copia per Arena"; }, 1600); }
   });
-  const condividi = nodo("button", "service-button", "Condividi");
+  const condividi = nodo("button", "service-button", "Crea immagine da condividere");
   condividi.type = "button";
   condividi.addEventListener("click", async () => {
-    const testo = testoArenaMazzo(mazzo);
     try {
-      if (!testo) throw new Error("Decklist non disponibile");
-      if (navigator.share) {
-        await navigator.share({ title: nomeMazzo(mazzo), text: testo });
+      condividi.disabled = true;
+      const immagine = await immagineCondivisibileMazzo(mazzo);
+      const condivisione = { title: nomeMazzo(mazzo), text: "Statistiche e decklist Mox", files: [immagine] };
+      if (navigator.canShare?.(condivisione) && navigator.share) {
+        await navigator.share(condivisione);
+        condividi.textContent = "Immagine condivisa";
+        setTimeout(() => { condividi.textContent = "Crea immagine da condividere"; }, 2200);
         return;
       }
-      await copiaTestoArena(condividi, testo);
-      condividi.textContent = "Copiato: condividilo dove preferisci";
-      setTimeout(() => { condividi.textContent = "Condividi"; }, 2200);
+      scaricaFile(immagine);
+      condividi.textContent = "Immagine scaricata";
+      setTimeout(() => { condividi.textContent = "Crea immagine da condividere"; }, 2200);
     } catch (errore) {
       if (errore?.name !== "AbortError") {
-        condividi.textContent = "Condivisione non riuscita";
-        setTimeout(() => { condividi.textContent = "Condividi"; }, 1600);
+        condividi.textContent = "Immagine non riuscita";
+        setTimeout(() => { condividi.textContent = "Crea immagine da condividere"; }, 1600);
       }
+    } finally {
+      condividi.disabled = false;
     }
   });
   const partite = nodo("button", "service-button primary", "Vedi le sue partite");

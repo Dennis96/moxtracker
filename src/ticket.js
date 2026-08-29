@@ -235,7 +235,7 @@ async function aggiungiAllegato(richiesta, ambiente, indirizzo, id) {
   if (!(file instanceof File) || !TIPI_ALLEGATO.has(file.type) || file.size > BYTE_MASSIMI ||
       !await firmaAllegatoValida(file)) {
     return rispostaAccount(richiesta, ambiente,
-      { errore: "usa rapporto.json di Mox (max 256 KiB) o un vero PNG, JPEG o WebP (max 10 MB)" }, 415);
+      { errore: "usa il rapporto diagnostico Mox estratto dal suo ZIP (max 256 KiB) o un vero PNG, JPEG o WebP (max 10 MB)" }, 415);
   }
   const quanti = await ambiente.DB.prepare(
     "SELECT COUNT(*) AS n FROM ticket_allegato WHERE ticket_id = ?").bind(id).first();
@@ -402,7 +402,8 @@ export async function pulisciTicketScaduti(ambiente, adesso = Date.now()) {
 export async function gestisciTicket(richiesta, ambiente, indirizzo) {
   const percorso = indirizzo.pathname;
   const routeTicket = percorso === "/ticket" || percorso.startsWith("/ticket/") ||
-    percorso === "/account/tickets" || percorso.startsWith("/admin/ticket/");
+    percorso === "/account/tickets" || percorso === "/admin/tickets" ||
+    percorso.startsWith("/admin/ticket/");
   if (routeTicket && richiesta.method === "OPTIONS") {
     return preflightAccount(richiesta, ambiente);
   }

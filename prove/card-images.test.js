@@ -27,12 +27,12 @@ test("lookup immagini preferisce Arena ID e usa il nome come fallback", () => {
   assert.equal(cardLookupKey({}), null);
 });
 
-test("lookup HOB ripiega sulla stampa Arena quando Scryfall non indicizza arena_id", () => {
+test("lookup immagini prova prima il nome e conserva gli identificativi come fallback", () => {
   const carta = { arena_id: 103441, nome: "Front Porch Sentries", set: "HOB", numero: "67" };
   assert.deepEqual(cardLookupUrls(carta), [
-    "https://api.scryfall.com/cards/arena/103441",
-    "https://api.scryfall.com/cards/hob/67",
     "https://api.scryfall.com/cards/named?exact=Front+Porch+Sentries",
+    "https://api.scryfall.com/cards/hob/67",
+    "https://api.scryfall.com/cards/arena/103441",
   ]);
   assert.equal(cardLookupKey(carta),
     "arena:103441|print:hob/67|name:front porch sentries");
@@ -61,6 +61,7 @@ test("media Scryfall usa small per thumbnail e normal per hover", () => {
   assert.deepEqual(media, {
     missing: false,
     name: "Ethereal Armor",
+    oracleId: "",
     arenaId: 987,
     artCrop: "https://cards.scryfall.io/art_crop/a.jpg",
     small: "https://cards.scryfall.io/small/a.jpg",

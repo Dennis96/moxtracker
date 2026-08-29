@@ -134,6 +134,21 @@ test("il preflight dell'account consente la rinomina PUT dal sito", async () => 
   assert.match(risposta.headers.get("access-control-allow-methods"), /(?:^|,\s*)PUT(?:,|$)/);
 });
 
+test("il preflight consente anche l'elenco ticket amministratore", async () => {
+  const env = ambiente();
+  const risposta = await worker.fetch(new Request("https://api.moxtracker.app/admin/tickets", {
+    method: "OPTIONS",
+    headers: {
+      origin: "https://preview.moxtracker.pages.dev",
+      "access-control-request-method": "GET",
+      "access-control-request-headers": "authorization",
+    },
+  }), env);
+  assert.equal(risposta.status, 204);
+  assert.equal(risposta.headers.get("access-control-allow-origin"),
+    "https://preview.moxtracker.pages.dev");
+});
+
 test("la preview ha CORS e ritorno OAuth esatti senza aprirli ad altri siti", async () => {
   const env = ambiente();
   const preflight = async (origin) => worker.fetch(new Request(

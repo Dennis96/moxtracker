@@ -1,14 +1,20 @@
 const SCRYFALL_API = "https://api.scryfall.com";
-const CACHE_KEY = "mox-scryfall-card-cache-v5";
+const CACHE_KEY = "mox-scryfall-card-cache-v6";
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MISSING_TTL_MS = 24 * 60 * 60 * 1000;
-const MAX_CACHE_ENTRIES = 500;
-const REQUEST_GAP_MS = 140;
+const MAX_CACHE_ENTRIES = 750;
+// Scryfall suggerisce di non martellare l'API. La vecchia coda, pero',
+// aspettava ogni richiesta prima di iniziare la successiva: una pagina con
+// molte carte poteva richiedere minuti. Avviamo poche richieste in parallelo,
+// ma continuiamo a distanziarne l'inizio.
+const REQUEST_GAP_MS = 95;
+const REQUEST_CONCURRENCY = 4;
 
 const memoryCache = new Map();
 const pending = new Map();
 let persistentLoaded = false;
-let requestQueue = Promise.resolve();
+const requestQueue = [];
+let richiesteAttive = 0;
 let lastRequestAt = 0;
 let previewNode = null;
 let previewImage = null;
@@ -55,14 +61,17 @@ export function cardLookupKey(card = {}) {
 export function cardLookupUrls(card = {}) {
   const spec = normalizeCardSpec(card);
   const urls = [];
-  if (spec.arenaId) urls.push(`${SCRYFALL_API}/cards/arena/${spec.arenaId}`);
-  if (spec.setCode && spec.collectorNumber) {
-    urls.push(`${SCRYFALL_API}/cards/${encodeURIComponent(spec.setCode)}/${encodeURIComponent(spec.collectorNumber)}`);
-  }
+  // Il nome inglese che arriva da Mox e' il percorso piu' affidabile e quasi
+  // sempre risponde al primo colpo. Arena e set restano fallback per carte
+  // nuove o non ancora indicizzate dalla ricerca nominale.
   if (spec.name) {
     const params = new URLSearchParams({ exact: spec.name });
     urls.push(`${SCRYFALL_API}/cards/named?${params}`);
   }
+  if (spec.setCode && spec.collectorNumber) {
+    urls.push(`${SCRYFALL_API}/cards/${encodeURIComponent(spec.setCode)}/${encodeURIComponent(spec.collectorNumber)}`);
+  }
+  if (spec.arenaId) urls.push(`${SCRYFALL_API}/cards/arena/${spec.arenaId}`);
   return urls;
 }
 
@@ -91,6 +100,7 @@ export function extractCardMedia(card, fetchedAt = Date.now()) {
   return {
     missing: false,
     name: cleanName(card.name || face?.name),
+    oracleId: cleanName(card.oracle_id),
     arenaId: positiveArenaId(card.arena_id),
     artCrop,
     small,
@@ -159,27 +169,44 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function avviaRichiesteInCoda() {
+  while (richiesteAttive < REQUEST_CONCURRENCY && requestQueue.length) {
+    const prossima = requestQueue.shift();
+    richiesteAttive += 1;
+    const ora = Date.now();
+    const inizio = Math.max(ora, lastRequestAt + REQUEST_GAP_MS);
+    lastRequestAt = inizio;
+    void (async () => {
+      try {
+        const attesa = Math.max(0, inizio - Date.now());
+        if (attesa) await sleep(attesa);
+        const response = await fetch(prossima.url, {
+          headers: { accept: "application/json;q=0.9,*/*;q=0.8" },
+        });
+        if (response.status === 404) {
+          prossima.resolve({ found: false, data: null });
+        } else if (!response.ok) {
+          const error = new Error(`Scryfall ${response.status}`);
+          error.status = response.status;
+          prossima.reject(error);
+        } else {
+          prossima.resolve({ found: true, data: await response.json() });
+        }
+      } catch (error) {
+        prossima.reject(error);
+      } finally {
+        richiesteAttive -= 1;
+        avviaRichiesteInCoda();
+      }
+    })();
+  }
+}
+
 function queuedFetch(url) {
-  const run = async () => {
-    const wait = Math.max(0, REQUEST_GAP_MS - (Date.now() - lastRequestAt));
-    if (wait) await sleep(wait);
-    lastRequestAt = Date.now();
-
-    const response = await fetch(url, {
-      headers: { accept: "application/json;q=0.9,*/*;q=0.8" },
-    });
-    if (response.status === 404) return { found: false, data: null };
-    if (!response.ok) {
-      const error = new Error(`Scryfall ${response.status}`);
-      error.status = response.status;
-      throw error;
-    }
-    return { found: true, data: await response.json() };
-  };
-
-  const task = requestQueue.then(run, run);
-  requestQueue = task.catch(() => {});
-  return task;
+  return new Promise((resolve, reject) => {
+    requestQueue.push({ url, resolve, reject });
+    avviaRichiesteInCoda();
+  });
 }
 
 async function lookupNetwork(spec) {
@@ -190,8 +217,8 @@ async function lookupNetwork(spec) {
   return null;
 }
 
-async function lookupItalian(data) {
-  const oracleId = cleanName(data?.oracle_id);
+async function lookupItalian(oracleId) {
+  oracleId = cleanName(oracleId);
   if (!oracleId) return null;
   const query = new URLSearchParams({
     order: "released",
@@ -221,7 +248,8 @@ export async function resolveCard(card = {}) {
   const spec = normalizeCardSpec(card);
   const key = cardLookupKey(spec);
   if (!key) return null;
-  const primaryKey = `${key}|lang:${linguaCarte()}`;
+  if (linguaCarte() !== "it") return resolveBaseCard(spec);
+  const primaryKey = `${key}|lang:it`;
 
   const hit = cached(primaryKey);
   if (hit) return hit.missing ? null : hit;
@@ -230,24 +258,11 @@ export async function resolveCard(card = {}) {
 
   const promise = (async () => {
     try {
-      const data = await lookupNetwork(spec);
-      if (!data) {
-        const missing = { missing: true, fetchedAt: Date.now() };
-        remember([primaryKey], missing);
-        return null;
-      }
-
-      let media = extractCardMedia(data);
-      if (!media) {
-        const missing = { missing: true, fetchedAt: Date.now() };
-        remember([primaryKey], missing);
-        return null;
-      }
-
-      if (linguaCarte() === "it") {
-        try { media = mediaLocalizzata(media, await lookupItalian(data)); }
-        catch { /* La traduzione è un miglioramento: inglese e immagini base restano validi. */ }
-      }
+      const base = await resolveBaseCard(spec);
+      if (!base) return null;
+      let media = base;
+      try { media = mediaLocalizzata(base, await lookupItalian(base.oracleId)); }
+      catch { /* La traduzione è un miglioramento: inglese e immagini base restano validi. */ }
       remember([primaryKey], media);
       return media;
     } catch {
@@ -259,6 +274,38 @@ export async function resolveCard(card = {}) {
     }
   })();
 
+  pending.set(primaryKey, promise);
+  return promise;
+}
+
+async function resolveBaseCard(card = {}) {
+  const spec = normalizeCardSpec(card);
+  const key = cardLookupKey(spec);
+  if (!key) return null;
+  const primaryKey = `${key}|lang:base`;
+  const hit = cached(primaryKey);
+  if (hit) return hit.missing ? null : hit;
+  if (pending.has(primaryKey)) return pending.get(primaryKey);
+
+  const promise = (async () => {
+    try {
+      const data = await lookupNetwork(spec);
+      const media = extractCardMedia(data);
+      if (!media) {
+        const missing = { missing: true, fetchedAt: Date.now() };
+        remember([primaryKey], missing);
+        return null;
+      }
+      remember([primaryKey], media);
+      return media;
+    } catch {
+      // Errori di rete / 429 non diventano "carta assente": al refresh il
+      // sito puo' sempre riprovare.
+      return null;
+    } finally {
+      pending.delete(primaryKey);
+    }
+  })();
   pending.set(primaryKey, promise);
   return promise;
 }
@@ -352,24 +399,32 @@ function scheduleResolution(node, spec, image, placeholder) {
   const start = async () => {
     if (started) return;
     started = true;
-    const media = await resolveCard(spec);
-    node._moxCardMedia = media;
-    const thumbnail = media?.artCrop || media?.small;
-    if (!thumbnail) {
-      node.classList.add("is-missing");
-      placeholder.textContent = "?";
-      return;
-    }
+    const mostraMiniatura = (media) => {
+      node._moxCardMedia = media;
+      const thumbnail = media?.artCrop || media?.small;
+      if (!thumbnail) {
+        node.classList.add("is-missing");
+        placeholder.textContent = "?";
+        return;
+      }
+      image.onload = () => node.classList.add("is-loaded");
+      image.onerror = () => {
+        node.classList.remove("is-loaded");
+        node.classList.add("is-missing");
+        placeholder.textContent = "?";
+      };
+      image.src = thumbnail;
+      image.alt = media.name || spec.name || "Carta Magic";
+      node.title = media.name || spec.name || "";
+    };
 
-    image.addEventListener("load", () => node.classList.add("is-loaded"), { once: true });
-    image.addEventListener("error", () => {
-      node.classList.remove("is-loaded");
-      node.classList.add("is-missing");
-      placeholder.textContent = "?";
-    }, { once: true });
-    image.src = thumbnail;
-    image.alt = media.name || spec.name || "Carta Magic";
-    node.title = media.name || spec.name || "";
+    // Prima rendiamo subito la stampa disponibile. In italiano la stampa e il
+    // nome tradotti arrivano dopo, senza lasciare per minuti il riquadro MOX.
+    const media = await resolveBaseCard(spec);
+    mostraMiniatura(media);
+    if (linguaCarte() !== "it" || !media) return;
+    const localizzata = await resolveCard(spec);
+    if (localizzata) mostraMiniatura(localizzata);
   };
 
   if (typeof IntersectionObserver === "undefined") {
@@ -411,7 +466,11 @@ export function createCardThumbnail(card = {}, { compact = false } = {}) {
 
   if (supportsHover()) {
     node.addEventListener("mouseenter", () => {
-      if (node._moxCardMedia) showPreview(node, node._moxCardMedia, spec);
+      const mostra = (media) => {
+        if (node.matches(":hover")) showPreview(node, media, spec);
+      };
+      if (node._moxCardMedia) mostra(node._moxCardMedia);
+      else resolveBaseCard(spec).then(mostra);
     });
     node.addEventListener("mouseleave", () => hidePreview(node));
   }

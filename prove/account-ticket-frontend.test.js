@@ -74,6 +74,8 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /pick-by-pick resta fuori dalla prima beta/);
   assert.match(traduzioniDinamiche, /Mox ha registrato/);
   assert.match(js, /renderProfiloMazzo/);
+  assert.match(js, /immagineCondivisibileMazzo/);
+  assert.match(js, /Crea immagine da condividere/);
   assert.match(js, /PERCORSO_ACCOUNT/);
   assert.match(js, /window\.location\.origin/);
   assert.match(js, /intestazioniSessioneAccount/);
@@ -101,6 +103,7 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(js, /FormData/);
   assert.match(js, /\/attachments/);
   assert.match(js, /rapportoDaZip/);
+  assert.match(js, /ripulisciRapportoMox/);
   assert.match(js, /DecompressionStream/);
   assert.match(js, /rapporto\.json/);
   assert.match(js, /\/messages/);
