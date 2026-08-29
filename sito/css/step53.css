@@ -119,10 +119,27 @@
   .detail-page.variant-mode .detail-heading { min-height:125px; }
 }
 .deck-profile { display: grid; gap: 12px; margin-top: 16px; }
-.deck-profile-block { display: grid; gap: 8px; padding: 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
-.deck-profile-values { display: flex; flex-wrap: wrap; gap: 7px; }
-.deck-profile-values span { padding: 6px 9px; border-radius: 999px; background: var(--surface-3); color: var(--muted); font-size: .74rem; }
+.deck-profile-block { display: grid; gap: 12px; min-height: 112px; padding: 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.deck-profile-block > strong { align-self: start; }
+.deck-profile-values { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.deck-profile-values span { padding: 7px 10px; border-radius: 999px; background: var(--surface-3); color: var(--muted); font-size: .78rem; }
 .deck-profile-values b { color: var(--text); }
+.deck-profile-curve { min-height: 132px; }
+.mana-curve { display: flex; align-items: end; gap: clamp(7px, 1.6vw, 15px); min-height: 72px; padding: 4px 5px 0; }
+.mana-curve-column { display: grid; flex: 1 1 0; grid-template-rows: 46px 20px; align-items: end; justify-items: center; min-width: 0; }
+.mana-curve-bar { display: block; width: min(25px, 100%); height: var(--curve-height); min-height: 4px; border-radius: 1px 1px 0 0; background: #8cebbc; box-shadow: 0 0 14px rgba(140, 235, 188, .18); }
+.mana-curve-label { color: var(--muted); font-size: .76rem; font-weight: 800; line-height: 20px; }
+.deck-profile-colors { align-content: start; }
+.deck-color-values { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.deck-color-value { display: inline-flex; align-items: center; gap: 5px; min-height: 31px; padding: 3px 7px 3px 10px; border-radius: 999px; background: var(--surface-3); color: var(--text); }
+.deck-color-value > b { font-size: .8rem; }
+.mana-symbol { display: inline-grid; place-items: center; width: 25px; height: 25px; border: 1px solid rgba(0, 0, 0, .42); border-radius: 50%; color: #17131b; font-family: Georgia, serif; font-size: .82rem; font-weight: 800; line-height: 1; text-shadow: 0 1px rgba(255,255,255,.35); }
+.mana-symbol-W { background: radial-gradient(circle at 34% 28%, #fffef0 0 16%, #f6e7ae 52%, #b69d68 100%); }
+.mana-symbol-U { background: radial-gradient(circle at 34% 28%, #c7edff 0 15%, #4f97d3 55%, #255779 100%); color: #102635; }
+.mana-symbol-B { background: radial-gradient(circle at 34% 28%, #b9adbf 0 14%, #5b5263 55%, #25212b 100%); color: #f7f1f7; text-shadow: 0 1px rgba(0,0,0,.4); }
+.mana-symbol-R { background: radial-gradient(circle at 34% 28%, #ffc4b9 0 14%, #d75341 55%, #77271f 100%); color: #35100d; }
+.mana-symbol-G { background: radial-gradient(circle at 34% 28%, #c5efc9 0 14%, #4b915b 55%, #1f4e2a 100%); color: #102716; }
+.mana-symbol-C { background: radial-gradient(circle at 34% 28%, #f0f2f4 0 14%, #a6abb2 55%, #656a72 100%); color: #22262a; }
 @media (min-width: 721px) {
   .deck-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .deck-profile .variant-note { grid-column: 1 / -1; }

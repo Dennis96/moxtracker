@@ -6,8 +6,9 @@ export const DEFAULT_FORMAT = "Standard";
 export const FORMATS = ["Standard"];
 export const RANKS = ["", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Mythic"];
 
-// Il sito porta sempre alla release GitHub più recente, dove è disponibile il
-// pacchetto ZIP completo per la prima installazione. L'installer firmato del
-// Worker resta riservato all'autoupdate interno di Mox.
-export const DOWNLOAD_URL = "https://github.com/Dennis96/moxtracker/releases/latest";
+// Il click sul sito risolve la release GitHub più recente e scarica il suo
+// asset ZIP. Il pulsante non punta mai alla pagina delle release né
+// all'installer del Worker, riservato all'autoupdate di Mox.
+export const DOWNLOAD_URL = "#download";
+export const GITHUB_LATEST_RELEASE_API = "https://api.github.com/repos/Dennis96/moxtracker/releases/latest";
 export const RELEASE_MANIFEST_URL = "https://api.moxtracker.app/mox/release?piattaforma=win-x64&canale=stable&corrente=0";

@@ -1,5 +1,6 @@
-import { DEFAULT_FORMAT, DOWNLOAD_URL, FORMATS, RANKS } from "./config.js?v=20260822-3";
+import { DEFAULT_FORMAT, FORMATS, RANKS } from "./config.js?v=20260822-3";
 import { fetchMeta, fetchScontri, fetchStatisticheDraft } from "./api.js";
+import { preparaDownloadLatest } from "./download.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
 import { traduciDocumento } from "./translate.js";
@@ -181,16 +182,7 @@ function syncClassificationControls(decks, catalogInfo = null) {
 }
 
 function setupDownload() {
-  document.querySelectorAll("[data-download]").forEach(link => {
-    if (DOWNLOAD_URL) {
-      link.href = DOWNLOAD_URL; link.removeAttribute("aria-disabled");
-      link.title = "Scarica l'ultima release MOX per Windows";
-    } else {
-      link.href = "#"; link.setAttribute("aria-disabled", "true");
-      link.title = "Il link di download verrà collegato quando sarà disponibile";
-      link.addEventListener("click", event => event.preventDefault());
-    }
-  });
+  preparaDownloadLatest();
 }
 
 async function loadMeta() {

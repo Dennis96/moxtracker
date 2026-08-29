@@ -7,21 +7,28 @@ const QUI = fileURLToPath(new URL(".", import.meta.url));
 const leggi = percorso => readFileSync(QUI + "../sito/" + percorso, "utf8");
 const leggiRadice = percorso => readFileSync(QUI + "../" + percorso, "utf8");
 
-test("pre-lancio collega il download MOX alla release GitHub più recente", () => {
+test("pre-lancio scarica lo ZIP della release GitHub più recente", () => {
   const configurazione = leggi("js/config.js");
-  const download = "https://github.com/Dennis96/moxtracker/releases/latest";
-  assert.match(configurazione, new RegExp(download.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  const resolver = leggi("js/download.js");
   const home = leggi("index.html");
-  assert.equal((home.match(new RegExp(`data-download href="${download}"`, "g")) || []).length, 2);
-  assert.match(leggi("note-versione.html"), new RegExp(`data-download href="${download}"`));
+  assert.match(configurazione, /DOWNLOAD_URL = "#download"/);
+  assert.equal((home.match(/data-download href="#download"/g) || []).length, 2);
+  assert.match(leggi("note-versione.html"), /data-download href="#download"/);
+  assert.match(configurazione, /api\.github\.com\/repos\/Dennis96\/moxtracker\/releases\/latest/);
+  assert.match(resolver, /\.zip\$\/i/);
+  assert.match(resolver, /browser_download_url/);
   assert.match(configurazione, /RELEASE_MANIFEST_URL/);
   assert.doesNotMatch(configurazione, /releases\/download\/mox-v/);
+  assert.doesNotMatch(configurazione, /github\.com\/Dennis96\/moxtracker\/releases\/latest/,
+    "il pulsante non deve aprire la pagina delle release");
   assert.doesNotMatch(configurazione, /mox\/download\.exe/,
     "il canale dell'auto-update non deve mai diventare il download del sito");
   for (const pagina of ["index.html", "note-versione.html"]) {
     assert.doesNotMatch(leggi(pagina), /moxtracker\.app\/mox\/download\.exe/,
       "il sito pubblico deve restare sulla pagina GitHub latest");
   }
+  assert.doesNotMatch(resolver, /mox-v2-beta2\.9\.28/,
+    "il sito non deve fissare il nome di una release");
   assert.match(leggi("js\/release-note.js"), /release\.versione/);
   assert.doesNotMatch(home, /data-download aria-disabled="true"/);
   // Il numero di versione scritto a mano nel pulsante invecchia a ogni

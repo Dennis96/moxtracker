@@ -1,6 +1,7 @@
-import { DOWNLOAD_URL, RELEASE_MANIFEST_URL } from "./config.js";
+import { RELEASE_MANIFEST_URL } from "./config.js";
+import { preparaDownloadLatest } from "./download.js";
 
-for (const link of document.querySelectorAll("[data-download]")) link.href = DOWNLOAD_URL;
+preparaDownloadLatest();
 
 try {
   const risposta = await fetch(RELEASE_MANIFEST_URL, { headers: { accept: "application/json" } });
