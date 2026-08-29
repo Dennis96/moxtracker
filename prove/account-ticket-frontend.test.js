@@ -77,6 +77,8 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /immagineCondivisibileMazzo/);
   assert.match(js, /Genera anteprima da condividere/);
   assert.match(js, /mostraAnteprimaCondivisibile/);
+  assert.match(js, /Copia PNG/);
+  assert.match(js, /ClipboardItem/);
   assert.match(js, /PERCORSO_ACCOUNT/);
   assert.match(js, /window\.location\.origin/);
   assert.match(js, /intestazioniSessioneAccount/);

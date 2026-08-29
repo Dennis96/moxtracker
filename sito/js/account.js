@@ -228,13 +228,21 @@ async function condividiFile(file, titolo) {
   return true;
 }
 
+async function copiaImmagine(file) {
+  if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") return false;
+  await navigator.clipboard.write([new ClipboardItem({ [file.type]: file })]);
+  return true;
+}
+
 function mostraAnteprimaCondivisibile(host, file, mazzo) {
   host.replaceChildren(); host.classList.remove("hidden");
   const titolo = nodo("h3", "", "Anteprima da condividere");
   const nota = nodo("p", "detail-note",
     "L'immagine contiene le statistiche del mazzo e la decklist. Puoi controllarla qui prima di scaricarla o condividerla.");
+  if (host._moxPreviewUrl) URL.revokeObjectURL(host._moxPreviewUrl);
   const immagine = document.createElement("img"); immagine.className = "deck-share-image";
-  immagine.alt = `Scheda Mox del mazzo ${nomeMazzo(mazzo)}`; immagine.src = URL.createObjectURL(file);
+  immagine.alt = `Scheda Mox del mazzo ${nomeMazzo(mazzo)}`;
+  host._moxPreviewUrl = URL.createObjectURL(file); immagine.src = host._moxPreviewUrl;
   const azioni = nodo("div", "service-actions");
   const condividi = nodo("button", "service-button primary", "Condividi PNG"); condividi.type = "button";
   condividi.addEventListener("click", async () => {
@@ -246,9 +254,17 @@ function mostraAnteprimaCondivisibile(host, file, mazzo) {
     }
     setTimeout(() => { condividi.textContent = "Condividi PNG"; }, 2200);
   });
+  const copia = nodo("button", "service-button", "Copia PNG"); copia.type = "button";
+  copia.addEventListener("click", async () => {
+    try {
+      if (await copiaImmagine(file)) copia.textContent = "Immagine copiata";
+      else copia.textContent = "Copia non supportata";
+    } catch { copia.textContent = "Copia non riuscita"; }
+    setTimeout(() => { copia.textContent = "Copia PNG"; }, 2200);
+  });
   const scarica = nodo("button", "service-button", "Scarica PNG"); scarica.type = "button";
   scarica.addEventListener("click", () => scaricaFile(file));
-  azioni.append(condividi, scarica);
+  azioni.append(condividi, copia, scarica);
   host.append(titolo, nota, immagine, azioni);
 }
 
