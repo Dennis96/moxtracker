@@ -14,7 +14,9 @@ compatibility_date = "2026-08-18"
 enabled = true
 
 [vars]
-SITE_ORIGIN = "https://moxtracker.app"
+# Durante la verifica beta delle notifiche, i link nelle email devono aprire
+# la preview che contiene il nuovo client. Il sito pubblico resta invariato.
+SITE_ORIGIN = "https://preview.moxtracker.pages.dev"
 PREVIEW_ORIGIN = "https://preview.moxtracker.pages.dev"
 TURNSTILE_SITE_KEY = "0x4AAAAAAEYng_drA6IkCiE1"
 # Il token Resend resta un secret del Worker, mai in questo file o nel sito.
