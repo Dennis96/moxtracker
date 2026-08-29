@@ -75,7 +75,8 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(traduzioniDinamiche, /Mox ha registrato/);
   assert.match(js, /renderProfiloMazzo/);
   assert.match(js, /immagineCondivisibileMazzo/);
-  assert.match(js, /Crea immagine da condividere/);
+  assert.match(js, /Genera anteprima da condividere/);
+  assert.match(js, /mostraAnteprimaCondivisibile/);
   assert.match(js, /PERCORSO_ACCOUNT/);
   assert.match(js, /window\.location\.origin/);
   assert.match(js, /intestazioniSessioneAccount/);
@@ -96,15 +97,14 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(html, /Suggerimenti/);
   assert.match(html, /rapporto\.json/);
   assert.match(html, /256 KiB/);
-  assert.match(html, /Player\.log non viene caricato qui/);
+  assert.match(html, /Player\.log<\/code> solo se hai selezionato esplicitamente/);
   assert.match(html, /accept="[^"]*(?:zip|\.zip)/i);
   assert.match(html, /turnstile-widget/);
   assert.match(html, /link segreto/i);
   assert.match(js, /FormData/);
   assert.match(js, /\/attachments/);
-  assert.match(js, /rapportoDaZip/);
+  assert.match(js, /pacchettoMoxDaZip/);
   assert.match(js, /ripulisciRapportoMox/);
-  assert.match(js, /DecompressionStream/);
   assert.match(js, /rapporto\.json/);
   assert.match(js, /\/messages/);
 });
@@ -184,6 +184,9 @@ test("amministrazione ticket usa la sessione account e non un token statico", ()
   assert.match(html, /Ogni modifica viene registrata/);
   assert.match(js, /credentials:\s*"include"/);
   assert.match(js, /\/admin\/tickets/);
+  assert.match(html, /value="aperti"/);
+  assert.match(html, /id="admin-close"/);
+  assert.match(js, /Ticket chiuso/);
   assert.doesNotMatch(js, /TICKET_ADMIN_TOKEN/);
   assert.match(js, /intestazioniSessioneAccount/);
 });

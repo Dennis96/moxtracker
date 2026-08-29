@@ -10,10 +10,12 @@ const STATI = new Set([
   "ricevuto", "da_verificare", "pianificato", "in_lavorazione", "risolto", "chiuso",
 ]);
 const TIPI_ALLEGATO = new Set([
-  "image/png", "image/jpeg", "image/webp", "application/json",
+  "image/png", "image/jpeg", "image/webp", "application/json", "application/zip",
+  "application/x-zip-compressed",
 ]);
 const BYTE_MASSIMI = 10 * 1024 * 1024;
 const BYTE_RAPPORTO_MASSIMI = 256 * 1024;
+const NOMI_PACCHETTO_MOX = new Set(["rapporto.json", "LEGGIMI.txt", "arena/Player.log"]);
 
 function rapportoDiagnosticoValido(valore) {
   if (!valore || typeof valore !== "object" || Array.isArray(valore)) return false;
@@ -30,6 +32,46 @@ function rapportoDiagnosticoValido(valore) {
   return visita(valore);
 }
 
+function fineArchivioZip(byte) {
+  for (let indice = byte.length - 22; indice >= Math.max(0, byte.length - 65557); indice -= 1) {
+    if (byte[indice] === 0x50 && byte[indice + 1] === 0x4b && byte[indice + 2] === 0x05 && byte[indice + 3] === 0x06) return indice;
+  }
+  return -1;
+}
+
+async function pacchettoDiagnosticoMoxValido(file) {
+  const byte = new Uint8Array(await file.arrayBuffer());
+  const fine = fineArchivioZip(byte);
+  if (fine < 0 || fine + 22 > byte.length) return false;
+  const view = new DataView(byte.buffer, byte.byteOffset, byte.byteLength);
+  if (view.getUint16(fine + 4, true) || view.getUint16(fine + 6, true) ||
+      view.getUint16(fine + 8, true) > 3 || view.getUint16(fine + 8, true) !== view.getUint16(fine + 10, true) ||
+      fine + 22 + view.getUint16(fine + 20, true) !== byte.length) return false;
+  const quanti = view.getUint16(fine + 10, true);
+  const fineIndice = view.getUint32(fine + 16, true) + view.getUint32(fine + 12, true);
+  let cursore = view.getUint32(fine + 16, true);
+  if (cursore > fine || fineIndice > fine) return false;
+  const visti = new Set();
+  for (let indice = 0; indice < quanti; indice += 1) {
+    if (cursore + 46 > fine || view.getUint32(cursore, true) !== 0x02014b50) return false;
+    const metodo = view.getUint16(cursore + 10, true);
+    const compresso = view.getUint32(cursore + 20, true);
+    const scompresso = view.getUint32(cursore + 24, true);
+    const nomeLunghezza = view.getUint16(cursore + 28, true);
+    const extra = view.getUint16(cursore + 30, true);
+    const commento = view.getUint16(cursore + 32, true);
+    const locale = view.getUint32(cursore + 42, true);
+    const dopo = cursore + 46 + nomeLunghezza + extra + commento;
+    if (dopo > fine || locale + 30 > byte.length || view.getUint32(locale, true) !== 0x04034b50 ||
+        ![0, 8].includes(metodo)) return false;
+    const nome = new TextDecoder().decode(byte.slice(cursore + 46, cursore + 46 + nomeLunghezza));
+    if (!NOMI_PACCHETTO_MOX.has(nome) || visti.has(nome) ||
+        (nome === "rapporto.json" && (compresso > BYTE_RAPPORTO_MASSIMI || scompresso > BYTE_RAPPORTO_MASSIMI))) return false;
+    visti.add(nome); cursore = dopo;
+  }
+  return cursore === fineIndice && visti.has("rapporto.json");
+}
+
 async function firmaAllegatoValida(file) {
   const byte = new Uint8Array(await file.slice(0, 16).arrayBuffer());
   const inizia = (...valori) => valori.every((v, i) => byte[i] === v);
@@ -43,6 +85,9 @@ async function firmaAllegatoValida(file) {
     if (file.name.toLowerCase() !== "rapporto.json" || file.size > BYTE_RAPPORTO_MASSIMI) return false;
     try { return rapportoDiagnosticoValido(JSON.parse(await file.text())); }
     catch { return false; }
+  }
+  if (file.type === "application/zip" || file.type === "application/x-zip-compressed") {
+    return pacchettoDiagnosticoMoxValido(file);
   }
   return false;
 }
@@ -191,9 +236,6 @@ async function aggiungiMessaggio(richiesta, ambiente, indirizzo, id) {
     return rispostaAccount(richiesta, ambiente,
       { errore: "troppi messaggi in poco tempo: riprova piu tardi" }, 429);
   }
-  if (ticket.stato === "chiuso") {
-    return rispostaAccount(richiesta, ambiente, { errore: "il ticket e' chiuso" }, 409);
-  }
   const corpo = await json(richiesta);
   const testo = pulisciTesto(corpo?.testo, 5000);
   if (testo.length < 2) return rispostaAccount(richiesta, ambiente,
@@ -203,7 +245,10 @@ async function aggiungiMessaggio(richiesta, ambiente, indirizzo, id) {
     ambiente.DB.prepare(`INSERT INTO ticket_messaggio
       (id, ticket_id, autore, testo, creato) VALUES (?, ?, ?, ?, ?)`)
       .bind(casuale(), id, "utente", testo, ora),
-    ambiente.DB.prepare("UPDATE ticket SET aggiornato = ? WHERE id = ?").bind(ora, id),
+    // Una risposta successiva dell'utente e' una nuova richiesta di aiuto:
+    // riapre il ticket, anche se l'amministratore lo aveva chiuso.
+    ambiente.DB.prepare("UPDATE ticket SET aggiornato = ?, stato = ? WHERE id = ?")
+      .bind(ora, ticket.stato === "chiuso" ? "ricevuto" : ticket.stato, id),
   ]);
   return rispostaAccount(richiesta, ambiente, { aggiunto: true });
 }
@@ -235,7 +280,7 @@ async function aggiungiAllegato(richiesta, ambiente, indirizzo, id) {
   if (!(file instanceof File) || !TIPI_ALLEGATO.has(file.type) || file.size > BYTE_MASSIMI ||
       !await firmaAllegatoValida(file)) {
     return rispostaAccount(richiesta, ambiente,
-      { errore: "usa il rapporto diagnostico Mox estratto dal suo ZIP (max 256 KiB) o un vero PNG, JPEG o WebP (max 10 MB)" }, 415);
+      { errore: "usa il pacchetto diagnostico .zip creato da Mox o un vero PNG, JPEG o WebP (max 10 MB)" }, 415);
   }
   const quanti = await ambiente.DB.prepare(
     "SELECT COUNT(*) AS n FROM ticket_allegato WHERE ticket_id = ?").bind(id).first();
@@ -298,9 +343,13 @@ async function elencoAmministratore(richiesta, ambiente, indirizzo) {
   if (!amministratore) return rispostaAccount(richiesta, ambiente,
     { errore: "accesso amministratore richiesto" }, 403);
   const stato = pulisciTesto(indirizzo.searchParams.get("stato"), 30);
-  if (stato && !STATI.has(stato)) return rispostaAccount(richiesta, ambiente,
+  if (stato && stato !== "aperti" && !STATI.has(stato)) return rispostaAccount(richiesta, ambiente,
     { errore: "stato non valido" }, 400);
-  const query = stato
+  const query = stato === "aperti"
+    ? `SELECT id, account_id, categoria, titolo, stato, versione_mox,
+       diagnostica_id, creato, aggiornato FROM ticket
+       WHERE stato <> 'chiuso' ORDER BY aggiornato DESC LIMIT 200`
+    : stato
     ? `SELECT id, account_id, categoria, titolo, stato, versione_mox,
        diagnostica_id, creato, aggiornato FROM ticket
        WHERE stato = ? ORDER BY aggiornato DESC LIMIT 200`
@@ -308,7 +357,7 @@ async function elencoAmministratore(richiesta, ambiente, indirizzo) {
        diagnostica_id, creato, aggiornato FROM ticket
        ORDER BY aggiornato DESC LIMIT 200`;
   const comando = ambiente.DB.prepare(query);
-  const righe = await (stato ? comando.bind(stato) : comando).all();
+  const righe = await (stato && stato !== "aperti" ? comando.bind(stato) : comando).all();
   return rispostaAccount(richiesta, ambiente, { ticket: righe.results || [] });
 }
 

@@ -216,8 +216,40 @@ async function immagineCondivisibileMazzo(mazzo) {
 function scaricaFile(file) {
   const url = URL.createObjectURL(file);
   const collegamento = document.createElement("a");
-  collegamento.href = url; collegamento.download = file.name; collegamento.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  collegamento.href = url; collegamento.download = file.name; collegamento.hidden = true;
+  document.body.append(collegamento); collegamento.click(); collegamento.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+async function condividiFile(file, titolo) {
+  const condivisione = { title: titolo, text: "Statistiche e decklist Mox", files: [file] };
+  if (!(navigator.canShare?.(condivisione) && navigator.share)) return false;
+  await navigator.share(condivisione);
+  return true;
+}
+
+function mostraAnteprimaCondivisibile(host, file, mazzo) {
+  host.replaceChildren(); host.classList.remove("hidden");
+  const titolo = nodo("h3", "", "Anteprima da condividere");
+  const nota = nodo("p", "detail-note",
+    "L'immagine contiene le statistiche del mazzo e la decklist. Puoi controllarla qui prima di scaricarla o condividerla.");
+  const immagine = document.createElement("img"); immagine.className = "deck-share-image";
+  immagine.alt = `Scheda Mox del mazzo ${nomeMazzo(mazzo)}`; immagine.src = URL.createObjectURL(file);
+  const azioni = nodo("div", "service-actions");
+  const condividi = nodo("button", "service-button primary", "Condividi PNG"); condividi.type = "button";
+  condividi.addEventListener("click", async () => {
+    try {
+      if (await condividiFile(file, nomeMazzo(mazzo))) condividi.textContent = "Immagine condivisa";
+      else { scaricaFile(file); condividi.textContent = "PNG scaricata"; }
+    } catch (errore) {
+      if (errore?.name !== "AbortError") { scaricaFile(file); condividi.textContent = "PNG scaricata"; }
+    }
+    setTimeout(() => { condividi.textContent = "Condividi PNG"; }, 2200);
+  });
+  const scarica = nodo("button", "service-button", "Scarica PNG"); scarica.type = "button";
+  scarica.addEventListener("click", () => scaricaFile(file));
+  azioni.append(condividi, scarica);
+  host.append(titolo, nota, immagine, azioni);
 }
 
 function mazzoDellaPartita(partita) {
@@ -428,26 +460,20 @@ function apriMazzo(mazzo) {
     try { await copiaTestoArena(copia, testoArenaMazzo(mazzo)); }
     catch (errore) { copia.textContent = "Copia non riuscita"; setTimeout(() => { copia.textContent = "Copia per Arena"; }, 1600); }
   });
-  const condividi = nodo("button", "service-button", "Crea immagine da condividere");
+  const anteprima = nodo("section", "deck-share-preview hidden");
+  const condividi = nodo("button", "service-button", "Genera anteprima da condividere");
   condividi.type = "button";
   condividi.addEventListener("click", async () => {
     try {
       condividi.disabled = true;
       const immagine = await immagineCondivisibileMazzo(mazzo);
-      const condivisione = { title: nomeMazzo(mazzo), text: "Statistiche e decklist Mox", files: [immagine] };
-      if (navigator.canShare?.(condivisione) && navigator.share) {
-        await navigator.share(condivisione);
-        condividi.textContent = "Immagine condivisa";
-        setTimeout(() => { condividi.textContent = "Crea immagine da condividere"; }, 2200);
-        return;
-      }
-      scaricaFile(immagine);
-      condividi.textContent = "Immagine scaricata";
-      setTimeout(() => { condividi.textContent = "Crea immagine da condividere"; }, 2200);
+      mostraAnteprimaCondivisibile(anteprima, immagine, mazzo);
+      condividi.textContent = "Anteprima aggiornata";
+      setTimeout(() => { condividi.textContent = "Genera anteprima da condividere"; }, 2200);
     } catch (errore) {
       if (errore?.name !== "AbortError") {
         condividi.textContent = "Immagine non riuscita";
-        setTimeout(() => { condividi.textContent = "Crea immagine da condividere"; }, 1600);
+        setTimeout(() => { condividi.textContent = "Genera anteprima da condividere"; }, 1600);
       }
     } finally {
       condividi.disabled = false;
@@ -513,7 +539,7 @@ function apriMazzo(mazzo) {
     metriche([["Partite", mazzo.partite], ["Vittorie", mazzo.vittorie],
       ["Sconfitte", mazzo.sconfitte], ["Win rate", percentuale(mazzo.win_rate)],
       ["Ultima partita", dataOra(mazzo.ultima)]]),
-    rinomina, listaCarte("Decklist osservata", mazzo.carte),
+    rinomina, listaCarte("Decklist osservata", mazzo.carte), anteprima,
   ];
   if (versioni.length) contenuto.push(bloccoVersioni);
   contenuto.push(azioni);

@@ -17,6 +17,22 @@ async function api(percorso, opzioni = {}) {
 
 function percorso(suffisso = "") { return `/ticket/${ticketId}${suffisso}${token ? `?token=${encodeURIComponent(token)}` : ""}`; }
 
+function mostraAccessoSegreto() {
+  const host = $("ticket-access");
+  host.replaceChildren();
+  if (!ticketId || !token) return;
+  const nota = document.createElement("p"); nota.className = "detail-note";
+  nota.textContent = "Questo è il tuo link segreto: conservalo. Senza account non usiamo email, quindi torna qui per leggere le risposte.";
+  const link = document.createElement("a"); link.className = "secret-link"; link.href = location.href; link.textContent = location.href;
+  const copia = document.createElement("button"); copia.type = "button"; copia.className = "service-button"; copia.textContent = "Copia link segreto";
+  copia.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(location.href); copia.textContent = "Link copiato"; }
+    catch { copia.textContent = "Copia non riuscita"; }
+    setTimeout(() => { copia.textContent = "Copia link segreto"; }, 1800);
+  });
+  host.append(nota, link, copia);
+}
+
 function trovaFineZip(byte) {
   for (let indice = byte.length - 22; indice >= Math.max(0, byte.length - 65557); indice -= 1) {
     if (byte[indice] === 0x50 && byte[indice + 1] === 0x4b && byte[indice + 2] === 0x05 && byte[indice + 3] === 0x06) return indice;
@@ -24,36 +40,28 @@ function trovaFineZip(byte) {
   return -1;
 }
 
-async function rapportoDaZip(file) {
+async function pacchettoMoxDaZip(file) {
   if (file.size > 10 * 1024 * 1024) throw new Error("Pacchetto diagnostico troppo grande");
   const buffer = await file.arrayBuffer(); const view = new DataView(buffer); const byte = new Uint8Array(buffer);
   const fine = trovaFineZip(byte);
   if (fine < 0 || view.getUint32(fine, true) !== 0x06054b50) throw new Error("Pacchetto ZIP Mox non leggibile");
-  const quanti = view.getUint16(fine + 10, true); let cursore = view.getUint32(fine + 16, true); let rapporto = null;
+  const quanti = view.getUint16(fine + 10, true); let cursore = view.getUint32(fine + 16, true); const visti = new Set();
   for (let indice = 0; indice < quanti; indice += 1) {
     if (cursore + 46 > byte.length || view.getUint32(cursore, true) !== 0x02014b50) throw new Error("Indice ZIP non valido");
-    const metodo = view.getUint16(cursore + 10, true); const compresso = view.getUint32(cursore + 20, true);
     const scompresso = view.getUint32(cursore + 24, true); const nomeLunghezza = view.getUint16(cursore + 28, true);
     const extra = view.getUint16(cursore + 30, true); const commento = view.getUint16(cursore + 32, true);
-    const locale = view.getUint32(cursore + 42, true);
     const nome = new TextDecoder().decode(byte.slice(cursore + 46, cursore + 46 + nomeLunghezza));
-    if (nome === "rapporto.json") rapporto = { metodo, compresso, scompresso, locale };
+    if (!["rapporto.json", "LEGGIMI.txt", "arena/Player.log"].includes(nome) || visti.has(nome)) {
+      throw new Error("Il pacchetto non è un diagnostico Mox valido");
+    }
+    if (nome === "rapporto.json" && scompresso > 256 * 1024) {
+      throw new Error("Il pacchetto contiene un rapporto.json troppo grande");
+    }
+    visti.add(nome);
     cursore += 46 + nomeLunghezza + extra + commento;
   }
-  if (!rapporto || rapporto.scompresso > 256 * 1024 || rapporto.compresso > 256 * 1024) {
-    throw new Error("Il pacchetto deve contenere un rapporto.json Mox fino a 256 KiB");
-  }
-  const locale = rapporto.locale;
-  if (locale + 30 > byte.length || view.getUint32(locale, true) !== 0x04034b50) throw new Error("Rapporto ZIP non leggibile");
-  const nomeLunghezza = view.getUint16(locale + 26, true); const extra = view.getUint16(locale + 28, true);
-  const dati = byte.slice(locale + 30 + nomeLunghezza + extra, locale + 30 + nomeLunghezza + extra + rapporto.compresso);
-  let rapportoByte;
-  if (rapporto.metodo === 0) rapportoByte = dati;
-  else if (rapporto.metodo === 8 && "DecompressionStream" in window) {
-    rapportoByte = new Uint8Array(await new Response(new Blob([dati]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
-  } else throw new Error("Questo browser non può leggere il pacchetto diagnostico ZIP");
-  if (rapportoByte.byteLength !== rapporto.scompresso) throw new Error("Rapporto ZIP incompleto");
-  return fileRapportoMox(rapportoByte);
+  if (!visti.has("rapporto.json")) throw new Error("Il pacchetto deve contenere rapporto.json");
+  return file;
 }
 
 // Mox anonimizza il rapporto, ma la diagnostica recente conserva unicamente le
@@ -81,7 +89,9 @@ function fileRapportoMox(byte) {
 async function allegatoDaInviare(file) {
   if (!file) return null;
   const nome = file.name.toLocaleLowerCase("it-IT");
-  if (file.type === "application/zip" || nome.endsWith(".zip")) return rapportoDaZip(file);
+  if (file.type === "application/zip" || file.type === "application/x-zip-compressed" || nome.endsWith(".zip")) {
+    return pacchettoMoxDaZip(file);
+  }
   if (file.type === "application/json" || nome === "rapporto.json") {
     return fileRapportoMox(await file.arrayBuffer());
   }
@@ -136,10 +146,11 @@ $("ticket-form").addEventListener("submit", async (evento) => {
     ticketId = creato.ticket.id; token = creato.token || null;
     if (file) { const form = new FormData(); form.append("file", file); await api(percorso("/attachments"), { method: "POST", body: form }); }
     const url = new URL(location.href); url.searchParams.set("ticket", ticketId); if (token) url.searchParams.set("token", token); history.replaceState(null, "", url);
-    $("ticket-message").textContent = token ? "Ticket inviato. Salva il link corrente: contiene il tuo accesso segreto." : "Ticket inviato e aggiunto al tuo account."; $("ticket-message").className = "service-message success"; await caricaTicket();
+    $("ticket-message").textContent = token ? "Ticket inviato: salva il link segreto qui sotto." : "Ticket inviato e aggiunto al tuo account."; $("ticket-message").className = "service-message success"; mostraAccessoSegreto(); await caricaTicket();
   } catch (e) { $("ticket-message").textContent = e.message; $("ticket-message").className = "service-message error"; }
   finally { bottone.disabled = false; turnstileToken = ""; if (turnstileId !== null) window.turnstile.reset(turnstileId); }
 });
 $("reply-form").addEventListener("submit", async (evento) => { evento.preventDefault(); try { await api(percorso("/messages"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ testo: $("reply-text").value }) }); $("reply-text").value = ""; await caricaTicket(); } catch (e) { $("ticket-message").textContent = e.message; } });
+mostraAccessoSegreto();
 caricaTicket();
 preparaTurnstile();

@@ -91,4 +91,20 @@ $("admin-form").addEventListener("submit", async (evento) => {
     $("admin-reply").value = ""; await apriTicket(ticketCorrente); await caricaTicket();
   } catch (errore) { $("admin-message").textContent = errore.message; }
 });
+$("admin-close").addEventListener("click", async () => {
+  if (!ticketCorrente) return;
+  const bottone = $("admin-close"); bottone.disabled = true;
+  try {
+    await api(`/admin/ticket/${ticketCorrente}`, { method: "POST",
+      headers: { "content-type": "application/json" }, body: JSON.stringify({ stato: "chiuso" }) });
+    ticketCorrente = null;
+    $("admin-detail").classList.add("hidden");
+    $("admin-message").textContent = "Ticket chiuso: sparisce dall'elenco Aperto.";
+    $("admin-message").className = "service-message success";
+    await caricaTicket();
+  } catch (errore) {
+    $("admin-message").textContent = errore.message;
+    $("admin-message").className = "service-message error";
+  } finally { bottone.disabled = false; }
+});
 caricaTicket();

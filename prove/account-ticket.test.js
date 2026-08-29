@@ -58,6 +58,55 @@ function fileTicketFinti() {
   };
 }
 
+function pacchettoZipMemorizzato(voci) {
+  const testo = new TextEncoder();
+  const locali = [];
+  const centrali = [];
+  let posizione = 0;
+  for (const voce of voci) {
+    const nome = testo.encode(voce.nome);
+    const contenuto = typeof voce.contenuto === "string"
+      ? testo.encode(voce.contenuto) : voce.contenuto;
+    const locale = new Uint8Array(30 + nome.length + contenuto.length);
+    const vistaLocale = new DataView(locale.buffer);
+    vistaLocale.setUint32(0, 0x04034b50, true);
+    vistaLocale.setUint16(4, 20, true);
+    vistaLocale.setUint32(18, contenuto.length, true);
+    vistaLocale.setUint32(22, contenuto.length, true);
+    vistaLocale.setUint16(26, nome.length, true);
+    locale.set(nome, 30);
+    locale.set(contenuto, 30 + nome.length);
+    locali.push(locale);
+
+    const centrale = new Uint8Array(46 + nome.length);
+    const vistaCentrale = new DataView(centrale.buffer);
+    vistaCentrale.setUint32(0, 0x02014b50, true);
+    vistaCentrale.setUint16(4, 20, true);
+    vistaCentrale.setUint16(6, 20, true);
+    vistaCentrale.setUint32(20, contenuto.length, true);
+    vistaCentrale.setUint32(24, contenuto.length, true);
+    vistaCentrale.setUint16(28, nome.length, true);
+    vistaCentrale.setUint32(42, posizione, true);
+    centrale.set(nome, 46);
+    centrali.push(centrale);
+    posizione += locale.length;
+  }
+  const dimensioneIndice = centrali.reduce((totale, voce) => totale + voce.length, 0);
+  const fine = new Uint8Array(22);
+  const vistaFine = new DataView(fine.buffer);
+  vistaFine.setUint32(0, 0x06054b50, true);
+  vistaFine.setUint16(8, voci.length, true);
+  vistaFine.setUint16(10, voci.length, true);
+  vistaFine.setUint32(12, dimensioneIndice, true);
+  vistaFine.setUint32(16, posizione, true);
+  const archivio = new Uint8Array(posizione + dimensioneIndice + fine.length);
+  let cursore = 0;
+  for (const voce of locali) { archivio.set(voce, cursore); cursore += voce.length; }
+  for (const voce of centrali) { archivio.set(voce, cursore); cursore += voce.length; }
+  archivio.set(fine, cursore);
+  return archivio;
+}
+
 function primaCookie(risposta) {
   return risposta.headers.get("set-cookie").split(";", 1)[0];
 }
@@ -531,6 +580,42 @@ test("rapporto.json deve essere piccolo, strutturato e privo di campi sensibili"
     { method: "POST", body: sensibile }), env)).status, 415);
 });
 
+test("il pacchetto diagnostico Mox conserva Player.log privato solo quando e' nel formato previsto", async () => {
+  const env = ambiente();
+  env.TICKET_FILES = fileTicketFinti();
+  const creato = await worker.fetch(new Request("https://api.moxtracker.app/ticket", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ categoria: "bug", titolo: "Diagnostica completa",
+      testo: "Mox ha raccolto il consenso e allego il pacchetto diagnostico completo.",
+      turnstile_token: "token-valido" }),
+  }), env);
+  const { ticket, token } = await creato.json();
+  const percorso = `https://api.moxtracker.app/ticket/${ticket.id}/attachments?token=${token}`;
+  const pacchetto = pacchettoZipMemorizzato([
+    { nome: "rapporto.json", contenuto: JSON.stringify({ diagnostica: "abcdef123456" }) },
+    { nome: "LEGGIMI.txt", contenuto: "Pacchetto diagnostico Mox" },
+    { nome: "arena/Player.log", contenuto: "riga privata di Arena" },
+  ]);
+  const valido = new FormData();
+  valido.append("file", new File([pacchetto], "mox-diagnostica.zip", {
+    type: "application/x-zip-compressed",
+  }));
+  const caricato = await worker.fetch(new Request(percorso, { method: "POST", body: valido }), env);
+  assert.equal(caricato.status, 201);
+  const allegato = (await caricato.json()).allegato;
+  const scaricato = await worker.fetch(new Request(
+    `https://api.moxtracker.app/ticket/${ticket.id}/attachments/${allegato.id}?token=${token}`), env);
+  assert.equal(scaricato.status, 200);
+  assert.deepEqual(new Uint8Array(await scaricato.arrayBuffer()), pacchetto);
+
+  const generico = new FormData();
+  generico.append("file", new File([pacchettoZipMemorizzato([
+    { nome: "rapporto.json", contenuto: "{}" }, { nome: "altro.txt", contenuto: "no" },
+  ])], "archivio-generico.zip", { type: "application/zip" }));
+  assert.equal((await worker.fetch(new Request(percorso,
+    { method: "POST", body: generico }), env)).status, 415);
+});
+
 test("i ticket autenticati compaiono nella cronologia dell'account", async () => {
   const env = ambiente();
   const sessione = await accedi(env);
@@ -593,6 +678,41 @@ test("l'amministratore usa OAuth e ogni modifica del ticket viene registrata", a
   assert.equal(env.DB.tutte("SELECT account_id, azione FROM ticket_audit")[0].account_id,
     account);
   assert.equal(env.DB.tutte("SELECT stato FROM ticket")[0].stato, "da_verificare");
+});
+
+test("chiudere nasconde il ticket dagli aperti e una replica anonima lo riapre", async () => {
+  const env = ambiente();
+  const creato = await worker.fetch(new Request("https://api.moxtracker.app/ticket", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ categoria: "bug", titolo: "Riapertura ticket",
+      testo: "Il problema e' riproducibile e servono maggiori dettagli.",
+      turnstile_token: "token-valido" }),
+  }), env);
+  const { ticket, token } = await creato.json();
+  const sessione = await accedi(env);
+  const account = env.DB.tutte("SELECT id FROM account")[0].id;
+  await env.DB.batch([env.DB.prepare(
+    "UPDATE account SET ruolo = 'amministratore' WHERE id = ?").bind(account)]);
+  const chiuso = await worker.fetch(new Request(
+    `https://api.moxtracker.app/admin/ticket/${ticket.id}`, {
+      method: "POST", headers: { "content-type": "application/json", cookie: sessione },
+      body: JSON.stringify({ stato: "chiuso" }),
+    }), env);
+  assert.equal(chiuso.status, 200);
+  const apertiPrima = await worker.fetch(new Request(
+    "https://api.moxtracker.app/admin/tickets?stato=aperti", { headers: { cookie: sessione } }), env);
+  assert.equal((await apertiPrima.json()).ticket.length, 0);
+
+  const replica = await worker.fetch(new Request(
+    `https://api.moxtracker.app/ticket/${ticket.id}/messages?token=${token}`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ testo: "Ho altre informazioni: succede anche dopo il riavvio." }),
+    }), env);
+  assert.equal(replica.status, 200);
+  const apertiDopo = await worker.fetch(new Request(
+    "https://api.moxtracker.app/admin/tickets?stato=aperti", { headers: { cookie: sessione } }), env);
+  assert.equal((await apertiDopo.json()).ticket.length, 1);
+  assert.equal(env.DB.tutte("SELECT stato FROM ticket")[0].stato, "ricevuto");
 });
 
 test("la pulizia elimina allegati e ticket chiusi secondo la retention", async () => {

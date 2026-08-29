@@ -1,5 +1,5 @@
 const SCRYFALL_API = "https://api.scryfall.com";
-const CACHE_KEY = "mox-scryfall-card-cache-v6";
+const CACHE_KEY = "mox-scryfall-card-cache-v7";
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MISSING_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 750;
@@ -75,6 +75,18 @@ export function cardLookupUrls(card = {}) {
   return urls;
 }
 
+function cardLookupItalianUrl(card = {}) {
+  const spec = normalizeCardSpec(card);
+  if (!spec.name) return null;
+  // La ricerca per nome Oracle trova la stampa italiana direttamente: se non
+  // esiste, si ricade una sola volta nell'inglese senza mostrare un refresh.
+  const nome = spec.name.replace(/[\\"]/g, "\\$&");
+  const query = new URLSearchParams({
+    order: "released", unique: "prints", q: `!\"${nome}\" lang:it`,
+  });
+  return `${SCRYFALL_API}/cards/search?${query}`;
+}
+
 export function parseReferenceLine(line) {
   const text = cleanName(line);
   const match = text.match(/^(\d+)\s*[x×]?\s+(.+)$/i);
@@ -99,7 +111,7 @@ export function extractCardMedia(card, fetchedAt = Date.now()) {
 
   return {
     missing: false,
-    name: cleanName(card.name || face?.name),
+    name: cleanName(card.printed_name || face?.printed_name || card.name || face?.name),
     oracleId: cleanName(card.oracle_id),
     arenaId: positiveArenaId(card.arena_id),
     artCrop,
@@ -217,31 +229,11 @@ async function lookupNetwork(spec) {
   return null;
 }
 
-async function lookupItalian(oracleId) {
-  oracleId = cleanName(oracleId);
-  if (!oracleId) return null;
-  const query = new URLSearchParams({
-    order: "released",
-    unique: "prints",
-    q: `oracleid:${oracleId} lang:it`,
-  });
-  const result = await queuedFetch(`${SCRYFALL_API}/cards/search?${query}`);
+async function lookupItalian(spec) {
+  const url = cardLookupItalianUrl(spec);
+  if (!url) return null;
+  const result = await queuedFetch(url);
   return result.found ? result.data?.data?.[0] || null : null;
-}
-
-function mediaLocalizzata(base, cartaItaliana) {
-  const italiana = extractCardMedia(cartaItaliana, base.fetchedAt);
-  if (!italiana) return base;
-  // I testi italiani servono alla lettura e alla preview. I metadati tecnici
-  // restano quelli della stampa base, perché curva e fixing usano i tipi Oracle.
-  return {
-    ...base,
-    name: cleanName(cartaItaliana.printed_name || cartaItaliana.name) || base.name,
-    artCrop: italiana.artCrop,
-    small: italiana.small,
-    normal: italiana.normal,
-    artist: italiana.artist || base.artist,
-  };
 }
 
 export async function resolveCard(card = {}) {
@@ -258,11 +250,9 @@ export async function resolveCard(card = {}) {
 
   const promise = (async () => {
     try {
-      const base = await resolveBaseCard(spec);
-      if (!base) return null;
-      let media = base;
-      try { media = mediaLocalizzata(base, await lookupItalian(base.oracleId)); }
-      catch { /* La traduzione è un miglioramento: inglese e immagini base restano validi. */ }
+      const italiana = await lookupItalian(spec);
+      const media = extractCardMedia(italiana) || await resolveBaseCard(spec);
+      if (!media) return null;
       remember([primaryKey], media);
       return media;
     } catch {
@@ -418,13 +408,10 @@ function scheduleResolution(node, spec, image, placeholder) {
       node.title = media.name || spec.name || "";
     };
 
-    // Prima rendiamo subito la stampa disponibile. In italiano la stampa e il
-    // nome tradotti arrivano dopo, senza lasciare per minuti il riquadro MOX.
-    const media = await resolveBaseCard(spec);
+    // Si chiede subito la lingua scelta. Se una stampa italiana non esiste,
+    // il resolver usa l'inglese senza mai far vedere il passaggio intermedio.
+    const media = await resolveCard(spec);
     mostraMiniatura(media);
-    if (linguaCarte() !== "it" || !media) return;
-    const localizzata = await resolveCard(spec);
-    if (localizzata) mostraMiniatura(localizzata);
   };
 
   if (typeof IntersectionObserver === "undefined") {
