@@ -989,7 +989,8 @@ export const TABELLE_DELL_ACCOUNT = [
 
 // Le tabelle dei ticket non hanno `account_id`: appartengono all'account
 // attraverso il ticket, e vanno svuotate prima di lui.
-const TABELLE_DEI_TICKET = ["ticket_audit", "ticket_allegato", "ticket_messaggio"];
+const TABELLE_DEI_TICKET = ["ticket_audit", "ticket_allegato", "ticket_messaggio",
+  "ticket_notifica_accesso", "ticket_notifica_email"];
 
 export function comandiCancellaAccount(db, accountId) {
   const comandi = TABELLE_DEI_TICKET.map((tabella) => db.prepare(

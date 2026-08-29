@@ -517,6 +517,68 @@ test("ticket anonimo richiede il link segreto e accetta risposte", async () => {
   assert.equal(env.DB.conta("ticket_messaggio"), 2);
 });
 
+test("notifiche email facoltative: consenso, conferma e avviso della risposta", async () => {
+  const env = ambiente(); const invii = [];
+  env.RESEND_API_KEY = "resend-test";
+  env.RESEND_FETCH = async (_url, opzioni) => {
+    invii.push(JSON.parse(opzioni.body));
+    return new Response(JSON.stringify({ id: "email-test" }), { status: 200 });
+  };
+  const creato = await worker.fetch(new Request("https://api.moxtracker.app/ticket", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ categoria: "bug", titolo: "Notifiche email ticket",
+      testo: "Vorrei ricevere gli aggiornamenti del supporto via email.",
+      email_notifica: "utente@example.test", consenso_email: true,
+      turnstile_token: "turnstile" }),
+  }), env);
+  assert.equal(creato.status, 201);
+  const dato = await creato.json();
+  assert.equal(dato.notifica_email, "conferma_inviata");
+  assert.equal(invii.length, 1);
+  assert.equal(invii[0].to[0], "utente@example.test");
+  assert.doesNotMatch(invii[0].text, /Vorrei ricevere/);
+  const link = new URL(invii[0].text.match(/https:\/\/[^\s]+/)[0]);
+  const conferma = await worker.fetch(new Request(
+    `https://api.moxtracker.app/ticket/${dato.ticket.id}${link.search}`), env);
+  assert.equal(conferma.status, 200);
+  assert.ok(env.DB.tutte("SELECT verificata FROM ticket_notifica_email")[0].verificata);
+
+  const sessione = await accedi(env);
+  await env.DB.batch([env.DB.prepare("UPDATE account SET ruolo = 'amministratore'").bind()]);
+  const aggiornato = await worker.fetch(new Request(
+    `https://api.moxtracker.app/admin/ticket/${dato.ticket.id}`, {
+      method: "POST", headers: { cookie: sessione, "content-type": "application/json" },
+      body: JSON.stringify({ testo: "Abbiamo ricevuto il ticket e stiamo verificando." }),
+    }), env);
+  assert.equal(aggiornato.status, 200);
+  assert.equal((await aggiornato.json()).email_inviata, true);
+  assert.equal(invii.length, 2);
+  assert.doesNotMatch(invii[1].text, /Abbiamo ricevuto/);
+
+  const disiscrizione = await worker.fetch(new Request(
+    `https://api.moxtracker.app/ticket/${dato.ticket.id}/email/unsubscribe${link.search}`, { method: "POST" }), env);
+  assert.equal(disiscrizione.status, 200);
+  assert.ok(env.DB.tutte("SELECT disiscritta FROM ticket_notifica_email")[0].disiscritta);
+  const dopoDisiscrizione = await worker.fetch(new Request(
+    `https://api.moxtracker.app/admin/ticket/${dato.ticket.id}`, {
+      method: "POST", headers: { cookie: sessione, "content-type": "application/json" },
+      body: JSON.stringify({ testo: "Secondo aggiornamento senza email." }),
+    }), env);
+  assert.equal((await dopoDisiscrizione.json()).email_inviata, false);
+  assert.equal(invii.length, 2);
+});
+
+test("un indirizzo per ticket senza consenso esplicito viene rifiutato", async () => {
+  const env = ambiente(); env.RESEND_API_KEY = "resend-test";
+  const risposta = await worker.fetch(new Request("https://api.moxtracker.app/ticket", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ categoria: "bug", titolo: "Ticket senza consenso",
+      testo: "Questo ticket prova a inserire una email senza consenso esplicito.",
+      email_notifica: "utente@example.test", turnstile_token: "turnstile" }),
+  }), env);
+  assert.equal(risposta.status, 400);
+});
+
 test("gli allegati controllano il contenuto e restano scaricabili solo dal proprietario", async () => {
   const env = ambiente();
   env.TICKET_FILES = fileTicketFinti();

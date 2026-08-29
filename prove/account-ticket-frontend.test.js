@@ -105,12 +105,18 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
   assert.match(html, /accept="[^"]*(?:zip|\.zip)/i);
   assert.match(html, /turnstile-widget/);
   assert.match(html, /link segreto/i);
+  assert.match(html, /ticket-email-consent/);
+  assert.match(html, /ticket-email-unsubscribe/);
+  assert.match(html, /Email per gli aggiornamenti/);
   assert.match(js, /FormData/);
   assert.match(js, /\/attachments/);
   assert.match(js, /pacchettoMoxDaZip/);
   assert.match(js, /ripulisciRapportoMox/);
   assert.match(js, /rapporto\.json/);
   assert.match(js, /\/messages/);
+  assert.match(js, /notifiche_email/);
+  assert.match(js, /email_token/);
+  assert.match(js, /email\/unsubscribe/);
 });
 
 test("il rank si sceglie come intervallo, non come voce singola", () => {
@@ -179,6 +185,7 @@ test("privacy dichiara account OAuth e ticket senza promettere anonimato falso",
   assert.match(privacy, /Non chiediamo né conserviamo l'email/);
   assert.match(privacy, /90 giorni/);
   assert.match(privacy, /365 giorni/);
+  assert.match(privacy, /notifiche email sono facoltative/i);
   assert.doesNotMatch(privacy, /Nessun account sul sito/);
 });
 

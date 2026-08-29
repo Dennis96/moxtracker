@@ -16,6 +16,8 @@ const TIPI_ALLEGATO = new Set([
 const BYTE_MASSIMI = 10 * 1024 * 1024;
 const BYTE_RAPPORTO_MASSIMI = 256 * 1024;
 const NOMI_PACCHETTO_MOX = new Set(["rapporto.json", "LEGGIMI.txt", "arena/Player.log"]);
+const DURATA_ACCESSO_EMAIL = 365 * 24 * 60 * 60 * 1000;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function rapportoDiagnosticoValido(valore) {
   if (!valore || typeof valore !== "object" || Array.isArray(valore)) return false;
@@ -106,6 +108,11 @@ function pulisciTesto(valore, massimo) {
   return typeof valore === "string" ? valore.trim().slice(0, massimo) : "";
 }
 
+function emailValida(valore) {
+  const email = pulisciTesto(valore, 254).toLowerCase();
+  return EMAIL.test(email) ? email : null;
+}
+
 async function json(richiesta) {
   try { return await richiesta.json(); } catch { return null; }
 }
@@ -144,12 +151,90 @@ async function richiedeAmministratore(richiesta, ambiente) {
   return utente?.ruolo === "amministratore" ? utente : null;
 }
 
+async function nuovoAccessoEmail(db, ticketId, ora = new Date()) {
+  const token = casuale(32);
+  await db.batch([db.prepare(`INSERT INTO ticket_notifica_accesso
+    (hash, ticket_id, creato, scade) VALUES (?, ?, ?, ?)`)
+    .bind(await sha256(token), ticketId, ora.toISOString(),
+      new Date(ora.getTime() + DURATA_ACCESSO_EMAIL).toISOString())]);
+  return token;
+}
+
+function linkEmail(ambiente, ticketId, token) {
+  return `${sito(ambiente)}/supporto.html?ticket=${ticketId}&email_token=${token}`;
+}
+
+function htmlEmail(titolo, testo, link, etichetta) {
+  return `<!doctype html><html lang="it"><body style="font-family:Arial,sans-serif;line-height:1.5;color:#17131e">
+    <h1 style="font-size:20px">${titolo}</h1><p>${testo}</p>
+    <p><a href="${link}" style="display:inline-block;padding:10px 14px;background:#7c2cd5;color:#fff;text-decoration:none;border-radius:6px">${etichetta}</a></p>
+    <p style="color:#625a6d;font-size:13px">Se non hai richiesto queste notifiche, ignora questo messaggio.</p>
+  </body></html>`;
+}
+
+async function inviaEmail(ambiente, destinatario, oggetto, testo, link, etichetta) {
+  if (!ambiente.RESEND_API_KEY) return false;
+  const recupera = ambiente.RESEND_FETCH || fetch;
+  try {
+    const risposta = await recupera("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { authorization: `Bearer ${ambiente.RESEND_API_KEY}`,
+        "content-type": "application/json" },
+      body: JSON.stringify({ from: ambiente.RESEND_FROM || "Mox Support <noreply@moxtracker.app>",
+        to: [destinatario], subject: oggetto, text: `${testo}\n\n${etichetta}: ${link}`,
+        html: htmlEmail(oggetto, testo, link, etichetta) }),
+    });
+    if (risposta.ok) return true;
+    console.error("invio email ticket non riuscito", risposta.status);
+  } catch (guasto) {
+    console.error("invio email ticket non riuscito", String(guasto));
+  }
+  return false;
+}
+
+async function notificaCreazioneEmail(ambiente, ticketId, email) {
+  const token = await nuovoAccessoEmail(ambiente.DB, ticketId);
+  const link = linkEmail(ambiente, ticketId, token);
+  return inviaEmail(ambiente, email, "Conferma le notifiche del ticket Mox",
+    "Hai scelto di ricevere via email gli aggiornamenti di un ticket Mox. Apri il ticket per confermare questo indirizzo. Il messaggio e gli allegati non sono inclusi nell’email.",
+    link, "Conferma e apri il ticket");
+}
+
+async function notificaAggiornamentoEmail(ambiente, ticket) {
+  const contatto = await ambiente.DB.prepare(`SELECT email FROM ticket_notifica_email
+    WHERE ticket_id = ? AND verificata IS NOT NULL AND disiscritta IS NULL`)
+    .bind(ticket.id).first();
+  if (!contatto) return false;
+  const token = await nuovoAccessoEmail(ambiente.DB, ticket.id);
+  const link = linkEmail(ambiente, ticket.id, token);
+  return inviaEmail(ambiente, contatto.email, "Hai un aggiornamento dal supporto Mox",
+    "Il supporto ha aggiornato il tuo ticket. Aprilo per leggere la risposta. Il testo e gli allegati restano nel ticket privato.",
+    link, "Apri il ticket");
+}
+
 async function proprietario(richiesta, ambiente, ticket, indirizzo) {
   const utente = await utenteDallaSessione(richiesta, ambiente);
   if (utente && ticket.account_id === utente.id) return { tipo: "account", utente };
   const token = indirizzo.searchParams.get("token") || richiesta.headers.get("x-ticket-token");
   if (!ticket.account_id && token && ticket.accesso_hash === await sha256(token)) {
     return { tipo: "anonimo", utente: null };
+  }
+  const tokenEmail = indirizzo.searchParams.get("email_token") ||
+    richiesta.headers.get("x-ticket-email-token");
+  if (tokenEmail) {
+    const accesso = await ambiente.DB.prepare(`SELECT e.verificata FROM ticket_notifica_accesso a
+      JOIN ticket_notifica_email e ON e.ticket_id = a.ticket_id
+      WHERE a.ticket_id = ? AND a.hash = ? AND a.scade > ?`).bind(
+      ticket.id, await sha256(tokenEmail), new Date().toISOString()).first();
+    if (accesso) {
+      if (!accesso.verificata) {
+        const ora = new Date().toISOString();
+        await ambiente.DB.batch([ambiente.DB.prepare(`UPDATE ticket_notifica_email
+          SET verificata = ?, aggiornato = ? WHERE ticket_id = ? AND verificata IS NULL`)
+          .bind(ora, ora, ticket.id)]);
+      }
+      return { tipo: "email", utente: null };
+    }
   }
   return null;
 }
@@ -184,15 +269,36 @@ async function dettaglio(richiesta, ambiente, indirizzo, id) {
   });
 }
 
+async function disiscriviEmail(richiesta, ambiente, indirizzo, id) {
+  const ticket = await leggiTicket(ambiente.DB, id);
+  if (!ticket) return rispostaAccount(richiesta, ambiente, { errore: "ticket non trovato" }, 404);
+  if (!await proprietario(richiesta, ambiente, ticket, indirizzo)) {
+    return rispostaAccount(richiesta, ambiente, { errore: "accesso al ticket negato" }, 403);
+  }
+  const ora = new Date().toISOString();
+  await ambiente.DB.batch([ambiente.DB.prepare(`UPDATE ticket_notifica_email
+    SET disiscritta = ?, aggiornato = ? WHERE ticket_id = ? AND disiscritta IS NULL`)
+    .bind(ora, ora, id)]);
+  return rispostaAccount(richiesta, ambiente, { disiscritta: true });
+}
+
 async function crea(richiesta, ambiente) {
   const corpo = await json(richiesta);
   const categoria = pulisciTesto(corpo?.categoria, 30);
   const titolo = pulisciTesto(corpo?.titolo, 120);
   const testo = pulisciTesto(corpo?.testo, 5000);
+  const email = emailValida(corpo?.email_notifica);
+  const consensoEmail = corpo?.consenso_email === true;
   if (!CATEGORIE.has(categoria) || titolo.length < 5 || testo.length < 20) {
     return rispostaAccount(richiesta, ambiente,
       { errore: "categoria, titolo o descrizione non validi" }, 400);
   }
+  if ((email && !consensoEmail) || (!email && consensoEmail)) {
+    return rispostaAccount(richiesta, ambiente,
+      { errore: "per le notifiche inserisci un'email valida e conferma il consenso" }, 400);
+  }
+  if (email && !ambiente.RESEND_API_KEY) return rispostaAccount(richiesta, ambiente,
+    { errore: "le notifiche email non sono ancora disponibili" }, 503);
   const utente = await utenteDallaSessione(richiesta, ambiente);
   if (!await limita(richiesta, ambiente, "crea", utente?.id || "")) {
     return rispostaAccount(richiesta, ambiente,
@@ -207,7 +313,7 @@ async function crea(richiesta, ambiente) {
   const ora = new Date().toISOString();
   const versione = pulisciTesto(corpo?.versione_mox, 60) || null;
   const diagnostica = pulisciTesto(corpo?.diagnostica_id, 100) || null;
-  await ambiente.DB.batch([
+  const comandi = [
     ambiente.DB.prepare(`INSERT INTO ticket
       (id, account_id, accesso_hash, categoria, titolo, stato, versione_mox,
        diagnostica_id, creato, aggiornato) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
@@ -216,12 +322,18 @@ async function crea(richiesta, ambiente) {
     ambiente.DB.prepare(`INSERT INTO ticket_messaggio
       (id, ticket_id, autore, testo, creato) VALUES (?, ?, ?, ?, ?)`)
       .bind(casuale(), id, "utente", testo, ora),
-  ]);
+  ];
+  if (email) comandi.push(ambiente.DB.prepare(`INSERT INTO ticket_notifica_email
+    (ticket_id, email, consenso, creato, aggiornato) VALUES (?, ?, ?, ?, ?)`)
+    .bind(id, email, ora, ora, ora));
+  await ambiente.DB.batch(comandi);
   const risultato = { ticket: { id, stato: "ricevuto" } };
   if (token) {
     risultato.token = token;
     risultato.link_segreto = `${sito(ambiente)}/supporto.html?ticket=${id}&token=${token}`;
   }
+  if (email) risultato.notifica_email = await notificaCreazioneEmail(ambiente, id, email)
+    ? "conferma_inviata" : "non_inviata";
   return rispostaAccount(richiesta, ambiente, risultato, 201);
 }
 
@@ -409,8 +521,9 @@ async function aggiornaDaAmministratore(richiesta, ambiente, id) {
   await registraAudit(ambiente, amministratore, id, "ticket_aggiornato",
     JSON.stringify({ da: ticket.stato, a: stato || ticket.stato,
       risposta: Boolean(testo) }));
+  const emailInviata = testo ? await notificaAggiornamentoEmail(ambiente, ticket) : false;
   return rispostaAccount(richiesta, ambiente,
-    { aggiornato: true, stato: stato || ticket.stato });
+    { aggiornato: true, stato: stato || ticket.stato, email_inviata: emailInviata });
 }
 
 export async function pulisciTicketScaduti(ambiente, adesso = Date.now()) {
@@ -442,6 +555,8 @@ export async function pulisciTicketScaduti(ambiente, adesso = Date.now()) {
       ambiente.DB.prepare("DELETE FROM ticket_allegato WHERE ticket_id = ?").bind(id),
       ambiente.DB.prepare("DELETE FROM ticket_messaggio WHERE ticket_id = ?").bind(id),
       ambiente.DB.prepare("DELETE FROM ticket_audit WHERE ticket_id = ?").bind(id),
+      ambiente.DB.prepare("DELETE FROM ticket_notifica_accesso WHERE ticket_id = ?").bind(id),
+      ambiente.DB.prepare("DELETE FROM ticket_notifica_email WHERE ticket_id = ?").bind(id),
       ambiente.DB.prepare("DELETE FROM ticket WHERE id = ?").bind(id),
     ]);
   }
@@ -462,7 +577,8 @@ export async function gestisciTicket(richiesta, ambiente, indirizzo) {
   }
   if (percorso === "/ticket/config" && richiesta.method === "GET") {
     return rispostaAccount(richiesta, ambiente,
-      { turnstile_site_key: ambiente.TURNSTILE_SITE_KEY || null });
+      { turnstile_site_key: ambiente.TURNSTILE_SITE_KEY || null,
+        notifiche_email: Boolean(ambiente.RESEND_API_KEY) });
   }
   if (percorso === "/ticket") return richiesta.method === "POST"
     ? crea(richiesta, ambiente)
@@ -474,6 +590,10 @@ export async function gestisciTicket(richiesta, ambiente, indirizzo) {
   const allegati = percorso.match(/^\/ticket\/([0-9a-f]{32})\/attachments$/);
   if (allegati) return richiesta.method === "POST"
     ? aggiungiAllegato(richiesta, ambiente, indirizzo, allegati[1])
+    : rispostaAccount(richiesta, ambiente, { errore: "usa POST" }, 405);
+  const disiscrizione = percorso.match(/^\/ticket\/([0-9a-f]{32})\/email\/unsubscribe$/);
+  if (disiscrizione) return richiesta.method === "POST"
+    ? disiscriviEmail(richiesta, ambiente, indirizzo, disiscrizione[1])
     : rispostaAccount(richiesta, ambiente, { errore: "usa POST" }, 405);
   const scarica = percorso.match(
     /^\/ticket\/([0-9a-f]{32})\/attachments\/([0-9a-f]{32})$/);

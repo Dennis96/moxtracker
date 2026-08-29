@@ -42,8 +42,10 @@ dati di produzione richiedono autorizzazione separata.
 
 ## Lavoro in pausa
 
-- Email per i ticket: non raccogliere indirizzi e non inviare notifiche finché
-  non viene scelto un provider, un consenso esplicito e il flusso di revoca.
+- Email per i ticket: Resend e dominio sono in configurazione. Il flusso scelto
+  usa un indirizzo facoltativo, consenso esplicito, conferma via link e avvisi
+  senza testo del ticket o allegati. Richiede una migrazione D1 additiva prima
+  della pubblicazione del Worker.
 
 ## Prossima fase da decidere
 

@@ -478,5 +478,15 @@
   "Controlli elenco Draft": "Draft list controls",
   "Controlli elenco partite": "Match list controls",
   "Puoi scegliere il pacchetto diagnostico .zip creato da Mox: il browser estrae localmente e invia solo rapporto.json, già anonimizzato. Puoi allegare anche uno screenshot PNG, JPEG o WebP.": "You can select the .zip diagnostic package created by Mox: the browser extracts locally and sends only the already anonymized rapporto.json. You can also attach a PNG, JPEG or WebP screenshot.",
-  "Player.log non viene caricato qui:": "Player.log is not uploaded here:"
+  "Player.log non viene caricato qui:": "Player.log is not uploaded here:",
+  "Email per gli aggiornamenti (facoltativa)": "Email for updates (optional)",
+  "Voglio ricevere via email i nuovi messaggi di questo ticket. L’indirizzo è usato solo per questo ticket e lo confermerò dal messaggio ricevuto.": "I want to receive new messages for this ticket by email. The address is used only for this ticket and I will confirm it from the message received.",
+  "Notifiche email facoltative:": "Optional email notifications:",
+  "confermi l’indirizzo con un link. Le email non contengono il messaggio del ticket né gli allegati.": "confirm the address with a link. Emails do not contain the ticket message or attachments.",
+  "Ticket inviato: salva il link segreto qui sotto.": "Ticket submitted: save the secret link below.",
+  "Controlla l’email e conferma l’indirizzo per ricevere le risposte.": "Check your email and confirm the address to receive replies.",
+  "Questo è il tuo link segreto: conservalo. Se hai scelto le notifiche email, conferma prima l’indirizzo dal messaggio ricevuto.": "This is your secret link: keep it. If you chose email notifications, first confirm the address from the message you received.",
+  "Le notifiche email sono facoltative: l'indirizzo viene chiesto solo per il singolo ticket, dopo una spunta esplicita e una conferma dal messaggio ricevuto. Le email non contengono testo o allegati del ticket, ma un link privato per aprirlo; l'indirizzo e i relativi token vengono eliminati con il ticket.": "Email notifications are optional: the address is requested only for the individual ticket, after explicit consent and confirmation from the received message. Emails do not contain ticket text or attachments, but a private link to open it; the address and related tokens are deleted with the ticket.",
+  "Disattiva notifiche email": "Turn off email notifications",
+  "Notifiche email disattivate": "Email notifications turned off"
 }

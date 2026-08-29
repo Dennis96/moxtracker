@@ -5,6 +5,7 @@ const $ = (id) => document.getElementById(id);
 const parametri = new URLSearchParams(location.search);
 let ticketId = parametri.get("ticket");
 let token = parametri.get("token");
+let emailToken = parametri.get("email_token");
 let turnstileToken = "";
 let turnstileId = null;
 
@@ -15,14 +16,18 @@ async function api(percorso, opzioni = {}) {
   if (!risposta.ok) throw new Error(corpo?.errore || `Errore ${risposta.status}`); return corpo;
 }
 
-function percorso(suffisso = "") { return `/ticket/${ticketId}${suffisso}${token ? `?token=${encodeURIComponent(token)}` : ""}`; }
+function percorso(suffisso = "") {
+  const query = new URLSearchParams();
+  if (token) query.set("token", token); if (emailToken) query.set("email_token", emailToken);
+  return `/ticket/${ticketId}${suffisso}${query.size ? `?${query}` : ""}`;
+}
 
 function mostraAccessoSegreto() {
   const host = $("ticket-access");
   host.replaceChildren();
   if (!ticketId || !token) return;
   const nota = document.createElement("p"); nota.className = "detail-note";
-  nota.textContent = "Questo è il tuo link segreto: conservalo. Senza account non usiamo email, quindi torna qui per leggere le risposte.";
+  nota.textContent = "Questo è il tuo link segreto: conservalo. Se hai scelto le notifiche email, conferma prima l’indirizzo dal messaggio ricevuto.";
   const link = document.createElement("a"); link.className = "secret-link"; link.href = location.href; link.textContent = location.href;
   const copia = document.createElement("button"); copia.type = "button"; copia.className = "service-button"; copia.textContent = "Copia link segreto";
   copia.addEventListener("click", async () => {
@@ -101,6 +106,8 @@ async function allegatoDaInviare(file) {
 async function preparaTurnstile() {
   try {
     const configurazione = await api("/ticket/config");
+    $("ticket-email-wrap").classList.toggle("hidden", !configurazione.notifiche_email);
+    $("ticket-email-note").classList.toggle("hidden", !configurazione.notifiche_email);
     if (!configurazione.turnstile_site_key) {
       $("turnstile-message").textContent = "I ticket anonimi non sono ancora attivi: accedi con Google o Discord.";
       return;
@@ -135,6 +142,7 @@ async function caricaTicket() {
     const messaggi = dato.messaggi.map((m) => { const r = document.createElement("article"); r.className = "service-row"; const a = document.createElement("span"); a.className = "message-author"; a.textContent = m.autore; const p = document.createElement("p"); p.className = "message-text"; p.textContent = m.testo; const d = document.createElement("small"); d.textContent = new Date(m.creato).toLocaleString("it-IT"); r.append(a, p, d); return r; });
     const allegati = dato.allegati.map((file) => { const r = document.createElement("a"); r.className = "service-row"; r.textContent = `Scarica ${file.nome} (${Math.ceil(file.byte / 1024)} KiB)`; r.href = `${API_BASE}${percorso(`/attachments/${file.id}`)}`; r.referrerPolicy = "no-referrer"; return r; });
     $("ticket-messages").replaceChildren(...messaggi, ...allegati);
+    $("ticket-email-unsubscribe").classList.toggle("hidden", !emailToken);
   } catch (e) { $("ticket-message").textContent = e.message; $("ticket-message").className = "service-message error"; }
 }
 
@@ -142,15 +150,17 @@ $("ticket-form").addEventListener("submit", async (evento) => {
   evento.preventDefault(); const bottone = $("ticket-submit"); bottone.disabled = true;
   try {
     const file = await allegatoDaInviare($("ticket-file").files[0]);
-    const creato = await api("/ticket", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ categoria: $("ticket-category").value, titolo: $("ticket-title").value, testo: $("ticket-text").value, versione_mox: $("ticket-version").value, turnstile_token: turnstileToken }) });
+    const creato = await api("/ticket", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ categoria: $("ticket-category").value, titolo: $("ticket-title").value, testo: $("ticket-text").value, versione_mox: $("ticket-version").value, turnstile_token: turnstileToken, email_notifica: $("ticket-email").value, consenso_email: $("ticket-email-consent").checked }) });
     ticketId = creato.ticket.id; token = creato.token || null;
     if (file) { const form = new FormData(); form.append("file", file); await api(percorso("/attachments"), { method: "POST", body: form }); }
     const url = new URL(location.href); url.searchParams.set("ticket", ticketId); if (token) url.searchParams.set("token", token); history.replaceState(null, "", url);
-    $("ticket-message").textContent = token ? "Ticket inviato: salva il link segreto qui sotto." : "Ticket inviato e aggiunto al tuo account."; $("ticket-message").className = "service-message success"; mostraAccessoSegreto(); await caricaTicket();
+    const email = creato.notifica_email === "conferma_inviata" ? " Controlla l’email e conferma l’indirizzo per ricevere le risposte." : "";
+    $("ticket-message").textContent = (token ? "Ticket inviato: salva il link segreto qui sotto." : "Ticket inviato e aggiunto al tuo account.") + email; $("ticket-message").className = "service-message success"; mostraAccessoSegreto(); await caricaTicket();
   } catch (e) { $("ticket-message").textContent = e.message; $("ticket-message").className = "service-message error"; }
   finally { bottone.disabled = false; turnstileToken = ""; if (turnstileId !== null) window.turnstile.reset(turnstileId); }
 });
 $("reply-form").addEventListener("submit", async (evento) => { evento.preventDefault(); try { await api(percorso("/messages"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ testo: $("reply-text").value }) }); $("reply-text").value = ""; await caricaTicket(); } catch (e) { $("ticket-message").textContent = e.message; } });
+$("ticket-email-unsubscribe").addEventListener("click", async () => { try { await api(percorso("/email/unsubscribe"), { method: "POST" }); $("ticket-email-unsubscribe").textContent = "Notifiche email disattivate"; $("ticket-email-unsubscribe").disabled = true; } catch (e) { $("ticket-message").textContent = e.message; $("ticket-message").className = "service-message error"; } });
 mostraAccessoSegreto();
 caricaTicket();
 preparaTurnstile();

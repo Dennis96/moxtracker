@@ -17,6 +17,8 @@ enabled = true
 SITE_ORIGIN = "https://moxtracker.app"
 PREVIEW_ORIGIN = "https://preview.moxtracker.pages.dev"
 TURNSTILE_SITE_KEY = "0x4AAAAAAEYng_drA6IkCiE1"
+# Il token Resend resta un secret del Worker, mai in questo file o nel sito.
+RESEND_FROM = "Mox Support <noreply@moxtracker.app>"
 # Ponte temporaneo: i client fino alla 2.9.21 ricevono il manifesto dopo che
 # la loro GUI ha iniziato mainloop. La 2.9.22 corregge il difetto nel client.
 MOX_RELEASE_RECOVERY_DELAY_MS = "1500"

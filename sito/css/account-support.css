@@ -15,6 +15,8 @@
 .service-field { display: grid; gap: 6px; margin: 12px 0; color: var(--muted); font-size: .8rem; font-weight: 700; }
 .service-field input, .service-field select, .service-field textarea { width: 100%; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-3); color: var(--text); padding: 11px 12px; }
 .service-field textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
+.service-check { display: flex; gap: 9px; align-items: flex-start; margin: 8px 0 14px; color: var(--muted); font-size: .82rem; line-height: 1.45; }
+.service-check input { flex: 0 0 auto; width: 17px; height: 17px; margin: 2px 0 0; accent-color: #a948ff; }
 .service-message { min-height: 24px; margin: 12px 0 0; color: var(--muted); }
 .service-message.error { color: #ff9ea2; }
 .service-message.success { color: var(--green); }

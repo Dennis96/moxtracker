@@ -164,6 +164,29 @@ CREATE INDEX IF NOT EXISTS ticket_account ON ticket (account_id, aggiornato);
 CREATE INDEX IF NOT EXISTS ticket_accesso
   ON ticket (accesso_hash) WHERE accesso_hash IS NOT NULL;
 
+-- L'indirizzo e' facoltativo: serve soltanto alle notifiche esplicitamente
+-- richieste per questo ticket e non viene usato per login o profilazione.
+CREATE TABLE IF NOT EXISTS ticket_notifica_email (
+  ticket_id       TEXT PRIMARY KEY,
+  email           TEXT NOT NULL,
+  consenso        TEXT NOT NULL,
+  verificata      TEXT,
+  disiscritta     TEXT,
+  creato          TEXT NOT NULL,
+  aggiornato      TEXT NOT NULL
+);
+
+-- I link nelle email sono token casuali salvati solo come hash. Ogni avviso
+-- puo' avere un link proprio, valido al massimo quanto il ticket.
+CREATE TABLE IF NOT EXISTS ticket_notifica_accesso (
+  hash            TEXT PRIMARY KEY,
+  ticket_id       TEXT NOT NULL,
+  creato          TEXT NOT NULL,
+  scade           TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ticket_notifica_accesso_ticket
+  ON ticket_notifica_accesso (ticket_id, scade);
+
 CREATE TABLE IF NOT EXISTS ticket_messaggio (
   id             TEXT PRIMARY KEY,
   ticket_id      TEXT NOT NULL,

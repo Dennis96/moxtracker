@@ -8,6 +8,8 @@ const RADICE = fileURLToPath(new URL("..", import.meta.url));
 const SCHEMA = readFileSync(`${RADICE}/schema.sql`, "utf8");
 const MIGRAZIONE = readFileSync(
   `${RADICE}/migrazioni/2026-08-27-account-consensi.sql`, "utf8");
+const MIGRAZIONE_EMAIL = readFileSync(
+  `${RADICE}/migrazioni/2026-08-29-ticket-email.sql`, "utf8");
 
 function colonneConsensi(db) {
   return db.prepare("PRAGMA table_info(account_dispositivo)").all()
@@ -35,4 +37,23 @@ test("bootstrap e migrazione creano gli stessi campi per i consensi correnti", (
   assert.throws(() => bootstrap.prepare(`INSERT INTO account_dispositivo
     (mittente, account_id, nome, segreto_hash, collegato, consenso_partite)
     VALUES ('a', 'b', 'pc', 'c', '2026-08-27', 2)`).run(), /CHECK constraint/);
+});
+
+test("bootstrap e migrazione creano le stesse tabelle per email ticket", () => {
+  const bootstrap = new DatabaseSync(":memory:"); bootstrap.exec(SCHEMA);
+  const migrato = new DatabaseSync(":memory:");
+  migrato.exec(`CREATE TABLE ticket (
+    id TEXT PRIMARY KEY, account_id TEXT, accesso_hash TEXT, categoria TEXT NOT NULL,
+    titolo TEXT NOT NULL, stato TEXT NOT NULL, versione_mox TEXT, diagnostica_id TEXT,
+    creato TEXT NOT NULL, aggiornato TEXT NOT NULL
+  )`);
+  migrato.exec(MIGRAZIONE_EMAIL);
+  for (const tabella of ["ticket_notifica_email", "ticket_notifica_accesso"]) {
+    const daBootstrap = bootstrap.prepare(`PRAGMA table_info(${tabella})`).all()
+      .map(({ name, type, notnull, pk }) => ({ name, type, notnull, pk }));
+    const daMigrazione = migrato.prepare(`PRAGMA table_info(${tabella})`).all()
+      .map(({ name, type, notnull, pk }) => ({ name, type, notnull, pk }));
+    assert.deepEqual(daBootstrap, daMigrazione);
+  }
+  assert.ok(migrato.prepare("SELECT name FROM sqlite_master WHERE name = 'ticket_notifica_accesso_ticket'").get());
 });
