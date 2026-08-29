@@ -15,6 +15,7 @@ test("profilo mazzo rende la curva come grafico e i colori come simboli mana", (
   assert.match(script, /function coloriMana\(colori\)/);
   assert.match(script, /mana-symbol-\$\{colore\}/);
   assert.match(script, /"Colori del mazzo"/);
+  assert.doesNotMatch(script, /blocco\.append\(heading, elenco\)/);
   assert.match(css, /\.mana-curve-bar/);
   assert.match(css, /\.mana-symbol-W/);
   assert.match(css, /\.mana-symbol-G/);

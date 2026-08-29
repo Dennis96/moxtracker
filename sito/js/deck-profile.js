@@ -58,7 +58,7 @@ function rigaValori(titolo, voci) {
     const etichetta = document.documentElement.lang === "it" ? (NOMI_TIPI_ITALIANI[nome] || nome) : nome;
     voce.innerHTML = `<b>${valore}</b> ${etichetta}`; elenco.append(voce);
   }
-  blocco.append(heading, elenco);
+  blocco.append(elenco);
   return blocco;
 }
 
