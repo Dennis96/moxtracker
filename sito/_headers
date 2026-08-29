@@ -2,4 +2,4 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; frame-src https://challenges.cloudflare.com; img-src 'self' data: blob: https://*.scryfall.io https://lh3.googleusercontent.com https://cdn.discordapp.com; connect-src 'self' https://api.moxtracker.app https://api.scryfall.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; frame-src https://challenges.cloudflare.com; img-src 'self' data: blob: https://*.scryfall.io https://lh3.googleusercontent.com https://cdn.discordapp.com; connect-src 'self' https://api.moxtracker.app https://api.scryfall.com https://api.github.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'

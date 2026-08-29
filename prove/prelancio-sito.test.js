@@ -53,6 +53,7 @@ test("pre-lancio locale usa il proxy omonimo e produzione l'API pubblica", () =>
   assert.match(leggi("js/config.js"), /window\.location\.origin.*\/api/);
   assert.match(leggi("js/config.js"), /https:\/\/api\.moxtracker\.app/);
   assert.match(leggi("_headers"), /connect-src 'self' https:\/\/api\.moxtracker\.app/);
+  assert.match(leggi("_headers"), /connect-src [^;]*https:\/\/api\.github\.com/);
 });
 
 test("il monitor della beta controlla preview, API e CORS account", () => {
