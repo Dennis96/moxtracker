@@ -9,7 +9,6 @@
     "genera-archetipi": "python strumenti/genera_catalogo_archetipi.py",
     "diagnostica-archetipo": "node strumenti/diagnostica_archetipo.mjs",
     "draft:sospetti:help": "node strumenti/ricalcola_sospetti_draft.mjs --help",
-    "draft:17lands:help": "node strumenti/importa_17lands.mjs --help",
     "locale": "wrangler dev --local",
     "sito:build": "node strumenti/build_sito.mjs",
     "sito-locale": "npm run sito:build && node strumenti/anteprima_sito.mjs",

@@ -424,9 +424,6 @@ async function statistichePersonali(ambiente, accountId) {
     FROM account_mazzo_nome WHERE account_id = ?`).bind(accountId).all();
   const nomiPerMazzo = new Map((nomiSalvati.results || []).map((riga) =>
     [chiaveMazzo(riga.formato, riga.impronta), riga.nome]));
-  const nascostiRighe = await ambiente.DB.prepare(`SELECT impronta FROM account_mazzo_nascosto
-    WHERE account_id = ?`).bind(accountId).all();
-  const nascosti = new Set((nascostiRighe.results || []).map(riga => riga.impronta));
   const mazzi = (gruppi.results || []).map((riga) => {
     const chiave = chiaveMazzo(riga.formato, riga.impronta);
     const c = classificazioni.get(chiave) || null;
@@ -443,7 +440,6 @@ async function statistichePersonali(ambiente, accountId) {
       nome_arena: arena?.nome || null,
       archetipo: c?.nome_pubblico || c?.archetipo || null,
       in_arena: Boolean(arena),
-      nascosto: nascosti.has(riga.impronta),
       archetipo_id: c?.archetipo_id || null,
       strategia: c?.strategia || null, colori: c?.colori || [],
       modalita: c?.modalita || null, livello_classificazione: c?.livello_classificazione || null,
@@ -461,7 +457,6 @@ async function statistichePersonali(ambiente, accountId) {
       impronta: arena.impronta, formato: null, evento: null,
       nome_personalizzato: null, nome: arena.nome, nome_arena: arena.nome,
       archetipo: null, in_arena: true, archetipo_id: null, strategia: null,
-      nascosto: nascosti.has(arena.impronta),
       colori: (arena.colori || "").split(""), modalita: null,
       livello_classificazione: null, partite: 0, vittorie: 0, sconfitte: 0,
       win_rate: null, ultima: null,
@@ -695,28 +690,6 @@ async function rinominaMazzo(richiesta, ambiente, accountId, impronta) {
       .bind(accountId, formato, impronta, nome, new Date().toISOString())]);
   }
   return rispostaAccount(richiesta, ambiente, { nome: nome || null });
-}
-
-async function nascondiMazzo(richiesta, ambiente, accountId, impronta) {
-  const corpo = await corpoJson(richiesta);
-  if (typeof corpo?.nascosto !== "boolean") return rispostaAccount(richiesta, ambiente,
-    { errore: "stato nascondi non valido" }, 400);
-  const esiste = await ambiente.DB.prepare(`SELECT 1 AS presente FROM account_mazzo
-    WHERE account_id = ? AND impronta = ? UNION SELECT 1 AS presente FROM partite p
-    JOIN account_dispositivo d ON d.mittente = p.mittente
-    WHERE d.account_id = ? AND p.impronta_mazzo = ? LIMIT 1`).bind(
-      accountId, impronta, accountId, impronta).first();
-  if (!esiste) return rispostaAccount(richiesta, ambiente, { errore: "mazzo non trovato" }, 404);
-  if (corpo.nascosto) {
-    await ambiente.DB.batch([ambiente.DB.prepare(`INSERT INTO account_mazzo_nascosto
-      (account_id, impronta, aggiornato) VALUES (?, ?, ?)
-      ON CONFLICT(account_id, impronta) DO UPDATE SET aggiornato = excluded.aggiornato`)
-      .bind(accountId, impronta, new Date().toISOString())]);
-  } else {
-    await ambiente.DB.batch([ambiente.DB.prepare(`DELETE FROM account_mazzo_nascosto
-      WHERE account_id = ? AND impronta = ?`).bind(accountId, impronta)]);
-  }
-  return rispostaAccount(richiesta, ambiente, { nascosto: corpo.nascosto });
 }
 
 async function riepilogoDashboard(ambiente, accountId) {
@@ -1008,7 +981,6 @@ export const TABELLE_DELL_ACCOUNT = [
   "account_dispositivo",
   "account_codice_mox",
   "account_mazzo_nome",
-  "account_mazzo_nascosto",
   "account_mazzo",
   "account_sessione",
   "account_identita",
@@ -1108,8 +1080,6 @@ async function eliminaSezione(richiesta, ambiente, utente) {
   await ambiente.DRAFT_DB.batch([
     ambiente.DRAFT_DB.prepare(`DELETE FROM draft_link WHERE draft_id IN
       (SELECT id FROM draft WHERE mittente IN (${segni}))`).bind(...mittenti),
-    ambiente.DRAFT_DB.prepare(`DELETE FROM draft_mazzo_carta WHERE draft_id IN
-      (SELECT id FROM draft WHERE mittente IN (${segni}))`).bind(...mittenti),
     ambiente.DRAFT_DB.prepare(`DELETE FROM draft_mazzo WHERE draft_id IN
       (SELECT id FROM draft WHERE mittente IN (${segni}))`).bind(...mittenti),
     ambiente.DRAFT_DB.prepare(`DELETE FROM draft_pick WHERE draft_id IN
@@ -1199,10 +1169,6 @@ export async function gestisciAccount(richiesta, ambiente, indirizzo) {
   const nomeMazzoRoute = percorso.match(/^\/account\/decks\/([0-9a-f]{64})\/name$/);
   if (nomeMazzoRoute && richiesta.method === "PUT") {
     return rinominaMazzo(richiesta, ambiente, richiesto.id, nomeMazzoRoute[1]);
-  }
-  const nascondiMazzoRoute = percorso.match(/^\/account\/decks\/([0-9a-f]{64})\/hidden$/);
-  if (nascondiMazzoRoute && richiesta.method === "PUT") {
-    return nascondiMazzo(richiesta, ambiente, richiesto.id, nascondiMazzoRoute[1]);
   }
   if (percorso === "/account/link-code" && richiesta.method === "POST") {
     return creaCodice(richiesta, ambiente, richiesto);

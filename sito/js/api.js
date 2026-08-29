@@ -43,13 +43,11 @@ export function fetchGiocoRisposta(filters, options) {
 export function fetchScontri(filters, options) {
   return request(`/scontri?${query(filters)}`, options);
 }
-export function fetchStatisticheDraft({ set, formato, periodo, colore } = {}, options) {
+export function fetchStatisticheDraft({ set, formato, periodo } = {}, options) {
   const params = new URLSearchParams();
   if (set) params.set("set", set);
   if (formato) params.set("formato", formato);
   if (periodo) params.set("periodo", periodo);
-  if (colore) params.set("colore", colore);
   const coda = params.toString();
   return request(`/draft/statistiche${coda ? `?${coda}` : ""}`, options);
 }
-export function fetchProvaSociale(options) { return request("/prova-sociale", options); }

@@ -9,7 +9,7 @@ const SORGENTE = join(RADICE, "sito");
 const USCITA = join(RADICE, ".dist", "sito");
 const PAGINE_PUBBLICHE = new Set([
   "index.html", "draft.html", "archetipo.html", "account.html",
-  "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html", "download.html", "guida.html",
+  "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html",
 ]);
 const ESTENSIONI_VERSIONATE = new Set([
   ".css", ".ico", ".js", ".png", ".svg", ".webp",

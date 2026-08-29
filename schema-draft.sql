@@ -67,47 +67,6 @@ CREATE TABLE IF NOT EXISTS draft_mazzo (
 
 CREATE INDEX IF NOT EXISTS draft_mazzo_ultima ON draft_mazzo (draft_id, versione DESC);
 
--- Indice normalizzato delle carte nei mazzi Draft. E' additivo e sostituisce
--- la lettura dei JSON R2 nelle statistiche pubbliche; una cancellazione del
--- contributore rimuove anche queste righe.
-CREATE TABLE IF NOT EXISTS draft_mazzo_carta (
-  draft_id   TEXT NOT NULL,
-  versione   INTEGER NOT NULL,
-  arena_id   INTEGER NOT NULL,
-  copie      INTEGER NOT NULL,
-  PRIMARY KEY (draft_id, versione, arena_id)
-);
-CREATE INDEX IF NOT EXISTS draft_mazzo_carta_arena ON draft_mazzo_carta (arena_id);
-
--- Metadati verificati da un import offline: non sono inviati dai giocatori.
-CREATE TABLE IF NOT EXISTS draft_catalogo_carta (
-  set_code   TEXT NOT NULL,
-  arena_id   INTEGER NOT NULL,
-  nome       TEXT NOT NULL,
-  colori     TEXT NOT NULL,
-  aggiornato TEXT NOT NULL,
-  PRIMARY KEY (set_code, arena_id)
-);
-
--- Snapshot esterni, separati da Mox. Nessuna statistica dei due campioni si
--- somma mai; ogni riga dichiara origine e versione del dataset.
-CREATE TABLE IF NOT EXISTS draft_stat_esterna (
-  fonte              TEXT NOT NULL,
-  set_code           TEXT NOT NULL,
-  formato            TEXT NOT NULL,
-  arena_id           INTEGER NOT NULL,
-  nome               TEXT NOT NULL,
-  colori             TEXT NOT NULL,
-  metrica            TEXT NOT NULL,
-  vittorie           INTEGER NOT NULL,
-  campione           INTEGER NOT NULL,
-  dataset_aggiornato TEXT NOT NULL,
-  importato          TEXT NOT NULL,
-  PRIMARY KEY (fonte, set_code, formato, arena_id, metrica)
-);
-CREATE INDEX IF NOT EXISTS draft_stat_esterna_lookup
-  ON draft_stat_esterna (fonte, set_code, formato, metrica);
-
 CREATE TABLE IF NOT EXISTS draft_link (
   draft_id  TEXT NOT NULL,
   partita   TEXT NOT NULL,

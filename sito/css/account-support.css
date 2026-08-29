@@ -72,9 +72,6 @@
 .personal-deck-group-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px; background: var(--surface); }
 .personal-deck-group-head h3 { margin: 0; }
 .personal-deck-group > .detail-note { margin: 0 16px 12px; padding: 0; border: 0; background: transparent; }
-.hidden-decks { margin: 12px 16px; color: var(--muted); }
-.hidden-decks > summary { cursor: pointer; font-weight: 750; }
-.hidden-decks .personal-deck-group { margin-top: 10px; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
 .draft-deck-versions { display: grid; gap: 8px; }
 .personal-deck-row, .personal-match-row { width: 100%; min-width: 0; border: 0; border-bottom: 1px solid var(--line); background: var(--surface-2); color: var(--text); text-align: left; cursor: pointer; }
 .personal-deck-row:last-child, .personal-match-row:last-child { border-bottom: 0; }

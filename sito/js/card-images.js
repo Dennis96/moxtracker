@@ -412,8 +412,8 @@ function loadPreviewImage(media) {
   preload.src = fullCard;
 }
 
-function showPreview(anchor, media, spec, force = false) {
-  if ((!supportsHover() && !force) || !media) return;
+function showPreview(anchor, media, spec) {
+  if (!supportsHover() || !media) return;
   ensurePreview();
   if (!previewNode) return;
 
@@ -462,9 +462,7 @@ function scheduleResolution(node, spec, image, placeholder) {
     started = true;
     const mostraMiniatura = (media) => {
       node._moxCardMedia = media;
-      // `small` e' gia' la carta completa ed e' abbastanza leggera per la
-      // lista; l'art crop resta soltanto un fallback per dati incompleti.
-      const thumbnail = media?.small || media?.artCrop;
+      const thumbnail = media?.artCrop || media?.small;
       if (!thumbnail) {
         node.classList.add("is-missing");
         placeholder.textContent = "?";
@@ -513,10 +511,6 @@ export function createCardThumbnail(card = {}, { compact = false } = {}) {
   const spec = normalizeCardSpec(card);
   const node = document.createElement("span");
   node.className = `card-thumb${compact ? " card-thumb-compact" : ""}`;
-  node.tabIndex = 0;
-  node.setAttribute("role", "button");
-  node.setAttribute("aria-label", `Apri anteprima carta: ${spec.name || "carta Magic"}`);
-  node.setAttribute("aria-expanded", "false");
   node.dataset.cardKey = cardLookupKey(spec) || "";
   node.title = spec.name || (spec.arenaId ? `Carta Arena #${spec.arenaId}` : "Carta non identificata");
 
@@ -543,28 +537,6 @@ export function createCardThumbnail(card = {}, { compact = false } = {}) {
     });
     node.addEventListener("mouseleave", () => hidePreview(node));
   }
-  // Su touch non esiste hover: tap e tastiera aprono lo stesso popover e un
-  // secondo tap/Escape lo richiudono. Non usiamo un link, quindi la lista non
-  // perde il suo comportamento nativo nei dialoghi account.
-  const togglePreview = () => {
-    const mostra = (media) => {
-      if (!media) return;
-      if (activePreviewAnchor === node && previewNode && !previewNode.hidden) {
-        hidePreview(node); node.setAttribute("aria-expanded", "false");
-      } else {
-        showPreview(node, media, spec, true); node.setAttribute("aria-expanded", "true");
-      }
-    };
-    if (node._moxCardMedia) mostra(node._moxCardMedia);
-    else resolveCard(spec).then(mostra);
-  };
-  node.addEventListener("click", togglePreview);
-  node.addEventListener("keydown", event => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault(); togglePreview();
-    }
-    if (event.key === "Escape") { hidePreview(node); node.setAttribute("aria-expanded", "false"); }
-  });
 
   return node;
 }

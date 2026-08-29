@@ -453,14 +453,12 @@ function gruppoMazzi(titolo, descrizione, mazzi) {
 function renderMazzi() {
   const contenitore = $("decks");
   contenitore.replaceChildren();
-  const tutti = stato.statistiche.mazzi;
-  const nascosti = tutti.filter((m) => m.nascosto);
-  const visibili = tutti.filter((m) => !m.nascosto);
-  const totale = visibili.length;
+  const totale = stato.statistiche.mazzi.length;
   $("deck-count").textContent = `${totale} ${totale === 1 ? "mazzo" : "mazzi"}`;
   const sincronizzati = Boolean(stato.statistiche?.sincronizzazione?.mazzi);
-  const correnti = sincronizzati ? visibili.filter((m) => m.in_arena) : [];
-  const storici = sincronizzati ? visibili.filter((m) => !m.in_arena) : visibili;
+  const correnti = sincronizzati ? stato.statistiche.mazzi.filter((m) => m.in_arena) : [];
+  const storici = sincronizzati ? stato.statistiche.mazzi.filter((m) => !m.in_arena)
+    : stato.statistiche.mazzi;
   if (correnti.length) contenitore.append(gruppoMazzi("In Arena",
     "Fotografia dell'ultima sincronizzazione di Mox.", correnti));
   if (storici.length) contenitore.append(gruppoMazzi(sincronizzati ? "Storico" : "Dalle partite",
@@ -468,12 +466,6 @@ function renderMazzi() {
       : "Mox non ha ancora inviato la fotografia dei mazzi attuali.", storici));
   if (!totale) contenitore.append(riga("Nessun mazzo disponibile",
     "Le partite senza decklist restano comunque nella cronologia."));
-  if (nascosti.length) {
-    const dettagli = nodo("details", "hidden-decks");
-    dettagli.append(nodo("summary", "", `${nascosti.length} mazzi nascosti`),
-      gruppoMazzi("Mazzi nascosti", "Non vengono mostrati nell'archivio normale e tornano visibili soltanto se lo scegli.", nascosti));
-    contenitore.append(dettagli);
-  }
 }
 
 function apriMazzo(mazzo) {
@@ -511,19 +503,7 @@ function apriMazzo(mazzo) {
     applicaFiltri();
     $("matches-section").scrollIntoView({ behavior: "smooth" });
   });
-  const nascondi = nodo("button", "service-button", mazzo.nascosto ? "Mostra nell'archivio" : "Nascondi dall'archivio");
-  nascondi.type = "button";
-  nascondi.addEventListener("click", async () => {
-    nascondi.disabled = true;
-    try {
-      await api(`/account/decks/${mazzo.impronta}/hidden`, {
-        method: "PUT", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ nascosto: !mazzo.nascosto }),
-      });
-      $("detail-dialog").close(); await carica();
-    } finally { nascondi.disabled = false; }
-  });
-  azioni.append(copia, condividi, partite, nascondi);
+  azioni.append(copia, condividi, partite);
   const rinomina = nodo("form", "deck-rename");
   const etichetta = nodo("label", "service-field");
   etichetta.append(nodo("span", "", "Nome personalizzato"));
