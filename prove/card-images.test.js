@@ -4,6 +4,7 @@ import {
   cardLookupKey,
   cardLookupItalianUrls,
   cardLookupUrls,
+  cardPreviewSources,
   extractCardMedia,
   normalizeCardSpec,
   parseReferenceLine,
@@ -84,6 +85,13 @@ test("media Scryfall usa small per thumbnail e normal per hover", () => {
     oracleText: null,
     fetchedAt: 123,
   });
+});
+
+test("anteprima mostra subito una fonte disponibile e poi puo caricare la carta completa", () => {
+  assert.deepEqual(cardPreviewSources({
+    artCrop: "art", small: "small", normal: "normal",
+  }), ["art", "small", "normal"]);
+  assert.deepEqual(cardPreviewSources({ small: "small", normal: "small" }), ["small"]);
 });
 
 test("media Scryfall conserva i metadati per curva, tipi e fixing", () => {

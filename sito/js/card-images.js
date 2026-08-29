@@ -21,6 +21,7 @@ let previewImage = null;
 let previewTitle = null;
 let previewMeta = null;
 let activePreviewAnchor = null;
+let previewRequestId = 0;
 
 function cleanName(value) {
   return String(value || "").trim().replace(/\s+/g, " ");
@@ -350,13 +351,43 @@ function positionPreview(anchor) {
   previewNode.style.top = `${Math.round(top)}px`;
 }
 
+// L'artwork della miniatura e' gia' nella cache del browser quando si passa il
+// mouse sulla carta. Lo usiamo subito, poi sostituiamo l'immagine con la carta
+// completa: il popup non resta vuoto mentre Scryfall consegna il file normal.
+export function cardPreviewSources(media = {}) {
+  return [...new Set([media.artCrop, media.small, media.normal].filter(Boolean))];
+}
+
+function loadPreviewImage(media) {
+  const sources = cardPreviewSources(media);
+  if (!previewImage || sources.length === 0) return;
+
+  const requestId = ++previewRequestId;
+  const immediate = sources[0];
+  const fullCard = media.normal || media.small || immediate;
+  previewImage.loading = "eager";
+  previewImage.fetchPriority = "high";
+  previewImage.src = immediate;
+
+  if (fullCard === immediate || typeof Image === "undefined") return;
+
+  const preload = new Image();
+  preload.decoding = "async";
+  preload.onload = () => {
+    if (requestId === previewRequestId && activePreviewAnchor) {
+      previewImage.src = fullCard;
+    }
+  };
+  preload.src = fullCard;
+}
+
 function showPreview(anchor, media, spec) {
-  if (!supportsHover() || !media?.normal) return;
+  if (!supportsHover() || !media) return;
   ensurePreview();
   if (!previewNode) return;
 
   activePreviewAnchor = anchor;
-  previewImage.src = media.normal;
+  loadPreviewImage(media);
   previewImage.alt = media.name || spec.name || "Carta Magic";
   previewTitle.textContent = media.name || spec.name || "Carta Magic";
 
@@ -389,6 +420,7 @@ function hidePreview(anchor = null) {
   }
   previewNode.hidden = true;
   activePreviewAnchor = null;
+  previewRequestId += 1;
   if (previewImage) previewImage.removeAttribute("src");
 }
 
