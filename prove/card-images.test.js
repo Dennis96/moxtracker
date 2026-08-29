@@ -1,5 +1,7 @@
 import { strict as assert } from "node:assert";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   cardLookupKey,
   cardLookupItalianUrls,
@@ -8,7 +10,11 @@ import {
   extractCardMedia,
   normalizeCardSpec,
   parseReferenceLine,
+  withLocalizedCardName,
 } from "../sito/js/card-images.js";
+
+const QUI = fileURLToPath(new URL(".", import.meta.url));
+const leggiSito = (file) => readFileSync(QUI + `../sito/${file}`, "utf8");
 
 test("parser lista riferimento gestisce copie con e senza x", () => {
   assert.deepEqual(parseReferenceLine("4 Optimistic Scavenger"), {
@@ -29,15 +35,44 @@ test("lookup immagini preferisce Arena ID e usa il nome come fallback", () => {
   assert.equal(cardLookupKey({}), null);
 });
 
-test("lookup immagini prova prima il nome e conserva gli identificativi come fallback", () => {
+test("lookup immagini usa la stampa esatta e conserva il nome come fallback", () => {
   const carta = { arena_id: 103441, nome: "Front Porch Sentries", set: "HOB", numero: "67" };
   assert.deepEqual(cardLookupUrls(carta), [
-    "https://api.scryfall.com/cards/named?exact=Front+Porch+Sentries",
     "https://api.scryfall.com/cards/hob/67",
     "https://api.scryfall.com/cards/arena/103441",
+    "https://api.scryfall.com/cards/named?exact=Front+Porch+Sentries",
   ]);
   assert.equal(cardLookupKey(carta),
     "arena:103441|print:hob/67|name:front porch sentries");
+});
+
+test("il fallback italiano cambia il nome ma conserva l'immagine inglese esatta", () => {
+  const inglese = {
+    name: "Lightning Bolt",
+    small: "https://cards.scryfall.io/small/exact-en.jpg",
+    normal: "https://cards.scryfall.io/normal/exact-en.jpg",
+  };
+  const localizzata = withLocalizedCardName(inglese, { printed_name: "Fulmine" });
+  assert.equal(localizzata.name, "Fulmine");
+  assert.equal(localizzata.small, inglese.small);
+  assert.equal(localizzata.normal, inglese.normal);
+  assert.notEqual(localizzata, inglese);
+});
+
+test("preview carte accessibile da touch e tastiera con chiusura esplicita", () => {
+  const javascript = leggiSito("js/card-images.js");
+  const account = leggiSito("js/account.js");
+  const css = leggiSito("css/card-images.css");
+  assert.match(javascript, /document\.createElement\(interactive \? "button" : "span"\)/);
+  assert.match(javascript, /aria-haspopup", "dialog"/);
+  assert.match(javascript, /event\.key === "Escape"/);
+  assert.match(javascript, /card-preview-close/);
+  assert.match(javascript, /createCardThumbnail\(spec, \{ interactive: false \}\)/,
+    "le miniature dentro i link Meta non devono creare pulsanti annidati");
+  assert.match(account, /createCardThumbnail\(carta, \{ interactive: false \}\)/,
+    "le miniature dentro le righe Account non devono creare pulsanti annidati");
+  assert.doesNotMatch(css, /\.card-hover-preview\s*\{\s*display:\s*none;/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 });
 
 test("in italiano la stampa esatta per set e numero evita una ricerca testuale lenta", () => {

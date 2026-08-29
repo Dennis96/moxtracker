@@ -20,6 +20,7 @@ let previewNode = null;
 let previewImage = null;
 let previewTitle = null;
 let previewMeta = null;
+let previewClose = null;
 let activePreviewAnchor = null;
 let previewRequestId = 0;
 const previewWarmCache = new Set();
@@ -33,6 +34,10 @@ function cleanName(value) {
 
 function linguaCarte() {
   return document.documentElement.lang === "it" ? "it" : "en";
+}
+
+function testoCarta(italiano, inglese) {
+  return linguaCarte() === "it" ? italiano : inglese;
 }
 
 function positiveArenaId(value) {
@@ -66,17 +71,16 @@ export function cardLookupKey(card = {}) {
 export function cardLookupUrls(card = {}) {
   const spec = normalizeCardSpec(card);
   const urls = [];
-  // Il nome inglese che arriva da Mox e' il percorso piu' affidabile e quasi
-  // sempre risponde al primo colpo. Arena e set restano fallback per carte
-  // nuove o non ancora indicizzate dalla ricerca nominale.
-  if (spec.name) {
-    const params = new URLSearchParams({ exact: spec.name });
-    urls.push(`${SCRYFALL_API}/cards/named?${params}`);
-  }
+  // Set e numero identificano la stampa mostrata da Arena. Il nome resta il
+  // fallback finale quando gli identificativi della stampa non sono presenti.
   if (spec.setCode && spec.collectorNumber) {
     urls.push(`${SCRYFALL_API}/cards/${encodeURIComponent(spec.setCode)}/${encodeURIComponent(spec.collectorNumber)}`);
   }
   if (spec.arenaId) urls.push(`${SCRYFALL_API}/cards/arena/${spec.arenaId}`);
+  if (spec.name) {
+    const params = new URLSearchParams({ exact: spec.name });
+    urls.push(`${SCRYFALL_API}/cards/named?${params}`);
+  }
   return urls;
 }
 
@@ -240,13 +244,30 @@ async function lookupNetwork(spec) {
   return null;
 }
 
-async function lookupItalian(spec) {
-  for (const url of cardLookupItalianUrls(spec)) {
-    const result = await queuedFetch(url);
-    if (!result.found) continue;
-    return result.data?.data?.[0] || result.data || null;
-  }
-  return null;
+async function lookupItalianExact(spec) {
+  if (!spec.setCode || !spec.collectorNumber) return null;
+  const url = `${SCRYFALL_API}/cards/${encodeURIComponent(spec.setCode)}/${encodeURIComponent(spec.collectorNumber)}/it`;
+  const result = await queuedFetch(url);
+  return result.found ? result.data : null;
+}
+
+async function lookupItalianName(spec) {
+  if (!spec.name) return null;
+  const nome = spec.name.replace(/[\\"]/g, "\\$&");
+  const query = new URLSearchParams({
+    order: "released", unique: "prints", q: `!\"${nome}\" lang:it`,
+  });
+  const result = await queuedFetch(`${SCRYFALL_API}/cards/search?${query}`);
+  if (!result.found) return null;
+  return result.data?.data?.[0] || result.data || null;
+}
+
+export function withLocalizedCardName(media, localizedCard) {
+  if (!media) return null;
+  const localizedName = cleanName(
+    localizedCard?.printed_name || localizedCard?.card_faces?.[0]?.printed_name,
+  );
+  return localizedName ? { ...media, name: localizedName } : media;
 }
 
 export async function resolveCard(card = {}) {
@@ -263,15 +284,26 @@ export async function resolveCard(card = {}) {
 
   const promise = (async () => {
     try {
-      const italiana = await lookupItalian(spec);
-      const media = extractCardMedia(italiana) || await resolveBaseCard(spec);
-      if (!media) return null;
+      // Se esiste la stampa italiana esatta, usa immagine e nome di quella.
+      // Un errore di rete non deve impedire il fallback inglese.
+      let italianaEsatta = null;
+      try { italianaEsatta = await lookupItalianExact(spec); } catch {}
+      const mediaItaliana = extractCardMedia(italianaEsatta);
+      if (mediaItaliana) {
+        remember([primaryKey], mediaItaliana);
+        return mediaItaliana;
+      }
+
+      // Se la stampa esatta non e' disponibile in italiano, conserva
+      // l'immagine inglese esatta e localizza soltanto il nome, quando esiste
+      // una traduzione ufficiale in un'altra stampa.
+      const mediaBase = await resolveBaseCard(spec);
+      if (!mediaBase) return null;
+      let nomeItaliano = null;
+      try { nomeItaliano = await lookupItalianName(spec); } catch {}
+      const media = withLocalizedCardName(mediaBase, nomeItaliano);
       remember([primaryKey], media);
       return media;
-    } catch {
-      // Errori di rete / 429 non diventano "carta assente":
-      // al refresh successivo il sito puo' riprovare.
-      return null;
     } finally {
       pending.delete(primaryKey);
     }
@@ -325,6 +357,8 @@ function ensurePreview() {
   previewNode = document.createElement("aside");
   previewNode.className = "card-hover-preview";
   previewNode.setAttribute("popover", "manual");
+  previewNode.setAttribute("role", "dialog");
+  previewNode.setAttribute("aria-modal", "false");
   previewNode.hidden = true;
   previewNode.setAttribute("aria-hidden", "true");
 
@@ -332,18 +366,35 @@ function ensurePreview() {
   previewImage.alt = "";
   previewImage.decoding = "async";
 
+  previewClose = document.createElement("button");
+  previewClose.className = "card-preview-close";
+  previewClose.type = "button";
+  previewClose.textContent = "×";
+  previewClose.setAttribute("aria-label", linguaCarte() === "it"
+    ? "Chiudi anteprima carta" : "Close card preview");
+  previewClose.addEventListener("click", () => {
+    const anchor = activePreviewAnchor;
+    hidePreview();
+    anchor?.focus?.({ preventScroll: true });
+  });
+
   const copy = document.createElement("div");
   copy.className = "card-hover-copy";
   previewTitle = document.createElement("strong");
   previewMeta = document.createElement("span");
   copy.append(previewTitle, previewMeta);
-  previewNode.append(previewImage, copy);
+  previewNode.append(previewClose, previewImage, copy);
   document.body.append(previewNode);
   return previewNode;
 }
 
 function positionPreview(anchor) {
   if (!previewNode || !anchor || typeof window === "undefined") return;
+  if (!supportsHover()) {
+    previewNode.style.removeProperty("left");
+    previewNode.style.removeProperty("top");
+    return;
+  }
   const rect = anchor.getBoundingClientRect();
   const width = 278;
   const gutter = 12;
@@ -412,15 +463,21 @@ function loadPreviewImage(media) {
   preload.src = fullCard;
 }
 
-function showPreview(anchor, media, spec) {
-  if (!supportsHover() || !media) return;
+function showPreview(anchor, media, spec, { interactive = false } = {}) {
+  if ((!supportsHover() && !interactive) || !media) return;
   ensurePreview();
   if (!previewNode) return;
 
+  if (activePreviewAnchor && activePreviewAnchor !== anchor) {
+    activePreviewAnchor.setAttribute("aria-expanded", "false");
+  }
   activePreviewAnchor = anchor;
+  anchor.setAttribute("aria-expanded", "true");
+  previewNode.dataset.mode = interactive ? "interactive" : "hover";
+  previewNode.setAttribute("aria-hidden", "false");
   loadPreviewImage(media);
-  previewImage.alt = media.name || spec.name || "Carta Magic";
-  previewTitle.textContent = media.name || spec.name || "Carta Magic";
+  previewImage.alt = media.name || spec.name || testoCarta("Carta Magic", "Magic card");
+  previewTitle.textContent = media.name || spec.name || testoCarta("Carta Magic", "Magic card");
 
   const details = [];
   if (spec.copies !== null && spec.copies > 0) details.push(`${spec.copies}x`);
@@ -450,6 +507,8 @@ function hidePreview(anchor = null) {
     }
   }
   previewNode.hidden = true;
+  previewNode.setAttribute("aria-hidden", "true");
+  activePreviewAnchor?.setAttribute("aria-expanded", "false");
   activePreviewAnchor = null;
   previewRequestId += 1;
   if (previewImage) previewImage.removeAttribute("src");
@@ -480,8 +539,14 @@ function scheduleResolution(node, spec, image, placeholder) {
         placeholder.textContent = "?";
       };
       image.src = thumbnail;
-      image.alt = media.name || spec.name || "Carta Magic";
+      image.alt = media.name || spec.name || testoCarta("Carta Magic", "Magic card");
       node.title = media.name || spec.name || "";
+      if (node.hasAttribute("aria-haspopup")) {
+        node.setAttribute("aria-label", testoCarta(
+          `Anteprima carta: ${node.title}`,
+          `Card preview: ${node.title}`,
+        ));
+      }
     };
 
     // Si chiede subito la lingua scelta. Se una stampa italiana non esiste,
@@ -503,16 +568,27 @@ function scheduleResolution(node, spec, image, placeholder) {
   observer.observe(node);
 }
 
-export function createCardThumbnail(card = {}, { compact = false } = {}) {
+export function createCardThumbnail(card = {}, { compact = false, interactive = true } = {}) {
   if (typeof document === "undefined") {
     throw new Error("createCardThumbnail richiede un browser");
   }
 
   const spec = normalizeCardSpec(card);
-  const node = document.createElement("span");
+  const node = document.createElement(interactive ? "button" : "span");
+  if (interactive) node.type = "button";
   node.className = `card-thumb${compact ? " card-thumb-compact" : ""}`;
   node.dataset.cardKey = cardLookupKey(spec) || "";
-  node.title = spec.name || (spec.arenaId ? `Carta Arena #${spec.arenaId}` : "Carta non identificata");
+  node.title = spec.name || (spec.arenaId
+    ? testoCarta(`Carta Arena #${spec.arenaId}`, `Arena card #${spec.arenaId}`)
+    : testoCarta("Carta non identificata", "Unidentified card"));
+  if (interactive) {
+    node.setAttribute("aria-haspopup", "dialog");
+    node.setAttribute("aria-expanded", "false");
+    node.setAttribute("aria-label", linguaCarte() === "it"
+      ? `Anteprima carta: ${node.title}` : `Card preview: ${node.title}`);
+  } else {
+    node.setAttribute("aria-hidden", "true");
+  }
 
   const placeholder = document.createElement("span");
   placeholder.className = "card-thumb-placeholder";
@@ -533,9 +609,31 @@ export function createCardThumbnail(card = {}, { compact = false } = {}) {
         if (node.matches(":hover")) showPreview(node, media, spec);
       };
       if (node._moxCardMedia) mostra(node._moxCardMedia);
-      else resolveBaseCard(spec).then(mostra);
+      else resolveCard(spec).then(mostra);
     });
     node.addEventListener("mouseleave", () => hidePreview(node));
+  }
+
+  if (interactive) {
+    node.addEventListener("focus", () => {
+      if (!supportsHover() && !node.matches(":focus-visible")) return;
+      const mostra = (media) => {
+        if (document.activeElement === node) showPreview(node, media, spec, { interactive: true });
+      };
+      if (node._moxCardMedia) mostra(node._moxCardMedia);
+      else resolveCard(spec).then(mostra);
+    });
+
+    node.addEventListener("click", () => {
+      if (supportsHover()) return;
+      if (activePreviewAnchor === node && previewNode && !previewNode.hidden) {
+        hidePreview(node);
+        return;
+      }
+      const mostra = (media) => showPreview(node, media, spec, { interactive: true });
+      if (node._moxCardMedia) mostra(node._moxCardMedia);
+      else resolveCard(spec).then(mostra);
+    });
   }
 
   return node;
@@ -556,7 +654,9 @@ export function createCardListItem(card = {}) {
 
   const name = document.createElement("span");
   name.className = "card-name";
-  name.textContent = spec.name || (spec.arenaId ? `Carta Arena #${spec.arenaId}` : "Carta non identificata");
+  name.textContent = spec.name || (spec.arenaId
+    ? testoCarta(`Carta Arena #${spec.arenaId}`, `Arena card #${spec.arenaId}`)
+    : testoCarta("Carta non identificata", "Unidentified card"));
   if (!spec.name) name.classList.add("unknown-card");
 
   resolveCard(spec).then((media) => {
@@ -575,7 +675,9 @@ export function createCoreStrip(cards = []) {
   }
   const strip = document.createElement("span");
   strip.className = "core-cards";
-  strip.setAttribute("aria-label", "Carte chiave dell'archetipo");
+  strip.setAttribute("aria-label", testoCarta(
+    "Carte chiave dell'archetipo", "Key archetype cards",
+  ));
 
   const seen = new Set();
   for (const entry of Array.isArray(cards) ? cards : []) {
@@ -583,7 +685,7 @@ export function createCoreStrip(cards = []) {
     const key = cardLookupKey(spec);
     if (!key || seen.has(key)) continue;
     seen.add(key);
-    strip.append(createCardThumbnail(spec));
+    strip.append(createCardThumbnail(spec, { interactive: false }));
     if (seen.size >= 8) break;
   }
   return strip;
@@ -593,5 +695,13 @@ if (typeof window !== "undefined") {
   window.addEventListener("scroll", () => hidePreview(), { passive: true });
   window.addEventListener("resize", () => {
     if (activePreviewAnchor) positionPreview(activePreviewAnchor);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hidePreview();
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!activePreviewAnchor || !previewNode || previewNode.hidden) return;
+    if (activePreviewAnchor.contains(event.target) || previewNode.contains(event.target)) return;
+    hidePreview();
   });
 }

@@ -8,9 +8,11 @@
   overflow: hidden;
 }
 .card-thumb {
+  appearance: none;
   position: relative;
   flex: 0 0 auto;
   width: 48px;
+  padding: 0;
   aspect-ratio: 626 / 457;
   overflow: hidden;
   border: 1px solid var(--line-strong);
@@ -19,8 +21,15 @@
     radial-gradient(circle at 50% 30%, rgba(156, 67, 255, .20), transparent 55%),
     var(--surface-3);
   box-shadow: inset 0 1px rgba(255,255,255,.06);
-  cursor: default;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
+.card-thumb:focus-visible {
+  outline: 2px solid #d28bff;
+  outline-offset: 3px;
+}
+.card-thumb[aria-hidden="true"] { cursor: inherit; }
 .card-thumb-compact { width: 46px; }
 .card-thumb img {
   position: absolute;
@@ -104,7 +113,28 @@
     0 0 30px rgba(137,48,255,.23),
     inset 0 1px rgba(255,255,255,.06);
 }
+.card-hover-preview[data-mode="interactive"] { pointer-events: auto; }
 .card-hover-preview[hidden] { display: none; }
+.card-preview-close {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 999px;
+  background: rgba(5,5,10,.88);
+  color: #fff;
+  font: inherit;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.card-hover-preview[data-mode="interactive"] .card-preview-close { display: grid; place-items: center; }
+.card-preview-close:focus-visible { outline: 2px solid #d28bff; outline-offset: 2px; }
 .card-hover-preview > img {
   display: block;
   width: 100%;
@@ -141,5 +171,19 @@
     min-height: 48px;
   }
   .card-thumb-compact { width: 42px; }
-  .card-hover-preview { display: none; }
+  .card-hover-preview {
+    top: auto !important;
+    right: auto;
+    bottom: 12px;
+    left: 50% !important;
+    width: min(278px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    transform: translateX(-50%);
+    pointer-events: auto;
+  }
+  .card-hover-preview > img { max-height: calc(100dvh - 94px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-thumb img, .card-thumb-placeholder { transition: none; }
 }

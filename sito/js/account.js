@@ -424,7 +424,7 @@ function creaRigaMazzo(mazzo) {
       mazzo.strategia, mazzo.modalita].filter(Boolean).join(" · "));
   const immagini = nodo("span", "personal-deck-cards");
   for (const carta of mazzo.carte.slice().sort((a, b) => b.copie - a.copie).slice(0, 7)) {
-    immagini.append(createCardThumbnail(carta));
+    immagini.append(createCardThumbnail(carta, { interactive: false }));
   }
   identita.append(nome, meta, immagini);
   const dati = nodo("span", "personal-deck-numbers");

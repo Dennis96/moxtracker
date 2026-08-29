@@ -1,55 +1,81 @@
-# Piano sito Mox — stato dopo la beta del 29 agosto 2026
+# Piano sito Mox — baseline ripristinata e ripartenza
 
-## Direzione confermata
+## Baseline verificata
 
-Il sito deve far scaricare Mox, aumentare i contributi consensuali e rendere
-utili e trasparenti Meta, Draft e dati personali. Il Meta pubblico resta un
-effetto della playerbase Mox, non il prodotto che giustifica una raccolta dati
-aggiuntiva.
+La preview pubblica e `main` sono tornati al contenuto precedente al tentativo
+del 29 agosto. Il revert resta nella cronologia Git: non altera il sito attuale
+e permette di ricostruire con precisione cosa è successo.
 
-La beta è aperta. Italiano e inglese sono le due lingue iniziali. Ogni rilascio
-passa dalla preview; la produzione Pages, le migrazioni D1 e le modifiche ai
-dati di produzione richiedono autorizzazione separata.
+Stato realmente disponibile nella baseline:
 
-## Fatto in preview
+- Home beta con download Windows, due screenshot reali e conteggi aggregati.
+- Meta Explorer con filtri, soglie, archetipi, varianti e decklist pubblicabili.
+- Draft pubblico limitato agli aggregati già sicuri per set, evento e periodo.
+- Account con OAuth, collegamento Mox, mazzi, partite, Draft, export e
+  cancellazione per sezione.
+- Ticket con Resend già implementato e collaudato: consenso esplicito,
+  conferma tramite link e notifiche senza testo o allegati del ticket.
+- Build riproducibile, preview obbligatoria e 183 test nella baseline.
 
-- Home orientata al download, con due schermate reali e spiegazione di tracker,
-  Draft, archivio mazzi e contributo anonimo al Meta.
-- Meta con filtri, archetipi, varianti, lista di riferimento, copia per Arena,
-  profilo deck e soglie dichiarate.
-- Draft pubblico aggregato per set, evento e periodo.
-- Account con OAuth, collegamento Mox, dispositivi, consensi, mazzi, partite,
-  Draft, rinomina, export, revoca e cancellazione per sezione.
-- Ticket autenticati e anonimi, Turnstile, ZIP diagnostico Mox con consenso,
-  amministrazione e chiusura/riapertura dei ticket.
-- Traduzione IT/EN; il 29/08 sono state corrette e verificate Meta e Account
-  inglesi, che ora caricano correttamente.
-- Carte localizzate quando disponibili, immagine condivisibile del mazzo e
-  preview carte con caricamento anticipato delle immagini visibili.
+Non sono ancora disponibili:
 
-## Da confermare manualmente nella preview
+- pagina Download e contenuti guida/FAQ completi;
+- Meta score pubblico o trend temporali;
+- classifiche Draft per colori/carte e importazione 17Lands;
+- preferenza reversibile per nascondere un mazzo storico;
+- nuove metriche aggregate di conversione.
 
-1. Dopo `Ctrl+F5`, le preview carte devono apparire subito intere in italiano e
-   inglese, senza riquadri vuoti o attese lunghe.
-2. Cambio IT/EN da Home, Meta, Draft e Account: pagina e dati devono restare
-   funzionanti; in inglese Account deve arrivare a “Sign in” e Meta alla tabella.
-3. PNG di condivisione: deve vedersi nel popup prima di copia, download o menu
-   di condivisione del sistema.
-4. Ticket: ZIP Mox strutturato fino a 10 MB, chiusura admin e riapertura dopo
-   replica dell’utente.
-5. Draft reali prodotti da Mox 2.9.27: set/evento, separazione sessioni e
-   assenza di rifiuti.
+## Ripartenza: blocchi piccoli
 
-## Lavoro in pausa
+Ogni blocco deve avere un obiettivo verificabile, test mirati e build locale.
+Preview Pages, Worker e migrazioni restano passaggi distinti.
 
-- Email per i ticket: Resend e dominio sono in configurazione. Il flusso scelto
-  usa un indirizzo facoltativo, consenso esplicito, conferma via link e avvisi
-  senza testo del ticket o allegati. Richiede una migrazione D1 additiva prima
-  della pubblicazione del Worker.
+### A1 — Carte e localizzazione tecnica
 
-## Prossima fase da decidere
+- Usare la stampa esatta identificata da set e numero.
+- Se la stampa italiana esatta non esiste, mantenere l'immagine inglese esatta
+  e usare il nome italiano quando Scryfall ne conosce uno.
+- Miniatura visibile subito, carta completa leggera precaricata solo per gli
+  elementi a schermo e qualità normale caricata all'apertura.
+- Hover su desktop; focus da tastiera; tap su touch con chiusura esplicita ed
+  Escape; rispetto di `prefers-reduced-motion`.
+- Test automatico delle chiavi inglesi statiche di Home/Meta, Draft e Account.
 
-Il questionario `QUESTIONARIO-PROSSIMA-CHAT-SITO-MOX.html` contiene 96 scelte
-su crescita, homepage, prestazioni, Meta, Draft, account/condivisione, ticket,
-amministrazione, contenuti, mobile, privacy e roadmap. Le risposte esportate
-sono il punto di ingresso consigliato per la prossima chat.
+### A2 — Verifica manuale IT/EN
+
+Controllare Home/Meta, Draft e Account in italiano e inglese, includendo dati
+generati dopo il caricamento. Verificare desktop, viewport mobile stretto,
+tastiera e zoom 200%. Correggere soltanto difetti osservati.
+
+### B — Homepage e conversione
+
+Solo dopo A1/A2: hero breve “Scarica Mox e contribuisci al Meta”, beneficio
+personale/comunitario, contatore in game, archivio mazzi, pagina Download,
+versione stabile e metriche aggregate definite con precisione.
+
+### C — Meta score
+
+Calcolo separato e testato lato Worker, ma non visibile finché il gate dati non
+è confermato. Worker e qualsiasi migrazione richiedono autorizzazione separata.
+
+### D — Draft
+
+Prima progettare schema aggregato, privacy, soglie e ricalcolo. Solo dopo:
+colori, carte associate ai risultati e import offline dei dataset pubblici
+17Lands, mantenendo sempre le due fonti separate.
+
+### E — Account, contenuti e collaudo
+
+Nascondi/ripristina mazzo storico, guida, FAQ, changelog, pagina “Meta
+spiegato”, poi checklist con più tester prima della produzione.
+
+## Regole operative
+
+- Nessuna migrazione o modifica dati di produzione senza autorizzazione
+  esplicita.
+- Nessun deploy Worker implicito in un deploy Pages.
+- Nessuna promozione in produzione senza preview verificata e autorizzazione
+  separata.
+- I dati grezzi Draft in R2 non diventano una sorgente pubblica.
+- Il file `RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md` è la fonte delle decisioni di
+  prodotto; questo documento descrive solo ordine e stato tecnico.
