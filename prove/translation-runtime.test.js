@@ -18,4 +18,6 @@ test("le viste rese dopo il caricamento richiamano la traduzione inglese", () =>
     assert.match(source, /traduciDocumento\(\)/);
   }
   assert.match(inglese, /"Archetipo \/ mazzo": "Archetype \/ deck"/);
+  assert.match(traduci, /\.catch\(\(\) => null\)/,
+    "un dizionario inglese non raggiungibile non deve bloccare la pagina");
 });

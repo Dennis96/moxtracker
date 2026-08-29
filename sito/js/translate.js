@@ -1,6 +1,10 @@
 const inglese = document.documentElement.lang === "en";
-const risposta = inglese ? await fetch(new URL("../i18n/en.json", import.meta.url)) : null;
-const traduzioni = risposta ? await risposta.json() : {};
+// Una traduzione e' un miglioramento dell'interfaccia, non un prerequisito per
+// Meta o Account: un errore di rete/CSP non deve mai fermare gli altri moduli.
+const risposta = inglese
+  ? await fetch(new URL("../i18n/en.json", import.meta.url)).catch(() => null)
+  : null;
+const traduzioni = risposta?.ok ? await risposta.json().catch(() => ({})) : {};
 const attributi = ["aria-label", "title", "placeholder"];
 const schemi = [
   [/^(\d[\d.,]*) partita$/, "$1 match"],
