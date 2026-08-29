@@ -862,6 +862,7 @@ async function carica() {
     $("link-google").classList.toggle("hidden", provider.has("google"));
     $("link-discord").classList.toggle("hidden", provider.has("discord"));
     $("admin-link").classList.toggle("hidden", !dashboard.account.amministratore);
+    $("ticket-link").classList.toggle("hidden", dashboard.account.amministratore);
     const invii = [...dashboard.partite.map((p) => p.quando),
       ...dashboard.draft.map((d) => d.ricevuto || d.iniziato)]
       .filter(Boolean).map((v) => new Date(v)).filter((v) => !Number.isNaN(v.getTime()));

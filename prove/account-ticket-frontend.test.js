@@ -20,6 +20,7 @@ test("account espone OAuth, dispositivi, statistiche e dettagli privati", () => 
   assert.match(html, /Esporta tutto/);
   assert.match(html, /Elimina dati e account/);
   assert.match(html, /I miei mazzi/);
+  assert.match(html, /id="ticket-link"/);
   assert.match(html, /Le mie partite/);
   assert.match(html, /Draft e risultati/);
   assert.match(html, /Andamento del rank/);
@@ -82,6 +83,7 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /PERCORSO_ACCOUNT/);
   assert.match(js, /window\.location\.origin/);
   assert.match(js, /intestazioniSessioneAccount/);
+  assert.match(js, /ticket-link/);
   assert.match(sessione, /mox-preview-session/);
   assert.match(sessione, /authorization: `Bearer \$\{token\}`/);
   assert.match(js, /\/account\/delete-section/);
@@ -153,6 +155,7 @@ test("la verifica anti-spam puo' davvero caricarsi", () => {
   const headers = leggi("_headers");
   assert.match(headers, /script-src [^;]*https:\/\/challenges\.cloudflare\.com/);
   assert.match(headers, /frame-src [^;]*https:\/\/challenges\.cloudflare\.com/);
+  assert.match(headers, /img-src [^;]*blob:/);
 });
 
 test("il testo del ticket si legge, e non resta attaccato al nome di chi scrive", () => {

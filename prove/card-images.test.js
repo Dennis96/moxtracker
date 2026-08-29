@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import {
   cardLookupKey,
+  cardLookupItalianUrls,
   cardLookupUrls,
   extractCardMedia,
   normalizeCardSpec,
@@ -36,6 +37,15 @@ test("lookup immagini prova prima il nome e conserva gli identificativi come fal
   ]);
   assert.equal(cardLookupKey(carta),
     "arena:103441|print:hob/67|name:front porch sentries");
+});
+
+test("in italiano la stampa esatta per set e numero evita una ricerca testuale lenta", () => {
+  assert.deepEqual(cardLookupItalianUrls({
+    nome: "Front Porch Sentries", set: "HOB", numero: "67",
+  }), [
+    "https://api.scryfall.com/cards/hob/67/it",
+    "https://api.scryfall.com/cards/search?order=released&unique=prints&q=%21%22Front+Porch+Sentries%22+lang%3Ait",
+  ]);
 });
 
 test("normalizzazione mantiene copie e scarta Arena ID non validi", () => {

@@ -75,16 +75,22 @@ export function cardLookupUrls(card = {}) {
   return urls;
 }
 
-function cardLookupItalianUrl(card = {}) {
+export function cardLookupItalianUrls(card = {}) {
   const spec = normalizeCardSpec(card);
-  if (!spec.name) return null;
-  // La ricerca per nome Oracle trova la stampa italiana direttamente: se non
-  // esiste, si ricade una sola volta nell'inglese senza mostrare un refresh.
-  const nome = spec.name.replace(/[\\"]/g, "\\$&");
-  const query = new URLSearchParams({
-    order: "released", unique: "prints", q: `!\"${nome}\" lang:it`,
-  });
-  return `${SCRYFALL_API}/cards/search?${query}`;
+  const urls = [];
+  // Set e numero sono la stampa esatta: Scryfall può restituire direttamente
+  // quella italiana, evitando la più lenta ricerca testuale per ogni carta.
+  if (spec.setCode && spec.collectorNumber) {
+    urls.push(`${SCRYFALL_API}/cards/${encodeURIComponent(spec.setCode)}/${encodeURIComponent(spec.collectorNumber)}/it`);
+  }
+  if (spec.name) {
+    const nome = spec.name.replace(/[\\"]/g, "\\$&");
+    const query = new URLSearchParams({
+      order: "released", unique: "prints", q: `!\"${nome}\" lang:it`,
+    });
+    urls.push(`${SCRYFALL_API}/cards/search?${query}`);
+  }
+  return urls;
 }
 
 export function parseReferenceLine(line) {
@@ -230,10 +236,12 @@ async function lookupNetwork(spec) {
 }
 
 async function lookupItalian(spec) {
-  const url = cardLookupItalianUrl(spec);
-  if (!url) return null;
-  const result = await queuedFetch(url);
-  return result.found ? result.data?.data?.[0] || null : null;
+  for (const url of cardLookupItalianUrls(spec)) {
+    const result = await queuedFetch(url);
+    if (!result.found) continue;
+    return result.data?.data?.[0] || result.data || null;
+  }
+  return null;
 }
 
 export async function resolveCard(card = {}) {
