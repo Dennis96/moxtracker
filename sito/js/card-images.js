@@ -22,6 +22,10 @@ let previewTitle = null;
 let previewMeta = null;
 let activePreviewAnchor = null;
 let previewRequestId = 0;
+const previewWarmCache = new Set();
+const previewWarmQueue = [];
+let previewWarmActive = 0;
+const PREVIEW_WARM_CONCURRENCY = 2;
 
 function cleanName(value) {
   return String(value || "").trim().replace(/\s+/g, " ");
@@ -355,7 +359,34 @@ function positionPreview(anchor) {
 // mouse sulla carta. Lo usiamo subito, poi sostituiamo l'immagine con la carta
 // completa: il popup non resta vuoto mentre Scryfall consegna il file normal.
 export function cardPreviewSources(media = {}) {
-  return [...new Set([media.artCrop, media.small, media.normal].filter(Boolean))];
+  // small e' una carta completa, ma molto piu' leggera di normal: e' la fonte
+  // giusta per rendere istantaneo il primo fotogramma dell'hover.
+  return [...new Set([media.small, media.artCrop, media.normal].filter(Boolean))];
+}
+
+function runPreviewWarmQueue() {
+  while (previewWarmActive < PREVIEW_WARM_CONCURRENCY && previewWarmQueue.length > 0) {
+    const source = previewWarmQueue.shift();
+    previewWarmActive += 1;
+    const image = new Image();
+    const finished = () => {
+      previewWarmActive -= 1;
+      runPreviewWarmQueue();
+    };
+    image.onload = finished;
+    image.onerror = finished;
+    image.decoding = "async";
+    image.src = source;
+  }
+}
+
+function warmPreviewImage(media) {
+  if (typeof Image === "undefined") return;
+  const source = media?.small || media?.normal;
+  if (!source || previewWarmCache.has(source)) return;
+  previewWarmCache.add(source);
+  previewWarmQueue.push(source);
+  runPreviewWarmQueue();
 }
 
 function loadPreviewImage(media) {
@@ -437,7 +468,12 @@ function scheduleResolution(node, spec, image, placeholder) {
         placeholder.textContent = "?";
         return;
       }
-      image.onload = () => node.classList.add("is-loaded");
+      image.onload = () => {
+        node.classList.add("is-loaded");
+        // Precarica la carta completa leggera solo per le miniature che l'utente
+        // sta davvero guardando; due download alla volta non saturano la pagina.
+        warmPreviewImage(media);
+      };
       image.onerror = () => {
         node.classList.remove("is-loaded");
         node.classList.add("is-missing");

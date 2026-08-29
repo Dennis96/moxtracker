@@ -90,7 +90,7 @@ test("media Scryfall usa small per thumbnail e normal per hover", () => {
 test("anteprima mostra subito una fonte disponibile e poi puo caricare la carta completa", () => {
   assert.deepEqual(cardPreviewSources({
     artCrop: "art", small: "small", normal: "normal",
-  }), ["art", "small", "normal"]);
+  }), ["small", "art", "normal"]);
   assert.deepEqual(cardPreviewSources({ small: "small", normal: "small" }), ["small"]);
 });
 
