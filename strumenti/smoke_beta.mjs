@@ -5,7 +5,9 @@ function valoreOpzione(nome) {
   return indice >= 0 ? process.argv[indice + 1] : null;
 }
 
-const base = String(valoreOpzione("--site") || process.env.MOX_SITE_URL || "https://moxtracker.app").replace(/\/$/, "");
+// Durante la beta il comando senza parametri deve controllare la preview: la
+// produzione si verifica solo passando intenzionalmente --site oppure una env.
+const base = String(valoreOpzione("--site") || process.env.MOX_SITE_URL || "https://preview.moxtracker.pages.dev").replace(/\/$/, "");
 const api = String(valoreOpzione("--api") || process.env.MOX_API_URL || "https://api.moxtracker.app").replace(/\/$/, "");
 const configurazioneSito = await readFile(new URL("../sito/js/config.js", import.meta.url), "utf8");
 const download = configurazioneSito.match(/^export const DOWNLOAD_URL = "([^"\r\n]+)";\r?$/m)?.[1];
@@ -17,7 +19,9 @@ const controlli = [
   ["account", `${base}/account`, /Account|Il mio MOX/i],
   ["supporto", `${base}/supporto`, /Supporto|Support/i],
   ["privacy", `${base}/privacy`, /Privacy/i],
-  ["inglese", `${base}/en/`, /Your assistant for MTG Arena/i],
+  // Il testo e' tradotto a runtime: qui controlliamo l'asset inglese reale,
+  // senza scambiare per guasto una frase che compare dopo il caricamento JS.
+  ["inglese", `${base}/en/`, /<html\s+lang="en"/i],
   ["salute API", `${api}/salute`, /"stato"\s*:\s*"vivo"/i],
   ["meta API", `${api}/meta?formato=Standard`, /"partite_totali"/i],
   ["draft API", `${api}/draft/statistiche?periodo=30`, /"totali"/i],
