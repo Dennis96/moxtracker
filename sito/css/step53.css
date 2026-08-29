@@ -123,3 +123,7 @@
 .deck-profile-values { display: flex; flex-wrap: wrap; gap: 7px; }
 .deck-profile-values span { padding: 6px 9px; border-radius: 999px; background: var(--surface-3); color: var(--muted); font-size: .74rem; }
 .deck-profile-values b { color: var(--text); }
+@media (min-width: 721px) {
+  .deck-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .deck-profile .variant-note { grid-column: 1 / -1; }
+}

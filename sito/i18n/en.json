@@ -465,5 +465,18 @@
   "Colori e strategia si attiveranno dopo la generazione del catalogo archetipi server.": "Colors and strategy will activate after the server archetype catalog is generated.",
   "partita non ha il rank completo e resta fuori da questo filtro.": "match has no complete rank and is excluded by this filter.",
   "partite non hanno il rank completo e restano fuori da questo filtro.": "matches have no complete rank and are excluded by this filter.",
-  "non identificato": "unidentified"
+  "non identificato": "unidentified",
+  "Condividi": "Share",
+  "Copiato per Arena": "Copied for Arena",
+  "Copia non riuscita": "Copy failed",
+  "Copiato: condividilo dove preferisci": "Copied: share it wherever you like",
+  "Condivisione non riuscita": "Sharing failed",
+  "Mostra altri Draft": "Show more Drafts",
+  "Mostra altre partite": "Show more matches",
+  "Riduci a 10 Draft": "Show 10 Drafts",
+  "Riduci a 10 partite": "Show 10 matches",
+  "Controlli elenco Draft": "Draft list controls",
+  "Controlli elenco partite": "Match list controls",
+  "Puoi scegliere il pacchetto diagnostico .zip creato da Mox: il browser estrae localmente e invia solo rapporto.json, già anonimizzato. Puoi allegare anche uno screenshot PNG, JPEG o WebP.": "You can select the .zip diagnostic package created by Mox: the browser extracts locally and sends only the already anonymized rapporto.json. You can also attach a PNG, JPEG or WebP screenshot.",
+  "Player.log non viene caricato qui:": "Player.log is not uploaded here:"
 }

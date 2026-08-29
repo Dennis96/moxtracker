@@ -6,8 +6,7 @@ export const DEFAULT_FORMAT = "Standard";
 export const FORMATS = ["Standard"];
 export const RANKS = ["", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Mythic"];
 
-// Download manuale dal sito: asset pubblicato e verificato della beta corrente.
-// Il nome dell'asset GitHub fa parte della release: aggiornarlo insieme a ogni
-// nuova beta, invece di puntare a un alias che GitHub non crea automaticamente.
-// Il canale firmato /mox/release + /mox/download.exe resta separato per l'autoupdate.
-export const DOWNLOAD_URL = "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.27/Mox-v2-beta2.9.27-con-python.zip";
+// Il Worker pubblica lo stesso installer firmato usato dall'autoupdate. Il nome
+// del file resta stabile mentre il contenuto passa alla release stable più recente.
+export const DOWNLOAD_URL = "https://api.moxtracker.app/mox/download.exe";
+export const RELEASE_MANIFEST_URL = "https://api.moxtracker.app/mox/release?piattaforma=win-x64&canale=stable&corrente=0";

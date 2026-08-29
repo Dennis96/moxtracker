@@ -1,4 +1,5 @@
 import { API_BASE } from "./config.js";
+import { eliminaSessioneAccountPreview, intestazioniSessioneAccount } from "./sessione-account.js";
 
 const $ = (id) => document.getElementById(id);
 let ticketCorrente = null;
@@ -6,9 +7,10 @@ let ticketCorrente = null;
 async function api(percorso, opzioni = {}) {
   const risposta = await fetch(`${API_BASE}${percorso}`, {
     credentials: "include", ...opzioni,
-    headers: { accept: "application/json", ...(opzioni.headers || {}) },
+    headers: intestazioniSessioneAccount(opzioni.headers || {}),
   });
   let corpo = null; try { corpo = await risposta.json(); } catch { /* non JSON */ }
+  if (risposta.status === 401) eliminaSessioneAccountPreview();
   if (!risposta.ok) throw new Error(corpo?.errore || `Errore ${risposta.status}`);
   return corpo;
 }
@@ -40,10 +42,22 @@ async function apriTicket(id) {
   $("admin-status").value = dato.ticket.stato;
   const messaggi = dato.messaggi.map((m) => messaggio(m.autore, m.testo, m.creato));
   const allegati = dato.allegati.map((a) => {
-    const link = document.createElement("a"); link.className = "service-button";
+    const link = document.createElement("button"); link.type = "button"; link.className = "service-button";
     link.textContent = `Scarica ${a.nome}`;
-    link.href = `${API_BASE}/ticket/${id}/attachments/${a.id}`;
-    link.referrerPolicy = "no-referrer"; return voce(a.nome, `${Math.ceil(a.byte / 1024)} KiB`, link);
+    link.addEventListener("click", async () => {
+      link.disabled = true;
+      try {
+        const risposta = await fetch(`${API_BASE}/ticket/${id}/attachments/${a.id}`, {
+          credentials: "include", headers: intestazioniSessioneAccount(),
+        });
+        if (!risposta.ok) throw new Error("Download allegato non riuscito");
+        const url = URL.createObjectURL(await risposta.blob());
+        const scarica = document.createElement("a"); scarica.href = url; scarica.download = a.nome; scarica.click();
+        URL.revokeObjectURL(url);
+      } catch (errore) { $("admin-message").textContent = errore.message; }
+      finally { link.disabled = false; }
+    });
+    return voce(a.nome, `${Math.ceil(a.byte / 1024)} KiB`, link);
   });
   $("admin-messages").replaceChildren(...messaggi, ...allegati);
 }

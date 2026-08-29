@@ -9,7 +9,8 @@ const base = String(valoreOpzione("--site") || process.env.MOX_SITE_URL || "http
 const api = String(valoreOpzione("--api") || process.env.MOX_API_URL || "https://api.moxtracker.app").replace(/\/$/, "");
 const configurazioneSito = await readFile(new URL("../sito/js/config.js", import.meta.url), "utf8");
 const download = configurazioneSito.match(/^export const DOWNLOAD_URL = "([^"\r\n]+)";\r?$/m)?.[1];
-if (!download) throw new Error("download MOX non configurato");
+const manifestoRelease = configurazioneSito.match(/^export const RELEASE_MANIFEST_URL = "([^"\r\n]+)";\r?$/m)?.[1];
+if (!download || !manifestoRelease) throw new Error("download MOX non configurato");
 const controlli = [
   ["home", `${base}/`, /MOX/i],
   ["draft", `${base}/draft`, /Draft/i],
@@ -59,8 +60,9 @@ if (!["localhost", "127.0.0.1", "::1"].includes(new URL(base).hostname)) {
   }
 }
 
-const release = await fetch(download,
-  { method: "HEAD", redirect: "follow" });
-console.log(`${release.ok ? "OK" : "ERRORE"} download: HTTP ${release.status}`);
-if (!release.ok) fallimenti += 1;
+const release = await fetch(manifestoRelease, { headers: { accept: "application/json" } });
+const manifesto = await release.json().catch(() => null);
+const downloadCorretto = release.ok && manifesto?.disponibile === true && manifesto?.url === download;
+console.log(`${downloadCorretto ? "OK" : "ERRORE"} download: manifesto HTTP ${release.status}`);
+if (!downloadCorretto) fallimenti += 1;
 if (fallimenti) process.exitCode = 1;

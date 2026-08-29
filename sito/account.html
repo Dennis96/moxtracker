@@ -55,7 +55,9 @@
       </section>
       <article class="panel service-card account-section">
         <div class="section-heading"><div><span class="eyebrow">Eventi Limited</span><h2>Draft e risultati</h2><p>Record ricostruiti soltanto dalle partite ricevute; eventuali parti mancanti sono dichiarate.</p></div></div>
+        <div id="draft-controls-top" class="service-actions list-controls" aria-label="Controlli elenco Draft"></div>
         <div id="draft-sessions" class="personal-grid"></div>
+        <div id="draft-controls-bottom" class="service-actions list-controls" aria-label="Controlli elenco Draft"></div>
       </article>
       <article id="matches-section" class="panel service-card account-section">
         <div class="section-heading"><div><span class="eyebrow">Cronologia completa</span><h2>Le mie partite</h2><p>Apri una partita per vedere decklist, mano iniziale, andamento e carte rivelate dall'avversario.</p></div><span id="matches-count" class="section-count"></span></div>
@@ -65,8 +67,9 @@
           <label>Evento<select id="filter-event"><option value="">Tutti gli eventi</option></select></label>
           <button id="clear-filters" class="service-button" type="button">Azzera filtri</button>
         </div>
+        <div id="matches-controls-top" class="service-actions list-controls" aria-label="Controlli elenco partite"></div>
         <div id="matches" class="match-list"></div>
-        <div class="service-actions centered"><button id="load-more" class="service-button" type="button">Carica altre partite</button></div>
+        <div id="matches-controls-bottom" class="service-actions list-controls" aria-label="Controlli elenco partite"></div>
       </article>
       <section class="service-grid account-services">
         <article class="panel service-card"><h2>Collega Mox</h2><p>Genera un codice monouso, poi inseriscilo nelle Opzioni di Mox. Scade dopo 10 minuti.</p><button id="create-link" class="service-button primary" type="button">Genera codice</button><div id="link-code" class="service-code" aria-live="polite"></div><p id="link-message" class="service-message"></p></article>

@@ -1,6 +1,10 @@
 import { resolveCard } from "./card-images.js";
 
 const TIPI = ["Creature", "Instant", "Sorcery", "Artifact", "Enchantment", "Planeswalker", "Battle", "Land"];
+const NOMI_TIPI_ITALIANI = {
+  Creature: "Creatura", Instant: "Istantaneo", Sorcery: "Stregoneria", Artifact: "Artefatto",
+  Enchantment: "Incantesimo", Planeswalker: "Planeswalker", Battle: "Battaglia", Land: "Terra", Other: "Altro",
+};
 
 function copie(carta) {
   return Math.max(1, Number(carta?.copie ?? carta?.copies) || 1);
@@ -44,7 +48,9 @@ function rigaValori(titolo, voci) {
   const heading = document.createElement("strong"); heading.textContent = titolo;
   const elenco = document.createElement("div"); elenco.className = "deck-profile-values";
   for (const [nome, valore] of voci.filter(([, valore]) => Number(valore) > 0)) {
-    const voce = document.createElement("span"); voce.innerHTML = `<b>${valore}</b> ${nome}`; elenco.append(voce);
+    const voce = document.createElement("span");
+    const etichetta = document.documentElement.lang === "it" ? (NOMI_TIPI_ITALIANI[nome] || nome) : nome;
+    voce.innerHTML = `<b>${valore}</b> ${etichetta}`; elenco.append(voce);
   }
   blocco.append(heading, elenco);
   return blocco;

@@ -1,41 +1,30 @@
 import { API_BASE } from "./config.js";
 import { createCardThumbnail, resolveCard } from "./card-images.js?v=20260822-9";
 import { renderProfiloMazzo } from "./deck-profile.js";
+import { eliminaSessioneAccountPreview, intestazioniSessioneAccount } from "./sessione-account.js";
 import { traduciDocumento } from "./translate.js";
 
 const $ = (id) => document.getElementById(id);
 const INGLESE = document.documentElement.lang === "en";
 const LINGUA = INGLESE ? "en-US" : "it-IT";
 const PERCORSO_ACCOUNT = `${window.location.origin}${INGLESE ? "/en/account.html" : "/account.html"}`;
-const CHIAVE_SESSIONE_PREVIEW = "mox-preview-session";
 const numeri = new Intl.NumberFormat(LINGUA);
 // Dieci partite per volta: a trenta la pagina diventava lunghissima e il
 // pulsante «Carica altre partite» non lo vedeva nessuno.
 const PASSO_PARTITE = 10;
+const PASSO_DRAFT = 10;
 const stato = { dashboard: null, statistiche: null, offset: 0, limite: PASSO_PARTITE,
-  totale: 0, partite: [], filtri: { mazzo: "", esito: "", evento: "" } };
-
-function sessionePreview() {
-  const frammento = new URLSearchParams(location.hash.slice(1));
-  const dalRitorno = frammento.get("mox_session");
-  if (dalRitorno && /^[0-9a-f]{64}$/i.test(dalRitorno)) {
-    sessionStorage.setItem(CHIAVE_SESSIONE_PREVIEW, dalRitorno);
-    history.replaceState(null, "", `${location.pathname}${location.search}`);
-  }
-  return sessionStorage.getItem(CHIAVE_SESSIONE_PREVIEW) || "";
-}
-
-function eliminaSessionePreview() { sessionStorage.removeItem(CHIAVE_SESSIONE_PREVIEW); }
+  totale: 0, partite: [], limiteDraft: PASSO_DRAFT,
+  filtri: { mazzo: "", esito: "", evento: "" } };
 
 async function api(percorso, opzioni = {}) {
-  const token = sessionePreview();
   const risposta = await fetch(`${API_BASE}${percorso}`, {
     credentials: "include", ...opzioni,
-    headers: { accept: "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), ...(opzioni.headers || {}) },
+    headers: intestazioniSessioneAccount(opzioni.headers || {}),
   });
   let corpo = null;
   try { corpo = await risposta.json(); } catch { /* risposta non JSON */ }
-  if (risposta.status === 401) eliminaSessionePreview();
+  if (risposta.status === 401) eliminaSessioneAccountPreview();
   if (!risposta.ok) throw Object.assign(
     new Error(corpo?.errore || `Errore ${risposta.status}`), { stato: risposta.status });
   return corpo;
@@ -119,6 +108,26 @@ function nomeMazzo(mazzo) {
   if (mazzo?.nome) return mazzo.nome;
   const tipo = mazzo?.formato || mazzo?.evento || "Mazzo";
   return `${tipo} · ${String(mazzo?.impronta || "").slice(0, 8)}`;
+}
+
+function nomeArenaMazzo(nome) {
+  return String(nome || "").replace(/[\r\n]+/g, " ").trim().slice(0, 80);
+}
+
+function testoArenaMazzo(mazzo) {
+  const righe = (mazzo?.carte || []).filter((carta) => carta?.nome && Number(carta?.copie) > 0)
+    .map((carta) => `${Number(carta.copie)} ${carta.nome}`);
+  if (!righe.length) return "";
+  const nome = nomeArenaMazzo(nomeMazzo(mazzo));
+  return `${nome ? `About\nName ${nome}\n\n` : ""}Deck\n${righe.join("\n")}\n`;
+}
+
+async function copiaTestoArena(bottone, testo) {
+  if (!testo) throw new Error("Decklist non disponibile");
+  await navigator.clipboard.writeText(testo);
+  const etichetta = bottone.textContent;
+  bottone.textContent = "Copiato per Arena";
+  setTimeout(() => { bottone.textContent = etichetta; }, 1600);
 }
 
 function mazzoDellaPartita(partita) {
@@ -323,6 +332,32 @@ function renderMazzi() {
 
 function apriMazzo(mazzo) {
   const azioni = nodo("div", "service-actions");
+  const copia = nodo("button", "service-button", "Copia per Arena");
+  copia.type = "button";
+  copia.addEventListener("click", async () => {
+    try { await copiaTestoArena(copia, testoArenaMazzo(mazzo)); }
+    catch (errore) { copia.textContent = "Copia non riuscita"; setTimeout(() => { copia.textContent = "Copia per Arena"; }, 1600); }
+  });
+  const condividi = nodo("button", "service-button", "Condividi");
+  condividi.type = "button";
+  condividi.addEventListener("click", async () => {
+    const testo = testoArenaMazzo(mazzo);
+    try {
+      if (!testo) throw new Error("Decklist non disponibile");
+      if (navigator.share) {
+        await navigator.share({ title: nomeMazzo(mazzo), text: testo });
+        return;
+      }
+      await copiaTestoArena(condividi, testo);
+      condividi.textContent = "Copiato: condividilo dove preferisci";
+      setTimeout(() => { condividi.textContent = "Condividi"; }, 2200);
+    } catch (errore) {
+      if (errore?.name !== "AbortError") {
+        condividi.textContent = "Condivisione non riuscita";
+        setTimeout(() => { condividi.textContent = "Condividi"; }, 1600);
+      }
+    }
+  });
   const partite = nodo("button", "service-button primary", "Vedi le sue partite");
   partite.type = "button";
   partite.addEventListener("click", () => {
@@ -331,7 +366,7 @@ function apriMazzo(mazzo) {
     applicaFiltri();
     $("matches-section").scrollIntoView({ behavior: "smooth" });
   });
-  azioni.append(partite);
+  azioni.append(copia, condividi, partite);
   const rinomina = nodo("form", "deck-rename");
   const etichetta = nodo("label", "service-field");
   etichetta.append(nodo("span", "", "Nome personalizzato"));
@@ -393,7 +428,11 @@ function apriMazzo(mazzo) {
 function renderDraft() {
   const contenitore = $("draft-sessions");
   contenitore.replaceChildren();
-  for (const sessione of stato.statistiche.sessioni_limited) {
+  const tutti = [...stato.statistiche.sessioni_limited.map((sessione) => ({ tipo: "sessione", valore: sessione })),
+    ...stato.dashboard.draft.map((draft) => ({ tipo: "draft", valore: draft }))];
+  for (const voce of tutti.slice(0, stato.limiteDraft)) {
+    if (voce.tipo === "sessione") {
+      const sessione = voce.valore;
     const bottone = nodo("button", "limited-card");
     bottone.type = "button";
     bottone.append(nodo("span", "eyebrow", "Risultato dalle partite"),
@@ -402,8 +441,9 @@ function renderDraft() {
       nodo("small", "", `${sessione.partite} partite · ${dataOra(sessione.iniziata)}`));
     bottone.addEventListener("click", () => apriSessione(sessione));
     contenitore.append(bottone);
-  }
-  for (const draft of stato.dashboard.draft) {
+      continue;
+    }
+    const draft = voce.valore;
     const bottone = nodo("button", "limited-card trace-card");
     bottone.type = "button";
     const partite = Number(draft.partite || 0);
@@ -419,6 +459,7 @@ function renderDraft() {
   }
   if (!contenitore.childNodes.length) contenitore.append(
     riga("Nessun Draft collegato", "I prossimi eventi compariranno qui."));
+  aggiornaControlliElenco("draft", tutti.length, stato.limiteDraft);
 }
 
 function apriSessione(sessione) {
@@ -540,14 +581,14 @@ async function caricaPartite(aggiungi = false) {
   if (stato.filtri.mazzo) params.set("mazzo", stato.filtri.mazzo);
   if (stato.filtri.esito) params.set("esito", stato.filtri.esito);
   if (stato.filtri.evento) params.set("evento", stato.filtri.evento);
-  $("load-more").disabled = true;
+  impostaDisabilitatiControlli("matches", true);
   try {
     const dato = await api(`/account/matches?${params}`);
     stato.totale = dato.totale;
     stato.partite = aggiungi ? [...stato.partite, ...dato.partite] : dato.partite;
     stato.offset = stato.partite.length;
     renderPartite();
-  } finally { $("load-more").disabled = false; }
+  } finally { impostaDisabilitatiControlli("matches", false); }
 }
 
 function renderPartite() {
@@ -576,18 +617,50 @@ function renderPartite() {
   }
   if (!stato.partite.length) contenitore.append(
     riga("Nessuna partita con questi filtri", "Prova ad azzerare i filtri."));
-  aggiornaPulsantePartite();
+  aggiornaControlliElenco("matches", stato.totale, stato.partite.length);
 }
 
-// Lo stesso pulsante apre e richiude: quando sono state caricate tutte,
-// «Carica altre» non ha piu' senso e diventa il modo per tornare a dieci.
-function aggiornaPulsantePartite() {
-  const bottone = $("load-more");
-  const tutte = stato.partite.length >= stato.totale;
-  // Con dieci partite in tutto non c'e' niente da aprire ne' da richiudere.
-  bottone.classList.toggle("hidden", stato.totale <= PASSO_PARTITE);
-  bottone.textContent = tutte ? "Mostra meno partite" : "Carica altre partite";
-  bottone.dataset.azione = tutte ? "riduci" : "espandi";
+function controlloElenco(tipo, posizione, azione, testo) {
+  const bottone = nodo("button", "service-button", testo);
+  bottone.type = "button";
+  bottone.id = `${tipo}-${azione}-${posizione}`;
+  bottone.dataset.azione = azione;
+  bottone.addEventListener("click", () => gestisciControlloElenco(tipo, azione));
+  return bottone;
+}
+
+function aggiornaControlliElenco(tipo, totale, mostrati) {
+  for (const posizione of ["top", "bottom"]) {
+    const host = $(`${tipo}-controls-${posizione}`);
+    if (!host) continue;
+    host.replaceChildren();
+    host.classList.toggle("hidden", totale <= (tipo === "draft" ? PASSO_DRAFT : PASSO_PARTITE));
+    if (mostrati < totale) host.append(controlloElenco(tipo, posizione, "espandi",
+      tipo === "draft" ? "Mostra altri Draft" : "Mostra altre partite"));
+    if (mostrati > (tipo === "draft" ? PASSO_DRAFT : PASSO_PARTITE)) {
+      host.append(controlloElenco(tipo, posizione, "riduci",
+        tipo === "draft" ? "Riduci a 10 Draft" : "Riduci a 10 partite"));
+    }
+  }
+}
+
+function impostaDisabilitatiControlli(tipo, disabilitato) {
+  document.querySelectorAll(`[id^="${tipo}-"][data-azione]`).forEach((bottone) => {
+    bottone.disabled = disabilitato;
+  });
+}
+
+async function gestisciControlloElenco(tipo, azione) {
+  if (tipo === "draft") {
+    const tutti = (stato.statistiche?.sessioni_limited?.length || 0) + (stato.dashboard?.draft?.length || 0);
+    stato.limiteDraft = azione === "espandi" ? Math.min(tutti, stato.limiteDraft + PASSO_DRAFT) : PASSO_DRAFT;
+    renderDraft();
+    if (azione === "riduci") $("draft-sessions").scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (azione === "espandi") { await caricaPartite(true); return; }
+  await caricaPartite(false);
+  $("matches").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function apriPartita(id) {
@@ -766,13 +839,6 @@ $("filter-event").addEventListener("change", applicaFiltri);
 $("clear-filters").addEventListener("click", () => {
   $("filter-deck").value = ""; $("filter-result").value = "";
   $("filter-event").value = ""; applicaFiltri();
-});
-$("load-more").addEventListener("click", async () => {
-  if ($("load-more").dataset.azione !== "riduci") { await caricaPartite(true); return; }
-  await caricaPartite(false);
-  // Richiudendo dal fondo ci si ritroverebbe a meta' pagina, senza capire
-  // dove: si torna in cima all'elenco.
-  $("matches").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 $("detail-dialog").addEventListener("click", (evento) => {
   if (evento.target === $("detail-dialog") || evento.target.closest("[data-close]")) {

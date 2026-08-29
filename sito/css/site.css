@@ -216,6 +216,7 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 .summary-card > strong { display:block; margin: 12px 0 4px; color: #c762ff; font-size: clamp(1.55rem, 3vw, 2.45rem); letter-spacing: -.035em; }
 .summary-card small { color: var(--muted); }
 .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.detail-grid > .deck-profile-panel { grid-column: 1 / -1; }
 .detail-section { min-height: 220px; }
 .locked-feature { min-height: 135px; display: flex; flex-direction: column; justify-content: center; border: 1px dashed var(--line-strong); border-radius: 11px; padding: 18px; background: rgba(124,44,255,.035); }
 .locked-feature strong { margin-bottom: 7px; }

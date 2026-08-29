@@ -98,17 +98,22 @@ function protectedDecklistBlock() {
   return box;
 }
 
-function testoArena(cards) {
+function nomeArena(nome) {
+  return String(nome || "").replace(/[\r\n]+/g, " ").trim().slice(0, 80);
+}
+
+function testoArena(cards, nome = "") {
   const righe = cards.filter(card => card.nome && Number(card.copie) > 0)
     .map(card => `${Number(card.copie)} ${titleCase(card.nome)}`);
-  return righe.length ? `Deck\n${righe.join("\n")}\n` : "";
+  return righe.length ? `${nomeArena(nome) ? `About\nName ${nomeArena(nome)}\n\n` : ""}Deck\n${righe.join("\n")}\n` : "";
 }
 
 function testoArenaRiferimento(riferimento) {
   const lista = (riferimento.lista || []).map(String).map((riga) => riga.trim()).filter(Boolean);
   const sideboard = (riferimento.sideboard || []).map(String).map((riga) => riga.trim()).filter(Boolean);
   if (!lista.length) return "";
-  return `Deck\n${lista.join("\n")}${sideboard.length ? `\n\nSideboard\n${sideboard.join("\n")}` : ""}\n`;
+  const nome = nomeArena(riferimento.nome_pubblico || riferimento.nome);
+  return `${nome ? `About\nName ${nome}\n\n` : ""}Deck\n${lista.join("\n")}${sideboard.length ? `\n\nSideboard\n${sideboard.join("\n")}` : ""}\n`;
 }
 
 function preparaCopiaArena(bottone, testo) {
@@ -126,10 +131,10 @@ function preparaCopiaArena(bottone, testo) {
   } : null;
 }
 
-function preparaAzioniDecklist(cards) {
+function preparaAzioniDecklist(cards, nome = "") {
   const copia = document.querySelector("#copy-variant-deck");
   const scarica = document.querySelector("#download-variant-deck");
-  const testo = testoArena(cards);
+  const testo = testoArena(cards, nome);
   preparaCopiaArena(copia, testo);
   scarica.hidden = !testo;
   scarica.onclick = testo ? () => {
@@ -163,7 +168,7 @@ function renderVariantDecklist(variant) {
   list.className = "decklist-cards variant-focus-card-list";
   for (const card of cards) list.append(cardLine(card));
   host.append(list);
-  preparaAzioniDecklist(cards);
+  preparaAzioniDecklist(cards, variant.nome || "Variante osservata");
   renderProfiloMazzo(document.querySelector("#variant-focus-profile"), cards,
     { campione: `Lista osservata in ${formatInteger(variant.partite)} partite.` });
 

@@ -1,5 +1,5 @@
 const SCRYFALL_API = "https://api.scryfall.com";
-const CACHE_KEY = "mox-scryfall-card-cache-v4";
+const CACHE_KEY = "mox-scryfall-card-cache-v5";
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MISSING_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 500;
@@ -18,6 +18,10 @@ let activePreviewAnchor = null;
 
 function cleanName(value) {
   return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function linguaCarte() {
+  return document.documentElement.lang === "it" ? "it" : "en";
 }
 
 function positiveArenaId(value) {
@@ -186,10 +190,38 @@ async function lookupNetwork(spec) {
   return null;
 }
 
+async function lookupItalian(data) {
+  const oracleId = cleanName(data?.oracle_id);
+  if (!oracleId) return null;
+  const query = new URLSearchParams({
+    order: "released",
+    unique: "prints",
+    q: `oracleid:${oracleId} lang:it`,
+  });
+  const result = await queuedFetch(`${SCRYFALL_API}/cards/search?${query}`);
+  return result.found ? result.data?.data?.[0] || null : null;
+}
+
+function mediaLocalizzata(base, cartaItaliana) {
+  const italiana = extractCardMedia(cartaItaliana, base.fetchedAt);
+  if (!italiana) return base;
+  // I testi italiani servono alla lettura e alla preview. I metadati tecnici
+  // restano quelli della stampa base, perché curva e fixing usano i tipi Oracle.
+  return {
+    ...base,
+    name: cleanName(cartaItaliana.printed_name || cartaItaliana.name) || base.name,
+    artCrop: italiana.artCrop,
+    small: italiana.small,
+    normal: italiana.normal,
+    artist: italiana.artist || base.artist,
+  };
+}
+
 export async function resolveCard(card = {}) {
   const spec = normalizeCardSpec(card);
-  const primaryKey = cardLookupKey(spec);
-  if (!primaryKey) return null;
+  const key = cardLookupKey(spec);
+  if (!key) return null;
+  const primaryKey = `${key}|lang:${linguaCarte()}`;
 
   const hit = cached(primaryKey);
   if (hit) return hit.missing ? null : hit;
@@ -205,19 +237,18 @@ export async function resolveCard(card = {}) {
         return null;
       }
 
-      const media = extractCardMedia(data);
+      let media = extractCardMedia(data);
       if (!media) {
         const missing = { missing: true, fetchedAt: Date.now() };
         remember([primaryKey], missing);
         return null;
       }
 
-      const keys = [
-        primaryKey,
-        media.arenaId ? `arena:${media.arenaId}` : null,
-        media.name ? `name:${media.name.toLocaleLowerCase("en-US")}` : null,
-      ];
-      remember(keys, media);
+      if (linguaCarte() === "it") {
+        try { media = mediaLocalizzata(media, await lookupItalian(data)); }
+        catch { /* La traduzione è un miglioramento: inglese e immagini base restano validi. */ }
+      }
+      remember([primaryKey], media);
       return media;
     } catch {
       // Errori di rete / 429 non diventano "carta assente":
@@ -405,6 +436,12 @@ export function createCardListItem(card = {}) {
   name.className = "card-name";
   name.textContent = spec.name || (spec.arenaId ? `Carta Arena #${spec.arenaId}` : "Carta non identificata");
   if (!spec.name) name.classList.add("unknown-card");
+
+  resolveCard(spec).then((media) => {
+    if (!media?.name) return;
+    name.textContent = media.name;
+    name.classList.remove("unknown-card");
+  });
 
   row.append(thumb, count, name);
   return row;

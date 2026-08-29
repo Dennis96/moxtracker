@@ -184,7 +184,7 @@ function setupDownload() {
   document.querySelectorAll("[data-download]").forEach(link => {
     if (DOWNLOAD_URL) {
       link.href = DOWNLOAD_URL; link.removeAttribute("aria-disabled");
-      link.title = "Scarica l'ultima beta MOX per Windows (ZIP)";
+      link.title = "Scarica l'ultima release MOX per Windows";
     } else {
       link.href = "#"; link.setAttribute("aria-disabled", "true");
       link.title = "Il link di download verrà collegato quando sarà disponibile";

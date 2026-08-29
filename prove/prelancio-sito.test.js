@@ -7,13 +7,15 @@ const QUI = fileURLToPath(new URL(".", import.meta.url));
 const leggi = percorso => readFileSync(QUI + "../sito/" + percorso, "utf8");
 const leggiRadice = percorso => readFileSync(QUI + "../" + percorso, "utf8");
 
-test("pre-lancio collega il download MOX al pacchetto GitHub pubblicato", () => {
+test("pre-lancio collega il download MOX al canale firmato aggiornato", () => {
   const configurazione = leggi("js/config.js");
-  const download = "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.27/Mox-v2-beta2.9.27-con-python.zip";
+  const download = "https://api.moxtracker.app/mox/download.exe";
   assert.match(configurazione, new RegExp(download.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   const home = leggi("index.html");
   assert.equal((home.match(new RegExp(`data-download href="${download}"`, "g")) || []).length, 2);
   assert.match(leggi("note-versione.html"), new RegExp(`data-download href="${download}"`));
+  assert.match(configurazione, /RELEASE_MANIFEST_URL/);
+  assert.match(leggi("js\/release-note.js"), /release\.versione/);
   assert.doesNotMatch(home, /data-download aria-disabled="true"/);
   // Il numero di versione scritto a mano nel pulsante invecchia a ogni
   // release: il 23/08/2026 il sito serviva gia' la 2.9.13 e i due pulsanti
@@ -68,7 +70,7 @@ test("homepage presenta Mox con due schermate reali e pagine di trasparenza", ()
   assert.match(home, /condivisione con gli amici sarà una scelta separata/);
   assert.match(home, /Più persone scaricano e usano Mox/);
   assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
-  assert.match(leggi("note-versione.html"), /2\.9\.27/);
+  assert.match(leggi("note-versione.html"), /Tutte le note di versione/);
 });
 
 test("il reset del Meta ripristina anche periodo, modalita e rank", () => {
