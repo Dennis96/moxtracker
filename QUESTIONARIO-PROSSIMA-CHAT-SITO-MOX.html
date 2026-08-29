@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Questionario prossima fase — sito Mox</title>
+  <style>
+    :root { color-scheme: dark; --bg:#100d18; --panel:#191524; --panel2:#241c33; --line:#403354; --text:#f6f2ff; --muted:#b9afca; --purple:#a948ff; --green:#69f0ad; --red:#ff8c9a; }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 85% -10%,#762bd944,transparent 33rem),radial-gradient(circle at 3% 15%,#39bc8f18,transparent 28rem),var(--bg); color:var(--text); font:15px/1.45 Inter,"Segoe UI",system-ui,sans-serif; }
+    button,input,textarea { font:inherit; } button { cursor:pointer; }
+    header { padding:34px max(20px,calc((100vw - 1220px)/2)); border-bottom:2px solid var(--purple); background:linear-gradient(115deg,#421f67ee,#11101cdd); }
+    h1 { margin:0 0 8px; font-size:clamp(26px,4vw,43px); } header p { max-width:900px; margin:0; color:#dfd5ec; }
+    .toolbar { position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:12px max(20px,calc((100vw - 1220px)/2)); border-bottom:1px solid var(--line); background:#100d18ed; backdrop-filter:blur(14px); }
+    .progress-wrap { flex:1 1 250px; min-width:220px; } .progress-label { display:flex; justify-content:space-between; color:var(--muted); font-size:13px; margin-bottom:5px; } .progress { height:7px; border-radius:99px; overflow:hidden; background:#302740; } .progress span { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--purple),var(--green)); transition:width .18s; }
+    .action { min-height:38px; padding:8px 12px; border:1px solid #5d4a75; border-radius:8px; background:#292137; color:var(--text); } .action:hover { border-color:var(--purple); } .action.primary { background:#7027b7; border-color:#c378ff; } .action.danger { color:#ffd6db; }
+    .layout { display:grid; grid-template-columns:240px minmax(0,1fr); gap:24px; width:min(1220px,calc(100% - 40px)); margin:28px auto 84px; }
+    nav { position:sticky; top:79px; align-self:start; max-height:calc(100vh - 100px); overflow:auto; padding:10px; border:1px solid var(--line); border-radius:12px; background:#191524ed; } nav a { display:block; padding:8px 9px; color:var(--muted); text-decoration:none; border-radius:7px; } nav a:hover { color:white; background:var(--panel2); }
+    .intro,.fixed,.section { margin-bottom:22px; border:1px solid var(--line); border-radius:12px; background:#191524ed; box-shadow:0 16px 48px #0005; } .intro,.fixed { padding:20px; } .fixed { border-left:4px solid var(--green); } .intro h2,.fixed h2 { margin-top:0; } .intro ul,.fixed ul { margin-bottom:0; padding-left:22px; }
+    .section-head { padding:20px 20px 13px; border-bottom:1px solid var(--line); } .section-head h2 { margin:0 0 4px; font-size:22px; } .section-head p { margin:0; color:var(--muted); } .questions { padding:6px 18px 18px; }
+    .question { padding:17px 2px; border-bottom:1px solid #4d405c99; } .question:last-child { border-bottom:0; } .question h3 { margin:0 0 11px; font-size:16px; } .qid { margin-right:7px; color:#bd70ff; font-variant-numeric:tabular-nums; }
+    .choices { display:flex; flex-wrap:wrap; gap:8px; } .choice { position:relative; } .choice input { position:absolute; opacity:0; pointer-events:none; } .choice span { display:inline-flex; align-items:center; gap:6px; min-height:38px; padding:8px 11px; border:1px solid #554466; border-radius:8px; background:#231d2f; color:#e0d9ea; } .choice input:checked + span { border-color:#c477ff; background:#502778; color:white; box-shadow:0 0 0 2px #a948ff2b; } .choice input:focus-visible + span { outline:2px solid #ffd166; outline-offset:2px; } .recommended { color:var(--green); font-size:10px; font-weight:800; text-transform:uppercase; }
+    details { margin-top:9px; } summary { color:var(--muted); cursor:pointer; width:max-content; font-size:13px; } textarea { width:100%; min-height:72px; margin-top:8px; padding:10px; resize:vertical; border:1px solid #5b4a6f; border-radius:8px; background:#110e19; color:white; } textarea:focus { outline:2px solid #a948ff33; border-color:var(--purple); }
+    .section-note { padding:0 20px 20px; } .section-note label { display:block; margin-bottom:6px; color:var(--green); font-weight:700; } .toast { position:fixed; right:20px; bottom:20px; z-index:20; padding:12px 15px; border:1px solid var(--green); border-radius:8px; background:#173128; opacity:0; transform:translateY(12px); pointer-events:none; transition:.2s; } .toast.show { opacity:1; transform:none; }
+    footer { color:var(--muted); text-align:center; padding:0 20px 40px; }
+    @media(max-width:850px){ .layout{grid-template-columns:1fr;width:min(100% - 24px,780px);margin-top:16px} nav{position:static;display:flex;gap:4px;overflow-x:auto;white-space:nowrap} nav a{flex:0 0 auto}.toolbar{position:static}header{padding:24px 16px}.choices{display:grid;grid-template-columns:1fr 1fr}.choice span{width:100%} }
+    @media(max-width:480px){ .choices{grid-template-columns:1fr}.action{flex:1 1 140px}.questions{padding-inline:13px}.section-head{padding-inline:15px} }
+    @media print { body{background:white;color:black}.toolbar,header,nav,.intro{display:none}.layout{display:block;width:100%;margin:0}.section,.fixed{box-shadow:none;background:white;border-color:#aaa}.choice span{color:#333;background:white}.choice input:not(:checked)+span{display:none}textarea{color:black;background:white} }
+  </style>
+</head>
+<body>
+  <header><h1>Questionario prossima fase — sito Mox</h1><p>96 decisioni per preparare una nuova chat senza dover ricostruire il contesto. Le risposte restano nel browser finché non esporti il Markdown.</p></header>
+  <div class="toolbar"><div class="progress-wrap"><div class="progress-label"><span>Completamento</span><strong id="progressText">0 / 96</strong></div><div class="progress"><span id="progressBar"></span></div></div><button class="action" id="recommendedBtn">Compila consigliati</button><button class="action" id="copyBtn">Copia risposte</button><button class="action primary" id="downloadBtn">Scarica Markdown</button><button class="action danger" id="resetBtn">Azzera</button></div>
+  <div class="layout"><nav id="nav" aria-label="Sezioni"></nav><main>
+    <section class="intro"><h2>Come usarlo</h2><ul><li>Una scelta per domanda; apri “nota” per scrivere eccezioni o esempi.</li><li>“Decidi tu” delega la scelta tecnica, non autorizza modifiche a dati o produzione.</li><li>Le opzioni <strong>consigliato</strong> sono un punto di partenza modificabile.</li><li>Alla fine scarica il Markdown e allegalo come primo file della nuova chat.</li></ul></section>
+    <section class="fixed"><h2>Stato già deciso o già realizzato</h2><ul><li>Obiettivo home: far scaricare Mox e far crescere una playerbase che migliora Mox e il Meta.</li><li>Open beta; italiano e inglese; preview obbligatoria prima della produzione.</li><li>Meta, Draft, account, ticket, copia Arena e condivisione PNG sono già presenti in preview.</li><li>Le pagine inglesi Meta e Account sono state ripristinate e verificate il 29/08/2026.</li><li>Email ticket: in pausa. Nessuna raccolta o invio email finché non sarà deciso separatamente.</li><li>Niente migrazioni o modifiche ai dati di produzione senza autorizzazione esplicita.</li></ul></section>
+    <div id="form"></div>
+    <section class="section"><div class="section-head"><h2>Note finali e materiale per la nuova chat</h2><p>Inserisci esempi, link, screenshot da rifare, priorità personali o cose che non devono essere toccate.</p></div><div class="section-note"><label for="finalNotes">Indicazioni aggiuntive</label><textarea id="finalNotes" placeholder="Esempio: questa parte è perfetta; voglio che la prossima fase inizi da…"></textarea></div></section>
+  </main></div><footer>Il questionario non invia dati in rete. Esporta le risposte per passarle alla nuova chat.</footer><div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+  const sections = [
+    ['crescita','1. Crescita e conversione', 'Come trasformare i visitatori in utenti Mox.', [
+      ['Q79','Messaggio più importante nel primo schermo',['Scarica Mox e contribuisci al Meta','Migliora i Draft','Traccia i tuoi risultati','Decidi tu'],0],
+      ['Q80','Pubblico da convincere per primo',['Giocatori Arena già attivi','Nuovi giocatori Arena','Drafter abituali','Gruppi di amici','Decidi tu'],0],
+      ['Q81','Incentivo al download',['Spiegare il beneficio personale e comunitario','Solo pulsante download','Promettere statistiche esclusive','Decidi tu'],0],
+      ['Q82','Prova sociale in homepage',['Conteggi aggregati reali','Citazioni dei tester','Nessuna finché i numeri sono piccoli','Decidi tu'],0],
+      ['Q83','Call to action secondaria',['Guarda come funziona','Esplora il Meta','Crea un account','Nessuna','Decidi tu'],0],
+      ['Q84','Canale di diffusione iniziale',['Amici e community Discord','Solo passaparola','Reddit e forum','Creator/video','Decidi tu'],0],
+      ['Q85','Pagina dedicata al download',['Tenere solo la home','Aggiungere pagina download con istruzioni','Aprire GitHub Releases','Decidi tu'],1],
+      ['Q86','Metriche da misurare per la crescita',['Download, collegamenti Mox e contributi anonimi','Solo visite','Solo download','Nessuna per ora','Decidi tu'],0]
+    ]],
+    ['home','2. Homepage e messaggio prodotto','Cosa chiarire prima che l’utente scelga se scaricare Mox.',[
+      ['Q87','Ordine delle capacità Mox',['Tracker risultati, Draft, Meta, archivio mazzi','Draft prima di tutto','Meta prima di tutto','Decidi tu'],0],
+      ['Q88','Archivio personale dei mazzi',['Spiegarlo già nella home','Spiegarlo solo in Account','Rinviarlo','Decidi tu'],0],
+      ['Q89','Condivisione futura con amici',['Citarla come “in arrivo”','Non citarla finché non esiste','Mettere una lista d’attesa','Decidi tu'],1],
+      ['Q90','Privacy nel messaggio hero',['Una riga molto chiara','Badge/link alla pagina privacy','Nessun riferimento nel hero','Decidi tu'],0],
+      ['Q91','Quanto testo sopra il primo scroll',['Molto breve','Medio con 3 vantaggi','Lungo e dettagliato','Decidi tu'],0],
+      ['Q92','Dimostrazione del tracker',['Screenshot di statistiche reali','GIF/video breve','Solo testo','Decidi tu'],0],
+      ['Q93','Versione Mox visibile sul sito',['Mostrare sempre l’ultima stabile','Solo nelle note di versione','Solo se richiesta','Decidi tu'],0],
+      ['Q94','Link a GitHub',['Visibile nel footer','Pagina download e footer','Nascosto nelle note','Decidi tu'],0]
+    ]],
+    ['prestazioni','3. Prestazioni e immagini carte','Qualità percepita mentre arrivano dati e immagini.',[
+      ['Q95','Priorità per le carte visibili',['Miniatura rapida e preview pronta','Massima qualità anche se più lenta','Solo testi finché non sono in cache','Decidi tu'],0],
+      ['Q96','Qualità iniziale preview',['Carta completa leggera subito, alta qualità dopo','Solo alta qualità','Solo artwork','Decidi tu'],0],
+      ['Q97','Quante immagini precaricare',['Solo quelle a schermo','Tutta la pagina','Nessuna','Decidi tu'],0],
+      ['Q98','Fallback quando manca la stampa italiana',['Nome e carta inglesi','Nome italiano e carta inglese','Solo nome italiano','Decidi tu'],0],
+      ['Q99','Indicatore di caricamento carte',['Placeholder Mox discreto','Scheletro animato','Nessun indicatore','Decidi tu'],0],
+      ['Q100','Click sulle carte desktop',['Aprire preview grande anche al click','Solo hover','Aprire pagina Scryfall','Decidi tu'],1],
+      ['Q101','Mobile per le carte',['Tap apre preview','Tap non fa nulla','Tap apre link esterno','Decidi tu'],0],
+      ['Q102','Obiettivo percepito di velocità',['Come Untapped: senza buchi visibili','Buono entro un secondo','Accettabile entro tre secondi','Decidi tu'],0]
+    ]],
+    ['meta','4. Meta e archetipi','Evoluzioni pubbliche quando cresce il campione.',[
+      ['Q103','Punteggio meta combinato',['Progettarlo e spiegarlo prima di mostrarlo','Restare su win rate e quota meta','Mostrare solo popolarità','Decidi tu'],0],
+      ['Q104','Quando introdurre trend temporali',['Dopo campione sufficiente','Subito con avvisi','Mai','Decidi tu'],0],
+      ['Q105','Dettaglio variante',['Pieno schermo e decklist più compatta','Mantenere layout attuale','Scheda laterale','Decidi tu'],0],
+      ['Q106','Lista rappresentativa',['Due colonne e profilo sotto','Tre colonne','Una colonna leggibile','Decidi tu'],0],
+      ['Q107','Copia per Arena',['Includere sempre titolo deck','Senza titolo','Chiedere ogni volta','Decidi tu'],0],
+      ['Q108','Condivisione di un archetipo pubblico',['Link semplice','PNG con statistiche','Entrambi','Più avanti','Decidi tu'],2],
+      ['Q109','Mazzi “Altro”',['Visibili con spiegazione prudente','Nascosti','Solo conteggio aggregato','Decidi tu'],0],
+      ['Q110','Filtri da ricordare',['Ricordare solo nell’URL','Ricordare anche nel browser','Ripristinare sempre default','Decidi tu'],0]
+    ]],
+    ['draft','5. Draft pubblico e personale','Cosa far crescere senza trasformare il sito in diagnostica.',[
+      ['Q111','Prossima statistica Draft pubblica',['Colori migliori per set/evento','Carte migliori per colore','Andamento dei Draft nel tempo','Decidi tu'],0],
+      ['Q112','Soglia prima di mostrare statistiche Draft',['Conservativa e dichiarata','Più bassa per popolare la pagina','Mai mostrare percentuali','Decidi tu'],0],
+      ['Q113','Eventi diversi',['Separarli sempre','Raggruppare quelli equivalenti','Solo Quick Draft','Decidi tu'],0],
+      ['Q114','Draft personali prossima funzione',['Lista Draft con espandi/riduci','Dettaglio deck','Risultati e record','Decidi tu'],0],
+      ['Q115','Tasti di navigazione liste lunghe',['Sopra e sotto','Solo sopra','Paginazione','Decidi tu'],0],
+      ['Q116','Draft con zero pick',['Nasconderli se tecnicamente incompleti','Mostrarli con avviso','Eliminarli','Decidi tu'],1],
+      ['Q117','Draft 2.9.27 da testare',['Raccogliere feedback reali prima di nuove statistiche','Ignorare finché non emerge un bug','Bloccare il sito','Decidi tu'],0],
+      ['Q118','Mazzo finale Draft',['Mostrare solo al proprietario','Aggregare dopo soglia','Entrambi con regole diverse','Decidi tu'],2]
+    ]],
+    ['account','6. Account, mazzi e condivisione','Utilità personale e prime funzioni sociali.',[
+      ['Q119','Azione principale aprendo un mazzo personale',['Copia per Arena','Vedere le partite','Condividere scheda PNG','Decidi tu'],0],
+      ['Q120','Scheda PNG condivisibile',['Statistiche + decklist completa','Solo statistiche','Decklist e titolo senza statistiche','Decidi tu'],0],
+      ['Q121','Anteprima prima della condivisione',['Obbligatoria nel popup','Solo scarica diretta','Anteprima in una pagina','Decidi tu'],0],
+      ['Q122','Canali di condivisione',['Usare il menu del dispositivo','Pulsanti Discord/X dedicati','Solo download PNG','Decidi tu'],0],
+      ['Q123','Nome del mazzo condiviso',['Nome personale scelto dall’utente','Nome Arena originale','Chiedere ogni volta','Decidi tu'],0],
+      ['Q124','Storico mazzi',['Separare correnti e fuori Arena','Unire tutto','Archiviarli manualmente','Decidi tu'],0],
+      ['Q125','Confronto versioni deck',['Mostrare cambi carte fra versioni','Solo elenco cronologico','Più avanti','Decidi tu'],2],
+      ['Q126','Obiettivo delle statistiche personali',['Migliorare le scelte del giocatore','Solo archivio','Confronto con amici','Decidi tu'],0]
+    ]],
+    ['supporto','7. Ticket e supporto','Come rendere utili i bug report senza complicare il flusso.',[
+      ['Q127','Ticket amministratore',['Solo “Amministra ticket”','Apri ticket e amministra','Solo dashboard separata','Decidi tu'],0],
+      ['Q128','Chiusura ticket',['Chiudi e rimuovi dagli aperti; risposta utente riapre','Solo cambio stato manuale','Eliminazione','Decidi tu'],0],
+      ['Q129','Ticket anonimo senza email',['Link segreto copiabile','Email facoltativa in futuro','Richiedere account','Decidi tu'],0],
+      ['Q130','Email ticket',['Restare in pausa','Progettare provider gratuito','Usare email OAuth','Decidi tu'],0],
+      ['Q131','Pacchetto diagnostico Mox',['Accettare solo ZIP Mox strutturato fino a 10 MB','Solo rapporto JSON','ZIP generici','Decidi tu'],0],
+      ['Q132','Player.log con consenso Mox',['Conservarlo privato per l’admin','Non accettarlo mai','Includerlo automaticamente','Decidi tu'],0],
+      ['Q133','Priorità automatica ticket',['Nessuna: lettura admin','Bug bloccante evidenziato','Voto degli utenti','Decidi tu'],0],
+      ['Q134','Risposte standard',['Creare modelli per bug comuni','Scrivere sempre a mano','Nessuna risposta automatica','Decidi tu'],0]
+    ]],
+    ['amministrazione','8. Amministrazione, dati e operatività','Regole per crescere senza perdere controllo.',[
+      ['Q135','Secondo amministratore',['Non serve per ora','Ruolo supporto separato','Stesso ruolo pieno','Decidi tu'],0],
+      ['Q136','Audit dei ticket',['Tenere ogni cambio stato e risposta','Solo ultimo stato','Nessun audit','Decidi tu'],0],
+      ['Q137','Retention allegati ticket',['Durata fissa dichiarata','Finché il ticket è aperto','Cancellazione manuale','Decidi tu'],0],
+      ['Q138','Dashboard tecnica interna',['Solo salute e numero ticket','Aggiungere code/errori aggregati','Non farla','Decidi tu'],0],
+      ['Q139','Dati Draft sospetti',['Privati e ricalcolabili','Eliminati subito','Pubblici con avviso','Decidi tu'],0],
+      ['Q140','Backfill dati',['Solo dopo campione e piano scritto','Quando serve senza passaggio','Mai','Decidi tu'],0],
+      ['Q141','Migrazioni D1',['Sempre separate da deploy UI','Insieme ai deploy','Solo a fine beta','Decidi tu'],0],
+      ['Q142','Alert operativi',['Errori Worker, download e OAuth','Solo Worker','Nessun alert automatico','Decidi tu'],0]
+    ]],
+    ['contenuti','9. Contenuti e community','Cosa pubblicare oltre alle schermate del prodotto.',[
+      ['Q143','Guida “come funziona Mox”',['Pagina breve con screenshot','Video','FAQ sola','Decidi tu'],0],
+      ['Q144','FAQ iniziali',['Download, privacy, account, Draft e ticket','Solo installazione','Nessuna','Decidi tu'],0],
+      ['Q145','Pagina changelog',['Note brevi curate sul sito','Solo GitHub Releases','Entrambi','Decidi tu'],2],
+      ['Q146','Novità nel sito',['Banner discreto dopo una release','Solo changelog','Popup','Decidi tu'],0],
+      ['Q147','Raccolta feedback',['Ticket strutturato','Sondaggio periodico','Discord','Decidi tu'],0],
+      ['Q148','Condivisione risultati con amici',['PNG scaricabile prima','Link pubblico protetto','Profilo pubblico','Decidi tu'],0],
+      ['Q149','Pagina “Meta spiegato”',['Spiegare soglie e limiti','Solo tooltip','Nessuna pagina','Decidi tu'],0],
+      ['Q150','Lingua dei contenuti lunghi',['Italiano e inglese insieme','Italiano prima, inglese dopo','Solo italiano','Decidi tu'],0]
+    ]],
+    ['accessibilita','10. Mobile, accessibilità e browser','Esperienza pratica fuori dal desktop principale.',[
+      ['Q151','Priorità dispositivi',['Desktop prima, mobile ben leggibile','Mobile first','Solo desktop','Decidi tu'],0],
+      ['Q152','Tabelle Meta su telefono',['Schede compatte','Scroll orizzontale','Nascondere colonne','Decidi tu'],0],
+      ['Q153','Preview carte su touch',['Tap con chiusura esplicita','Nessuna preview','Apri Scryfall','Decidi tu'],0],
+      ['Q154','Dimensione testo',['Rispettare zoom browser fino al 200%','Dimensione fissa','Controllo compatto','Decidi tu'],0],
+      ['Q155','Navigazione tastiera',['Completa per funzioni principali','Solo form','Più avanti','Decidi tu'],0],
+      ['Q156','Riduzione movimento',['Sempre rispettare prefers-reduced-motion','Nessuna animazione','Tenere animazioni','Decidi tu'],0],
+      ['Q157','Browser supportati',['Chrome, Edge, Firefox aggiornati','Solo Chrome e Edge','Aggiungere Safari','Decidi tu'],0],
+      ['Q158','Test manuali per release',['Desktop Chrome + mobile stretto + inglese','Solo desktop','Solo preview automatica','Decidi tu'],0]
+    ]],
+    ['privacy','11. Privacy, fiducia e email','Decisioni da prendere prima di aggiungere nuove raccolte.',[
+      ['Q159','Email ticket futura',['Opt-in esplicito e revocabile','Usare email Google senza chiedere','Email obbligatoria','Decidi tu'],0],
+      ['Q160','Provider email',['Valutare piano gratuito affidabile','Cloudflare Email Routing da solo','Nessuna email','Decidi tu'],0],
+      ['Q161','Contenuto email ticket',['Solo link e stato','Includere testo completo','Solo notifica generica','Decidi tu'],0],
+      ['Q162','Immagini condivise',['Solo download locale finché non esiste un link condiviso','Caricarle pubblicamente','Conservarle nel profilo','Decidi tu'],0],
+      ['Q163','Dati tecnici per bug',['Solo ZIP Mox con consenso','Qualsiasi file','Solo screenshot','Decidi tu'],0],
+      ['Q164','Pagina privacy',['Aggiornarla a ogni nuova raccolta','Aggiornamento periodico','Una volta sola','Decidi tu'],0],
+      ['Q165','Consenso contributi Meta',['Chiaro in Mox e riepilogato sul sito','Solo nelle impostazioni Mox','Solo privacy policy','Decidi tu'],0],
+      ['Q166','Richieste cancellazione',['Self-service account','Solo ticket','Entrambi','Decidi tu'],0]
+    ]],
+    ['roadmap','12. Roadmap, prove e rilascio','Con quale ordine ripartire nella prossima chat.',[
+      ['Q167','Priorità immediata',['Rendere impeccabili carte e traduzioni','Nuove funzioni account','Nuove statistiche Draft','Decidi tu'],0],
+      ['Q168','Seconda priorità',['Condivisione mazzi personale','Migliorare homepage','Email ticket','Decidi tu'],0],
+      ['Q169','Terza priorità',['Meta score e trend','Draft pubblico avanzato','Ruoli admin','Decidi tu'],0],
+      ['Q170','Criterio per dire “beta pronta”',['Flussi principali testati da più persone','Tutte le idee completate','Molti dati Meta','Decidi tu'],0],
+      ['Q171','Produzione Pages',['Solo dopo checklist completa e autorizzazione separata','Subito dopo preview','Mai','Decidi tu'],0],
+      ['Q172','Worker produzione',['Solo per correzioni necessarie e autorizzate','Insieme a ogni modifica sito','Mai','Decidi tu'],0],
+      ['Q173','Formato passaggio nuova chat',['Markdown esportato + screenshot rilevanti','Solo messaggio breve','Solo questionario','Decidi tu'],0],
+      ['Q174','Ritmo di lavoro',['Blocchi completi con test prima del deploy','Piccole modifiche continue','Solo pianificazione','Decidi tu'],0]
+    ]]
+  ];
+  const key='mox-questionario-prossima-fase-v1', form=document.querySelector('#form'), nav=document.querySelector('#nav'), notes=document.querySelector('#finalNotes'), toast=document.querySelector('#toast');
+  let state; try { state=JSON.parse(localStorage.getItem(key))||{answers:{},notes:{},sectionNotes:{},finalNotes:''}; } catch { state={answers:{},notes:{},sectionNotes:{},finalNotes:''}; }
+  const all=()=>sections.flatMap(s=>s[3]); const save=()=>{state.finalNotes=notes.value;localStorage.setItem(key,JSON.stringify(state));progress();};
+  function progress(){ const total=all().length, done=Object.keys(state.answers).filter(k=>state.answers[k]).length;document.querySelector('#progressText').textContent=`${done} / ${total}`;document.querySelector('#progressBar').style.width=`${done/total*100}%`;document.title=`Questionario prossima fase — ${done}/${total}`; }
+  function say(message){toast.textContent=message;toast.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.classList.remove('show'),2200);}
+  function render(){nav.replaceChildren();form.replaceChildren();sections.forEach(([sid,title,description,questions])=>{const link=document.createElement('a');link.href='#'+sid;link.textContent=title;nav.append(link);const section=document.createElement('section');section.className='section';section.id=sid;section.innerHTML=`<div class="section-head"><h2>${title}</h2><p>${description}</p></div>`;const wrap=document.createElement('div');wrap.className='questions';questions.forEach(([id,text,options,recommended])=>{const article=document.createElement('article');article.className='question';article.innerHTML=`<h3><span class="qid">${id}</span>${text}</h3>`;const choices=document.createElement('div');choices.className='choices';options.forEach((option,index)=>{const label=document.createElement('label');label.className='choice';const input=document.createElement('input');input.type='radio';input.name=id;input.value=option;input.checked=state.answers[id]===option;input.onchange=()=>{state.answers[id]=option;save();};const visual=document.createElement('span');visual.append(option);if(index===recommended){const mark=document.createElement('small');mark.className='recommended';mark.textContent='consigliato';visual.append(mark);}label.append(input,visual);choices.append(label);});article.append(choices);const details=document.createElement('details'),summary=document.createElement('summary'),area=document.createElement('textarea');summary.textContent=state.notes[id]?'Nota aggiunta':'Aggiungi una nota facoltativa';area.placeholder='Precisazione, esempio o alternativa…';area.value=state.notes[id]||'';area.oninput=()=>{state.notes[id]=area.value;summary.textContent=area.value.trim()?'Nota aggiunta':'Aggiungi una nota facoltativa';save();};details.append(summary,area);article.append(details);wrap.append(article);});section.append(wrap);const tail=document.createElement('div');tail.className='section-note';tail.innerHTML=`<label for="${sid}-note">Nota generale della sezione</label>`;const sectionArea=document.createElement('textarea');sectionArea.id=sid+'-note';sectionArea.placeholder='Cosa manca, vincoli, esempi o priorità…';sectionArea.value=state.sectionNotes[sid]||'';sectionArea.oninput=()=>{state.sectionNotes[sid]=sectionArea.value;save();};tail.append(sectionArea);section.append(tail);form.append(section);});notes.value=state.finalNotes||'';notes.oninput=save;progress();}
+  function markdown(){const out=['# Risposte — prossima fase sito Mox','',`Compilato: ${new Date().toLocaleString('it-IT')}`,'','## Stato confermato','','- Open beta, IT/EN, preview obbligatoria prima della produzione.','- Email ticket in pausa.','- Nessuna migrazione o modifica dati di produzione senza autorizzazione esplicita.',''];sections.forEach(([sid,title,,questions])=>{out.push('## '+title,'');questions.forEach(([id,text])=>{out.push(`- **${id} — ${text}:** ${state.answers[id]||'NON RISPOSTO'}`);if((state.notes[id]||'').trim())out.push(`  - Nota: ${state.notes[id].trim().replace(/\n/g,' ')}`);});if((state.sectionNotes[sid]||'').trim())out.push('',`**Nota sezione:** ${state.sectionNotes[sid].trim()}`);out.push('');});if(notes.value.trim())out.push('## Note finali','',notes.value.trim(),'');out.push('## Stato compilazione','',`Domande senza risposta: ${all().length-Object.keys(state.answers).filter(k=>state.answers[k]).length}.`,'');return out.join('\n');}
+  document.querySelector('#recommendedBtn').onclick=()=>{all().forEach(([id,,options,recommended])=>{if(!state.answers[id])state.answers[id]=options[recommended];});save();render();say('Consigliati applicati alle domande vuote');};
+  document.querySelector('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(markdown());}catch{const a=document.createElement('textarea');a.value=markdown();document.body.append(a);a.select();document.execCommand('copy');a.remove();}say('Risposte copiate');};
+  document.querySelector('#downloadBtn').onclick=()=>{const u=URL.createObjectURL(new Blob([markdown()],{type:'text/markdown;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);say('Markdown scaricato');};
+  document.querySelector('#resetBtn').onclick=()=>{if(confirm('Cancellare tutte le risposte locali?')){localStorage.removeItem(key);state={answers:{},notes:{},sectionNotes:{},finalNotes:''};render();say('Questionario azzerato');}};
+  render();
+  </script>
+</body>
+</html>
