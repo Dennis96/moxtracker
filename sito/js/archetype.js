@@ -133,18 +133,8 @@ function preparaCopiaArena(bottone, testo) {
 
 function preparaAzioniDecklist(cards, nome = "") {
   const copia = document.querySelector("#copy-variant-deck");
-  const scarica = document.querySelector("#download-variant-deck");
   const testo = testoArena(cards, nome);
   preparaCopiaArena(copia, testo);
-  scarica.hidden = !testo;
-  scarica.onclick = testo ? () => {
-    const url = URL.createObjectURL(new Blob([testo], { type: "text/plain;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "mox-deck-arena.txt";
-    link.click();
-    URL.revokeObjectURL(url);
-  } : null;
 }
 
 function renderVariantDecklist(variant) {
