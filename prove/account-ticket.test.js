@@ -364,6 +364,13 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
     partitaPersonale({ id: "1111111111", mittente, segreto }),
     partitaPersonale({ id: "2222222222", mittente, segreto, esito: "persa",
       quando: "2026-08-22T18:34:00Z", evento: "PickTwoDraft_HOB_20260811", formato: null }),
+    // I nomi evento sono volutamente nell'ordine lessicografico opposto alle
+    // date: le sessioni storiche devono seguire la fonte temporale, non il
+    // nome dell'evento. Non hanno draft_link e quindi restano consultabili.
+    partitaPersonale({ id: "3333333333", mittente, segreto,
+      quando: "2026-08-21T18:34:00Z", evento: "QuickDraft_HOB_20260811", formato: null }),
+    partitaPersonale({ id: "4444444444", mittente, segreto,
+      quando: "2026-08-23T18:34:00Z", evento: "PremierDraft_HOB_20260811", formato: null }),
   ];
   const ingresso = await worker.fetch(new Request("https://api.moxtracker.app/partite", {
     method: "POST", headers: { "content-type": "application/json" },
@@ -378,7 +385,9 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
     pick: [{ numero: 1, offerte: [103441, 102], pool_prima: [],
       consiglio_mox: 103441, consigli_mox: [103441], politica: "mox-2.9.24",
       candidati: [{ carta: 103441, rango_mox: 1, campione: 100 }], scelta: 103441 }],
-    pool_finale: [103441],
+    // La fonte conserva una voce per copia: il frontend deve sommarle senza
+    // alterare il pacchetto storico restituito dall'account.
+    pool_finale: [103441, 103441, 102],
     mazzo_giocato: [{ quando: "2026-08-22T18:30:00Z",
       mazzo: [[103441, 4], [102, 36]], riserva: [] }],
   };
@@ -399,6 +408,18 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
     env.DRAFT_DB.prepare(
       "INSERT INTO draft_link (draft_id, partita, esito) VALUES (?, ?, ?)")
       .bind(draftId, "2222222222", "persa"),
+    // Una traccia vecchia senza pick e non completa resta fuori dall'elenco
+    // delle tracce: la sua partita deve quindi restare nel gruppo storico.
+    env.DRAFT_DB.prepare(`INSERT INTO draft
+      (id, mittente, ricevuto, iniziato, set_code, formato, completo, pick,
+       politica, mox, impronta_arena, oggetto_r2, byte, versione, sospetto)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind("c".repeat(32), mittente, "2026-08-21T18:35:00Z", "2026-08-21T18:20:00Z",
+        "HOB", "QuickDraft", 0, 0, "mox-2.8", "2.8", null,
+        "draft/account-legacy-empty.json", 512, 1, null),
+    env.DRAFT_DB.prepare(
+      "INSERT INTO draft_link (draft_id, partita, esito) VALUES (?, ?, ?)")
+      .bind("c".repeat(32), "3333333333", "vinta"),
   ]);
 
   const stats = await worker.fetch(new Request("https://api.moxtracker.app/account/stats", {
@@ -406,17 +427,19 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
   }), env);
   assert.equal(stats.status, 200);
   const quadro = await stats.json();
-  assert.deepEqual(quadro.totali, { partite: 2, vittorie: 1, sconfitte: 1,
-    win_rate: 50, al_gioco: 1, alla_risposta: 1, durata_media: 300 });
+  assert.deepEqual(quadro.totali, { partite: 4, vittorie: 3, sconfitte: 1,
+    win_rate: 75, al_gioco: 3, alla_risposta: 1, durata_media: 300 });
   assert.equal(quadro.mazzi.length, 1);
   assert.equal(quadro.mazzi[0].formato, "Standard");
   assert.equal(quadro.mazzi[0].carte.reduce((n, carta) => n + carta.copie, 0), 60);
   assert.deepEqual(quadro.mazzi[0].carte.find((carta) => carta.arena_id === 103441),
     { arena_id: 103441, copie: 4, nome: "front porch sentries", set: "hob", numero: "67" });
-  assert.equal(quadro.sessioni_limited.length, 1);
-  assert.equal(quadro.sessioni_limited[0].nome, "HOB · Prendi Due");
-  assert.equal(quadro.sessioni_limited[0].decklist.reduce(
-    (n, carta) => n + carta.copie, 0), 60);
+  assert.deepEqual(quadro.sessioni_limited.map((sessione) => ({
+    nome: sessione.nome, partite: sessione.partite, id: sessione.partite_id,
+  })), [
+    { nome: "HOB · Premier Draft", partite: 1, id: ["4444444444"] },
+    { nome: "HOB · Quick Draft", partite: 1, id: ["3333333333"] },
+  ], "le sessioni storiche sono recenti prima e non duplicano draft_link");
   assert.deepEqual(quadro.andamento_rank.map((p) => `${p.classe} ${p.livello}`), ["Gold 3"]);
   assert.equal(quadro.avversari.partite_totali, 1);
   assert.equal(quadro.avversari.non_riconosciuti, 1);
@@ -437,6 +460,8 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
   assert.deepEqual(archivio.partite, [{ partita: "2222222222", esito: "persa" }]);
   assert.equal(archivio.traccia.mittente, undefined);
   assert.equal(archivio.traccia.segreto_cancellazione, undefined);
+  assert.deepEqual(archivio.traccia.pool_finale, [103441, 103441, 102],
+    "l'API conserva la sequenza reale delle copie per i Draft gia' salvati");
   assert.equal(archivio.traccia.mazzo_giocato.length, 1);
 
   const rinominato = await worker.fetch(new Request(
@@ -456,7 +481,7 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
       headers: { cookie: sessione },
     }), env);
   const cronologia = await elenco.json();
-  assert.equal(cronologia.totale, 2);
+  assert.equal(cronologia.totale, 4);
   assert.equal(cronologia.partite.length, 1);
   const dettaglio = await worker.fetch(new Request(
     `https://api.moxtracker.app/account/matches/${cronologia.partite[0].id}`, {

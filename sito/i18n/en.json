@@ -534,5 +534,7 @@
   "Gli screenshot e i pacchetti diagnostici Mox restano in un archivio R2 privato. Un pacchetto può contenere": "Screenshots and Mox diagnostic packages stay in a private R2 archive. A package may include",
   "soltanto quando l'utente lo ha selezionato esplicitamente in Mox; è disponibile solo al proprietario del ticket e agli amministratori del supporto, mai nel Meta pubblico.": "only when the user explicitly selected it in Mox; it is available only to the ticket owner and support administrators, never in the public Meta.",
   "Privacy e trattamento dei dati in MOX Arena Assistant e MoxTracker.": "Privacy and data handling in MOX Arena Assistant and MoxTracker.",
-  "Quali dati Mox invia al servizio, con quali consensi e quali informazioni restano sul PC.": "Which data Mox sends to the service, with which consents, and what remains on the PC."
+  "Quali dati Mox invia al servizio, con quali consensi e quali informazioni restano sul PC.": "Which data Mox sends to the service, with which consents, and what remains on the PC.",
+  "Partite Limited senza traccia": "Limited matches without a draft trace",
+  "Queste partite non hanno un collegamento Draft salvato. Il totale è un raggruppamento cronologico dei vecchi log, non il risultato di un singolo Draft.": "These matches have no saved Draft link. The total is a chronological grouping of older logs, not the result of a single Draft."
 }

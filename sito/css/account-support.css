@@ -93,6 +93,7 @@
 .limited-card strong { font-size: 1rem; }
 .limited-card small { color: var(--muted); }
 .limited-record { font-size: 2rem; line-height: 1; font-weight: 950; color: #c762ff; }
+.limited-match-record { font-size: 1.25rem; line-height: 1.25; }
 .trace-card .limited-record { color: var(--text); }
 .personal-filters { display: grid; grid-template-columns: repeat(3, minmax(150px, 1fr)) auto; gap: 10px; align-items: end; margin-top: 18px; }
 .personal-filters label { display: grid; gap: 6px; color: var(--muted); font-size: .72rem; font-weight: 800; }

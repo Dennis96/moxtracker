@@ -51,6 +51,7 @@ test("account espone OAuth, dispositivi, statistiche e dettagli privati", () => 
 test("account separa mazzi correnti e storico, mostra invii, versioni ed export per sezione", () => {
   const html = leggi("account.html");
   const js = leggi("js/account.js");
+  const css = leggi("css/account-support.css");
   const sessione = leggi("js/sessione-account.js");
   const traduzioniDinamiche = leggi("js/translate.js");
   assert.match(html, /id="last-send"/);
@@ -72,6 +73,10 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /consenso_draft/);
   assert.match(js, /Record collegato/);
   assert.match(js, /Riepilogo Mox/);
+  assert.match(js, /ordinaVociDraft/);
+  assert.match(js, /raggruppaCartePool/);
+  assert.match(js, /Partite Limited senza traccia/);
+  assert.match(css, /\.limited-match-record/);
   assert.match(js, /pick-by-pick resta fuori dalla prima beta/);
   assert.match(traduzioniDinamiche, /Mox ha registrato/);
   assert.match(js, /renderProfiloMazzo/);

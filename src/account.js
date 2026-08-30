@@ -481,13 +481,25 @@ async function statistichePersonali(ambiente, accountId) {
   const forma = await ambiente.DB.prepare(`SELECT id, esito, quando, ricevuta
     FROM partite WHERE mittente IN (${segni})
     ORDER BY COALESCE(quando, ricevuta) DESC LIMIT 10`).bind(...mittenti).all();
+  let partiteConTraccia = new Set();
+  if (ambiente.DRAFT_DB) {
+    const link = await ambiente.DRAFT_DB.prepare(`SELECT l.partita FROM draft_link l
+      JOIN draft d ON d.id = l.draft_id WHERE d.mittente IN (${segni})
+      AND (d.completo = 1 OR d.pick > 0)`)
+      .bind(...mittenti).all();
+    partiteConTraccia = new Set((link.results || []).map((riga) => riga.partita));
+  }
   const limited = await ambiente.DB.prepare(`SELECT id, evento, esito, quando, ricevuta,
       impronta_mazzo
     FROM partite WHERE mittente IN (${segni}) AND formato IS NULL
       AND lower(COALESCE(evento, '')) LIKE '%draft%'
-    ORDER BY evento, COALESCE(quando, ricevuta)`).bind(...mittenti).all();
+    ORDER BY COALESCE(quando, ricevuta), evento, id`).bind(...mittenti).all();
   const sessioni = [];
   for (const partita of limited.results || []) {
+    // Se il client ha registrato il riferimento Arena, `draft_link` e' la
+    // fonte esatta. Non mostriamo di nuovo la stessa partita in un gruppo
+    // euristico destinato ai soli log storici senza collegamento.
+    if (partiteConTraccia.has(partita.id)) continue;
     const istante = new Date(partita.quando || partita.ricevuta).getTime();
     let sessione = sessioni.at(-1);
     if (!sessione || sessione.evento !== partita.evento ||

@@ -1,6 +1,7 @@
 import { API_BASE } from "./config.js";
 import { createCardThumbnail, resolveCard } from "./card-images.js?v=20260822-9";
 import { renderProfiloMazzo } from "./deck-profile.js";
+import { ordinaVociDraft, raggruppaCartePool } from "./account-draft.js";
 import { eliminaSessioneAccountPreview, intestazioniSessioneAccount } from "./sessione-account.js";
 import { traduciDocumento } from "./translate.js";
 
@@ -565,17 +566,18 @@ function apriMazzo(mazzo) {
 function renderDraft() {
   const contenitore = $("draft-sessions");
   contenitore.replaceChildren();
-  const tutti = [...stato.statistiche.sessioni_limited.map((sessione) => ({ tipo: "sessione", valore: sessione })),
-    ...stato.dashboard.draft.map((draft) => ({ tipo: "draft", valore: draft }))];
+  const tutti = ordinaVociDraft(stato.statistiche.sessioni_limited, stato.dashboard.draft);
   for (const voce of tutti.slice(0, stato.limiteDraft)) {
     if (voce.tipo === "sessione") {
       const sessione = voce.valore;
     const bottone = nodo("button", "limited-card");
     bottone.type = "button";
-    bottone.append(nodo("span", "eyebrow", "Risultato dalle partite"),
+    bottone.append(nodo("span", "eyebrow", "Partite Limited senza traccia"),
       nodo("strong", "", sessione.nome),
-      nodo("span", "limited-record", `${sessione.vittorie}–${sessione.sconfitte}`),
-      nodo("small", "", `${sessione.partite} partite · ${dataOra(sessione.iniziata)}`));
+      nodo("span", "limited-record limited-match-record", INGLESE
+        ? `${sessione.vittorie} wins · ${sessione.sconfitte} losses`
+        : `${sessione.vittorie} vittorie · ${sessione.sconfitte} sconfitte`),
+      nodo("small", "", `${sessione.partite} partite · ${dataOra(sessione.finita)}`));
     bottone.addEventListener("click", () => apriSessione(sessione));
     contenitore.append(bottone);
       continue;
@@ -590,7 +592,7 @@ function renderDraft() {
     bottone.append(nodo("span", "eyebrow", "Traccia Draft"),
       nodo("strong", "", `${draft.set_code} · ${draft.formato}`),
       nodo("span", "limited-record", risultato),
-      nodo("small", "", `${draft.pick} pick · ${draft.completo ? "Traccia completa" : "Traccia parziale"}`));
+      nodo("small", "", `${draft.pick} pick · ${draft.completo ? "Traccia completa" : "Traccia parziale"} · ${dataOra(draft.ricevuto || draft.iniziato)}`));
     bottone.addEventListener("click", () => apriDraft(draft.id));
     contenitore.append(bottone);
   }
@@ -608,8 +610,8 @@ function apriSessione(sessione) {
     elenco.append(b);
   }
   const nota = nodo("p", "detail-note",
-    "Il record è calcolato dalle partite effettivamente ricevute. La traccia dei pick può essere separata o parziale nelle vecchie versioni di Mox.");
-  mostraDialogo("Sessione Limited", sessione.nome, [
+    "Queste partite non hanno un collegamento Draft salvato. Il totale è un raggruppamento cronologico dei vecchi log, non il risultato di un singolo Draft.");
+  mostraDialogo("Partite Limited senza traccia", sessione.nome, [
     metriche([["Record", `${sessione.vittorie}–${sessione.sconfitte}`],
       ["Partite", sessione.partite], ["Win rate", percentuale(sessione.win_rate)],
       ["Dal", dataOra(sessione.iniziata)], ["Al", dataOra(sessione.finita)]]),
@@ -650,9 +652,7 @@ async function apriDraft(id) {
       contenuto.push(riepilogo);
     }
     if (traccia?.pool_finale?.length) contenuto.push(listaCarte("Pool finale",
-      traccia.pool_finale.map((arena_id) => ({ arena_id, copie: 1,
-        nome: dato.nomi_carte?.[String(arena_id)],
-        ...(dato.stampe_carte?.[String(arena_id)] || {}) }))));
+      raggruppaCartePool(traccia.pool_finale, dato.nomi_carte, dato.stampe_carte)));
     const versioni = Array.isArray(traccia?.mazzo_giocato) ? traccia.mazzo_giocato : [];
     if (versioni.length) {
       const blocco = nodo("section", "draft-deck-versions");

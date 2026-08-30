@@ -67,6 +67,12 @@ del sito.
 - `149675b` — Home/Download orientati al valore personale, pagina Download
   IT/EN, traduzioni Supporto dinamiche, fallback immagini in viewport e
   checklist manuali riconciliate. Preview `f26f82de` verificata.
+- Locale, non pubblicato — Account → Draft: le tracce e gli storici Limited
+  sono ordinati per la data reale della fonte; una partita con `draft_link`
+  compare solo nella traccia esatta, mentre i log storici senza link restano
+  dichiarati come raggruppamento cronologico e non come record di un Draft.
+  Il pool finale aggrega le copie per Arena ID senza alterare i Draft salvati.
+  Verifiche: `npm run prove` 189/189 e `npm run sito:build` (63 file).
 
 ## Confini non modificati
 
