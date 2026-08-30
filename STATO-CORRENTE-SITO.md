@@ -14,11 +14,11 @@ del sito.
 ## Ultima preview pubblicata
 
 - Data: 30 agosto 2026.
-- Commit sito: `149675b` — `Rafforza home, immagini e traduzioni beta`.
+- Commit sito: `5ad5b38` — `Corregge storico e pool Draft account`.
 - URL alias: <https://preview.moxtracker.pages.dev>.
-- URL immutabile: <https://f26f82de.moxtracker.pages.dev>.
-- Build: `a96049cdb7bbeeae`, 62 file.
-- Verifica: `npm run prove` — 187/187; `npm run sito:build` riuscito;
+- URL immutabile: <https://73002141.moxtracker.pages.dev>.
+- Build: `6d537962ffff0887`, 63 file.
+- Verifica: `npm run prove` — 189/189; `npm run sito:build` riuscito;
   smoke test HTTP 200 su `/`, `/draft`, `/account`, `/supporto`, `/privacy`,
   `/en/`.
 - Verifica visiva: Home e Download desktop/360 px, menu mobile con Escape,
@@ -46,6 +46,11 @@ del sito.
   embedded, il fallback avvia le richieste solo vicino alla viewport e le
   distanzia a massimo circa nove al secondo.
 - Account: rimosso il comando `Esporta .txt`; resta `Copia per Arena`.
+- Account → Draft: le tracce e gli storici Limited sono ordinati per la data
+  reale della fonte. Una partita con `draft_link` compare solo nella traccia
+  esatta; i log senza link sono dichiarati come raggruppamento cronologico,
+  non come risultato di un singolo Draft. Il pool finale aggrega le copie per
+  Arena ID senza alterare i Draft salvati.
 - Collaudi manuali: ZIP diagnostico Mox già superato; Ticket anonimo/Turnstile,
   revoca dispositivo, export JSON e cancellazione restano regressioni da
   ripetere. Cambio stato, risposta e `ticket_audit` nell'amministrazione sono
@@ -67,12 +72,9 @@ del sito.
 - `149675b` — Home/Download orientati al valore personale, pagina Download
   IT/EN, traduzioni Supporto dinamiche, fallback immagini in viewport e
   checklist manuali riconciliate. Preview `f26f82de` verificata.
-- Locale, non pubblicato — Account → Draft: le tracce e gli storici Limited
-  sono ordinati per la data reale della fonte; una partita con `draft_link`
-  compare solo nella traccia esatta, mentre i log storici senza link restano
-  dichiarati come raggruppamento cronologico e non come record di un Draft.
-  Il pool finale aggrega le copie per Arena ID senza alterare i Draft salvati.
-  Verifiche: `npm run prove` 189/189 e `npm run sito:build` (63 file).
+- `5ad5b38` — corretto Account → Draft e pubblicata la preview `73002141`.
+  Verifiche: `npm run prove` 189/189, build di 63 file e smoke HTTP 200 su
+  `/`, `/draft`, `/account`, `/supporto`, `/privacy`, `/en/`.
 
 ## Confini non modificati
 
