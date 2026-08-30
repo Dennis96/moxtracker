@@ -1,6 +1,6 @@
 # Stato corrente — sito Mox
 
-Aggiornato: 29 agosto 2026, dopo il deploy preview.
+Aggiornato: 30 agosto 2026, dopo riconciliazione con la cronologia Git.
 
 ## Regola operativa obbligatoria
 
@@ -18,6 +18,9 @@ del sito.
 - URL: <https://preview.moxtracker.pages.dev>.
 - Test: `npm run prove` — 187/187 superati.
 
+Il ramo `main` contiene anche manutenzione della sola documentazione successiva
+al deploy (`02db6c9`, `99326d3`); non richiede né ha ricevuto un nuovo deploy.
+
 ## Modifiche presenti in preview
 
 - Carte: miniature orizzontali in elenco; anteprima carta completa solo su
@@ -31,6 +34,20 @@ del sito.
 - Account: rimosso il comando `Esporta .txt`; resta `Copia per Arena`.
 - Documentazione: i passaggi superati sono in
   `archivio/2026-08-passaggi-e-piani-superati/`.
+
+## Cronologia delle modifiche di questa sessione
+
+- `595d5b2` — nuovo profilo del mazzo (curva e simboli mana), download ZIP
+  dinamico e riordino della documentazione attiva/storica.
+- `4e7549e` — corretto un errore del renderer che lasciava il profilo bloccato
+  su “Calcolo curva…”.
+- `f705ff3` — aggiunta `https://api.github.com` alla CSP: senza questa origine
+  autorizzata il pulsante Download non poteva risolvere lo ZIP Latest.
+- `02db6c9` — aggiunto questo file di stato e la regola di aggiornarlo dopo
+  ogni preview.
+- `99326d3` — rimossi `QUESTIONARIO-SITO-MOX.html`,
+  `COLLEGA-CLOUDFLARE.bat` e il file locale ignorato
+  `mazzo-419fdf15.json`; nessuno dei tre era usato dal sito.
 
 ## Confini non modificati
 
