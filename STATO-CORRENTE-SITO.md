@@ -75,6 +75,11 @@ del sito.
 - `5ad5b38` — corretto Account → Draft e pubblicata la preview `73002141`.
   Verifiche: `npm run prove` 189/189, build di 63 file e smoke HTTP 200 su
   `/`, `/draft`, `/account`, `/supporto`, `/privacy`, `/en/`.
+- Locale, non pubblicato — un indice Draft con `0 pick` e' difettoso anche se
+  una vecchia fonte lo marca come completo: viene escluso dal frontend e dalle
+  risposte Account. L'eventuale partita collegata resta nello storico senza
+  traccia, per non nascondere dati reali. Verifiche: `npm run prove` 189/189 e
+  `npm run sito:build` (build `5f8c9def5df0aa09`, 63 file).
 
 ## Confini non modificati
 
@@ -90,3 +95,9 @@ del sito.
    cancellazione; lo ZIP Mox è soltanto un controllo rapido.
 3. Eventuali implicazioni R1 vanno annotate come bozza, senza implementare
    schema, ingestion o backend prima di `MOX-RESEARCH-DATA-CONTRACT`.
+4. Da verificare prima di ogni intervento su `draft_link`: un match viene
+   collegato solo con la stessa impronta Draft esatta. Esaminare i casi in cui
+   match e traccia arrivano in ordine inverso, i pacchetti v1 o privi di
+   impronta e le impronte non coincidenti. Non dedurre collegamenti da data,
+   set o formato; un'eventuale riconciliazione dovra' usare soltanto
+   l'impronta esatta e richiedera' autorizzazione separata per il Worker.
