@@ -30,21 +30,24 @@ test("le viste rese dopo il caricamento richiamano la traduzione inglese", () =>
   const main = leggi("js/main.js");
   const draft = leggi("js/draft.js");
   const dettaglio = leggi("js/archetype.js");
+  const supporto = leggi("js/supporto.js");
   const inglese = leggi("i18n/en.json");
   assert.match(traduci, /export function traduciDocumento/);
   for (const source of [main, draft, dettaglio]) {
     assert.match(source, /import \{ traduciDocumento \} from "\.\/translate\.js"/);
     assert.match(source, /traduciDocumento\(\)/);
   }
+  assert.match(supporto, /import \{ traduciDocumento \} from "\.\/translate\.js"/);
+  assert.match(supporto, /toLocaleString\(LINGUA\)/);
   assert.match(inglese, /"Archetipo \/ mazzo": "Archetype \/ deck"/);
   assert.match(traduci, /\.catch\(\(\) => null\)/,
     "un dizionario inglese non raggiungibile non deve bloccare la pagina");
 });
 
-test("Home, Meta, Draft e Account non aggiungono testo italiano senza chiave inglese", () => {
+test("le pagine pubbliche non aggiungono testo italiano senza chiave inglese", () => {
   const dizionario = JSON.parse(leggi("i18n/en.json"));
   const mancanti = [];
-  for (const pagina of ["index.html", "draft.html", "account.html"]) {
+  for (const pagina of ["index.html", "draft.html", "download.html", "account.html", "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html", "archetipo.html"]) {
     for (const testo of testiStatici(leggi(pagina))) {
       if (MARCATORI_ITALIANI.test(testo) && !dizionario[testo]) {
         mancanti.push(`${pagina}: ${testo}`);

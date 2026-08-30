@@ -39,7 +39,7 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
     assert.equal(createHash("sha256").update(corpo).digest("hex"), hash, percorso);
   }
 
-  for (const pagina of ["index.html", "draft.html", "archetipo.html", "account.html",
+  for (const pagina of ["index.html", "draft.html", "download.html", "archetipo.html", "account.html",
     "supporto.html", "admin.html", "privacy.html"]) {
     const html = readFileSync(join(BUILD, pagina), "utf8");
     for (const riferimento of html.matchAll(/(?:src|href)=["'](\.{1,2}\/[^"']+\.(?:js|css|ico|svg|webp|png)(?:\?[^"']*)?)["']/gi)) {
@@ -60,7 +60,7 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
   assert.match(headers, /\/draft\n  Cache-Control: no-store/);
   assert.match(headers, /\/js\/\*\n  Cache-Control: public, max-age=31556952, immutable/);
 
-  for (const pagina of ["index.html", "draft.html", "archetipo.html", "account.html",
+  for (const pagina of ["index.html", "draft.html", "download.html", "archetipo.html", "account.html",
     "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html"]) {
     const inglese = readFileSync(join(BUILD, "en", pagina), "utf8");
     assert.match(inglese, /<html lang="en"/);
@@ -69,7 +69,9 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
       `${pagina}: asset non riscritto per /en/`);
   }
   assert.match(readFileSync(join(BUILD, "en", "index.html"), "utf8"),
-    /Your assistant for MTG Arena/);
+    /Tracker, Draft and statistics for MTG Arena/);
+  assert.match(readFileSync(join(BUILD, "en", "download.html"), "utf8"),
+    /Checking the latest release…/);
   assert.match(readFileSync(join(BUILD, "en", "draft.html"), "utf8"),
     /<title>How Mox improves Draft — MOX Arena Assistant<\/title>/);
   assert.match(readFileSync(join(BUILD, "en", "account.html"), "utf8"),

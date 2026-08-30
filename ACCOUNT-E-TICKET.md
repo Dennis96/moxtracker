@@ -1,19 +1,17 @@
-# Account, dashboard e ticket — stato del 23/08/2026
+# Account, dashboard e ticket — stato del 30/08/2026
 
 La fase è implementata, configurata e **pubblicata** su `moxtracker.app` e
 `api.moxtracker.app`.
 
-Il **collaudo reale è in corso.** Due prove sono superate — accesso con Google
-e con Discord sullo stesso account, collegamento del Mox locale — e quattro
-sono state avviate il 23/08/2026 con un secondo account reale. Una di queste,
-il ticket anonimo, ha trovato un difetto vero: la CSP fermava Turnstile e
-nessuna verifica anti-spam poteva caricarsi.
+Il **collaudo reale è in regressione**. Accesso OAuth, collegamento Mox e
+isolamento del secondo account sono già stati superati. Ticket anonimo,
+revoca, export e cancellazione sono stati superati in una chat precedente ma
+vanno ripetuti dopo le correzioni successive. L'amministrazione resta la prova
+prioritaria perché manca la conferma manuale completa di cambio stato, risposta
+e audit. Lo ZIP diagnostico strutturato creato da Mox è già collaudato.
 
-Fino al 23/08/2026 questo documento si contraddiceva da solo: l'apertura dava
-tutto il collaudo per completato e il punto 9 della configurazione lo chiedeva
-ancora. Adesso l'esito sta scritto **prova per prova**, in fondo, sotto
-«Collaudo reale — stato per singola prova». È l'unico posto in cui questo
-stato viene dichiarato: gli altri documenti rimandano qui.
+L'esito operativo è nella tabella «Collaudo reale — stato per singola prova»:
+qui si distingue fra superato, da riverificare e mai confermato manualmente.
 
 ## Account
 
@@ -74,8 +72,10 @@ stato viene dichiarato: gli altri documenti rimandano qui.
 - ticket anonimi accessibili soltanto tramite token/link segreto, il cui hash
   è l'unica copia conservata in D1;
 - risposte successive del proprietario e del supporto;
-- PNG, JPEG e WebP fino a 10 MB, massimo 5 allegati, in R2 privato; gli ZIP
-  restano esclusi finché non esiste una scansione automatica affidabile;
+- PNG, JPEG e WebP fino a 10 MB, massimo 5 allegati, in R2 privato; è
+  accettato anche il solo ZIP diagnostico strutturato creato da Mox (con
+  `rapporto.json`, `LEGGIMI.txt` e, solo con consenso esplicito, `arena/Player.log`);
+  gli archivi generici restano rifiutati;
 - controllo della firma reale del file, download autenticato e policy
   `no-referrer` per non propagare il token del link segreto;
 - ticket anonimi protetti da Turnstile con validazione server e rate limiter
@@ -133,12 +133,12 @@ Questa tabella è l'unico posto dove il loro esito viene dichiarato.
 |---|---|---|---|
 | 1 | Accesso con Google e con Discord | entrambi arrivano allo stesso account, senza chiedere lo scope email | **superata** il 23/08/2026: l'account dell'utente è collegato a entrambi i provider |
 | 2 | Collegamento di Mox | codice monouso di 9 caratteri, il dispositivo compare fra quelli collegati | **superata** il 23/08/2026: il Mox locale dell'utente è collegato all'account |
-| 3 | Revoca del dispositivo | il dispositivo sparisce e Mox non riesce più a scrivere sull'account | da fare |
-| 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti | da fare |
-| 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla | da fare |
-| 6 | Ticket con allegato | PNG/JPEG/WebP fino a 10 MB accettati, ZIP rifiutato, download solo autenticato | **quasi**: JPEG accettato, visibile e **scaricato davvero** il 23/08/2026. Resta solo il rifiuto di uno ZIP |
-| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | **bloccata** il 23/08/2026: la pagina diceva «verifica anti-spam non caricata». Causa trovata: la CSP fermava script e iframe di Turnstile. Corretta e **pubblicata** il 23/08: la prova si può rifare |
-| 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` | **in parte** il 23/08/2026: l'amministratore vede il ticket e il suo allegato. Cambio stato e risposta non ancora provati |
+| 3 | Revoca del dispositivo | il dispositivo sparisce e Mox non riesce più a scrivere sull'account | **superata in precedenza, da riverificare** come regressione sull'account di prova |
+| 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti | **superata in precedenza, da riverificare** come regressione sull'account di prova |
+| 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla | **superata in precedenza, da riverificare** soltanto sull'account di prova |
+| 6 | Ticket con allegato | PNG/JPEG/WebP o ZIP diagnostico Mox fino a 10 MB, download solo autenticato | **superata**: accettato lo ZIP strutturato creato da Mox; controllo rapido soltanto in regressione. Gli ZIP generici restano rifiutati |
+| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | **superata in precedenza, da riverificare** dopo la correzione CSP/Turnstile |
+| 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` | **aperta — priorità manuale**: codice e test coprono cambio stato, risposta e audit, ma manca la conferma sul campo dopo la correzione |
 | 9 | Secondo account reale | non vede né i dati né i ticket del primo | **superata** il 23/08/2026 |
 
 Due avvertenze sull'ordine, imparate leggendo cosa fanno queste prove.
@@ -152,9 +152,10 @@ sull'account di prova della riga 9.
 più se l'export conteneva tutto; revocando prima si verifica anche che Mox si
 accorga davvero di non poter più scrivere.
 
-Restano quindi: il rifiuto di uno ZIP (6), l'amministrazione (8), la revoca
-del dispositivo (3), l'export (4) e la cancellazione (5), quest'ultima solo
-sull'account di prova.
+Restano quindi la verifica manuale prioritaria dell'amministrazione (8) e le
+regressioni di ticket anonimo/Turnstile (7), revoca (3), export (4) e
+cancellazione (5), quest'ultima solo sull'account di prova. Lo ZIP diagnostico
+Mox (6) è già collaudato e resta solo un controllo rapido.
 
 Il 23/08/2026, analizzando il database, sono emersi due difetti che proprio la
 prova 5 avrebbe trovato: la cancellazione dell'account **non** portava via i

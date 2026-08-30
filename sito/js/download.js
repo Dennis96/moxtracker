@@ -1,18 +1,51 @@
 import { DOWNLOAD_URL, GITHUB_LATEST_RELEASE_API } from "./config.js";
 
+let releaseLatestPromise = null;
+
 function zipPiuRecente(release) {
   const assets = Array.isArray(release?.assets) ? release.assets : [];
   return assets.find(asset => /\.zip$/i.test(String(asset?.name || "")) && asset?.browser_download_url) || null;
 }
 
+export function releaseGitHubLatest() {
+  if (!releaseLatestPromise) {
+    releaseLatestPromise = fetch(GITHUB_LATEST_RELEASE_API, {
+      headers: { accept: "application/vnd.github+json" },
+    }).then(async (risposta) => {
+      if (!risposta.ok) throw new Error(`GitHub ${risposta.status}`);
+      return risposta.json();
+    }).catch((errore) => {
+      // Un errore transitorio non viene messo in cache: il prossimo clic puo'
+      // sempre riprovare senza costringere l'utente a ricaricare la pagina.
+      releaseLatestPromise = null;
+      throw errore;
+    });
+  }
+  return releaseLatestPromise;
+}
+
 async function indirizzoZipLatest() {
-  const risposta = await fetch(GITHUB_LATEST_RELEASE_API, {
-    headers: { accept: "application/vnd.github+json" },
-  });
-  if (!risposta.ok) throw new Error(`GitHub ${risposta.status}`);
-  const asset = zipPiuRecente(await risposta.json());
+  const asset = zipPiuRecente(await releaseGitHubLatest());
   if (!asset) throw new Error("Nessun archivio ZIP nella release più recente");
   return asset.browser_download_url;
+}
+
+export async function mostraReleaseGitHubLatest(root = document) {
+  const host = root.querySelector("[data-github-release]");
+  if (!host) return;
+  try {
+    const release = await releaseGitHubLatest();
+    const asset = zipPiuRecente(release);
+    if (!asset) throw new Error("ZIP non disponibile");
+    const versione = String(release.tag_name || release.name || "").trim();
+    host.textContent = document.documentElement.lang === "en"
+      ? `Latest release: ${versione || asset.name}`
+      : `Release più recente: ${versione || asset.name}`;
+  } catch {
+    host.textContent = document.documentElement.lang === "en"
+      ? "The latest Windows ZIP will be selected when you download."
+      : "Lo ZIP Windows più recente verrà scelto quando avvii il download.";
+  }
 }
 
 export function preparaDownloadLatest(root = document) {

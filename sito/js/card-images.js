@@ -7,7 +7,9 @@ const MAX_CACHE_ENTRIES = 750;
 // aspettava ogni richiesta prima di iniziare la successiva: una pagina con
 // molte carte poteva richiedere minuti. Avviamo poche richieste in parallelo,
 // ma continuiamo a distanziarne l'inizio.
-const REQUEST_GAP_MS = 95;
+// Restiamo sotto le dieci richieste al secondo consigliate da Scryfall anche
+// quando la pagina deve risolvere piu' carte contemporaneamente.
+const REQUEST_GAP_MS = 110;
 const REQUEST_CONCURRENCY = 4;
 
 const memoryCache = new Map();
@@ -556,7 +558,23 @@ function scheduleResolution(node, spec, image, placeholder) {
   };
 
   if (typeof IntersectionObserver === "undefined") {
-    start();
+    // Alcuni browser embedded non espongono IntersectionObserver. Non devono
+    // per questo iniziare una richiesta per ogni carta della decklist: caricano
+    // solo quelle gia' vicine alla viewport e ricontrollano allo scroll.
+    const vicinoAllaViewport = () => {
+      const rect = node.getBoundingClientRect();
+      const margine = 220;
+      return rect.bottom >= -margine && rect.top <= window.innerHeight + margine;
+    };
+    const controlla = () => {
+      if (!vicinoAllaViewport()) return;
+      window.removeEventListener("scroll", controlla);
+      window.removeEventListener("resize", controlla);
+      start();
+    };
+    window.addEventListener("scroll", controlla, { passive: true });
+    window.addEventListener("resize", controlla, { passive: true });
+    controlla();
     return;
   }
 

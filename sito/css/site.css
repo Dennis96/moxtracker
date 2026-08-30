@@ -244,6 +244,23 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 .privacy-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }
 .privacy-meta span { padding: 6px 9px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: .72rem; }
 
+.download-content { width: var(--page); max-width: 1180px; margin: 0 auto; padding: clamp(24px, 5vw, 62px) 0 42px; }
+.download-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .38fr); align-items: center; gap: clamp(24px, 5vw, 64px); padding: clamp(24px, 5vw, 54px); overflow: hidden; }
+.download-hero h1 { margin: 8px 0 16px; font-size: clamp(2.4rem, 5vw, 4.7rem); line-height: .98; letter-spacing: -.05em; }
+.download-hero p { max-width: 720px; color: var(--muted); line-height: 1.6; }
+.download-hero .download-release { color: #d28bff; font-size: .86rem; }
+.download-hero img { width: 100%; max-width: 340px; justify-self: end; filter: drop-shadow(0 0 34px rgba(142,48,255,.35)); }
+.download-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 16px 0; }
+.download-steps article { min-height: 210px; padding: 22px; }
+.download-steps span { display: inline-grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; color: #d28bff; font-weight: 900; }
+.download-steps h2, .download-help h2 { margin: 18px 0 8px; font-size: 1.05rem; }
+.download-steps p, .download-help p { margin: 0; color: var(--muted); line-height: 1.55; }
+.download-help { padding: 22px; }
+.download-help a { color: #d28bff; text-underline-offset: 3px; }
+.research-teaser { width: var(--page); max-width: 1180px; margin: 0 auto 20px; }
+.research-teaser h2 { margin: 7px 0 10px; font-size: clamp(1.7rem, 3vw, 2.6rem); }
+.research-teaser p { max-width: 860px; margin: 0; color: var(--muted); line-height: 1.6; }
+
 @media (max-width: 1500px) {
   .explorer-controls { grid-template-columns: repeat(3, minmax(150px, 1fr)); }
   .color-field { grid-column: span 2; }
@@ -261,6 +278,8 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
   .meta-status { justify-content: flex-start; }
   .method-grid, .summary-grid { grid-template-columns: 1fr 1fr; }
   .product-intro { grid-template-columns: 1fr; }
+  .download-hero { grid-template-columns: 1fr; }
+  .download-hero img { justify-self: center; max-width: 230px; }
   .detail-grid { grid-template-columns: 1fr; }
 }
 
@@ -289,6 +308,7 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
   .lock { width: 48px; height: 48px; }
   .method-grid, .summary-grid { grid-template-columns: 1fr; }
   .public-stats, .product-shots { grid-template-columns: 1fr; }
+  .download-steps { grid-template-columns: 1fr; }
   .method-card { min-height: 92px; }
   .final-cta { flex-direction: column; text-align: center; gap: 14px; }
   .detail-heading > img { opacity: .26; position:absolute; right: -5%; width: 46vw; }

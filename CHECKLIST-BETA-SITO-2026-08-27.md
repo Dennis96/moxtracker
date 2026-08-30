@@ -10,14 +10,16 @@ funziona. Non usare l'account principale per prove di cancellazione.
    di scorrimento orizzontale su desktop e telefono.
 2. Premere il download e verificare che inizi il download della beta Windows.
 3. In Meta cambiare periodo, rank e BO1/BO3; aprire un archetipo, una variante
-   pubblicabile e provare copia/esportazione Arena.
+   pubblicabile e provare Copia per Arena.
 4. In Draft cambiare set, evento e periodo; confermare che compaiano solo
    aggregati e nessuna traccia o diagnostica privata.
 5. Accedere con un **account di prova** Google o Discord; controllare mazzi
    correnti/storici, ultimo invio, dispositivi, partite, Draft ed export per
    sezione. Collegare Mox soltanto se autorizzato dal proprietario del PC.
-6. Aprire un ticket autenticato oppure anonimo. Per la diagnostica usare solo
-   `rapporto.json` creato da Mox; non allegare `Player.log`.
+6. Aprire un ticket autenticato oppure anonimo. Per la diagnostica usare lo ZIP
+   strutturato creato da Mox (fino a 10 MB): contiene sempre `rapporto.json` e
+   include `arena/Player.log` solo se il consenso esplicito è stato scelto in
+   Mox. Non usare ZIP generici.
 7. Segnalare il risultato nel ticket con: passo, risultato atteso, risultato
    ottenuto, browser/dispositivo e schermata se utile.
 
@@ -30,6 +32,20 @@ funziona. Non usare l'account principale per prove di cancellazione.
 - [ ] Ticket creato e riaperto correttamente
 - [ ] Nessun dato personale apparso nelle pagine pubbliche
 - [ ] Nessun blocco su mobile o tastiera
+
+## Regressioni Account e Ticket
+
+- [ ] Ticket anonimo: Turnstile, invio, link segreto e riapertura.
+- [ ] Amministrazione: cambio stato, risposta e presenza dei due eventi in
+  `ticket_audit` (**priorità: non ancora confermata manualmente dopo la correzione**).
+- [ ] Revoca dispositivo: Mox non riesce più a scrivere sull'account.
+- [ ] Export JSON: contiene solo i dati dell'account di prova.
+- [ ] Cancellazione: solo sull'account di prova, con seconda richiesta negativa.
+- [ ] ZIP diagnostico Mox: controllo rapido; flusso già collaudato.
+
+Le cinque prove sopra, eccetto lo ZIP, erano state superate in una chat
+precedente ma vanno ripetute come regressione. L'amministrazione resta invece
+la sola prova senza conferma manuale completa dopo la correzione.
 
 La preview può essere promossa soltanto dopo suite, smoke test, schermate
 desktop/mobile e approvazione esplicita della produzione.

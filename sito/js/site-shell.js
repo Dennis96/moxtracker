@@ -7,6 +7,7 @@ const percorsi = {
   home: "./index.html",
   meta: "./index.html#meta",
   draft: "./draft.html",
+  download: "./download.html",
   account: "./account.html",
   support: "./supporto.html",
 };

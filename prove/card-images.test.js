@@ -73,6 +73,11 @@ test("preview carte accessibile da touch e tastiera con chiusura esplicita", () 
     "le miniature dentro le righe Account non devono creare pulsanti annidati");
   assert.doesNotMatch(css, /\.card-hover-preview\s*\{\s*display:\s*none;/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(javascript, /const REQUEST_GAP_MS = 110/,
+    "le richieste Scryfall devono restare sotto dieci al secondo");
+  assert.match(javascript, /Alcuni browser embedded non espongono IntersectionObserver/);
+  assert.match(javascript, /window\.addEventListener\("scroll", controlla, \{ passive: true \}\)/,
+    "senza IntersectionObserver le carte fuori schermo non devono saturare la coda");
 });
 
 test("in italiano la stampa esatta per set e numero evita una ricerca testuale lenta", () => {

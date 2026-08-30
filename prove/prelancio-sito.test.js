@@ -39,7 +39,7 @@ test("pre-lancio scarica lo ZIP della release GitHub più recente", () => {
 });
 
 test("pre-lancio espone beta, privacy e Draft anche nella navigazione mobile", () => {
-  for (const pagina of ["index.html", "draft.html", "archetipo.html", "privacy.html"]) {
+  for (const pagina of ["index.html", "draft.html", "download.html", "archetipo.html", "privacy.html"]) {
     const html = leggi(pagina);
     assert.match(html, /beta-banner/);
     assert.match(html, /privacy\.html/);
@@ -71,7 +71,7 @@ test("pre-lancio compatta i matchup ancora non pubblicabili", () => {
   assert.match(leggi("css/site.css"), /matchup-panel\.is-unavailable/);
 });
 
-test("homepage presenta Mox con due schermate reali e pagine di trasparenza", () => {
+test("homepage presenta Mox con valore personale, due schermate reali e pagine di trasparenza", () => {
   const home = leggi("index.html");
   assert.match(home, /mox-draft-scelta\.png/);
   assert.match(home, /mox-draft-mazzo\.png/);
@@ -79,11 +79,17 @@ test("homepage presenta Mox con due schermate reali e pagine di trasparenza", ()
   assert.match(home, /id="home-drafts"/);
   assert.match(home, /cosa-invia-mox\.html/);
   assert.match(home, /note-versione\.html/);
+  assert.match(home, /download\.html/);
   assert.match(home, /tiene il conto delle partite/);
   assert.match(home, /archivio di risultati e mazzi/);
-  assert.match(home, /contributi anonimi alimentano le statistiche pubbliche/);
+  assert.match(home, /Tracker, Draft e statistiche per MTG Arena/);
+  assert.match(home, /Se scegli di contribuire, i dati anonimi/);
   assert.match(home, /condivisione con gli amici sarà una scelta separata/);
-  assert.match(home, /Più persone scaricano e usano Mox/);
+  assert.match(home, /contatore in game/);
+  assert.match(home, /research-teaser panel" hidden/,
+    "il copy Research resta preparato ma non viene ancora pubblicato");
+  assert.match(leggi("download.html"), /data-github-release/);
+  assert.match(leggi("js/download.js"), /releaseGitHubLatest/);
   assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
   assert.match(leggi("note-versione.html"), /Tutte le note di versione/);
 });
