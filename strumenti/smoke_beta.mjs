@@ -11,8 +11,8 @@ const base = String(valoreOpzione("--site") || process.env.MOX_SITE_URL || "http
 const api = String(valoreOpzione("--api") || process.env.MOX_API_URL || "https://api.moxtracker.app").replace(/\/$/, "");
 const configurazioneSito = await readFile(new URL("../sito/js/config.js", import.meta.url), "utf8");
 const download = configurazioneSito.match(/^export const DOWNLOAD_URL = "([^"\r\n]+)";\r?$/m)?.[1];
-const manifestoRelease = configurazioneSito.match(/^export const RELEASE_MANIFEST_URL = "([^"\r\n]+)";\r?$/m)?.[1];
-if (!download || !manifestoRelease) throw new Error("download MOX non configurato");
+const githubLatest = configurazioneSito.match(/^export const GITHUB_LATEST_RELEASE_API = "([^"\r\n]+)";\r?$/m)?.[1];
+if (!download || !githubLatest) throw new Error("download MOX non configurato");
 const controlli = [
   ["home", `${base}/`, /MOX/i],
   ["draft", `${base}/draft`, /Draft/i],
@@ -64,9 +64,15 @@ if (!["localhost", "127.0.0.1", "::1"].includes(new URL(base).hostname)) {
   }
 }
 
-const release = await fetch(manifestoRelease, { headers: { accept: "application/json" } });
-const manifesto = await release.json().catch(() => null);
-const downloadCorretto = release.ok && manifesto?.disponibile === true && manifesto?.url === download;
-console.log(`${downloadCorretto ? "OK" : "ERRORE"} download: manifesto HTTP ${release.status}`);
-if (!downloadCorretto) fallimenti += 1;
+try {
+  const release = await fetch(githubLatest, { headers: { accept: "application/vnd.github+json" } });
+  const corpo = await release.json().catch(() => null);
+  const assetZip = Array.isArray(corpo?.assets) && corpo.assets.some((asset) =>
+    /\.zip$/i.test(String(asset?.name || "")) && asset?.browser_download_url);
+  console.log(`${release.ok && assetZip ? "OK" : "ERRORE"} download GitHub Latest: HTTP ${release.status}`);
+  if (!release.ok || !assetZip) fallimenti += 1;
+} catch (errore) {
+  fallimenti += 1;
+  console.error(`ERRORE download GitHub Latest: ${errore.message}`);
+}
 if (fallimenti) process.exitCode = 1;

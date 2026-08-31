@@ -49,11 +49,21 @@ test("pre-lancio espone beta, privacy e Draft anche nella navigazione mobile", (
   assert.doesNotMatch(leggi("css/site.css"), /nav-links a:nth-child\(n\+3\)/);
 });
 
+test("l'amministrazione ticket resta raggiungibile anche dall'Account inglese", () => {
+  const account = leggi("account.html");
+  assert.match(account, /id="admin-link"[^>]*href="\/admin\.html"/,
+    "il link amministratore non deve risolversi sotto /en/");
+  assert.match(leggi("admin.html"), /id="admin-tickets"/);
+});
+
 test("pre-lancio locale usa il proxy omonimo e produzione l'API pubblica", () => {
   assert.match(leggi("js/config.js"), /window\.location\.origin.*\/api/);
   assert.match(leggi("js/config.js"), /https:\/\/api\.moxtracker\.app/);
   assert.match(leggi("_headers"), /connect-src 'self' https:\/\/api\.moxtracker\.app/);
   assert.match(leggi("_headers"), /connect-src [^;]*https:\/\/api\.github\.com/);
+  assert.match(leggiRadice("strumenti/anteprima_sito.mjs"),
+    /pathname\.endsWith\("\/"\)\) pathname \+= "index\.html"/,
+    "la preview locale deve servire anche /en/");
 });
 
 test("il monitor della beta controlla preview, API e CORS account", () => {
@@ -64,6 +74,10 @@ test("il monitor della beta controlla preview, API e CORS account", () => {
   assert.match(smoke, /access-control-allow-credentials/);
   assert.match(smoke, /valoreOpzione\("--site"\)/);
   assert.match(smoke, /readFile\(new URL\("\.\.\/sito\/js\/config\.js"/);
+  assert.match(smoke, /GITHUB_LATEST_RELEASE_API/);
+  assert.match(smoke, /download GitHub Latest/);
+  assert.doesNotMatch(smoke, /manifesto\?\.url === download/,
+    "lo smoke del sito non deve scambiare l'auto-update per il download pubblico");
 });
 
 test("pre-lancio compatta i matchup ancora non pubblicabili", () => {

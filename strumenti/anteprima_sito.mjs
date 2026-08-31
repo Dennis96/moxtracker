@@ -44,8 +44,8 @@ async function serveFile(url, res) {
   let pathname;
   try { pathname = decodeURIComponent(url.pathname); }
   catch { rispondi(res, 400, "Percorso non valido"); return; }
-  if (pathname === "/") pathname = "/index.html";
-  if (!extname(pathname)) pathname += ".html";
+  if (pathname.endsWith("/")) pathname += "index.html";
+  else if (!extname(pathname)) pathname += ".html";
   const file = resolve(RADICE, "." + pathname);
   if (file !== RADICE && !file.startsWith(RADICE + sep)) {
     rispondi(res, 403, "Percorso non consentito"); return;
