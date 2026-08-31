@@ -485,7 +485,7 @@ async function statistichePersonali(ambiente, accountId) {
   if (ambiente.DRAFT_DB) {
     const link = await ambiente.DRAFT_DB.prepare(`SELECT l.partita FROM draft_link l
       JOIN draft d ON d.id = l.draft_id WHERE d.mittente IN (${segni})
-      AND (d.completo = 1 OR d.pick > 0)`)
+      AND d.pick > 0`)
       .bind(...mittenti).all();
     partiteConTraccia = new Set((link.results || []).map((riga) => riga.partita));
   }
@@ -721,7 +721,7 @@ async function riepilogoDashboard(ambiente, accountId) {
       COALESCE(SUM(CASE WHEN l.esito = 'vinta' THEN 1 ELSE 0 END), 0) AS vittorie,
       COALESCE(SUM(CASE WHEN l.esito = 'persa' THEN 1 ELSE 0 END), 0) AS sconfitte
       FROM draft d LEFT JOIN draft_link l ON l.draft_id = d.id
-      WHERE d.mittente IN (${segni}) AND (d.completo = 1 OR d.pick > 0)
+      WHERE d.mittente IN (${segni}) AND d.pick > 0
       GROUP BY d.id, d.ricevuto, d.iniziato, d.set_code, d.formato,
         d.completo, d.pick, d.mox
       ORDER BY d.ricevuto DESC LIMIT 100`).bind(...mittenti).all();
@@ -730,7 +730,7 @@ async function riepilogoDashboard(ambiente, accountId) {
     `SELECT COUNT(*) AS n FROM partite WHERE mittente IN (${segni})`).bind(...mittenti).first();
   const totaleDraft = ambiente.DRAFT_DB ? await ambiente.DRAFT_DB.prepare(
     `SELECT COUNT(*) AS n FROM draft WHERE mittente IN (${segni})
-      AND (completo = 1 OR pick > 0)`).bind(...mittenti).first() : null;
+      AND pick > 0`).bind(...mittenti).first() : null;
   return {
     dispositivi: device, partite: partite.results || [], draft: draft.results || [],
     totali: { partite: Number(totalePartite?.n || 0), draft: Number(totaleDraft?.n || 0) },

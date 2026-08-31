@@ -9,7 +9,9 @@ function istante(valore) {
 export function ordinaVociDraft(sessioni = [], tracce = []) {
   return [
     ...sessioni.map((valore) => ({ tipo: "sessione", valore, quando: valore?.finita })),
-    ...tracce.map((valore) => ({ tipo: "draft", valore,
+    // `completo` non rende consultabile una traccia senza alcuna scelta: e'
+    // un indice difettoso e non rappresenta un Draft utile.
+    ...tracce.filter((valore) => Number(valore?.pick) > 0).map((valore) => ({ tipo: "draft", valore,
       quando: valore?.ricevuto || valore?.iniziato })),
   ].sort((a, b) => istante(b.quando) - istante(a.quando));
 }

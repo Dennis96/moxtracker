@@ -408,14 +408,14 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
     env.DRAFT_DB.prepare(
       "INSERT INTO draft_link (draft_id, partita, esito) VALUES (?, ?, ?)")
       .bind(draftId, "2222222222", "persa"),
-    // Una traccia vecchia senza pick e non completa resta fuori dall'elenco
-    // delle tracce: la sua partita deve quindi restare nel gruppo storico.
+    // Una traccia difettosa senza pick resta fuori dall'elenco, anche se un
+    // vecchio indice la marcava come completa: la sua partita resta storica.
     env.DRAFT_DB.prepare(`INSERT INTO draft
       (id, mittente, ricevuto, iniziato, set_code, formato, completo, pick,
        politica, mox, impronta_arena, oggetto_r2, byte, versione, sospetto)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind("c".repeat(32), mittente, "2026-08-21T18:35:00Z", "2026-08-21T18:20:00Z",
-        "HOB", "QuickDraft", 0, 0, "mox-2.8", "2.8", null,
+        "HOB", "QuickDraft", 1, 0, "mox-2.8", "2.8", null,
         "draft/account-legacy-empty.json", 512, 1, null),
     env.DRAFT_DB.prepare(
       "INSERT INTO draft_link (draft_id, partita, esito) VALUES (?, ?, ?)")
@@ -448,6 +448,8 @@ test("dashboard personale espone statistiche, mazzi e partite cliccabili", async
     "https://api.moxtracker.app/account/dashboard", { headers: { cookie: sessione } }), env);
   const panoramica = await dashboard.json();
   assert.equal(panoramica.draft.length, 1);
+  assert.equal(panoramica.totali.draft, 1,
+    "un indice completo ma senza pick non conta come Draft consultabile");
   assert.deepEqual({ partite: panoramica.draft[0].partite,
     vittorie: panoramica.draft[0].vittorie,
     sconfitte: panoramica.draft[0].sconfitte },

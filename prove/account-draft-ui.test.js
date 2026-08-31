@@ -6,8 +6,9 @@ import { ordinaVociDraft, raggruppaCartePool } from "../sito/js/account-draft.js
 test("il flusso Account Draft ordina insieme tracce e gruppi storici dalla data fonte", () => {
   const ordinate = ordinaVociDraft(
     [{ id: "storico", finita: "2026-08-25T10:00:00Z" }],
-    [{ id: "traccia-recente", ricevuto: "2026-08-27T10:00:00Z" },
-      { id: "traccia-vecchia", ricevuto: "2026-08-24T10:00:00Z" }],
+    [{ id: "traccia-recente", ricevuto: "2026-08-27T10:00:00Z", pick: 42 },
+      { id: "traccia-vecchia", ricevuto: "2026-08-24T10:00:00Z", pick: 1 },
+      { id: "indice-difettoso", ricevuto: "2026-08-28T10:00:00Z", completo: true, pick: 0 }],
   );
   assert.deepEqual(ordinate.map((voce) => `${voce.tipo}:${voce.valore.id}`), [
     "draft:traccia-recente", "sessione:storico", "draft:traccia-vecchia",
