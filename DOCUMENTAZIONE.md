@@ -1,6 +1,6 @@
 # moxtracker — documentazione attiva
 
-Aggiornato il 29 agosto 2026. Questa è la porta d'ingresso della repository:
+Aggiornato il 30 agosto 2026. Questa è la porta d'ingresso della repository:
 non usare handoff, piani o checklist datati come istruzioni operative.
 
 ## Da leggere ora
@@ -14,6 +14,9 @@ non usare handoff, piani o checklist datati come istruzioni operative.
    account e ticket.
 5. [CHECKLIST-BETA-SITO-2026-08-27.md](CHECKLIST-BETA-SITO-2026-08-27.md) —
    collaudo manuale beta; va aggiornata insieme alle funzioni che cambiano.
+6. [R3-PREP-SCHEMA-STORAGE.md](R3-PREP-SCHEMA-STORAGE.md) — sola proposta di
+   schema e storage, non implementabile prima dell'output R2 concordato;
+   nessuna scelta definitiva di storage e nessuna autorizzazione al rilascio.
 
 ## Regole di precedenza
 
