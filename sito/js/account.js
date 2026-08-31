@@ -822,8 +822,14 @@ async function apriPartita(id) {
       listaCarte("Il mio mazzo", p.mazzo.carte, "", dato.nomi_carte, dato.stampe_carte));
     if (p.mazzo?.carte && limited) contenuto.push(nodo("p", "detail-note",
       "La decklist completa è mostrata una sola volta nella sessione Draft."));
-    if (p.apertura) contenuto.push(
-      listaCarte("Mano iniziale osservata", p.apertura, "", dato.nomi_carte, dato.stampe_carte));
+    if (p.apertura) {
+      const mano = listaCarte(INGLESE ? "Last observed hand" : "Ultima mano osservata",
+        p.apertura, "", dato.nomi_carte, dato.stampe_carte);
+      mano.append(nodo("p", "detail-note", INGLESE
+        ? "This legacy field contains the last hand observed in the log, not the opening hand."
+        : "Questo dato legacy contiene l’ultima mano osservata nel log, non la mano d’apertura"));
+      contenuto.push(mano);
+    }
     if (p.avversario?.carte?.length) contenuto.push(listaCarte("Carte avversarie rivelate",
       p.avversario.carte.map((arena_id) => ({ arena_id, copie: 1,
         nome: dato.nomi_carte?.[String(arena_id)],

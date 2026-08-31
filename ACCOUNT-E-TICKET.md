@@ -3,6 +3,11 @@
 La fase è implementata, configurata e **pubblicata** su `moxtracker.app` e
 `api.moxtracker.app`.
 
+**M6, 30/08/2026: correzione solo locale, non pubblicata.** Nell'Account il
+campo legacy `apertura` è descritto come «Ultima mano osservata», con la nota
+che non è la mano d'apertura. I riferimenti qui sotto descrivono questa
+correzione locale; non attestano un nuovo deploy.
+
 Il **collaudo reale è in regressione**. Accesso OAuth, collegamento Mox e
 isolamento del secondo account sono già stati superati. Ticket anonimo,
 revoca, export e cancellazione sono stati superati in una chat precedente ma
@@ -28,7 +33,7 @@ qui si distingue fra superato, da riverificare e mai confermato manualmente.
   le partite senza abbastanza carte rivelate restano dichiarate non
   classificabili invece di ricevere un archetipo inventato;
 - cronologia completa filtrabile per mazzo, esito ed evento; ogni partita apre
-  esito per game, turni, durata, mulligan, decklist, mano iniziale e carte
+  esito per game, turni, durata, mulligan, decklist, ultima mano osservata e carte
   avversarie effettivamente rivelate;
 - sessioni Limited ricostruite dalle partite ricevute, con decklist mostrata
   una sola volta nella sessione, e tracce Draft separate con pool finale
@@ -62,6 +67,17 @@ qui si distingue fra superato, da riverificare e mai confermato manualmente.
   collegamento Mox deve chiamare l'endpoint una prima volta e ripeterlo dopo
   ogni cambio dei due interruttori;
 - contributo anonimo ancora possibile senza account.
+
+### Campo legacy nelle API e negli export
+
+`GET /account/matches/:id` restituisce ancora `partita.apertura`, quando
+presente, come mappa grpId→copie: è l'ultima mano osservata nel log, non una
+opening hand. La chiave resta per compatibilità e gli export mantengono il
+dato originario. Non esiste un alias `opening_hand_kept` del dato legacy.
+L'assenza non dimostra una mano vuota e non viene convertita in zero carte.
+La validazione dei pacchetti v1/v2 resta invariata, compreso il limite legacy;
+cambia soltanto l'errore in «campo legacy apertura non valido». Nessun dato
+storico è corretto, riclassificato o cancellato.
 
 ## Ticket
 

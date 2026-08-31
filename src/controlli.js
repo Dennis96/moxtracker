@@ -121,7 +121,7 @@ export function controlla(dato) {
     return "turni non validi";
   }
   if ("apertura" in dato && !carteConCopie(dato.apertura, 7)) {
-    return "mano iniziale non valida";
+    return "campo legacy apertura non valido";
   }
   if (typeof dato.evento !== "string" || dato.evento.length > 80) {
     return "evento non valido";

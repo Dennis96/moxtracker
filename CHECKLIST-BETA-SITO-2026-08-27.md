@@ -49,3 +49,15 @@ la sola prova senza conferma manuale completa dopo la correzione.
 
 La preview può essere promossa soltanto dopo suite, smoke test, schermate
 desktop/mobile e approvazione esplicita della produzione.
+
+## M6 — collaudo locale del 30/08/2026
+
+Queste verifiche usano soltanto fixture sintetiche locali, senza account
+reale o D1. Non attestano un aggiornamento della preview o della produzione.
+
+- [x] Account IT/EN: ultima mano osservata con conteggio e nota che esclude
+  la mano d'apertura; copie inalterate (2 + 1, totale 3).
+- [x] Campo `apertura` assente: nessuna sezione e nessuna mano vuota dedotta.
+- [x] Testi pubblici M6 tradotti, suite 189/189 e build locale riuscita.
+- [x] API v1/v2 invariate, v3 rifiutata; errore legacy corretto, verificato
+  sul Worker con SQLite esclusivamente in memoria.
