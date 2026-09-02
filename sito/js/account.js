@@ -925,7 +925,7 @@ $("create-link").addEventListener("click", async () => {
 });
 $("logout").addEventListener("click", async () => {
   try { await api("/account/logout", { method: "POST" }); }
-  finally { eliminaSessionePreview(); location.reload(); }
+  finally { eliminaSessioneAccountPreview(); location.reload(); }
 });
 for (const bottone of document.querySelectorAll("[data-export]")) bottone.addEventListener("click", async () => {
   try {

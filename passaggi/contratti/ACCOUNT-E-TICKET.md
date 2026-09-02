@@ -1,4 +1,4 @@
-# Account, dashboard e ticket — stato del 30/08/2026
+# Account, dashboard e ticket — stato del 02/09/2026
 
 La fase è implementata, configurata e **pubblicata** su `moxtracker.app` e
 `api.moxtracker.app`.
@@ -8,12 +8,11 @@ Lo stato di rilascio e i collaudi correnti sono in
 legacy `apertura` è descritto come «Ultima mano osservata», con la nota che non
 è la mano d'apertura.
 
-Il **collaudo reale è in regressione**. Accesso OAuth, collegamento Mox e
-isolamento del secondo account sono già stati superati. Ticket anonimo,
-revoca, export e cancellazione sono stati superati in una chat precedente ma
-vanno ripetuti dopo le correzioni successive. L'amministrazione resta la prova
-prioritaria perché manca la conferma manuale completa di cambio stato, risposta
-e audit. Lo ZIP diagnostico strutturato creato da Mox è già collaudato.
+Il **collaudo reale R0 7–13 è superato** il 02/09/2026: ticket anonimo,
+amministrazione e audit, riapertura, revoca, export e cancellazione sono stati
+provati sul campo. La checklist corrente conserva le evidenze sintetiche.
+Accesso OAuth, collegamento Mox e isolamento del secondo account erano già
+stati superati. Lo ZIP diagnostico strutturato creato da Mox è già collaudato.
 
 L'esito operativo è nella tabella «Collaudo reale — stato per singola prova»:
 qui si distingue fra superato, da riverificare e mai confermato manualmente.
@@ -149,12 +148,12 @@ Questa tabella è l'unico posto dove il loro esito viene dichiarato.
 |---|---|---|---|
 | 1 | Accesso con Google e con Discord | entrambi arrivano allo stesso account, senza chiedere lo scope email | **superata** il 23/08/2026: l'account dell'utente è collegato a entrambi i provider |
 | 2 | Collegamento di Mox | codice monouso di 9 caratteri, il dispositivo compare fra quelli collegati | **superata** il 23/08/2026: il Mox locale dell'utente è collegato all'account |
-| 3 | Revoca del dispositivo | il dispositivo sparisce e Mox non riesce più a scrivere sull'account | **superata in precedenza, da riverificare** come regressione sull'account di prova |
-| 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti | **superata in precedenza, da riverificare** come regressione sull'account di prova |
-| 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla | **superata in precedenza, da riverificare** soltanto sull'account di prova |
+| 3 | Revoca del dispositivo | il dispositivo sparisce e le nuove partite non compaiono più nell'account; con invio attivo possono restare contributi anonimi/non associati | **superata** il 02/09/2026 su account di prova |
+| 4 | Export JSON | il file scaricato contiene le partite dell'account e nulla di altri mittenti | **superata** il 02/09/2026 su account di prova |
+| 5 | Cancellazione dell'account | spariscono account, contributi, ticket e allegati R2; una seconda richiesta non trova più nulla | **superata** il 02/09/2026 soltanto su account di prova |
 | 6 | Ticket con allegato | PNG/JPEG/WebP o ZIP diagnostico Mox fino a 10 MB, download solo autenticato | **superata**: accettato lo ZIP strutturato creato da Mox; controllo rapido soltanto in regressione. Gli ZIP generici restano rifiutati |
-| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | **superata in precedenza, da riverificare** dopo la correzione CSP/Turnstile |
-| 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` | **aperta — priorità manuale**: codice e test coprono cambio stato, risposta e audit, ma manca la conferma sul campo dopo la correzione |
+| 7 | Ticket anonimo | raggiungibile solo dal link segreto, protetto da Turnstile | **superata** il 02/09/2026 |
+| 8 | Amministrazione | cambio stato e risposta finiscono in `ticket_audit` | **superata** il 02/09/2026: due operazioni UI distinte e due record audit verificati in D1 |
 | 9 | Secondo account reale | non vede né i dati né i ticket del primo | **superata** il 23/08/2026 |
 
 Due avvertenze sull'ordine, imparate leggendo cosa fanno queste prove.
@@ -164,14 +163,15 @@ rimuove davvero account, contributi, ticket e allegati: eseguita sull'account
 dell'utente, porterebbe via anche le partite già inviate. Va fatta
 sull'account di prova della riga 9.
 
-**La 3 prima della 4.** Se si revoca il dispositivo dopo l'export non si sa
-più se l'export conteneva tutto; revocando prima si verifica anche che Mox si
-accorga davvero di non poter più scrivere.
+**La revoca non spegne automaticamente l'invio generale di Mox.** Rimuove
+l'associazione account/dispositivo; se l'invio resta attivo, un contributo può
+essere ancora accettato come anonimo/non associato. La prova di revoca verifica
+che le nuove partite non ricompaiano nell'account revocato.
 
-Restano quindi la verifica manuale prioritaria dell'amministrazione (8) e le
-regressioni di ticket anonimo/Turnstile (7), revoca (3), export (4) e
-cancellazione (5), quest'ultima solo sull'account di prova. Lo ZIP diagnostico
-Mox (6) è già collaudato e resta solo un controllo rapido.
+Le prove manuali amministrazione (8), ticket anonimo/Turnstile (7), revoca
+(3), export (4) e cancellazione (5) sono superate; la cancellazione è stata
+eseguita esclusivamente sull'account di prova. Lo ZIP diagnostico Mox (6)
+resta un controllo rapido già collaudato.
 
 Il 23/08/2026, analizzando il database, sono emersi due difetti che proprio la
 prova 5 avrebbe trovato: la cancellazione dell'account **non** portava via i

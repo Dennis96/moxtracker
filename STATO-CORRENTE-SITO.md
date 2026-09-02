@@ -1,6 +1,8 @@
 # Stato corrente — sito Mox
 
-Aggiornato: 31 agosto 2026, preview RC `5fa3d34` verificata e pubblicata su `origin/main`; collaudi reali ancora separati.
+Aggiornato: 2 settembre 2026. La preview RC `5fa3d34` resta quella pubblicata;
+i collaudi R0 7–13 sono conclusi. Il fix logout descritto sotto è soltanto
+locale e non è stato pubblicato.
 
 ## Regola operativa obbligatoria
 
@@ -60,16 +62,22 @@ del sito.
   esatta; i log senza link sono dichiarati come raggruppamento cronologico,
   non come risultato di un singolo Draft. Il pool finale aggrega le copie per
   Arena ID senza alterare i Draft salvati.
-- Collaudi manuali: ZIP diagnostico Mox già superato; Ticket anonimo/Turnstile,
-  revoca dispositivo, export JSON e cancellazione restano regressioni da
-  ripetere. Cambio stato, risposta e `ticket_audit` nell'amministrazione sono
-  la priorità, perché non ancora confermati manualmente dopo la correzione.
+- Collaudi manuali R0 7–13: tutti PASS il 02/09/2026. Ticket anonimo e
+  Turnstile, risposta e stato amministratore, i due record `ticket_audit`,
+  riapertura dal link segreto, revoca, export isolato e cancellazione sono
+  stati verificati sul campo. Per la revoca, l'invio Mox può proseguire come
+  contributo anonimo/non associato: il controllo è che non ricompaia
+  nell'account revocato. Dettaglio nella checklist corrente.
+- Logout Account: rilevato che `Esci` lasciava la dashboard visibile fino a
+  F5. Corretto localmente il nome della funzione che elimina la sessione
+  preview; regressione automatica aggiunta. Nessun deploy della correzione.
 
 ## M6 pubblicato; R3-PREP solo documentazione
 
-Il branch locale coincide con `origin/main` a `5fa3d34`, ha una sola worktree
-e la preview sopra elencata. Non è stato eseguito alcun deploy Worker o deploy
-di produzione.
+La preview sopra elencata resta la RC `5fa3d34`; `origin/main` è avanzato al
+solo housekeeping documentale `514c3b1`. Questa worktree contiene inoltre il
+fix logout locale non pubblicato. Non è stato eseguito alcun deploy Worker o
+deploy di produzione.
 
 - **M6 verificato localmente:** Account mostra «Ultima mano osservata» /
   «Last observed hand», conteggio delle carte e nota esplicita che il dato
@@ -144,10 +152,10 @@ di produzione.
 
 ## Prossimo lavoro
 
-1. Collaudo manuale amministrazione: ticket, cambio stato, risposta e due
-   eventi in `ticket_audit`.
-2. Ripetere sull'account di prova Ticket anonimo/Turnstile, revoca, export e
-   cancellazione; lo ZIP Mox è soltanto un controllo rapido.
+1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
+   motion e download GitHub Latest).
+2. Quando sarà autorizzata una nuova preview, verificare il logout OAuth:
+   dopo `Esci` la dashboard deve sparire senza F5 manuale.
 3. R3-PREP resta una proposta: attendere modello locale R2, golden packet
    concordato e dimensioni reali prima di riesaminare schema e storage.
    Nessuna modifica D1, ingestion v3 o produzione; successivi interventi e

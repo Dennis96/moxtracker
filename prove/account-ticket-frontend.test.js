@@ -94,6 +94,12 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /\/account\/delete-section/);
 });
 
+test("il logout account cancella la sessione preview prima di ricaricare", () => {
+  const js = leggi("js/account.js");
+  assert.match(js, /eliminaSessioneAccountPreview\(\);\s*location\.reload\(\);/);
+  assert.doesNotMatch(js, /\beliminaSessionePreview\(/);
+});
+
 test("supporto distingue ticket anonimo e account e limita gli allegati", () => {
   const html = leggi("supporto.html");
   const js = leggi("js/supporto.js");
