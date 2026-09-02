@@ -3,10 +3,10 @@
 La fase è implementata, configurata e **pubblicata** su `moxtracker.app` e
 `api.moxtracker.app`.
 
-**M6, 30/08/2026: correzione solo locale, non pubblicata.** Nell'Account il
-campo legacy `apertura` è descritto come «Ultima mano osservata», con la nota
-che non è la mano d'apertura. I riferimenti qui sotto descrivono questa
-correzione locale; non attestano un nuovo deploy.
+Lo stato di rilascio e i collaudi correnti sono in
+[STATO-CORRENTE-SITO.md](../../STATO-CORRENTE-SITO.md). Nell'Account il campo
+legacy `apertura` è descritto come «Ultima mano osservata», con la nota che non
+è la mano d'apertura.
 
 Il **collaudo reale è in regressione**. Accesso OAuth, collegamento Mox e
 isolamento del secondo account sono già stati superati. Ticket anonimo,

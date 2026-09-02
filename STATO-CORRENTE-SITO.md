@@ -1,6 +1,6 @@
 # Stato corrente — sito Mox
 
-Aggiornato: 31 agosto 2026, release candidate locale in preparazione, senza preview.
+Aggiornato: 31 agosto 2026, preview RC `5fa3d34` verificata e pubblicata su `origin/main`; collaudi reali ancora separati.
 
 ## Regola operativa obbligatoria
 
@@ -13,18 +13,27 @@ del sito.
 
 ## Ultima preview pubblicata
 
-- Data: 30 agosto 2026.
-- Commit sito: `5ad5b38` — `Corregge storico e pool Draft account`.
+- Data: 31 agosto 2026.
+- Commit sito: `5fa3d34` — RC locale con Account/Draft, M6 e readiness R0.
 - URL alias: <https://preview.moxtracker.pages.dev>.
-- URL immutabile: <https://73002141.moxtracker.pages.dev>.
-- Build: `6d537962ffff0887`, 63 file.
-- Verifica: `npm run prove` — 189/189; `npm run sito:build` riuscito;
-  smoke test HTTP 200 su `/`, `/draft`, `/account`, `/supporto`, `/privacy`,
-  `/en/`.
-- Verifica visiva: Home e Download desktop/360 px, menu mobile con Escape,
-  reflow senza overflow a 640 CSS px (equivalente operativo del 200% su
-  desktop), focus visibile, `prefers-reduced-motion` e miniature Scryfall
-  caricate soltanto entrando in viewport.
+- URL immutabile: <https://ad60ff7a.moxtracker.pages.dev>.
+- Build: `bb55e75aba7f7718`, 63 file.
+- Perimetro pubblicato: i sei commit `fb6cb3e..5fa3d34`, ora anche su
+  `origin/main`; nessun
+  deploy Worker, D1, produzione, R3, ingestion Research o packet v3.
+- Verifiche prima del deploy: `npm run prove` — 190/190; `npm run sito:build`
+  riuscito; route locali previste HTTP 200.
+- Smoke post-deploy sull'alias: HTTP 200 per `/`, `/draft`, `/account`,
+  `/supporto`, `/privacy`, `/en/`, API salute/Meta/Draft e GitHub Latest;
+  Account HTTP 401 e CORS HTTP 204 attesi.
+- Verifica browser locale: Home, Download, Meta, Draft, Account, Supporto,
+  Privacy e IT/EN senza overflow desktop, 375 px o 640 px; menu mobile apre e
+  chiude con Escape restituendo il focus visibile al pulsante. La regola CSS
+  `prefers-reduced-motion` è presente; la preferenza OS reale non era attiva.
+- L'URL immutabile serve correttamente il frontend ma riceve CORS HTTP 403 da
+  `api.moxtracker.app`: è atteso perché `SITE_ORIGIN` autorizza l'alias
+  `preview.moxtracker.pages.dev`, non ogni deployment URL. Non è stato
+  modificato il Worker per aggirarlo.
 
 ## Modifiche presenti in preview
 
@@ -56,11 +65,11 @@ del sito.
   ripetere. Cambio stato, risposta e `ticket_audit` nell'amministrazione sono
   la priorità, perché non ancora confermati manualmente dopo la correzione.
 
-## M6 e R3-PREP — locali, non pubblicati
+## M6 pubblicato; R3-PREP solo documentazione
 
-Il branch locale contiene commit non spinti oltre `origin/main`, una sola
-worktree e nessun push o deploy, nemmeno preview. L'ultima preview elencata
-sopra non contiene questa release candidate.
+Il branch locale coincide con `origin/main` a `5fa3d34`, ha una sola worktree
+e la preview sopra elencata. Non è stato eseguito alcun deploy Worker o deploy
+di produzione.
 
 - **M6 verificato localmente:** Account mostra «Ultima mano osservata» /
   «Last observed hand», conteggio delle carte e nota esplicita che il dato
@@ -70,7 +79,7 @@ sopra non contiene questa release candidate.
   anche negli export. Cambia soltanto il testo dell'errore di validazione:
   «campo legacy apertura non valido»; versioni e limiti invariati.
 - **R3-PREP consegnato come proposta:**
-  [schema logico e opzioni di storage](R3-PREP-SCHEMA-STORAGE.md), senza SQL
+  [schema logico e opzioni di storage](passaggi/research/proposte/R3-PREP-SCHEMA-STORAGE.md), senza SQL
   eseguibile. D1/Cloudflare R2 ed eventuale payload privato restano scelte
   aperte fino all'output reale R2 e al golden packet concordato. L'arrivo
   degli artefatti non autorizza automaticamente ingestion o rilascio.
@@ -114,6 +123,13 @@ sopra non contiene questa release candidate.
   senza modificare il contratto v1/v2.
 - `6414c57` — corrette route di anteprima, link amministratore inglese e
   smoke del download GitHub Latest; report R0 aggiunto.
+- `5fa3d34` — pubblicata una sola preview Pages della RC `5fa3d34`, build
+  `bb55e75aba7f7718`, URL immutabile `ad60ff7a`; nessun Worker, D1,
+  produzione o Research è stato modificato o distribuito. Smoke sull'alias
+  completamente verde e verifica browser locale completata; il CORS dall'URL
+  immutabile resta fuori dal perimetro autorizzato del Worker.
+- Push fast-forward: `origin/main` avanzato da `5ad5b38` a `5fa3d34`; GitHub
+  verificato sullo stesso SHA. Nessun altro commit o deploy incluso.
 - Locale, non pubblicato — un indice Draft con `0 pick` e' difettoso anche se
   una vecchia fonte lo marca come completo: viene escluso dal frontend e dalle
   risposte Account. L'eventuale partita collegata resta nello storico senza

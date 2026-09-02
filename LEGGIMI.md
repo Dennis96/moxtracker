@@ -27,11 +27,12 @@ D1 sono passaggi separati e richiedono autorizzazione esplicita.
 
 Per riprendere il lavoro leggere nell'ordine:
 
-1. [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md)
-2. [STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md), sempre prima di nuovo lavoro.
-3. [RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md](RISPOSTE-PROSSIMA-CHAT-SITO-MOX.md)
-4. [ACCOUNT-E-TICKET.md](ACCOUNT-E-TICKET.md), solo per account e supporto.
-5. [CHECKLIST-BETA-SITO-2026-08-27.md](CHECKLIST-BETA-SITO-2026-08-27.md), prima di un collaudo beta.
+1. [STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md), sempre prima di nuovo lavoro.
+2. [Indice documentazione](passaggi/INDICE.md).
+3. [Checklist manuale R0](passaggi/checklist/CHECKLIST-MANUALE-R0-CORRENTE.md),
+   prima di un collaudo reale.
+4. [Contratto Account e Ticket](passaggi/contratti/ACCOUNT-E-TICKET.md), solo
+   per account e supporto.
 
 Il codice, la cronologia Git e `npm run prove` prevalgono sempre sui documenti
 storici.
