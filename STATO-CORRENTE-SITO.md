@@ -1,7 +1,14 @@
 # Stato corrente — sito Mox
 
-Aggiornato: 2 settembre 2026. La preview `cf2f45e` è pubblicata e il fix
-logout è confermato manualmente; i collaudi R0 7–13 sono conclusi.
+Stato letto e verificato il 10 settembre 2026. La preview funzionale pubblicata
+resta `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
+manualmente e i collaudi R0 7–13 sono conclusi. `origin/main` prima di questo
+housekeeping è `39dc8a6`, commit esclusivamente documentale: dopo la preview non
+è avvenuto alcun nuovo deploy Pages, Worker o sito.
+
+La GitHub Release Latest del client è `mox-v2-beta2.10.0`, non prerelease, con
+il solo asset `Mox-v2-beta2.10.0-con-python.zip`. Questa distribuzione del
+client non modifica il codice attualmente pubblicato su Pages o Worker.
 
 ## Regola operativa obbligatoria
 
@@ -49,9 +56,9 @@ del sito.
 - Home e Download: il messaggio parte da tracker, Draft e statistiche locali;
   la contribuzione anonima è secondaria e revocabile. La pagina Download
   mostra anche la release Latest già risolta, senza fissare una versione.
-- Research: copy e layout di un teaser sono pronti ma nascosti; nessuna
-  promessa o funzione Research è pubblicata finché R1 non congela il contratto
-  dati. Il campo `apertura` non è stato rinominato né reinterpretato.
+- Research: copy e layout di un teaser sono pronti ma nascosti. R1 e R2 sono
+  chiusi, ma R3 non è aperto: nessuna promessa o funzione Research è
+  pubblicata. Il campo `apertura` non è stato rinominato né reinterpretato.
 - Carte: in assenza di `IntersectionObserver`, ad esempio in un browser
   embedded, il fallback avvia le richieste solo vicino alla viewport e le
   distanzia a massimo circa nove al secondo.
@@ -75,8 +82,10 @@ del sito.
 ## M6 pubblicato; R3-PREP solo documentazione
 
 La preview Pages corrente è `cf2f45e` (build `61a708af281eea70`), pubblicata
-sull'alias `preview.moxtracker.pages.dev`; `origin/main` contiene lo stesso
-commit. Non è stato eseguito alcun deploy Worker o deploy di produzione.
+sull'alias `preview.moxtracker.pages.dev`. `origin/main` ha ricevuto sopra quel
+codice il solo commit documentale `39dc8a6`; la build pubblicata resta quindi
+quella di `cf2f45e`. Non è stato eseguito alcun nuovo deploy Pages, Worker o di
+produzione.
 
 - **M6 verificato localmente:** Account mostra «Ultima mano osservata» /
   «Last observed hand», conteggio delle carte e nota esplicita che il dato

@@ -2,7 +2,11 @@
 
 `moxtracker` è la parte online di Mox: riceve contributi solo con consenso,
 calcola aggregati pubblici e serve il sito. Il client desktop vive nel progetto
-fratello `..\Codice`.
+fratello `..\mox-core` (percorso locale del workspace).
+
+La sorgente e la certificazione del client vivono in `Dennis96/mox-core`, sotto
+`passaggi/release/`; la GitHub Release pubblica usata dal sito per distribuire
+il client vive invece in `Dennis96/moxtracker`.
 
 ## Struttura
 

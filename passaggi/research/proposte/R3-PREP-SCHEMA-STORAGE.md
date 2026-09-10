@@ -7,10 +7,10 @@
 
 ## Autorità e confine operativo
 
-La fonte normativa è il [contratto R1 congelato](../../../../Codice/passaggi/research/contratti/MOX-RESEARCH-DATA-CONTRACT.md);
-l'[audit R1](../../../../Codice/passaggi/research/audit/RESEARCH-TELEMETRY-AUDIT-2026-08-30.md) ne documenta
+La fonte normativa è il [contratto R1 congelato](https://github.com/Dennis96/mox-core/blob/main/passaggi/research/contratti/MOX-RESEARCH-DATA-CONTRACT.md);
+l'[audit R1](https://github.com/Dennis96/mox-core/blob/main/passaggi/research/audit/RESEARCH-TELEMETRY-AUDIT-2026-08-30.md) ne documenta
 l'evidenza. Questo documento non modifica né estende quel contratto.
-Il [passaggio R2 storico](../../../../Codice/passaggi/archivio/2026-08/PASSAGGIO-R2-TELEMETRIA-LOCALE.md) chiede
+La [chiusura R2](https://github.com/Dennis96/mox-core/blob/main/archivio/2026-08-handoff/R2/R2-CHIUSURA-2026-08-31.md) documenta
 `games[]` in memoria e su disco locale, senza invio. La fase client R2 non va
 confusa con il servizio di storage Cloudflare R2 citato più avanti.
 
