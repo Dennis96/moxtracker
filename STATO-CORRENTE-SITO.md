@@ -1,8 +1,7 @@
 # Stato corrente — sito Mox
 
-Aggiornato: 2 settembre 2026. La preview RC `5fa3d34` resta quella pubblicata;
-i collaudi R0 7–13 sono conclusi. Il fix logout descritto sotto è soltanto
-locale e non è stato pubblicato.
+Aggiornato: 2 settembre 2026. La preview `cf2f45e` è pubblicata e il fix
+logout è confermato manualmente; i collaudi R0 7–13 sono conclusi.
 
 ## Regola operativa obbligatoria
 
@@ -69,15 +68,15 @@ del sito.
   contributo anonimo/non associato: il controllo è che non ricompaia
   nell'account revocato. Dettaglio nella checklist corrente.
 - Logout Account: rilevato che `Esci` lasciava la dashboard visibile fino a
-  F5. Corretto localmente il nome della funzione che elimina la sessione
-  preview; regressione automatica aggiunta. Nessun deploy della correzione.
+  F5. Corretto il nome della funzione che elimina la sessione preview;
+  regressione automatica aggiunta e PASS manuale sulla preview `cf2f45e`:
+  dopo `Esci` ritorno immediato al login Account, senza F5.
 
 ## M6 pubblicato; R3-PREP solo documentazione
 
-La preview sopra elencata resta la RC `5fa3d34`; `origin/main` è avanzato al
-solo housekeeping documentale `514c3b1`. Questa worktree contiene inoltre il
-fix logout locale non pubblicato. Non è stato eseguito alcun deploy Worker o
-deploy di produzione.
+La preview Pages corrente è `cf2f45e` (build `61a708af281eea70`), pubblicata
+sull'alias `preview.moxtracker.pages.dev`; `origin/main` contiene lo stesso
+commit. Non è stato eseguito alcun deploy Worker o deploy di produzione.
 
 - **M6 verificato localmente:** Account mostra «Ultima mano osservata» /
   «Last observed hand», conteggio delle carte e nota esplicita che il dato
@@ -154,13 +153,11 @@ deploy di produzione.
 
 1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
    motion e download GitHub Latest).
-2. Quando sarà autorizzata una nuova preview, verificare il logout OAuth:
-   dopo `Esci` la dashboard deve sparire senza F5 manuale.
-3. R3-PREP resta una proposta: attendere modello locale R2, golden packet
+2. R3-PREP resta una proposta: attendere modello locale R2, golden packet
    concordato e dimensioni reali prima di riesaminare schema e storage.
    Nessuna modifica D1, ingestion v3 o produzione; successivi interventi e
    rilasci richiedono decisioni separate, non il solo arrivo degli artefatti.
-4. Da verificare prima di ogni intervento su `draft_link`: un match viene
+3. Da verificare prima di ogni intervento su `draft_link`: un match viene
    collegato solo con la stessa impronta Draft esatta. Esaminare i casi in cui
    match e traccia arrivano in ordine inverso, i pacchetti v1 o privi di
    impronta e le impronte non coincidenti. Non dedurre collegamenti da data,

@@ -57,4 +57,4 @@ operazione UI distinta.
 
 | Data | Problema | Correzione | Verifica |
 | --- | --- | --- | --- |
-| 02/09/2026 | Dopo `Esci` la dashboard restava visibile fino a F5. | Il gestore logout ora invoca `eliminaSessioneAccountPreview()` prima di ricaricare. | Regressione frontend automatica; prova OAuth/manuale da ripetere sulla prossima preview. |
+| 02/09/2026 | Dopo `Esci` la dashboard restava visibile fino a F5. | Il gestore logout ora invoca `eliminaSessioneAccountPreview()` prima di ricaricare. | PASS sulla preview `cf2f45e`: dopo `Esci` ritorno immediato al login Account, senza F5. |
