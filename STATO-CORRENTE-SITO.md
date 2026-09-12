@@ -162,10 +162,14 @@ produzione.
 
 1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
    motion e download GitHub Latest).
-2. R3-PREP resta una proposta: attendere modello locale R2, golden packet
-   concordato e dimensioni reali prima di riesaminare schema e storage.
-   Nessuna modifica D1, ingestion v3 o produzione; successivi interventi e
-   rilasci richiedono decisioni separate, non il solo arrivo degli artefatti.
+2. Il modello locale R2, inclusa la remediation, è ora disponibile e integrato
+   in `mox-core/main` a
+   `4913ca6754195105cc0a097036964b9c1aed6f69`: questo permette di riaprire il
+   gate R2 ↔ R3-PREP. Restano da produrre e concordare golden packet e misure
+   reali, contro cui riesaminare schema e storage della proposta R3-PREP.
+   Nessuna migrazione D1, ingestion Research, deploy Worker o produzione è
+   autorizzata; R3 resta **NON APERTO**. Ogni intervento o rilascio successivo
+   richiede una decisione separata, non il solo arrivo degli artefatti.
 3. Da verificare prima di ogni intervento su `draft_link`: un match viene
    collegato solo con la stessa impronta Draft esatta. Esaminare i casi in cui
    match e traccia arrivano in ordine inverso, i pacchetti v1 o privi di
