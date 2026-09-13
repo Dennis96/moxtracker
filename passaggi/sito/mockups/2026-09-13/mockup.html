@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>MOX — proposta mockup sito</title>
+  <script>document.documentElement.dataset.mockupView = new URLSearchParams(location.search).get('view') || 'home-a';</script>
+  <link rel="stylesheet" href="./mockup.css">
+</head>
+<body>
+  <div class="prototype-bar"><span>PROTOTIPO DI DESIGN</span><strong>Solo dati sintetici · Nessuna funzione collegata</strong><span>13.09.2026</span></div>
+  <header class="site-header">
+    <a class="brand" href="?view=home-a"><img src="../../../../sito/assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+    <nav aria-label="Navigazione prototipo">
+      <a data-route="home-a" href="?view=home-a">Home</a>
+      <a data-route="meta" href="?view=meta">Meta</a>
+      <a data-route="draft" href="?view=draft">Draft</a>
+      <a data-route="account" href="?view=account">Account</a>
+      <a data-route="support" href="?view=support">Supporto</a>
+    </nav>
+    <button class="language" type="button">IT <span>⌄</span></button>
+  </header>
+
+  <main>
+    <section class="screen home-screen" data-view="home-a">
+      <div class="hero home-hero hero-a">
+        <div class="hero-copy">
+          <p class="eyebrow">IL TUO ASSISTENTE PER MTG ARENA</p>
+          <h1>Gioca meglio.<br><em>Capisci di più.</em></h1>
+          <p class="lead">MOX unisce tracker, Draft Assistant e dati personali in un software pensato per la tua partita, non per il rumore attorno.</p>
+          <div class="actions"><button class="button primary">Scarica MOX per Windows <span>↓</span></button><button class="button ghost">Guarda come funziona <span>↗</span></button></div>
+          <div class="trust-row"><span><b>Locale per scelta</b> I tuoi dati restano tuoi</span><span><b>Beta pubblica</b> In miglioramento continuo</span></div>
+        </div>
+        <div class="hero-product">
+          <div class="glow"></div>
+          <div class="app-window large-window">
+            <div class="window-bar"><i></i><i></i><i></i><span>MOX · Partita in corso</span><b>● LIVE</b></div>
+            <div class="match-board">
+              <div class="match-head"><div><small>STANDARD · BO1</small><strong>Mono Red Aggro</strong></div><div class="score"><span>4</span><small>TURNI</small></div></div>
+              <div class="mana"><span class="red">R</span><span class="red">R</span><span class="red">R</span><span class="red">R</span><span class="dim">◇</span><span class="dim">◇</span></div>
+              <div class="game-grid"><div class="hand"><small>LA TUA MANO</small><div class="cards"><b>2</b><b>1</b><b>3</b><b>2</b><b>4</b></div></div><div class="board-note"><small>PROSSIMA SCELTA</small><strong>Attacca con 3 creature</strong><span>Probabilità letale: 68%</span></div></div>
+              <div class="track"><span class="active"></span><span class="active"></span><span class="active"></span><span></span><span></span><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="floating-card card-left"><small>MAZZO</small><strong>62,4%</strong><span>Win rate · 42 partite</span></div>
+          <div class="floating-card card-right"><small>SESSIONE</small><strong class="positive">5 — 2</strong><span>Ultime 7 partite</span></div>
+        </div>
+      </div>
+      <div class="strip"><span>TRACKER LOCALE</span><i></i><span>DRAFT ASSISTANT</span><i></i><span>DECK BUILDER</span><i></i><span>DATI CHE PUOI LEGGERE</span></div>
+      <section class="section intro-section">
+        <div><p class="eyebrow">UN PRODOTTO, QUATTRO MOMENTI</p><h2>Ogni decisione ha il suo posto.</h2></div><p>MOX è presente quando serve, poi si fa da parte. Durante la partita aiuta a orientarti; dopo, trasforma ciò che hai giocato in qualcosa che puoi capire.</p>
+      </section>
+      <section class="feature-grid">
+        <article class="feature accent-red"><span class="step">01</span><div class="feature-icon">⌁</div><h3>Durante la partita</h3><p>Conta, annota e conserva la cronologia senza trasformare Arena in un cruscotto.</p><a href="?view=account">Vedi il tuo storico <b>→</b></a></article>
+        <article class="feature accent-lilac"><span class="step">02</span><div class="feature-icon">✦</div><h3>Durante il Draft</h3><p>Priorità chiare nella scelta e una direzione concreta per il mazzo finale.</p><a href="?view=draft">Scopri Draft Assistant <b>→</b></a></article>
+        <article class="feature accent-blue"><span class="step">03</span><div class="feature-icon">▥</div><h3>Dopo il Draft</h3><p>Rivedi pool, costruzione e risultato in un archivio che resta sul tuo PC.</p><a href="?view=account">Apri i Draft <b>→</b></a></article>
+        <article class="feature accent-green"><span class="step">04</span><div class="feature-icon">◌</div><h3>Dopo le partite</h3><p>Leggi i tuoi mazzi, il rank e gli archetipi affrontati per scegliere con più contesto.</p><a href="?view=meta">Esplora il Meta <b>→</b></a></article>
+      </section>
+    </section>
+
+    <section class="screen home-screen" data-view="home-b" hidden>
+      <div class="hero home-hero hero-b">
+        <div class="hero-copy centered-copy"><p class="eyebrow">MOX ARENA ASSISTANT</p><h1>Tutto quello che giochi.<br><em>In una vista sola.</em></h1><p class="lead">Un software personale per Draft, partite, mazzi e il meta che stai incontrando.</p><div class="actions centered-actions"><button class="button primary">Scarica MOX per Windows <span>↓</span></button><button class="button ghost">Esplora MOX <span>↗</span></button></div></div>
+        <div class="suite">
+          <div class="suite-window suite-main"><div class="window-bar"><i></i><i></i><i></i><span>MOX · Dashboard</span></div><div class="suite-main-body"><small>ULTIMI 30 GIORNI</small><div class="suite-kpis"><b>61<span>%</span><small>win rate</small></b><b>84<small>partite</small></b><b class="purple">12<small>mazzi</small></b></div><div class="mini-chart"><span style="height:35%"></span><span style="height:52%"></span><span style="height:44%"></span><span style="height:70%"></span><span style="height:63%"></span><span style="height:86%"></span><span style="height:76%"></span></div></div></div>
+          <div class="suite-window suite-draft"><div class="window-bar"><span>Draft Assistant</span><b>P1P4</b></div><div class="draft-choice"><span class="pick-card">✦</span><div><small>SCELTA CONSIGLIATA</small><strong>Rimuovi la minaccia</strong><em>Priorità 8,7</em></div></div></div>
+          <div class="suite-window suite-meta"><div class="window-bar"><span>Meta Explorer</span></div><div class="mini-rows"><p><b>Esper Control</b><span>57,1%</span></p><p><b>Mono Red</b><span>54,8%</span></p><p><b>Domain</b><span>52,4%</span></p></div></div>
+          <div class="suite-window suite-deck"><div class="window-bar"><span>Deck Builder</span></div><div class="deck-colors"><i></i><i></i><i></i></div><strong>40 / 40</strong><small>Curva bilanciata</small></div>
+        </div>
+      </div>
+      <div class="section section-compact"><p class="eyebrow">UNA SUITE, NON UN ELENCO DI TOOL</p><h2>Dal momento della scelta al prossimo mazzo.</h2><p>La variante B racconta MOX come ambiente completo: più ampia, più editoriale, meno focalizzata sul singolo momento di gioco.</p></div>
+    </section>
+
+    <section class="screen home-sections-screen" data-view="home-sections" hidden>
+      <header class="mock-page-title"><p class="eyebrow">HOME · SEZIONI SOTTO HERO</p><h1>Il valore di MOX, spiegato con ordine.</h1><p>Una pagina che accompagna dal software che usi oggi alle aree in arrivo, senza confondere le due cose.</p></header>
+      <section class="web-section split-feature"><div><p class="eyebrow">MOX SUL WEB</p><h2>Il tuo MOX continua anche quando Arena è chiuso.</h2><p>Le pagine web rendono consultabili i dati pubblici e il tuo archivio, senza sostituire il client.</p><div class="mini-links"><a href="?view=meta">Meta Explorer <b>→</b></a><a href="?view=draft">Draft sul web <b>→</b></a><a href="?view=account">Il mio MOX <b>→</b></a></div></div><div class="web-cards"><article><span>▥</span><b>Meta</b><small>Archetipi, filtri e dettagli</small></article><article><span>✦</span><b>Draft</b><small>Strumenti e dati per Limited</small></article><article><span>◌</span><b>Account</b><small>Mazzi, partite e Draft personali</small></article></div></section>
+      <section class="roadmap-section"><div class="roadmap-heading"><p class="eyebrow">IN SVILUPPO</p><h2>Le prossime parti di MOX.</h2><p>Direzioni attive: non sono ancora funzioni disponibili.</p></div><div class="roadmap-grid"><article><span class="status working">IN SVILUPPO</span><h3>MOX Research</h3><p>Una lettura più profonda dei dati raccolti, quando il campione e il metodo saranno pronti.</p></article><article><span class="status working">IN SVILUPPO</span><h3>Aggiornamento Draft</h3><p>Un percorso più ricco fra scelta, pool e costruzione finale.</p></article><article><span class="status working">IN SVILUPPO</span><h3>Nuova interfaccia Tauri</h3><p>Una preview concettuale del client più ordinata e leggibile.</p></article></div></section>
+      <section class="roadmap-section planned"><div class="roadmap-heading"><p class="eyebrow">PIANIFICATO</p><h2>Problemi che vogliamo risolvere.</h2><p>Nessuna data: sono possibilità pianificate, non promesse.</p></div><div class="roadmap-grid"><article><span class="status planned-status">PIANIFICATO</span><h3>Collection & wildcard gap</h3><p>Capire quali carte mancano e quanto costa completare un mazzo.</p></article><article><span class="status planned-status">PIANIFICATO</span><h3>“Posso costruirlo?”</h3><p>Una risposta leggibile alla domanda prima di scegliere cosa craftare.</p></article><article><span class="status planned-status">PIANIFICATO</span><h3>Condivisione mazzi</h3><p>Modi controllati per condividere una lista o un risultato.</p></article></div></section>
+    </section>
+
+    <section class="screen app-page meta-page" data-view="meta" hidden>
+      <header class="page-heading"><div><p class="eyebrow">META EXPLORER</p><h1>Il meta, senza rumore.</h1><p>Trova una direzione, apri una lista e leggi i limiti del campione prima dei numeri.</p></div><div class="meta-date"><span>DATI AGGIORNATI</span><b>Oggi, 09:30</b><small>Campione sintetico nel prototipo</small></div></header>
+      <section class="filter-bar"><button>Standard <span>⌄</span></button><button>Ultimi 30 giorni <span>⌄</span></button><button>BO1 + BO3 <span>⌄</span></button><button>Tutti i rank <span>⌄</span></button><button class="search">⌕ Cerca archetipo o lista...</button><button class="filter-clear">Azzera</button></section>
+      <div class="meta-layout"><section class="meta-list panel"><div class="panel-top"><div><small>ARCHETIPI</small><h2>42 nel filtro corrente</h2></div><span class="sample-badge">Soglia 30+ partite</span></div><div class="meta-table"><div class="table-head"><span>ARCHETIPO</span><span>WIN RATE</span><span>QUOTA</span><span>PARTITE</span><span></span></div><button class="table-row selected"><span class="deck-name"><i class="color-dot wb"></i>Esper Control <small>Midrange · W/U/B</small></span><b>57,1%</b><span>8,4%</span><span>1.248</span><em>⌄</em></button><button class="table-row"><span class="deck-name"><i class="color-dot r"></i>Mono Red Aggro <small>Aggro · R</small></span><b>54,8%</b><span>12,6%</span><span>1.872</span><em>›</em></button><button class="table-row"><span class="deck-name"><i class="color-dot wu"></i>Azorius Tempo <small>Tempo · W/U</small></span><b>53,9%</b><span>7,1%</span><span>1.002</span><em>›</em></button><button class="table-row"><span class="deck-name"><i class="color-dot g"></i>Gruul Landfall <small>Aggro · R/G</small></span><b>52,4%</b><span>6,8%</span><span>874</span><em>›</em></button></div></section>
+        <aside class="detail-side"><article class="panel deck-summary"><div class="deck-summary-top"><div><span class="color-set"><i class="w"></i><i class="u"></i><i class="b"></i></span><h2>Esper Control</h2><p>Midrange · Standard · BO1 + BO3</p></div><span class="expanded">ESPANSO</span></div><div class="stat-row"><div><small>WIN RATE</small><b>57,1%</b><span class="up">+2,8% vs meta</span></div><div><small>PARTITE</small><b>1.248</b><span>Campione affidabile</span></div><div><small>QUOTA META</small><b>8,4%</b><span>↗ In crescita</span></div></div></article>
+          <article class="panel future-panel"><div class="future-label">FEATURE FUTURA — MOCKUP</div><div class="future-heading"><div><span class="future-icon">◇</span><div><h3>Collection & wildcard</h3><p>Stima personale basata sulla tua collezione.</p></div></div><span class="logged">Accesso simulato</span></div><div class="craft-status"><b>Da craftare</b><span>La lista non è completa</span></div><p class="missing">Ti mancano: <strong>3 Mythic · 8 Rare · 30 Uncommon · 7 Common</strong></p><div class="wildcards"><span>MYTHIC <b>3</b></span><span>RARE <b>8</b></span><span>UNCOMMON <b>30</b></span><span>COMMON <b>7</b></span></div><button class="outline-button">Vedi quali carte mancano <span>→</span></button></article>
+          <article class="panel decklist"><div class="panel-top"><div><small>LISTA RAPPRESENTATIVA</small><h3>Decklist osservata</h3></div><button class="text-button">Copia per Arena</button></div><div class="deck-columns"><ul><li><b>4</b> Teferi, Temporal Pilgrim</li><li><b>3</b> No More Lies</li><li><b>4</b> Get Lost</li><li><b>3</b> Memory Deluge</li></ul><ul><li><b>4</b> Restless Anchorage</li><li><b>4</b> Meticulous Archive</li><li><b>8</b> Island</li><li><b>6</b> Plains</li></ul></div></article>
+        </aside></div>
+    </section>
+
+    <section class="screen app-page draft-page" data-view="draft" hidden>
+      <header class="draft-hero-new"><div><p class="eyebrow">DRAFT ASSISTANT</p><h1>Una scelta alla volta.<br><em>Un mazzo alla fine.</em></h1><p>MOX lavora in locale durante il Draft, poi ti aiuta a trasformare il pool in una lista pronta da giocare.</p><div class="actions"><button class="button primary">Scarica per il Draft <span>↓</span></button><button class="button ghost">Come funziona <span>↗</span></button></div></div><div class="draft-preview"><div class="preview-top"><span>MOX · DRAFT</span><b>PACK 1 · PICK 4</b></div><div class="choice-card"><div class="choice-art">✦</div><div><small>SCELTA CONSIGLIATA</small><h3>Lightning Helix</h3><p>Priorità 8,7 · Alta sinergia</p></div><span>1</span></div><div class="choice-line"><span>2</span> Removal efficiente</div><div class="choice-line"><span>3</span> Creatura 2-drop</div></div></header>
+      <section class="draft-steps"><article><span>01</span><small>DURANTE IL DRAFT</small><h2>Leggi la scelta.</h2><p>Una priorità chiara e una motivazione breve: ti aiuta, non prende la decisione al posto tuo.</p></article><article><span>02</span><small>POOL IN CRESCITA</small><h2>Segui la direzione.</h2><p>Colori, curva e segnali del tavolo restano visibili mentre costruisci il tuo pool.</p></article><article><span>03</span><small>MAZZO FINALE</small><h2>Chiudi con 40 carte.</h2><p>Una base concreta per lista, terre, fixing e curva: pronta per le tue modifiche.</p></article></section>
+      <section class="deck-build-section"><div><p class="eyebrow">DECK BUILDING FINALE</p><h2>Dal pool a una lista che puoi guardare.</h2><p>La parte finale del Draft è il passaggio più utile: la proposta resta modificabile e spiega perché ogni scelta è presente.</p><button class="outline-button">Apri un esempio di costruzione <span>→</span></button></div><div class="deck-builder-card"><div class="builder-head"><span>JESKAI SPELLS</span><b>40 / 40</b></div><div class="curve"><small>CURVA</small><div><i style="height:33%"></i><i style="height:66%"></i><i style="height:88%"></i><i style="height:52%"></i><i style="height:28%"></i><i style="height:10%"></i></div><p>1 &nbsp; 2 &nbsp; 3 &nbsp; 4 &nbsp; 5 &nbsp; 6+</p></div><div class="build-metrics"><span><b>17</b> terre</span><span><b>15</b> creature</span><span><b>8</b> magie</span></div></div></section>
+      <section class="draft-data"><div class="section-title"><p class="eyebrow">DRAFT SUL WEB</p><h2>Studia il formato con prudenza.</h2><p>I dati pubblici sono consultabili solo quando il campione è sufficiente.</p></div><div class="data-cards"><article><small>EVENTI COMPLETI</small><b>2.481</b><span>Nel campione dimostrativo</span></article><article><small>SET ATTIVO</small><b>EOE</b><span>Edge of Eternities</span></article><article><small>DATI CARTE</small><b>In raccolta</b><span>Nessuna percentuale prematura</span></article></div></section>
+      <section class="method-strip"><span>ⓘ</span><p><b>Metodo e privacy vengono dopo il valore del prodotto.</b> MOX mostra solo dati aggregati, con consenso separato e soglie leggibili.</p><a href="?view=support">Privacy e supporto →</a></section>
+    </section>
+
+    <section class="screen app-page account-page" data-view="account" hidden>
+      <header class="account-heading-new"><div><p class="eyebrow">IL MIO MOX</p><h1>Ciao, <em>Giocatore.</em></h1><p>Il tuo archivio privato: mazzi, partite e Draft associati ai tuoi dispositivi.</p></div><div class="account-badge"><span class="avatar">M</span><div><b>Account connesso</b><small>Sincronizzato 8 min fa</small></div><button>⋯</button></div></header>
+      <section class="kpi-grid"><article><small>WIN RATE · 30 GIORNI</small><b>61,0%</b><span class="positive">↗ 4,2% vs periodo prima</span></article><article><small>PARTITE</small><b>84</b><span>56 vittorie · 28 sconfitte</span></article><article><small>RANK MIGLIORE</small><b>Platino 2</b><span>Standard classificato</span></article><article><small>DRAFT COMPLETI</small><b>7</b><span>3 trofei nel periodo</span></article></section>
+      <nav class="tabbar" aria-label="Sezioni account"><button class="active" data-tab="overview">Panoramica</button><button data-tab="decks">Mazzi</button><button data-tab="matches">Partite</button><button data-tab="drafts">Draft</button><button data-tab="settings">Account</button></nav>
+      <div class="account-panels">
+        <section class="account-tab active" data-tab-panel="overview"><div class="account-columns"><article class="panel chart-panel"><div class="panel-top"><div><small>ANDAMENTO</small><h2>Le tue ultime partite</h2></div><button class="text-button">30 giorni ⌄</button></div><div class="account-chart"><div class="chart-labels"><span>70%</span><span>60%</span><span>50%</span></div><svg viewBox="0 0 650 190" role="img" aria-label="Andamento sintetico win rate"><path d="M0,144 C45,132 60,116 100,126 S155,88 205,102 S250,114 295,84 S335,55 370,74 S420,114 460,74 S525,44 570,56 S620,25 650,30" fill="none" stroke="#c874ff" stroke-width="6"/><path d="M0,144 C45,132 60,116 100,126 S155,88 205,102 S250,114 295,84 S335,55 370,74 S420,114 460,74 S525,44 570,56 S620,25 650,30 L650,190 L0,190Z" fill="url(#chartFill)"/><defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#9f46f2" stop-opacity=".42"/><stop offset="1" stop-color="#9f46f2" stop-opacity="0"/></linearGradient></defs></svg><div class="chart-days"><span>1 ago</span><span>8 ago</span><span>15 ago</span><span>22 ago</span><span>Oggi</span></div></div></article><article class="panel next-panel"><small>PROSSIMO PASSO</small><h2>Guarda il tuo mazzo più giocato.</h2><p>Mono Red Aggro · 24 partite · 66,7% di vittorie</p><button class="outline-button">Apri il mazzo <span>→</span></button></article></div><article class="panel recent-panel"><div class="panel-top"><div><small>CRONOLOGIA</small><h2>Partite recenti</h2></div><button class="text-button">Vedi tutte →</button></div><div class="match-rows"><p><i class="win">V</i><b>Mono Red Aggro</b><span>vs Esper Control</span><small>Standard · 12 min fa</small><em>2 — 1</em></p><p><i class="loss">P</i><b>Mono Red Aggro</b><span>vs Azorius Tempo</span><small>Standard · ieri</small><em>0 — 2</em></p><p><i class="win">V</i><b>Jeskai Spells</b><span>vs Gruul Landfall</span><small>Draft · ieri</small><em>1 — 0</em></p></div></article></section>
+        <section class="account-tab" data-tab-panel="decks"><article class="panel placeholder-tab"><small>I MIEI MAZZI</small><h2>12 decklist salvate</h2><p>In una futura implementazione, questa tab raccoglierà le versioni, le curve e le prestazioni per lista.</p></article></section>
+        <section class="account-tab" data-tab-panel="matches"><article class="panel placeholder-tab"><small>LE MIE PARTITE</small><h2>84 partite nel periodo</h2><p>Filtri, cronologia e dettagli rimangono disponibili senza allungare la panoramica principale.</p></article></section>
+        <section class="account-tab" data-tab-panel="drafts"><article class="panel placeholder-tab"><small>I MIEI DRAFT</small><h2>7 Draft completi</h2><p>Pool, lista finale e record vivono in una sezione dedicata, non in fondo a una pagina infinita.</p></article></section>
+        <section class="account-tab" data-tab-panel="settings"><article class="panel placeholder-tab"><small>ACCOUNT</small><h2>Dati e dispositivi</h2><p>Gestione account, esportazioni, consensi e supporto sono raccolti in una tab separata.</p></article></section>
+      </div>
+    </section>
+
+    <section class="screen app-page support-page" data-view="support" hidden>
+      <header class="support-hero"><p class="eyebrow">SUPPORTO MOX</p><h1>Ti aiutiamo a<br><em>tornare a giocare.</em></h1><p>Prima trova la soluzione più veloce. Se non basta, apri un ticket con il contesto giusto.</p><div class="support-search">⌕ <span>Cerca installazione, Draft, dati o account...</span><kbd>⌘ K</kbd></div></header>
+      <section class="support-quick"><article><span class="support-icon">↓</span><div><h2>Installa MOX</h2><p>Download, requisiti e primo avvio.</p><a href="#">Apri la guida →</a></div></article><article><span class="support-icon">?</span><div><h2>Problemi comuni</h2><p>Risoluzioni rapide per client e sito.</p><a href="#">Consulta le soluzioni →</a></div></article><article><span class="support-icon">◌</span><div><h2>Account e dati</h2><p>Accesso, privacy, esportazioni e consensi.</p><a href="#">Gestisci il tuo account →</a></div></article></section>
+      <section class="support-columns"><div><p class="eyebrow">FAQ</p><h2>Le domande più frequenti.</h2><div class="faq-list"><button><span>MOX è gratuito?</span><b>+</b></button><button><span>Quali dati vengono inviati?</span><b>+</b></button><button><span>Perché non vedo statistiche nel Meta?</span><b>+</b></button><button><span>Come collego un dispositivo?</span><b>+</b></button></div></div><aside class="ticket-card"><span class="status working">RISPONDIAMO AI TICKET</span><h2>Serve una mano?</h2><p>Raccogli il problema e, se necessario, allega il pacchetto diagnostico creato da MOX.</p><button class="button primary">Apri un ticket <span>→</span></button><small>Il ticket resta privato. Puoi seguirlo anche senza account con un link segreto.</small></aside></section>
+      <section class="privacy-callout"><span>⌾</span><div><p class="eyebrow">PRIVACY PRIMA DI TUTTO</p><h2>Il supporto non trasforma i tuoi dati in Meta pubblico.</h2><p>Diagnostica, ticket e contributi anonimi sono flussi distinti e spiegati prima dell’invio.</p></div><a href="#">Leggi la privacy →</a></section>
+    </section>
+  </main>
+  <footer><span>MOX · proposta visuale</span><span>Mockup statico · nessuna API</span><a href="?view=home-b">Confronta hero B →</a></footer>
+  <script src="./mockup.js"></script>
+</body>
+</html>
