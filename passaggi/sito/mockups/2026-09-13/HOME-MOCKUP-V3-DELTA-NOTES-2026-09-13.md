@@ -18,7 +18,7 @@ Le copie originali fornite per questa iterazione sono archiviate in `references/
 - collezione e risorse: `mox-dashboard-status-resources.png`;
 - opzioni, consensi e collegamenti: `mox-options-consents-and-links.png`.
 
-Per le superfici pubblicabili del tracker sono stati creati due crop derivati. `mox-tracker-ingame-hero-privacy-crop.png` oscura i riferimenti al giocatore; l'originale resta invariato in `references/`.
+Per le superfici pubblicabili è stata aggiunta `references/usable/`: contiene una copia pronta all'uso di ogni screenshot fornito, con gli identificativi visibili oscurati quando presenti. I crop `mox-tracker-hero-ready.png`, `mox-tracker-story-ready.png` e `mox-draft-pick-story-ready.png` sono ottimizzati per le proporzioni effettive delle card della Home: preservano il tracker o il Draft Assistant ed eliminano le barre profilo. Le sorgenti restano invariate in `references/`.
 
 ## Cosa racconta meglio questa versione
 
