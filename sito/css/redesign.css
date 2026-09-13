@@ -467,6 +467,26 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
 .mobile-deck { padding: 16px; }
 .mobile-below { margin: 10px 0 0; }
 
+/* Altro (Brew): il gruppo si apre dal pulsante; le liste figlie sono piu'
+   piccole, in sans e rientrate, per non sembrare archetipi riconosciuti. */
+.brew-toggle { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--lilac); font: 600 14px/1.3 var(--sans); cursor: pointer; }
+.brew-toggle:hover { border-color: var(--lilac); }
+.brew-toggle:focus-visible { outline: 2px solid var(--lilac); outline-offset: 2px; }
+.brew-chevron { display: inline-block; transition: transform 0.15s ease; }
+.brew-toggle[aria-expanded="true"] .brew-chevron { transform: rotate(180deg); }
+.brew-children[hidden] { display: none; }
+#meta-body .brew-child td { padding-block: 12px; font-size: 15px; background: rgba(255, 255, 255, 0.015); }
+#meta-body .brew-child .brew-child-name { padding-left: 44px; box-shadow: inset 3px 0 0 rgba(201, 162, 255, 0.28); }
+.brew-child-name strong { display: block; color: var(--text); font: 600 16px/1.3 var(--sans); }
+.brew-child-name small { display: block; color: var(--muted); font-size: 13px; }
+.mobile-brew-children { display: grid; gap: 8px; padding: 0 16px 16px; border-bottom: 1px solid var(--line); }
+.mobile-brew-children:last-child { border-bottom: 0; }
+.mobile-brew-child { display: grid; gap: 6px; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 10px; color: var(--text); text-decoration: none; }
+.mobile-brew-child-head { display: flex; justify-content: space-between; gap: 12px; }
+.mobile-brew-child-head span { color: var(--muted); font-size: 14px; }
+.mobile-brew-child-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; color: var(--muted); font-size: 13.5px; }
+.mobile-brew-child-meta strong { color: var(--text); font-weight: 600; }
+
 .matchup-panel { margin-top: 48px; }
 .matchup-panel::before { display: none; }
 .method-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; margin: 0; padding: 0; list-style: none; }

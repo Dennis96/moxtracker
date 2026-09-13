@@ -178,13 +178,43 @@ function mazzettoPubblico(mazzo) {
   };
 }
 
-function raggruppaBrew(mazzi, totale, soglia) {
+function confrontaTesto(a, b) {
+  const x = String(a ?? "");
+  const y = String(b ?? "");
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+
+// Una lista di Altro: la soglia si riapplica qui, cosi' un win rate sotto 30
+// partite non esce nemmeno se arrivasse dal motore.
+function varianteBrew(mazzo, indice, totale, soglia) {
+  const partite = Number(mazzo.partite || 0);
+  const vittorie = Number(mazzo.vittorie || 0);
+  const sufficienti = partite >= soglia;
+  return {
+    etichetta: `Brew #${indice + 1}`,
+    impronta: mazzo.impronta || null,
+    partite, vittorie, sconfitte: partite - vittorie,
+    dati_sufficienti: sufficienti,
+    win_rate: sufficienti ? percentuale(vittorie, partite) : null,
+    quota_meta: sufficienti ? percentuale(partite, totale) : null,
+  };
+}
+
+export function raggruppaBrew(mazzi, totale, soglia) {
   const riconosciuti = mazzi.filter((mazzo) => mazzo.archetipo_id);
   const brew = mazzi.filter((mazzo) => !mazzo.archetipo_id);
   if (!brew.length) return riconosciuti;
   const partite = brew.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0);
   const vittorie = brew.reduce((somma, mazzo) => somma + Number(mazzo.vittorie || 0), 0);
   const sufficienti = partite >= soglia;
+  // Le liste che compongono Altro restano consultabili una per una: ordine
+  // fisso (partite, vittorie, impronta) che non dipende da D1 e un nome neutro.
+  // L'impronta serve solo al collegamento con il dettaglio, non si mostra.
+  const variantiBrew = [...brew]
+    .sort((a, b) => Number(b.partite || 0) - Number(a.partite || 0) ||
+      Number(b.vittorie || 0) - Number(a.vittorie || 0) ||
+      confrontaTesto(a.impronta, b.impronta))
+    .map((mazzo, indice) => varianteBrew(mazzo, indice, totale, soglia));
   riconosciuti.push({
     nome: "Altro (Brew)", archetipo: "Altro (Brew)", archetipo_id: null,
     tipo_dettaglio: "altro", strategia: null, colori: [], modalita: null,
@@ -197,6 +227,7 @@ function raggruppaBrew(mazzi, totale, soglia) {
     dati_sufficienti: sufficienti,
     win_rate: sufficienti ? percentuale(vittorie, partite) : null,
     quota_meta: sufficienti ? percentuale(partite, totale) : null,
+    varianti_brew: variantiBrew,
   });
   return riconosciuti.sort((a, b) => b.partite - a.partite ||
     String(a.nome).localeCompare(String(b.nome)));

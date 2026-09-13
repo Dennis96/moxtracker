@@ -89,8 +89,16 @@ del sito.
   headless; i file di licenza OFL conservano gli spazi finali dell'originale;
   la configurazione `.claude/launch.json` delle preview locali è fuori dal
   repository.
+- **Meta, «Altro (Brew)» espandibile** (delta successivo a `e64c1b4`): la riga
+  resta aggregata e un pulsante apre le singole liste («Brew #N», nome neutro,
+  win rate solo da 30 partite), ognuna con il dettaglio per impronta e i filtri
+  del Meta. Tocca `src/lettura.js` (campo nuovo `varianti_brew`, retrocompatibile):
+  sul sito compare solo dopo un deploy del Worker, che non è stato fatto.
+  Sviluppo futuro, non implementato:
+  [roadmap aggiornamento catalogo archetipi](passaggi/sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md).
 - **Confini**: nessun deploy Pages / nessun deploy Worker / nessun deploy
-  produzione / nessun merge. Non modificati `src/**`, `schema.sql`,
+  produzione / nessun merge. Il redesign non ha modificato `src/**`; il delta
+  Brew tocca soltanto `src/lettura.js`. Non modificati `schema.sql`,
   `schema-draft.sql`, `migrazioni/**`, Worker, D1, Cloudflare, storage, packet,
   Research, R3, mox-core.
 
