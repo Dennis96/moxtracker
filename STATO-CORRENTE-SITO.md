@@ -1,6 +1,7 @@
 # Stato corrente — sito Mox
 
-Stato letto e verificato il 10 settembre 2026. La preview funzionale pubblicata
+Aggiornato il 13 settembre 2026: il redesign è implementato su un branch e non
+è pubblicato (sezione sotto). Stato verificato il 10 settembre 2026: la preview funzionale pubblicata
 resta `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
 manualmente e i collaudi R0 7–13 sono conclusi. `origin/main` prima di questo
 housekeeping è `39dc8a6`, commit esclusivamente documentale: dopo la preview non
@@ -18,6 +19,71 @@ modifiche effettivamente pubblicate, test eseguiti e ciò che **non** è stato
 modificato. La chat successiva legge questo file prima di proporre o eseguire
 nuovo lavoro. Non creare handoff alternativi: questo è l'unico stato operativo
 del sito.
+
+## Redesign implementato sul branch, non pubblicato (13 settembre 2026)
+
+- Branch `claude/site-redesign-implementation-2026-09-13`, creato dalla
+  baseline `fe29cc6d25de8f8e0e1aef34db5137e9491e3833`. Fonte canonica:
+  [specifica congelata](passaggi/sito/SPEC-SITO-MOX-REDESIGN-2026-09-13.md);
+  [piano di implementazione](passaggi/sito/PIANO-IMPLEMENTAZIONE-REDESIGN-2026-09-13.md).
+- Commit: `d6273fb` implementazione, `8bc4822` correzioni della code review
+  (ultimo commit di codice). Questo file è aggiornato nel commit successivo.
+- **Home e Meta separati.** `index.html` è la Home (titolo descrittivo, Cosa fa
+  MOX, MOX sul web, In sviluppo, Pianificato). Il Meta Explorer vive in
+  `meta.html`, pubblicato anche come `en/meta.html`; navigazione, footer e
+  pagine di servizio puntano lì.
+- **Compatibilità `#meta`.** `sito/js/meta-legacy.js`, caricato solo dalla Home,
+  porta `/#meta`, `/en/#meta` e `/index.html#meta` (e i vecchi `#matchup`,
+  `#metodo`) su `meta.html` della stessa lingua con `location.replace`,
+  conservando la query. `meta.html` non lo carica: nessun ciclo. Vale anche
+  con la Home già aperta, tramite `hashchange`.
+- **Archetipo → varianti → dettaglio variante.** Contratto URL invariato
+  (`formato`, `periodo`, `rank`, `modalita`, `impronta`, `id`, `variante`).
+  «Cambia filtri» e il percorso tornano al Meta con gli stessi filtri, che
+  `main.js` riapplica solo se validi.
+- **Draft**: prima il prodotto, poi i dati Limited, poi il metodo. **Account**:
+  cinque schede (Panoramica, Mazzi, Partite, Draft, Account) con tutte le
+  funzioni precedenti: login Google/Discord, mazzi, partite, Draft, rank,
+  avversari, dettagli, paginazione, collegamento Mox, dispositivi, ticket,
+  ticket amministratore, export, logout, cancellazioni, consensi.
+- **Shell comune**: font locali Spectral e Hanken Grotesk con licenza OFL in
+  `sito/assets/fonts/`, CTA «Scarica MOX», menu mobile, footer unico,
+  breakpoint 1100/760, `prefers-reduced-motion`.
+- **Nessun numero di esempio nel sito reale**: solo dati API, stato vuoto o
+  caricamento. Le schermate in `sito/assets/home/` sono prese dalle pagine
+  reali; quella dell'Account viene dal banco sintetico ed è dichiarata «Dati di
+  esempio».
+- **Meta su telefono**: sotto 760 px restano le schede per archetipo del sito
+  attuale (sezione 6 della specifica, «prevale il sito attuale») invece della
+  tabella a scorrimento orizzontale descritta nella sezione 9. Scelta
+  confermata dall'utente il 13/09.
+- **Banco sintetico per l'Account in locale**: con
+  `MOX_BANCO_SINTETICO=prove/fixtures/account-sintetico.json`,
+  `strumenti/anteprima_sito.mjs` risponde con dati inventati ai soli
+  `/account/*`. Non entra nella build.
+- **Verifiche su `8bc4822`**: `npm run prove` 204/204; `npm run sito:build`
+  build `982ead134f1de081`, 91 file; smoke
+  `node strumenti/smoke_beta.mjs --site http://localhost:8790` 13/13 OK.
+- **Browser locale**: su `d6273fb` sono state verificate le route IT/EN HTTP
+  200, l'assenza di immagini rotte e di overflow a 375 px su Home, Meta e
+  Account, il menu mobile (Escape e ritorno del focus), le schede Account da
+  tastiera, `/en/#meta` → `/en/meta.html` e `/index.html#matchup` →
+  `/meta.html#matchup`. Dopo le correzioni sono stati ricontrollati: i filtri
+  Archetipo ↔ Meta, i rank in italiano, i conteggi delle schede Account e i
+  testi inglesi delle schede del Meta su telefono.
+- **Code review**: nessun finding critico. I due importanti sono risolti (Meta
+  su telefono: decisione registrata sopra e una sola voce «Sotto soglia»;
+  questo file aggiornato). I minori M1–M9 sono risolti. M10 non è applicato:
+  il pulsante della Home conserva `href="#download"` perché `download.js` lo
+  sostituisce con lo ZIP Latest e la prova di pre-lancio lo richiede.
+- **Limiti noti**: miniature delle carte da Scryfall non verificate in
+  headless; i file di licenza OFL conservano gli spazi finali dell'originale;
+  la configurazione `.claude/launch.json` delle preview locali è fuori dal
+  repository.
+- **Confini**: nessun deploy Pages / nessun deploy Worker / nessun deploy
+  produzione / nessun merge. Non modificati `src/**`, `schema.sql`,
+  `schema-draft.sql`, `migrazioni/**`, Worker, D1, Cloudflare, storage, packet,
+  Research, R3, mox-core.
 
 ## Ultima preview pubblicata
 
@@ -160,6 +226,9 @@ produzione.
 
 ## Prossimo lavoro
 
+0. Review del coordinatore sul branch
+   `claude/site-redesign-implementation-2026-09-13` prima di qualsiasi preview
+   o merge del redesign.
 1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
    motion e download GitHub Latest).
 2. R3-PREP resta una proposta: attendere modello locale R2, golden packet
