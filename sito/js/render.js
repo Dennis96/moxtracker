@@ -4,7 +4,7 @@ import { createCoreStrip } from "./card-images.js";
 
 const INGLESE = document.documentElement.lang === "en";
 // Nelle schede mobili il numero di partite va nella lingua della pagina.
-const PARTITE_BREVE = INGLESE ? "matches" : "pt.";
+const partiteBreve = (partite) => (INGLESE ? (Number(partite) === 1 ? "match" : "matches") : "pt.");
 
 function clear(node) { while (node.firstChild) node.firstChild.remove(); }
 function el(tag, className, text) {
@@ -137,7 +137,7 @@ function schedaBrew(variante, indice, apiFilters) {
   const scheda = el(url ? "a" : "div", "mobile-brew-child");
   if (url) scheda.href = url;
   const testa = el("div", "mobile-brew-child-head");
-  testa.append(el("strong", "", nome), el("span", "", `${formatInteger(variante.partite)} ${PARTITE_BREVE}${url ? " ›" : ""}`));
+  testa.append(el("strong", "", nome), el("span", "", `${formatInteger(variante.partite)} ${partiteBreve(variante.partite)}${url ? " ›" : ""}`));
   const valori = el("div", "mobile-brew-child-meta");
   valori.append(el("span", "", "V / S"),
     el("strong", "", `${formatInteger(variante.vittorie)} / ${formatInteger(variante.sconfitte)}`),
@@ -283,7 +283,7 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     const title = el("div");
     title.append(el("strong", "", deckLabel(deck)), el("small", "", classificationSummary(deck)));
     if (!classified && deck.impronta) title.append(el("small", "", `ID tecnico ${shortFingerprint(deck.impronta)}`));
-    head.append(title, el("span", "", `${formatInteger(deck.partite)} ${PARTITE_BREVE}${url ? " ›" : ""}`)); card.append(head);
+    head.append(title, el("span", "", `${formatInteger(deck.partite)} ${partiteBreve(deck.partite)}${url ? " ›" : ""}`)); card.append(head);
     if (classified) {
       const core = createCoreStrip(deck.carte_core || []);
       if (core.childNodes.length) card.append(core);

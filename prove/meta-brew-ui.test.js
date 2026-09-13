@@ -176,6 +176,16 @@ test("il dettaglio di una lista non classificata non mostra identificativi tecni
   assert.match(archetipo, /if \(selection && classified\) tags\.append/);
 });
 
+test("in inglese una lista da una sola partita dice «1 match»", async () => {
+  const { documento, render } = await montaMeta("en");
+  const d = dati();
+  d.mazzi[0].varianti_brew[2] = { ...d.mazzi[0].varianti_brew[2], partite: 1, vittorie: 1, sconfitte: 0 };
+  render.renderMeta(d, ORDINE, {}, FILTRI);
+  const teste = documento.querySelectorAll(".mobile-brew-child-head");
+  assert.equal(teste[0].querySelector("span").textContent, "48 matches ›");
+  assert.equal(teste[2].querySelector("span").textContent, "1 match ›");
+});
+
 test("senza varianti_brew dall'API la riga Altro resta com'era", async () => {
   const { documento, render } = await montaMeta();
   render.renderMeta(dati({ conVarianti: false }), ORDINE, {}, FILTRI);
