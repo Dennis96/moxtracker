@@ -1,4 +1,4 @@
-/* Home MOX, esplorazione Claude 13/09/2026.
+/* Home MOX e base comune delle pagine web, esplorazione Claude 13/09/2026.
    Colori da sito/css/tokens.css; Spectral per i titoli, Hanken Grotesk per il resto. */
 
 :root {
@@ -6,13 +6,17 @@
   --ink: #07080d;
   --ink-2: #0c0d15;
   --table: #14131d;
+  --panel: #0f1018;
   --violet: #7c2cff;
   --violet-hover: #8e46ff;
+  --violet-hi: #a644ff;
   --lilac: #c9a2ff;
   --green: #61dd79;
+  --red: #ff6b71;
   --text: #f7f5fb;
   --text-2: #d4d2dc;
   --muted: #a7a6b2;
+  --muted-2: #777785;
   --line: rgba(190, 156, 255, 0.16);
   --line-strong: rgba(185, 104, 255, 0.42);
   --dash: rgba(201, 162, 255, 0.45);
@@ -40,7 +44,7 @@ body {
 
 img { display: block; max-width: 100%; height: auto; }
 
-h1, h2, h3, p, ul, ol, figure { margin: 0; }
+h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 
 a { color: inherit; }
@@ -52,6 +56,15 @@ a { color: inherit; }
 }
 
 .shell { width: var(--shell); margin-inline: auto; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .skip {
   position: absolute;
@@ -69,18 +82,25 @@ a { color: inherit; }
 .button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 50px;
   padding: 0 24px;
+  border: 1px solid transparent;
   border-radius: 10px;
+  background: none;
+  color: var(--text);
   font: 600 16px/1 var(--sans);
   text-decoration: none;
+  cursor: pointer;
   transition: background-color .15s ease, border-color .15s ease;
 }
 .button-primary { background: var(--violet); color: #fff; }
 .button-primary:hover { background: var(--violet-hover); }
-.button-ghost { border: 1px solid var(--dash); color: var(--text); }
+.button-ghost { border-color: var(--dash); }
 .button-ghost:hover { background: rgba(124, 44, 255, 0.14); border-color: var(--lilac); }
 .button-small { min-height: 40px; padding: 0 16px; font-size: 15px; }
+.button-danger { border-color: rgba(255, 107, 113, 0.5); color: #ffb3b6; }
+.button-danger:hover { background: rgba(255, 107, 113, 0.1); }
 
 .actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
@@ -127,39 +147,53 @@ a { color: inherit; }
 }
 .lang:hover { color: var(--text); }
 
-/* Hero */
+/* Intestazioni di sezione */
 
-.hero { padding: 28px 0 88px; overflow: hidden; }
+.section-head { max-width: 40rem; }
+.section-head h2 {
+  font: 600 clamp(2rem, 1.4rem + 1.3vw, 2.6rem)/1.15 var(--serif);
+  letter-spacing: -0.01em;
+}
+.section-head p { margin-top: 14px; font-size: 18px; color: var(--muted); }
+
+/* Hero: testo e client in alto, i tre strumenti in una fascia che sale sul client. */
+
+.hero { padding: 20px 0 88px; overflow: hidden; }
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
-  gap: 56px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 48px;
   align-items: center;
 }
 
-.hero-copy { position: relative; z-index: 1; max-width: 34rem; }
+/* In alto e non centrato: la fascia delle preview sale sotto il testo. */
+.hero-copy { position: relative; z-index: 2; align-self: start; max-width: 36rem; padding-top: 12px; }
 
 .hero-copy h1 {
-  font: 600 clamp(2.3rem, 1.1rem + 2.45vw, 3.3rem)/1.12 var(--serif);
+  font: 600 clamp(2.1rem, 1.1rem + 2.1vw, 2.9rem)/1.1 var(--serif);
   letter-spacing: -0.012em;
   text-wrap: balance;
 }
 
 .lede {
-  margin-top: 26px;
-  font-size: 18px;
-  line-height: 1.65;
+  margin-top: 20px;
+  font-size: 17px;
+  line-height: 1.6;
   color: var(--text-2);
+  max-width: 33em;
 }
 
-.hero-copy .actions { margin-top: 34px; }
+.hero-copy .actions { margin-top: 30px; }
 
-.fineprint { margin-top: 16px; font-size: 14px; color: var(--muted); }
+.fineprint { margin-top: 14px; font-size: 14px; color: var(--muted); }
 
-.hero-visual { position: relative; isolation: isolate; }
-
-.client { position: relative; width: calc(100% - 56px); margin-inline: auto; }
+.client {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 620px);
+  justify-self: end;
+}
 
 /* La testata del client, sfocata, fa da luce dietro la finestra. */
 .client-glow {
@@ -177,65 +211,58 @@ a { color: inherit; }
   width: 100%;
   border: 1px solid var(--line-strong);
   border-radius: 14px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 6px rgba(124, 44, 255, 0.07);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
 }
 
-/* Le tre carte salgono solo sulla fascia vuota in basso nel client
-   (circa l'ultimo 15% dell'altezza, 118 px su 763 nativi). */
-.tools {
+/* Le preview salgono solo sulla fascia vuota in fondo al client
+   (13% della sua larghezza); il margine in % segue la larghezza della griglia. */
+.previews {
+  grid-column: 1 / -1;
   position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: -9%;
+  gap: 24px;
+  margin-top: -4.6%;
 }
 
-.tool-shot {
-  aspect-ratio: 4 / 3;
+.preview-shot {
+  aspect-ratio: 7 / 5;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   background: var(--table);
-  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.62);
+  box-shadow: 0 26px 50px rgba(0, 0, 0, 0.65);
 }
-.tool-shot img {
+.preview-shot img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: left top;
 }
 
-.tool-name {
+.preview-name {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 12px;
   font-weight: 600;
   font-size: 15px;
   line-height: 1.25;
 }
-.tool-name img { width: 24px; height: auto; border-radius: 4px; flex: none; }
+.preview-name img { width: 22px; border-radius: 4px; flex: none; }
 
 /* L'unico movimento non richiesto: il client, poi i tre strumenti in ordine. */
 @media (prefers-reduced-motion: no-preference) {
   .client { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
-  .tool { animation: rise .65s cubic-bezier(.2, .7, .2, 1) both; }
-  .tool:nth-child(1) { animation-delay: .5s; }
-  .tool:nth-child(2) { animation-delay: .65s; }
-  .tool:nth-child(3) { animation-delay: .8s; }
+  .preview { animation: rise .65s cubic-bezier(.2, .7, .2, 1) both; }
+  .preview:nth-child(1) { animation-delay: .45s; }
+  .preview:nth-child(2) { animation-delay: .6s; }
+  .preview:nth-child(3) { animation-delay: .75s; }
   @keyframes rise {
     from { opacity: 0; transform: translateY(22px); }
   }
 }
-
-/* Intestazioni di sezione */
-
-.section-head { max-width: 40rem; }
-.section-head h2 {
-  font: 600 clamp(2rem, 1.4rem + 1.3vw, 2.6rem)/1.15 var(--serif);
-  letter-spacing: -0.01em;
-}
-.section-head p { margin-top: 14px; font-size: 18px; color: var(--muted); }
 
 /* Cosa fa MOX: una linea del tempo, perché i momenti sono in sequenza. */
 
@@ -300,7 +327,11 @@ a { color: inherit; }
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 }
 
-.shot figcaption {
+/* Didascalie: il verde dei conteggi del Contatore segna ciò che esiste oggi,
+   il tratteggio lilla ciò che è proposta o futuro. */
+.real-note,
+.shot figcaption,
+.proposal-note {
   display: flex;
   align-items: baseline;
   gap: 10px;
@@ -308,8 +339,9 @@ a { color: inherit; }
   font-size: 14px;
   color: var(--muted);
 }
-/* Il verde dei conteggi del Contatore segna ciò che esiste oggi. */
-.shot figcaption::before {
+.real-note::before,
+.shot figcaption::before,
+.proposal-note::before {
   content: "";
   flex: none;
   width: 8px;
@@ -317,6 +349,12 @@ a { color: inherit; }
   border-radius: 50%;
   background: var(--green);
   transform: translateY(-1px);
+}
+.proposal-note::before {
+  background: none;
+  border: 1px dashed var(--lilac);
+  width: 9px;
+  height: 9px;
 }
 
 .shot-narrow { max-width: 600px; }
@@ -334,34 +372,59 @@ a { color: inherit; }
 }
 .shot-partita figcaption { margin-top: 40px; }
 
-/* MOX sul web */
+/* MOX sul web: il Meta pesa di più, Draft e Il mio MOX lo affiancano. */
 
 .web {
-  padding: 96px 0;
+  padding: 104px 0 112px;
   background: var(--ink-2);
   border-block: 1px solid var(--line);
 }
 
-.web-list { margin-top: 48px; }
-.web-list li {
+.web-grid {
   display: grid;
-  grid-template-columns: 14rem minmax(0, 1fr) auto;
-  gap: 32px;
-  align-items: baseline;
-  padding: 28px 0;
-  border-top: 1px solid var(--line);
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 48px 48px;
+  margin-top: 56px;
 }
-.web-list li:last-child { border-bottom: 1px solid var(--line); }
-.web-list h3 { font: 600 26px/1.2 var(--serif); }
-.web-list p { color: var(--text-2); font-size: 17px; max-width: 36em; }
-.web-list a {
+.web-side-col { display: grid; gap: 48px; align-content: start; }
+
+.web-shot {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--ink);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+  transition: border-color .15s ease;
+}
+.web-shot:hover { border-color: var(--lilac); }
+.web-shot img { width: 100%; object-fit: cover; object-position: top; }
+.web-main .web-shot img { aspect-ratio: 16 / 12.4; }
+.web-side .web-shot img { aspect-ratio: 16 / 7.6; }
+
+/* Sotto l'Explorer, i due passi successivi del percorso Meta. */
+.web-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.web-flow .web-shot { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5); }
+.web-flow .web-shot img { aspect-ratio: 16 / 9; }
+
+.web-text { margin-top: 20px; }
+.web-text h3 { font: 600 28px/1.2 var(--serif); }
+.web-main .web-text h3 { font-size: 32px; }
+.web-text p { margin-top: 8px; color: var(--text-2); font-size: 17px; max-width: 38em; }
+.web-text .text-link { display: inline-block; margin-top: 12px; }
+
+.text-link {
   color: var(--lilac);
   font-weight: 600;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
-  white-space: nowrap;
 }
-.web-list a:hover { color: var(--text); }
+.text-link:hover { color: var(--text); }
 
 /* In sviluppo e Pianificato: il tratteggio distingue il futuro dal reale. */
 
@@ -434,14 +497,15 @@ a { color: inherit; }
 /* Schermi stretti */
 
 @media (max-width: 1100px) {
-  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); row-gap: 48px; }
   .hero-copy { max-width: 40rem; }
+  .client { justify-self: start; width: min(100%, 720px); }
+  .previews { margin-top: 0; }
   .moment { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-bottom: 88px; }
   .shot { margin-left: 40px; }
+  .web-grid { grid-template-columns: minmax(0, 1fr); }
   .future-grid,
   .closing-grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
-  .web-list li { grid-template-columns: 10rem minmax(0, 1fr); }
-  .web-list a { grid-column: 2; }
 }
 
 @media (max-width: 760px) {
@@ -450,12 +514,9 @@ a { color: inherit; }
   .header-end { margin-left: auto; }
   .hero { padding: 32px 0 64px; }
   .client { width: 100%; }
-  .tools { gap: 10px; margin-top: 12px; }
-  .tool-name { font-size: 13px; gap: 6px; align-items: flex-start; }
-  .tool-name img { width: 18px; }
+  .previews { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .shot { margin-left: 0; }
   .shot-stage .shot-inset { right: -6px; bottom: -20px; width: 32%; }
-  .web-list li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-  .web-list a { grid-column: auto; }
+  .web-side .web-shot img { aspect-ratio: 16 / 10; }
   .footer-row p { margin-left: 0; }
 }
