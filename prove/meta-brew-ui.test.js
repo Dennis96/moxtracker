@@ -161,6 +161,21 @@ test("in inglese i testi nuovi nascono in inglese o hanno la traduzione a runtim
   for (const t of italiane) assert.ok(en[t] || schema.test(t), `senza traduzione: ${t}`);
 });
 
+test("cercando l'etichetta di una lista Brew resta visibile la riga Altro", async () => {
+  const { filterMetaDecks } = await import("../sito/js/meta-model.js");
+  const altro = dati().mazzi[0];
+  assert.deepEqual(filterMetaDecks([altro], { search: "brew #3" }), [altro]);
+  assert.deepEqual(filterMetaDecks([altro], { search: "brew #7" }), []);
+});
+
+test("il dettaglio di una lista non classificata non mostra identificativi tecnici", () => {
+  const archetipo = leggi("js/archetype.js");
+  assert.doesNotMatch(archetipo, /ID tecnico/);
+  // L'«ID» della variante compare solo per gli archetipi riconosciuti.
+  assert.match(archetipo, /identity\.append\(title, \.\.\.\(recognized \? \[sub\] : \[\]\)\)/);
+  assert.match(archetipo, /if \(selection && classified\) tags\.append/);
+});
+
 test("senza varianti_brew dall'API la riga Altro resta com'era", async () => {
   const { documento, render } = await montaMeta();
   render.renderMeta(dati({ conVarianti: false }), ORDINE, {}, FILTRI);

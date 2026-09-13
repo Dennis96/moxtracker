@@ -112,7 +112,8 @@ ogni candidato almeno:
 - somiglianza con gli archetipi noti;
 - motivo del mancato riconoscimento.
 
-Gli identificativi tecnici non vengono mai mostrati agli utenti del sito.
+Il report resta interno: non espone identificativi tecnici agli utenti del
+sito.
 
 ### G. Aggiornamento non necessariamente automatico
 

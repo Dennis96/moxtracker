@@ -1,6 +1,6 @@
 import { DEFAULT_FORMAT, nomeRank } from "./config.js";
 import { fetchArchetipo } from "./api.js";
-import { deckLabel, formatInteger, formatPercent, sampleSufficient, shortFingerprint } from "./format.js";
+import { deckLabel, formatInteger, formatPercent, sampleSufficient } from "./format.js";
 import { classificationSummary, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
 import { createCardListItem, parseReferenceLine } from "./card-images.js";
 import { renderProfiloMazzo } from "./deck-profile.js";
@@ -155,11 +155,11 @@ function renderDeck(deck, params, selection) {
     if (mode) tags.append(tag(mode, "detail-tag"));
     if (!colors.length && !strategy) tags.append(tag(classificationSummary(deck), "detail-tag"));
   } else {
+    // Una lista non classificata non ha nome: l'impronta resta tecnica e
+    // serve solo al collegamento, non si mostra.
     tags.append(tag("Archetipo non ancora confermato", "detail-tag pending-tag"));
-    const fingerprint = deck?.varianti?.[0]?.impronta;
-    if (fingerprint) tags.append(tag(`ID tecnico ${shortFingerprint(fingerprint)}`, "detail-tag"));
   }
-  if (selection) tags.append(tag(`ID ${String(variant.variante_id || "").slice(0, 8)}`, "detail-tag variant-tag"));
+  if (selection && classified) tags.append(tag(`ID ${String(variant.variante_id || "").slice(0, 8)}`, "detail-tag variant-tag"));
 
   if (!selection) {
     const sufficient = sampleSufficient(stats);
@@ -333,7 +333,7 @@ function renderVariants(data) {
     const title = document.createElement("strong"); title.textContent = index === 0
       ? "Lista più rappresentativa" : `Variante osservata #${index + 1}`;
     const sub = document.createElement("small"); sub.textContent = `ID ${String(variant.variante_id || "").slice(0, 8) || "n.d."}`;
-    identity.append(title, sub);
+    identity.append(title, ...(recognized ? [sub] : []));
 
     const right = document.createElement("div"); right.className = "variant-head-right";
     const metrics = document.createElement("div"); metrics.className = "variant-metrics";
