@@ -133,7 +133,11 @@ function renderDeck(deck, params, selection) {
   const classified = deckIsClassified(deck);
   const variant = selection?.variant || null;
   const stats = variant || deck;
-  const displayTitle = selection ? `Variante osservata #${selection.index + 1}` : parentTitle;
+  // Il titolo della scheda del browser non passa dalla traduzione a runtime:
+  // lo scriviamo già nella lingua della pagina.
+  const displayTitle = selection
+    ? (INGLESE ? `Observed variant #${selection.index + 1}` : `Variante osservata #${selection.index + 1}`)
+    : parentTitle;
   document.body.classList.toggle("variant-mode", Boolean(selection));
   document.title = selection ? `${displayTitle} — ${parentTitle} — MOX Arena Assistant` : `${parentTitle} — MOX Arena Assistant`;
   document.querySelector("#detail-heading h1").textContent = displayTitle;
@@ -364,7 +368,27 @@ function renderVariants(data) {
     altre.className = "variant-card variant-summary-card other-variants";
     const quante = Number(data.altre_varianti.varianti || 0);
     const partite = Number(data.altre_varianti.partite || 0);
-    altre.innerHTML = `<div class="variant-head"><div><strong>Altre varianti</strong><small>${quante} ${quante === 1 ? "lista sotto soglia" : "liste sotto soglia"}</small></div><div class="variant-metrics"><span><b>${formatInteger(partite)}</b> partite aggregate</span><span>Dati e decklist non pubblicati</span></div></div>`;
+    // Numero e parola stanno nello stesso nodo di testo: la traduzione esatta
+    // non li riconoscerebbe, quindi il testo nasce già nella lingua della pagina.
+    const testa = document.createElement("div"); testa.className = "variant-head";
+    const identita = document.createElement("div");
+    const titolo = document.createElement("strong"); titolo.textContent = INGLESE ? "Other variants" : "Altre varianti";
+    const liste = document.createElement("small");
+    liste.textContent = INGLESE
+      ? `${quante} ${quante === 1 ? "list" : "lists"} below threshold`
+      : `${quante} ${quante === 1 ? "lista sotto soglia" : "liste sotto soglia"}`;
+    identita.append(titolo, liste);
+    const metriche = document.createElement("div"); metriche.className = "variant-metrics";
+    const aggregate = document.createElement("span");
+    const numero = document.createElement("b"); numero.textContent = formatInteger(partite);
+    aggregate.append(numero, INGLESE
+      ? ` aggregated ${partite === 1 ? "match" : "matches"}`
+      : ` ${partite === 1 ? "partita aggregata" : "partite aggregate"}`);
+    const riservati = document.createElement("span");
+    riservati.textContent = INGLESE ? "Data and decklists not published" : "Dati e decklist non pubblicati";
+    metriche.append(aggregate, riservati);
+    testa.append(identita, metriche);
+    altre.append(testa);
     host.append(altre);
   }
 }

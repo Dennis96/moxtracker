@@ -54,6 +54,7 @@ function disegna(dati) {
   const pubblicabile = risultati.win_rate !== null && risultati.win_rate !== undefined;
   $("draft-winrate").textContent = pubblicabile ? percentuale.format(risultati.win_rate) : "Sotto soglia";
   // Come nel Meta: sotto soglia diciamo quante partite collegate mancano.
+  // Oggi l'API non manda la soglia (in src/draft.js vale 30 fisso): 30 è il ripiego.
   const soglia = Number(risultati.soglia) || 30;
   const campione = Number(risultati.campione || 0);
   const mancano = Math.max(0, soglia - campione);

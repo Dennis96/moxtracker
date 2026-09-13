@@ -607,7 +607,7 @@ function renderDraft() {
 function apriSessione(sessione) {
   const elenco = nodo("div", "session-match-list");
   for (const id of sessione.partite_id) {
-    const b = nodo("button", "service-button", `Apri partita ${id}`);
+    const b = nodo("button", "service-button", INGLESE ? `Open match ${id}` : `Apri partita ${id}`);
     b.type = "button";
     b.addEventListener("click", () => apriPartita(id));
     elenco.append(b);

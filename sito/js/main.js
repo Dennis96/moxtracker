@@ -233,7 +233,20 @@ async function loadScontri() {
   catch (error) { if (error.name !== "AbortError") { renderScontriError(error); traduciDocumento(); } }
 }
 
-function loadAll() { loadMeta(); loadScontri(); }
+// La query segue i filtri attivi: ricaricando la pagina, o tornando da un
+// archetipo, si ritrovano quelli scelti e non quelli con cui si era arrivati.
+function aggiornaQuery() {
+  const url = new URL(location.href);
+  const filtri = state.apiFilters;
+  const valori = { formato: filtri.formato === DEFAULT_FORMAT ? "" : filtri.formato,
+    periodo: filtri.periodo === "30" ? "" : filtri.periodo, modalita: filtri.modalita, rank: filtri.rank };
+  for (const [nome, valore] of Object.entries(valori)) {
+    if (valore) url.searchParams.set(nome, valore); else url.searchParams.delete(nome);
+  }
+  if (url.href !== location.href) history.replaceState(history.state, "", url);
+}
+
+function loadAll() { aggiornaQuery(); loadMeta(); loadScontri(); }
 
 document.addEventListener("click", event => {
   const sort = event.target.closest("[data-sort]");

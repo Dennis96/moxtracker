@@ -182,6 +182,16 @@ test("il ritorno al Meta conserva i filtri e i rank sono in italiano", () => {
   assert.match(leggi("js/config.js"), /Mythic: "Mitico"/);
 });
 
+test("i testi composti dal JavaScript nascono già nella lingua della pagina", () => {
+  const archetipo = leggi("js/archetype.js");
+  assert.doesNotMatch(archetipo, /altre\.innerHTML/);
+  assert.match(archetipo, /Observed variant #/);
+  assert.match(archetipo, /aggregated \$\{partite === 1/);
+  assert.match(leggi("js/account.js"), /Open match \$\{id\}/);
+  // La query di meta.html segue i filtri scelti: ricaricando si ritrovano quelli.
+  assert.match(leggi("js/main.js"), /history\.replaceState/);
+});
+
 test("il banco sintetico dell'anteprima resta fuori dal sito pubblicato", () => {
   const anteprima = leggiRadice("strumenti/anteprima_sito.mjs");
   assert.match(anteprima, /MOX_BANCO_SINTETICO/);
