@@ -26,8 +26,9 @@ del sito.
   baseline `fe29cc6d25de8f8e0e1aef34db5137e9491e3833`. Fonte canonica:
   [specifica congelata](passaggi/sito/SPEC-SITO-MOX-REDESIGN-2026-09-13.md);
   [piano di implementazione](passaggi/sito/PIANO-IMPLEMENTAZIONE-REDESIGN-2026-09-13.md).
-- Commit: `d6273fb` implementazione, `8bc4822` correzioni della code review
-  (ultimo commit di codice). Questo file è aggiornato nel commit successivo.
+- Commit: `d6273fb` implementazione, `8bc4822` correzioni della code review,
+  `15720c4` correzioni della review finale (ultimo commit di codice). Questo
+  file è aggiornato nel commit successivo.
 - **Home e Meta separati.** `index.html` è la Home (titolo descrittivo, Cosa fa
   MOX, MOX sul web, In sviluppo, Pianificato). Il Meta Explorer vive in
   `meta.html`, pubblicato anche come `en/meta.html`; navigazione, footer e
@@ -61,8 +62,8 @@ del sito.
   `MOX_BANCO_SINTETICO=prove/fixtures/account-sintetico.json`,
   `strumenti/anteprima_sito.mjs` risponde con dati inventati ai soli
   `/account/*`. Non entra nella build.
-- **Verifiche su `8bc4822`**: `npm run prove` 204/204; `npm run sito:build`
-  build `982ead134f1de081`, 91 file; smoke
+- **Verifiche su `15720c4`**: `npm run prove` 205/205; `npm run sito:build`
+  build `79a117d1ca69f748`, 91 file; smoke
   `node strumenti/smoke_beta.mjs --site http://localhost:8790` 13/13 OK.
 - **Browser locale**: su `d6273fb` sono state verificate le route IT/EN HTTP
   200, l'assenza di immagini rotte e di overflow a 375 px su Home, Meta e
@@ -70,12 +71,20 @@ del sito.
   tastiera, `/en/#meta` → `/en/meta.html` e `/index.html#matchup` →
   `/meta.html#matchup`. Dopo le correzioni sono stati ricontrollati: i filtri
   Archetipo ↔ Meta, i rank in italiano, i conteggi delle schede Account e i
-  testi inglesi delle schede del Meta su telefono.
+  testi inglesi delle schede del Meta su telefono. Dopo la review finale: il
+  riquadro «Other variants» e il titolo della scheda di una variante in
+  inglese, e la query di `meta.html` che segue rank, modalità e reset.
 - **Code review**: nessun finding critico. I due importanti sono risolti (Meta
   su telefono: decisione registrata sopra e una sola voce «Sotto soglia»;
   questo file aggiornato). I minori M1–M9 sono risolti. M10 non è applicato:
   il pulsante della Home conserva `href="#download"` perché `download.js` lo
   sostituisce con lo ZIP Latest e la prova di pre-lancio lo richiede.
+- **Review finale su `e4318d3`**: nessun finding critico. Risolti in
+  `15720c4` i due importanti (frasi italiane nel riquadro «Altre varianti» e
+  nel titolo della variante in inglese) e due minori («Apri partita» in
+  inglese, query del Meta allineata ai filtri). Resta un minore: le prove di
+  M1/M2 controllano il testo del sorgente e non il comportamento, come il
+  resto della suite per i moduli che toccano il DOM all'avvio.
 - **Limiti noti**: miniature delle carte da Scryfall non verificate in
   headless; i file di licenza OFL conservano gli spazi finali dell'originale;
   la configurazione `.claude/launch.json` delle preview locali è fuori dal
