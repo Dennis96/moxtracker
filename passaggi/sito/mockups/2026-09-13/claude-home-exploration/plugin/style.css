@@ -115,11 +115,44 @@ a { color: inherit; }
   min-height: 72px;
 }
 
+/* Marchio reale del sito (sito/assets/branding/mox-marchio.webp) più il nome. */
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font: 800 22px/1 var(--sans);
   letter-spacing: 0.02em;
   text-decoration: none;
 }
+.wordmark img { width: 32px; height: 32px; }
+
+/* Menu per schermi stretti, senza JavaScript. */
+.menu { display: none; position: relative; }
+.menu summary {
+  padding: 8px 12px;
+  border: 1px solid var(--dash);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  list-style: none;
+  cursor: pointer;
+}
+.menu summary::-webkit-details-marker { display: none; }
+.menu nav {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 20;
+  display: grid;
+  min-width: 200px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--table);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+.menu nav a { padding: 10px 12px; border-radius: 8px; color: var(--text-2); font-weight: 600; text-decoration: none; }
+.menu nav a[aria-current="page"] { background: rgba(124, 44, 255, 0.22); color: var(--text); }
 
 .site-nav { display: flex; gap: 28px; margin-left: auto; }
 .site-nav a {
@@ -511,7 +544,9 @@ a { color: inherit; }
 @media (max-width: 760px) {
   :root { --shell: calc(100% - 40px); }
   .site-nav { display: none; }
-  .header-end { margin-left: auto; }
+  .menu { display: block; }
+  .header-row { gap: 12px; }
+  .header-end { margin-left: auto; gap: 12px; }
   .hero { padding: 32px 0 64px; }
   .client { width: 100%; }
   .previews { grid-template-columns: minmax(0, 1fr); gap: 28px; }

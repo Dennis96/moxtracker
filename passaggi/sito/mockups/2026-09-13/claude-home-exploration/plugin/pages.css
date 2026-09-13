@@ -270,16 +270,6 @@ a.arch-name:hover { color: var(--lilac); }
 .arch-sub { display: block; margin-top: 4px; font-size: 14px; font-weight: 400; color: var(--muted); }
 .arch-tags { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
 
-.key-cards { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.key-cards li {
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 400;
-}
-
 .share { display: inline-flex; align-items: center; gap: 12px; }
 .share-bar { width: 72px; height: 6px; overflow: hidden; border-radius: 3px; background: rgba(255, 255, 255, 0.08); }
 .share-bar i { display: block; height: 100%; background: var(--violet-hi); }
@@ -465,12 +455,14 @@ a.arch-name:hover { color: var(--lilac); }
 
 /* Il mio MOX */
 
+/* Dati di esempio: dichiarati in modo evidente, con il tratteggio del «non reale». */
 .sample-note {
-  border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--muted);
+  border-bottom: 1px dashed var(--dash);
+  background: rgba(201, 162, 255, 0.09);
+  color: var(--text-2);
   font-size: 14px;
 }
+.sample-note strong { color: var(--lilac); font-weight: 700; }
 .sample-note .shell { display: block; padding: 10px 0; }
 
 .account-chip {
