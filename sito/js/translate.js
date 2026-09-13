@@ -19,7 +19,6 @@ const schemi = [
   [/^Da (.+) a (.+)$/, "From $1 to $2"],
   [/^(\d[\d.,]*) partite su (\d[\d.,]*): ne mancano (\d[\d.,]*)$/, "$1 of $2 matches: $3 to go"],
   [/^Variante osservata #(\d+)$/, "Observed variant #$1"],
-  [/^Apri (.+)$/, "Open $1"],
   [/^V$/, "W"],
   [/^S$/, "L"],
   [/^Altro \(Brew\)$/, "Other (Brew)"],

@@ -600,6 +600,7 @@ function renderDraft() {
   }
   if (!contenitore.childNodes.length) contenitore.append(
     riga("Nessun Draft collegato", "I prossimi eventi compariranno qui."));
+  $("tab-count-draft").textContent = numeri.format(tutti.length);
   aggiornaControlliElenco("draft", tutti.length, stato.limiteDraft);
 }
 
@@ -742,8 +743,9 @@ function creaRigaPartita(partita) {
   nodo("small", "", [dataOra(partita.quando || partita.ricevuta),
     partita.formato || partita.evento, rankPartita(partita)].filter(Boolean).join(" · ")));
   const dati = nodo("span", "match-data", [
-    partita.su_gioco === 1 ? "Al gioco" : partita.su_gioco === 0 ? "Alla risposta" : null,
-    partita.turni ? `${partita.turni} turni` : null,
+    partita.su_gioco === 1 ? (INGLESE ? "On the play" : "Al gioco")
+      : partita.su_gioco === 0 ? (INGLESE ? "On the draw" : "Alla risposta") : null,
+    partita.turni ? `${partita.turni} ${INGLESE ? "turns" : "turni"}` : null,
     partita.durata ? durata(partita.durata) : null,
   ].filter(Boolean).join(" · "));
   bottone.append(esito, testo, dati, nodo("span", "row-chevron", "›"));
@@ -875,6 +877,11 @@ function applicaFiltri() {
 
 async function carica() {
   $("account-loading").classList.remove("hidden");
+  // Un nuovo caricamento (dopo una revoca o una cancellazione) riparte senza
+  // filtri: la Panoramica mostra le ultime partite di tutti i mazzi.
+  stato.filtri = { mazzo: "", esito: "", evento: "" };
+  stato.offset = 0;
+  $("filter-result").value = "";
   try {
     const [dashboard, statistiche, ticket] = await Promise.all([
       api("/account/dashboard"), api("/account/stats"), api("/account/tickets"),
@@ -886,8 +893,10 @@ async function carica() {
     $("account-name").textContent = dashboard.account.nome;
     const provider = new Set(dashboard.account.provider || []);
     const accessi = [...provider].map((p) => p === "google" ? "Google" : "Discord").join(", ");
-    $("provider-status").textContent = `Accessi collegati: ${accessi}`;
-    $("account-accesses").textContent = `Accessi collegati: ${accessi}. Puoi aggiungere l'altro provider senza creare un secondo account.`;
+    $("provider-status").textContent = INGLESE ? `Linked sign-ins: ${accessi}` : `Accessi collegati: ${accessi}`;
+    $("account-accesses").textContent = INGLESE
+      ? `Linked sign-ins: ${accessi}. You can add the other provider without creating a second account.`
+      : `Accessi collegati: ${accessi}. Puoi aggiungere l'altro provider senza creare un secondo account.`;
     $("link-google").classList.toggle("hidden", provider.has("google"));
     $("link-discord").classList.toggle("hidden", provider.has("discord"));
     $("admin-link").classList.toggle("hidden", !dashboard.account.amministratore);
@@ -916,6 +925,12 @@ async function carica() {
       link.href = `./supporto.html?ticket=${t.id}`;
       return riga(t.titolo, `${t.categoria} · ${t.stato.replaceAll("_", " ")}`, link);
     }), "Nessun ticket");
+    const dispositivi = dashboard.dispositivi.length;
+    $("devices-count").textContent = INGLESE
+      ? `${dispositivi} linked ${dispositivi === 1 ? "device" : "devices"}`
+      : `${dispositivi} ${dispositivi === 1 ? "dispositivo collegato" : "dispositivi collegati"}`;
+    $("tab-count-mazzi").textContent = numeri.format(statistiche.mazzi.length);
+    $("tab-count-partite").textContent = numeri.format(statistiche.totali.partite);
     mostraPanoramica();
     renderMazzi();
     renderPanoramicaMazzi();

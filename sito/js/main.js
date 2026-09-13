@@ -1,4 +1,4 @@
-import { DEFAULT_FORMAT, FORMATS, RANKS } from "./config.js?v=20260822-3";
+import { DEFAULT_FORMAT, FORMATS, RANKS, nomeRank as nomeRankLingua } from "./config.js?v=20260822-3";
 import { fetchMeta, fetchScontri } from "./api.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
@@ -14,9 +14,7 @@ const state = {
 };
 const INGLESE = document.documentElement.lang === "en";
 const ASSET_BASE = INGLESE ? "../assets" : "./assets";
-// L'API vuole le classi in inglese; in italiano le mostriamo con i nomi di Arena.
-const NOMI_RANK = { Bronze: "Bronzo", Silver: "Argento", Gold: "Oro", Platinum: "Platino", Diamond: "Diamante", Mythic: "Mitico" };
-const nomeRank = (classe) => (INGLESE ? classe : NOMI_RANK[classe] || classe);
+const nomeRank = (classe) => nomeRankLingua(classe, INGLESE);
 
 // Periodo e modalità sono gruppi di scelta a segmenti (radio con lo stesso name).
 function valoreSegmento(nome) {
@@ -33,6 +31,28 @@ function controllerFor(key) {
   const controller = new AbortController();
   state.controllers.set(key, controller);
   return controller;
+}
+
+// «Cambia filtri» dalla pagina archetipo arriva con i filtri attivi nella query:
+// li applichiamo solo se corrispondono a una scelta che la pagina offre.
+function applicaFiltriDaUrl(format, minimo, massimo, classi) {
+  const params = new URLSearchParams(location.search);
+  const formato = params.get("formato");
+  if (FORMATS.includes(formato)) { state.apiFilters.formato = formato; format.value = formato; }
+  for (const nome of ["periodo", "modalita"]) {
+    const valore = params.get(nome);
+    const valido = [...document.querySelectorAll(`input[name="${nome}"]`)].some((scelta) => scelta.value === valore);
+    if (valore !== null && valido) { state.apiFilters[nome] = valore; impostaSegmento(nome, valore); }
+  }
+  const indici = String(params.get("rank") || "").split(",")
+    .map((classe) => classi.indexOf(classe)).filter((indice) => indice >= 0);
+  if (indici.length) {
+    const da = Math.min(...indici);
+    const a = Math.max(...indici);
+    minimo.value = String(da);
+    massimo.value = String(a);
+    state.apiFilters.rank = a - da + 1 === classi.length ? "" : classi.slice(da, a + 1).join(",");
+  }
 }
 
 function setupApiFilters() {
@@ -107,6 +127,7 @@ function setupApiFilters() {
     cursore.addEventListener("input", disegna);
     cursore.addEventListener("change", cambiato);
   }
+  applicaFiltriDaUrl(format, minimo, massimo, classi);
   disegna();
 }
 

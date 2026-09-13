@@ -152,6 +152,36 @@ test("Il mio MOX: cinque schede accessibili e nessuna funzione persa", () => {
   assert.match(leggi("js/account.js"), /mostraScheda\("partite"\)/);
 });
 
+// Nomi propri e sigle che restano uguali in inglese.
+const NEUTRI = new Set(["MOX", "Meta", "Draft", "Account", "Home", "Privacy", "GitHub", "Download", "MOX home", "Footer",
+  "W", "U", "B", "R", "G", "BO1", "BO3", "BO1 + BO3", "Rank", "Record", "Matchup", "Set", "Win rate", "Meta Explorer",
+  "Premier Draft", "Quick Draft", "Traditional Draft", "Pick-Two Draft", "MOX Research", "Draft Assistant Next Gen",
+  "Standard", "Menu", "Meta Explorer — MOX Arena Assistant"]);
+
+test("ogni testo e attributo delle pagine ridisegnate ha la traduzione inglese", () => {
+  const en = JSON.parse(leggi("i18n/en.json"));
+  const mancanti = [];
+  for (const pagina of ["index.html", "meta.html", "archetipo.html", "draft.html", "account.html"]) {
+    const html = leggi(pagina).replace(/<script\b[\s\S]*?<\/script>/gi, "").replace(/<!--[\s\S]*?-->/g, "");
+    const testi = [...html.matchAll(/>([^<>]+)</g)].map((m) => m[1].trim());
+    const attributi = [...html.matchAll(/\b(?:aria-label|title|placeholder|alt|content)="([^"]+)"/g)].map((m) => m[1].trim());
+    for (const testo of new Set([...testi, ...attributi])) {
+      if (!/[a-zà-ù]/i.test(testo) || NEUTRI.has(testo) || /^#|^width=/.test(testo)) continue;
+      if (!en[testo]) mancanti.push(`${pagina}: ${testo}`);
+    }
+  }
+  assert.deepEqual(mancanti, []);
+});
+
+test("il ritorno al Meta conserva i filtri e i rank sono in italiano", () => {
+  const archetipo = leggi("js/archetype.js");
+  assert.match(archetipo, /for \(const nome of \["formato", "periodo", "modalita", "rank"\]\)/);
+  assert.match(archetipo, /#detail-change-filters/);
+  assert.match(leggi("js/main.js"), /function applicaFiltriDaUrl\(/);
+  assert.match(leggi("js/config.js"), /export function nomeRank\(/);
+  assert.match(leggi("js/config.js"), /Mythic: "Mitico"/);
+});
+
 test("il banco sintetico dell'anteprima resta fuori dal sito pubblicato", () => {
   const anteprima = leggiRadice("strumenti/anteprima_sito.mjs");
   assert.match(anteprima, /MOX_BANCO_SINTETICO/);

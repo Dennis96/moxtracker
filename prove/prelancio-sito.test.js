@@ -46,6 +46,7 @@ test("pre-lancio espone beta, privacy e Draft anche nella navigazione mobile", (
     assert.match(html, /beta-banner/);
     assert.match(html, /privacy\.html/);
   }
+  assert.match(leggi("index.html"), /privacy\.html/);
   assert.match(leggi("index.html"), /id="nav-toggle"/);
   assert.match(leggi("css/site.css"), /\.nav-links\[data-open\]/);
   assert.doesNotMatch(leggi("css/site.css"), /nav-links a:nth-child\(n\+3\)/);

@@ -53,7 +53,13 @@ function disegna(dati) {
   $("draft-matches").textContent = numero.format(Number(risultati.campione || 0));
   const pubblicabile = risultati.win_rate !== null && risultati.win_rate !== undefined;
   $("draft-winrate").textContent = pubblicabile ? percentuale.format(risultati.win_rate) : "Sotto soglia";
-  $("draft-match-note").textContent = pubblicabile ? `IC 95% ${intervallo(risultati.intervallo_95)}` : "Servono almeno 30 match collegati";
+  // Come nel Meta: sotto soglia diciamo quante partite collegate mancano.
+  const soglia = Number(risultati.soglia) || 30;
+  const campione = Number(risultati.campione || 0);
+  const mancano = Math.max(0, soglia - campione);
+  $("draft-match-note").textContent = pubblicabile ? `IC 95% ${intervallo(risultati.intervallo_95)}`
+    : mancano > 0 ? `${numero.format(campione)} partite su ${numero.format(soglia)}: ne mancano ${numero.format(mancano)}`
+      : "Servono almeno 30 match collegati";
   const aggiornato = totali.aggiornato || dati.aggiornato;
   $("draft-updated").textContent = aggiornato ? `Aggiornato ${new Date(aggiornato).toLocaleString(lingua)}` : "";
   const eventi = Array.isArray(dati.eventi) ? dati.eventi : [];

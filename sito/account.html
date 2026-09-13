@@ -41,19 +41,19 @@
 
     <section id="account-dashboard" class="account-dashboard hidden">
       <div class="account-heading">
-        <div><h2 id="account-name">Account</h2><p id="provider-status" class="service-message"></p></div>
+        <div><h2 id="account-name">Account</h2><p id="provider-status" class="service-message"></p><p id="devices-count" class="service-message"></p></div>
         <div class="account-sync"><span><strong>Ultimo invio ricevuto:</strong> <span id="last-send">nessun invio</span></span><span><strong>Consensi:</strong> lo stato corrente compare per ciascun dispositivo; si modifica sempre nelle Opzioni di Mox.</span></div>
       </div>
 
       <div class="tabs" role="tablist" aria-label="Sezioni del tuo MOX">
         <button type="button" role="tab" id="tab-panoramica" aria-controls="scheda-panoramica" aria-selected="true">Panoramica</button>
-        <button type="button" role="tab" id="tab-mazzi" aria-controls="scheda-mazzi" aria-selected="false" tabindex="-1">Mazzi</button>
-        <button type="button" role="tab" id="tab-partite" aria-controls="scheda-partite" aria-selected="false" tabindex="-1">Partite</button>
-        <button type="button" role="tab" id="tab-draft" aria-controls="scheda-draft" aria-selected="false" tabindex="-1">Draft</button>
+        <button type="button" role="tab" id="tab-mazzi" aria-controls="scheda-mazzi" aria-selected="false" tabindex="-1">Mazzi <span id="tab-count-mazzi" class="tab-count"></span></button>
+        <button type="button" role="tab" id="tab-partite" aria-controls="scheda-partite" aria-selected="false" tabindex="-1">Partite <span id="tab-count-partite" class="tab-count"></span></button>
+        <button type="button" role="tab" id="tab-draft" aria-controls="scheda-draft" aria-selected="false" tabindex="-1">Draft <span id="tab-count-draft" class="tab-count"></span></button>
         <button type="button" role="tab" id="tab-account" aria-controls="scheda-account" aria-selected="false" tabindex="-1">Account</button>
       </div>
 
-      <section id="scheda-panoramica" class="tab-panel" role="tabpanel" aria-labelledby="tab-panoramica">
+      <section id="scheda-panoramica" class="tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-panoramica">
         <div class="account-kpis">
           <div class="service-kpi"><span>Partite</span><strong id="total-matches">0</strong></div>
           <div class="service-kpi"><span>Vittorie / sconfitte</span><strong><span id="total-wins">0</span> / <span id="total-losses">0</span></strong></div>
@@ -79,14 +79,14 @@
         </article>
       </section>
 
-      <section id="scheda-mazzi" class="tab-panel" role="tabpanel" aria-labelledby="tab-mazzi" hidden>
+      <section id="scheda-mazzi" class="tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-mazzi" hidden>
         <article class="panel service-card account-section">
           <div class="section-heading"><div><h2>I miei mazzi</h2><p>Ogni riga rappresenta una decklist realmente usata. Aprila per vedere carte e statistiche.</p></div><span id="deck-count" class="section-count"></span></div>
           <div id="decks" class="personal-table"></div>
         </article>
       </section>
 
-      <section id="scheda-partite" class="tab-panel" role="tabpanel" aria-labelledby="tab-partite" hidden>
+      <section id="scheda-partite" class="tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-partite" hidden>
         <article id="matches-section" class="panel service-card account-section">
           <div class="section-heading"><div><h2>Le mie partite</h2><p>Apri una partita per vedere decklist, ultima mano osservata quando disponibile, andamento e carte rivelate dall'avversario.</p></div><span id="matches-count" class="section-count"></span></div>
           <div class="personal-filters">
@@ -105,7 +105,7 @@
         </article>
       </section>
 
-      <section id="scheda-draft" class="tab-panel" role="tabpanel" aria-labelledby="tab-draft" hidden>
+      <section id="scheda-draft" class="tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-draft" hidden>
         <article class="panel service-card account-section">
           <div class="section-heading"><div><h2>Draft e risultati</h2><p>Record ricostruiti soltanto dalle partite ricevute; eventuali parti mancanti sono dichiarate.</p></div></div>
           <div id="draft-controls-top" class="service-actions list-controls" aria-label="Controlli elenco Draft"></div>
@@ -114,7 +114,7 @@
         </article>
       </section>
 
-      <section id="scheda-account" class="tab-panel" role="tabpanel" aria-labelledby="tab-account" hidden>
+      <section id="scheda-account" class="tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-account" hidden>
         <div class="service-grid account-services">
           <article class="panel service-card"><h2>Collega Mox</h2><p>Genera un codice monouso, poi inseriscilo nelle Opzioni di Mox. Scade dopo 10 minuti.</p><button id="create-link" class="service-button primary" type="button">Genera codice</button><div id="link-code" class="service-code" aria-live="polite"></div><p id="link-message" class="service-message"></p></article>
           <article class="panel service-card"><h2>Dispositivi</h2><div id="devices" class="service-list"></div></article>

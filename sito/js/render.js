@@ -2,6 +2,8 @@ import { deckLabel, formatDate, formatInteger, formatPercent, sampleSufficient, 
 import { classificationSummary, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { createCoreStrip } from "./card-images.js";
 
+const INGLESE = document.documentElement.lang === "en";
+
 function clear(node) { while (node.firstChild) node.firstChild.remove(); }
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -161,7 +163,7 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     if (url) {
       const apri = el("a", "text-link", "Apri");
       apri.href = url;
-      apri.setAttribute("aria-label", `Apri ${deckLabel(deck)}`);
+      apri.setAttribute("aria-label", INGLESE ? `Open ${deckLabel(deck)}` : `Apri ${deckLabel(deck)}`);
       tdApri.append(apri);
     }
     tr.append(tdApri);
@@ -186,10 +188,12 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
       if (core.childNodes.length) card.append(core);
     }
     const grid = el("div", "mobile-deck-grid");
+    // Sotto soglia una sola voce, non due «Sotto soglia» uguali (specifica, sezione 6).
     const values = [
       ["V / S", `${formatInteger(deck.vittorie)} / ${formatInteger(deck.sconfitte)}`],
-      ["Win rate", sufficiente ? formatPercent(deck.win_rate) : "Sotto soglia"],
-      ["Quota meta", sufficiente ? formatPercent(deck.quota_meta) : "Sotto soglia"],
+      ...(sufficiente
+        ? [["Win rate", formatPercent(deck.win_rate)], ["Quota meta", formatPercent(deck.quota_meta)]]
+        : [["Win rate e quota meta", "Sotto soglia"]]),
       [deck.impronta && !classified ? "ID tecnico" : "Modalità", deck.impronta && !classified ? shortFingerprint(deck.impronta) : (deckMode(deck) || "—")],
     ];
     for (const [label, value] of values) { const metric = el("div", "mobile-metric"); metric.append(el("span", "", label), el("strong", "", value)); grid.append(metric); }

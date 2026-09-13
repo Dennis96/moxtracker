@@ -1,4 +1,4 @@
-import { DEFAULT_FORMAT } from "./config.js";
+import { DEFAULT_FORMAT, nomeRank } from "./config.js";
 import { fetchArchetipo } from "./api.js";
 import { deckLabel, formatInteger, formatPercent, sampleSufficient, shortFingerprint } from "./format.js";
 import { classificationSummary, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
@@ -39,9 +39,20 @@ function variantViewUrl(variant) {
   return url.href;
 }
 
-// Il Meta vive in meta.html: il percorso e «Cambia filtri» portano lì.
+// Il Meta vive in meta.html: il percorso e «Cambia filtri» portano lì con gli
+// stessi filtri, che main.js riapplica.
 function metaUrl() {
-  return new URL("./meta.html", location.href).href;
+  const url = new URL("./meta.html", location.href);
+  const attuali = new URLSearchParams(location.search);
+  for (const nome of ["formato", "periodo", "modalita", "rank"]) {
+    const valore = attuali.get(nome);
+    if (valore) url.searchParams.set(nome, valore);
+  }
+  return url.href;
+}
+
+function nomiRank(rank) {
+  return String(rank).split(",").map((classe) => nomeRank(classe, INGLESE)).join(", ");
 }
 
 // Riga dei filtri attivi, sotto il titolo: formato, periodo, modalità, rank.
@@ -49,7 +60,7 @@ export function rigaFiltri({ formato, periodo, modalita, rank }) {
   const tempo = periodo === "totale"
     ? (INGLESE ? "all time" : "tutto il periodo")
     : (INGLESE ? `last ${periodo} days` : `ultimi ${periodo} giorni`);
-  const livelli = rank ? `rank ${String(rank).replaceAll(",", ", ")}` : (INGLESE ? "all ranks" : "tutti i rank");
+  const livelli = rank ? `rank ${nomiRank(rank)}` : (INGLESE ? "all ranks" : "tutti i rank");
   return [formato, tempo, modalita || "BO1 + BO3", livelli].join(", ");
 }
 
@@ -81,9 +92,11 @@ function renderRipartizione(data) {
   box.querySelector(".split-pub").style.width = `${quota}%`;
   box.querySelector(".split-rest").style.width = `${Math.max(0, 100 - quota)}%`;
   const [totale, pubblicate, sotto, liste] = [r.totale, r.pubblicate, r.sottoSoglia, r.liste].map(formatInteger);
+  // La frase parla delle partite delle varianti, non del totale dell'archetipo:
+  // se l'API non elencasse ogni variante, i due numeri potrebbero non coincidere.
   setText("#variants-split-note", INGLESE
-    ? `The archetype's ${totale} matches: ${pubblicate} in ${r.variantiPubblicate === 1 ? "the published variant" : "published variants"}, ${sotto} in ${liste} ${r.liste === 1 ? "list" : "lists"} still below the threshold.`
-    : `Le ${totale} partite dell'archetipo: ${pubblicate} ${r.variantiPubblicate === 1 ? "nella variante pubblicata" : "nelle varianti pubblicate"}, ${sotto} in ${liste} ${r.liste === 1 ? "lista" : "liste"} ancora sotto soglia.`);
+    ? `Across ${totale} matches in observed variants: ${pubblicate} in ${r.variantiPubblicate === 1 ? "the published variant" : "published variants"}, ${sotto} in ${liste} ${r.liste === 1 ? "list" : "lists"} still below the threshold.`
+    : `Sulle ${totale} partite delle varianti osservate: ${pubblicate} ${r.variantiPubblicate === 1 ? "nella variante pubblicata" : "nelle varianti pubblicate"}, ${sotto} in ${liste} ${r.liste === 1 ? "lista" : "liste"} ancora sotto soglia.`);
 }
 
 function vocePercorso(testo, href = null) {
@@ -122,7 +135,7 @@ function renderDeck(deck, params, selection) {
   const stats = variant || deck;
   const displayTitle = selection ? `Variante osservata #${selection.index + 1}` : parentTitle;
   document.body.classList.toggle("variant-mode", Boolean(selection));
-  document.title = `${displayTitle} — ${parentTitle} — MOX Arena Assistant`;
+  document.title = selection ? `${displayTitle} — ${parentTitle} — MOX Arena Assistant` : `${parentTitle} — MOX Arena Assistant`;
   document.querySelector("#detail-heading h1").textContent = displayTitle;
   renderPercorso(parentTitle, selection);
   setText("#detail-filters", rigaFiltri(params));
@@ -152,7 +165,7 @@ function renderDeck(deck, params, selection) {
     setText("#detail-share-note", sufficient ? "Quota nel filtro corrente" : "Pubblicata da 30 partite");
     setText("#detail-games", formatInteger(stats.partite));
     setText("#detail-record", `${formatInteger(stats.vittorie)} V / ${formatInteger(stats.sconfitte)} S`);
-    setText("#detail-rank", params.rank || "Tutti");
+    setText("#detail-rank", params.rank ? nomiRank(params.rank) : "Tutti");
   }
 }
 
@@ -420,6 +433,7 @@ async function load() {
   const variantId = params.get("variante") || "";
 
   document.querySelector("#back-to-meta").href = metaUrl();
+  document.querySelector("#detail-change-filters").href = metaUrl();
 
   try {
     if (!id && !impronta) {
