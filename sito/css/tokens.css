@@ -1,24 +1,38 @@
+/* Token del redesign (passaggi/sito/SPEC-SITO-MOX-REDESIGN-2026-09-13.md, sezione 4).
+   I nomi storici restano perché i fogli esistenti li usano. */
 :root {
   color-scheme: dark;
   --bg: #07080d;
+  --ink: #07080d;
+  --ink-2: #0c0d15;
   --bg-deep: #03040a;
-  --surface: rgba(15, 16, 25, 0.86);
-  --surface-2: rgba(22, 20, 34, 0.88);
-  --surface-3: #11131c;
-  --line: rgba(190, 156, 255, 0.18);
-  --line-strong: rgba(185, 104, 255, 0.38);
+  --panel: #0f1018;
+  --table: #14131d;
+  --surface: #0f1018;
+  --surface-1: #0f1018;
+  --surface-2: #14131d;
+  --surface-3: #1b1a27;
+  --line: rgba(190, 156, 255, 0.16);
+  --line-strong: rgba(185, 104, 255, 0.42);
+  --dash: rgba(201, 162, 255, 0.45);
   --text: #f7f5fb;
+  --text-2: #d4d2dc;
   --muted: #a7a6b2;
   --muted-2: #777785;
   --violet: #a644ff;
   --violet-2: #7c2cff;
+  --violet-hover: #8e46ff;
+  --lilac: #c9a2ff;
   --magenta: #f33fa5;
   --green: #61dd79;
   --red: #ff6b71;
   --warning: #f3bf62;
-  --glow: 0 0 32px rgba(147, 55, 255, 0.22);
-  --shadow: 0 18px 55px rgba(0,0,0,.38);
+  --glow: 0 0 32px rgba(147, 55, 255, 0.18);
+  --shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
   --radius: 16px;
   --radius-sm: 11px;
-  --page: calc(100% - 56px);
+  --shell: min(100% - 80px, 1360px);
+  --page: min(100% - 80px, 1360px);
+  --serif: "Spectral", Georgia, "Times New Roman", serif;
+  --sans: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
 }

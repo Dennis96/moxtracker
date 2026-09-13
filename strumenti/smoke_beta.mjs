@@ -15,6 +15,7 @@ const githubLatest = configurazioneSito.match(/^export const GITHUB_LATEST_RELEA
 if (!download || !githubLatest) throw new Error("download MOX non configurato");
 const controlli = [
   ["home", `${base}/`, /MOX/i],
+  ["meta", `${base}/meta`, /Meta Explorer/i],
   ["draft", `${base}/draft`, /Draft/i],
   ["account", `${base}/account`, /Account|Il mio MOX/i],
   ["supporto", `${base}/supporto`, /Supporto|Support/i],
@@ -22,6 +23,7 @@ const controlli = [
   // Il testo e' tradotto a runtime: qui controlliamo l'asset inglese reale,
   // senza scambiare per guasto una frase che compare dopo il caricamento JS.
   ["inglese", `${base}/en/`, /<html\s+lang="en"/i],
+  ["meta inglese", `${base}/en/meta`, /<html\s+lang="en"/i],
   ["salute API", `${api}/salute`, /"stato"\s*:\s*"vivo"/i],
   ["meta API", `${api}/meta?formato=Standard`, /"partite_totali"/i],
   ["draft API", `${api}/draft/statistiche?periodo=30`, /"totali"/i],

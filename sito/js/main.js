@@ -1,10 +1,10 @@
 import { DEFAULT_FORMAT, FORMATS, RANKS } from "./config.js?v=20260822-3";
-import { fetchMeta, fetchScontri, fetchStatisticheDraft } from "./api.js";
-import { preparaDownloadLatest } from "./download.js";
+import { fetchMeta, fetchScontri } from "./api.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
 import { traduciDocumento } from "./translate.js";
 
+// Modulo della pagina Meta (meta.html). La Home non lo carica più.
 const state = {
   apiFilters: { formato: DEFAULT_FORMAT, rank: "", periodo: "30", modalita: "" },
   localFilters: { search: "", colors: [], strategy: "" },
@@ -12,8 +12,21 @@ const state = {
   sort: { key: "partite", direction: "desc" },
   controllers: new Map(),
 };
-const LOCALE = document.documentElement.lang === "en" ? "en-US" : "it-IT";
-const ASSET_BASE = document.documentElement.lang === "en" ? "../assets" : "./assets";
+const INGLESE = document.documentElement.lang === "en";
+const ASSET_BASE = INGLESE ? "../assets" : "./assets";
+// L'API vuole le classi in inglese; in italiano le mostriamo con i nomi di Arena.
+const NOMI_RANK = { Bronze: "Bronzo", Silver: "Argento", Gold: "Oro", Platinum: "Platino", Diamond: "Diamante", Mythic: "Mitico" };
+const nomeRank = (classe) => (INGLESE ? classe : NOMI_RANK[classe] || classe);
+
+// Periodo e modalità sono gruppi di scelta a segmenti (radio con lo stesso name).
+function valoreSegmento(nome) {
+  return document.querySelector(`input[name="${nome}"]:checked`)?.value ?? "";
+}
+
+function impostaSegmento(nome, valore) {
+  const scelta = document.querySelector(`input[name="${nome}"][value="${valore}"]`);
+  if (scelta) scelta.checked = true;
+}
 
 function controllerFor(key) {
   state.controllers.get(key)?.abort();
@@ -24,8 +37,6 @@ function controllerFor(key) {
 
 function setupApiFilters() {
   const format = document.querySelector("#format-filter");
-  const period = document.querySelector("#period-filter");
-  const mode = document.querySelector("#mode-filter");
   for (const value of FORMATS) {
     const option = document.createElement("option");
     option.value = value; option.textContent = value; format.append(option);
@@ -52,7 +63,7 @@ function setupApiFilters() {
     // Niente lazy: sono sei icone da tre chilobyte in cima alla pagina, e
     // rimandarle significa solo mostrare sei buchi al primo sguardo.
     icona.alt = ""; icona.width = 24; icona.height = 24; icona.decoding = "async";
-    voce.append(icona); voce.title = classe; tacche.append(voce);
+    voce.append(icona); voce.title = nomeRank(classe); tacche.append(voce);
   }
 
   const scelti = () => {
@@ -69,8 +80,8 @@ function setupApiFilters() {
     evidenza.style.width = `${(a - da) * passo}%`;
     const elenco = scelti();
     etichetta.textContent = elenco.length === classi.length ? "Tutti i rank"
-      : elenco.length === 1 ? `Solo ${elenco[0]}`
-        : `Da ${elenco[0]} a ${elenco[elenco.length - 1]}`;
+      : elenco.length === 1 ? `Solo ${nomeRank(elenco[0])}`
+        : `Da ${nomeRank(elenco[0])} a ${nomeRank(elenco[elenco.length - 1])}`;
     for (const [indice, voce] of [...tacche.children].entries()) {
       voce.classList.toggle("attivo", indice >= da && indice <= a);
     }
@@ -86,9 +97,9 @@ function setupApiFilters() {
     loadAll();
   };
   format.addEventListener("change", cambiato);
-  for (const select of [period, mode]) {
-    select.addEventListener("change", () => {
-      state.apiFilters = { ...state.apiFilters, periodo: period.value, modalita: mode.value };
+  for (const scelta of document.querySelectorAll('input[name="periodo"], input[name="modalita"]')) {
+    scelta.addEventListener("change", () => {
+      state.apiFilters = { ...state.apiFilters, periodo: valoreSegmento("periodo"), modalita: valoreSegmento("modalita") };
       loadAll();
     });
   }
@@ -138,8 +149,8 @@ function setupLocalFilters() {
     search.value = "";
     strategy.value = "";
     document.querySelector("#format-filter").value = DEFAULT_FORMAT;
-    document.querySelector("#period-filter").value = "30";
-    document.querySelector("#mode-filter").value = "";
+    impostaSegmento("periodo", "30");
+    impostaSegmento("modalita", "");
     document.querySelector("#rank-min").value = "0";
     document.querySelector("#rank-max").value = "5";
     document.querySelector("#rank-min").dispatchEvent(new Event("input"));
@@ -181,43 +192,16 @@ function syncClassificationControls(decks, catalogInfo = null) {
   help.classList.toggle("ready", enabled);
 }
 
-function setupDownload() {
-  preparaDownloadLatest();
-}
-
 async function loadMeta() {
   renderMetaLoading();
   const controller = controllerFor("meta");
   try {
     state.meta = await fetchMeta(state.apiFilters, { signal: controller.signal });
-    document.querySelector("#home-games").textContent = new Intl.NumberFormat(LOCALE).format(state.meta.partite_totali || 0);
-    aggiornaDataHome(state.meta.aggiornato);
     syncClassificationControls(state.meta.mazzi, state.meta.catalogo_archetipi);
     renderMeta(state.meta, state.sort, state.localFilters, state.apiFilters);
     traduciDocumento();
   } catch (error) {
     if (error.name !== "AbortError") { renderMetaError(error); traduciDocumento(); }
-  }
-}
-
-function aggiornaDataHome(valore) {
-  if (!valore) return;
-  const elemento = document.querySelector("#home-updated");
-  const nuova = new Date(valore);
-  const corrente = elemento.dataset.iso ? new Date(elemento.dataset.iso) : null;
-  if (!corrente || nuova > corrente) {
-    elemento.dataset.iso = nuova.toISOString();
-    elemento.textContent = nuova.toLocaleDateString(LOCALE, { day: "2-digit", month: "short", year: "numeric" });
-  }
-}
-
-async function loadDraftSummary() {
-  try {
-    const dati = await fetchStatisticheDraft();
-    document.querySelector("#home-drafts").textContent = new Intl.NumberFormat(LOCALE).format(dati.totali?.draft || 0);
-    aggiornaDataHome(dati.totali?.aggiornato || dati.aggiornato);
-  } catch {
-    document.querySelector("#home-drafts").textContent = "In raccolta";
   }
 }
 
@@ -247,6 +231,4 @@ document.addEventListener("click", event => {
 
 setupApiFilters();
 setupLocalFilters();
-setupDownload();
 loadAll();
-loadDraftSummary();

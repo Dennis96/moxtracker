@@ -5,6 +5,11 @@ const $ = (id) => document.getElementById(id);
 const lingua = document.documentElement.lang === "en" ? "en-US" : "it-IT";
 const percentuale = new Intl.NumberFormat(lingua, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const numero = new Intl.NumberFormat(lingua);
+// I nomi degli eventi come li scrive Arena, non come arrivano dall'API.
+const NOMI_EVENTI = {
+  PremierDraft: "Premier Draft", QuickDraft: "Quick Draft",
+  TradDraft: "Traditional Draft", PickTwoDraft: "Pick-Two Draft",
+};
 
 function intervallo(valore) {
   return Array.isArray(valore) ? `${percentuale.format(valore[0])}–${percentuale.format(valore[1])}` : "—";
@@ -20,6 +25,26 @@ function aggiornaSet(eventi) {
   campo.value = setDisponibili.includes(selezionato) ? selezionato : "";
 }
 
+function schedaEvento(riga) {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "phase-card event-card";
+  card.dataset.set = riga.set;
+  card.dataset.formato = riga.formato;
+  const tipo = document.createElement("span"); tipo.className = "event-kind";
+  tipo.textContent = NOMI_EVENTI[riga.formato] || riga.formato;
+  const titolo = document.createElement("h3"); titolo.textContent = riga.set;
+  const dati = document.createElement("dl");
+  for (const [etichetta, valore] of [["Draft", riga.draft], ["Scelte", riga.pick]]) {
+    const dt = document.createElement("dt"); dt.textContent = etichetta;
+    const dd = document.createElement("dd"); dd.textContent = numero.format(valore);
+    dati.append(dt, dd);
+  }
+  const apri = document.createElement("span"); apri.className = "event-open"; apri.textContent = "Filtra questo gruppo";
+  card.append(tipo, titolo, dati, apri);
+  return card;
+}
+
 function disegna(dati) {
   const totali = dati.totali || {};
   $("draft-count").textContent = numero.format(Number(totali.draft || 0));
@@ -27,7 +52,7 @@ function disegna(dati) {
   const risultati = dati.risultati || {};
   $("draft-matches").textContent = numero.format(Number(risultati.campione || 0));
   const pubblicabile = risultati.win_rate !== null && risultati.win_rate !== undefined;
-  $("draft-winrate").textContent = pubblicabile ? percentuale.format(risultati.win_rate) : "Dati insufficienti";
+  $("draft-winrate").textContent = pubblicabile ? percentuale.format(risultati.win_rate) : "Sotto soglia";
   $("draft-match-note").textContent = pubblicabile ? `IC 95% ${intervallo(risultati.intervallo_95)}` : "Servono almeno 30 match collegati";
   const aggiornato = totali.aggiornato || dati.aggiornato;
   $("draft-updated").textContent = aggiornato ? `Aggiornato ${new Date(aggiornato).toLocaleString(lingua)}` : "";
@@ -38,15 +63,7 @@ function disegna(dati) {
     traduciDocumento();
     return;
   }
-  $("draft-events").replaceChildren(...eventi.map((riga) => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "phase-card event-card";
-    card.dataset.set = riga.set;
-    card.dataset.formato = riga.formato;
-    card.innerHTML = `<span class="eyebrow">${riga.formato}</span><h3>${riga.set}</h3><dl><dt>Draft</dt><dd>${numero.format(riga.draft)}</dd><dt>Scelte</dt><dd>${numero.format(riga.pick)}</dd></dl><span class="event-open">Filtra questo gruppo →</span>`;
-    return card;
-  }));
+  $("draft-events").replaceChildren(...eventi.map(schedaEvento));
   traduciDocumento();
 }
 

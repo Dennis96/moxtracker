@@ -43,7 +43,7 @@ test("liste di riferimento restano compatibili con API pre-S1-A", () => {
 test("la panoramica archetipo mostra solo il riepilogo delle varianti riconosciute", () => {
   const source = leggi("../sito/js/archetype.js");
   const detail = leggi("../sito/archetipo.html");
-  assert.match(source, /Apri variante →/);
+  assert.match(source, /"Apri variante"/);
   assert.match(source, /Lista più rappresentativa/);
   assert.match(source, /Altre varianti/);
   assert.match(source, /navigator\.clipboard\.writeText/);

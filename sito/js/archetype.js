@@ -1,10 +1,12 @@
 import { DEFAULT_FORMAT } from "./config.js";
 import { fetchArchetipo } from "./api.js";
 import { deckLabel, formatInteger, formatPercent, sampleSufficient, shortFingerprint } from "./format.js";
-import { classificationSummary, deckArchetypeId, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
+import { classificationSummary, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
 import { createCardListItem, parseReferenceLine } from "./card-images.js";
 import { renderProfiloMazzo } from "./deck-profile.js";
 import { traduciDocumento } from "./translate.js";
+
+const INGLESE = document.documentElement.lang === "en";
 
 function tag(text, className = "") {
   const node = document.createElement("span"); node.className = className; node.textContent = text; return node;
@@ -26,13 +28,85 @@ function selectedVariant(data, variantId) {
 function overviewUrl() {
   const url = new URL(location.href);
   url.searchParams.delete("variante");
+  url.hash = "";
   return url.href;
 }
 
 function variantViewUrl(variant) {
   const url = new URL(location.href);
   url.searchParams.set("variante", String(variant?.variante_id || ""));
+  url.hash = "";
   return url.href;
+}
+
+// Il Meta vive in meta.html: il percorso e «Cambia filtri» portano lì.
+function metaUrl() {
+  return new URL("./meta.html", location.href).href;
+}
+
+// Riga dei filtri attivi, sotto il titolo: formato, periodo, modalità, rank.
+export function rigaFiltri({ formato, periodo, modalita, rank }) {
+  const tempo = periodo === "totale"
+    ? (INGLESE ? "all time" : "tutto il periodo")
+    : (INGLESE ? `last ${periodo} days` : `ultimi ${periodo} giorni`);
+  const livelli = rank ? `rank ${String(rank).replaceAll(",", ", ")}` : (INGLESE ? "all ranks" : "tutti i rank");
+  return [formato, tempo, modalita || "BO1 + BO3", livelli].join(", ");
+}
+
+// Quante partite dell'archetipo stanno in varianti con decklist pubblicata e
+// quante in liste ancora sotto soglia: è la barra sopra l'elenco delle varianti.
+export function ripartizioneVarianti(data) {
+  const varianti = Array.isArray(data?.varianti) ? data.varianti : [];
+  const pubblicate = varianti.filter((variante) => variante?.decklist_pubblicabile === true);
+  const nonPubblicate = varianti.filter((variante) => variante?.decklist_pubblicabile !== true);
+  const somma = (elenco) => elenco.reduce((totale, variante) => totale + (Number(variante?.partite) || 0), 0);
+  const altre = data?.altre_varianti || {};
+  const partitePubblicate = somma(pubblicate);
+  const sottoSoglia = somma(nonPubblicate) + (Number(altre.partite) || 0);
+  return {
+    pubblicate: partitePubblicate,
+    variantiPubblicate: pubblicate.length,
+    sottoSoglia,
+    liste: nonPubblicate.length + (Number(altre.varianti) || 0),
+    totale: partitePubblicate + sottoSoglia,
+  };
+}
+
+function renderRipartizione(data) {
+  const box = document.querySelector("#variants-split");
+  const r = ripartizioneVarianti(data);
+  box.hidden = !r.totale;
+  if (!r.totale) return;
+  const quota = Math.round((r.pubblicate / r.totale) * 1000) / 10;
+  box.querySelector(".split-pub").style.width = `${quota}%`;
+  box.querySelector(".split-rest").style.width = `${Math.max(0, 100 - quota)}%`;
+  const [totale, pubblicate, sotto, liste] = [r.totale, r.pubblicate, r.sottoSoglia, r.liste].map(formatInteger);
+  setText("#variants-split-note", INGLESE
+    ? `The archetype's ${totale} matches: ${pubblicate} in ${r.variantiPubblicate === 1 ? "the published variant" : "published variants"}, ${sotto} in ${liste} ${r.liste === 1 ? "list" : "lists"} still below the threshold.`
+    : `Le ${totale} partite dell'archetipo: ${pubblicate} ${r.variantiPubblicate === 1 ? "nella variante pubblicata" : "nelle varianti pubblicate"}, ${sotto} in ${liste} ${r.liste === 1 ? "lista" : "liste"} ancora sotto soglia.`);
+}
+
+function vocePercorso(testo, href = null) {
+  const voce = document.createElement("li");
+  if (href) {
+    const link = document.createElement("a"); link.href = href; link.textContent = testo; voce.append(link);
+  } else {
+    voce.textContent = testo;
+    voce.setAttribute("aria-current", "page");
+  }
+  return voce;
+}
+
+function renderPercorso(parentTitle, selection) {
+  const lista = document.querySelector("#detail-path ol");
+  const explorer = vocePercorso("Meta Explorer", metaUrl());
+  if (!selection) {
+    lista.replaceChildren(explorer, vocePercorso(parentTitle));
+    return;
+  }
+  lista.replaceChildren(explorer, vocePercorso(parentTitle, overviewUrl()),
+    vocePercorso("Varianti osservate", `${overviewUrl()}#variants-panel`),
+    vocePercorso(`Variante osservata #${selection.index + 1}`));
 }
 
 function variantMetaShare(variant) {
@@ -50,7 +124,8 @@ function renderDeck(deck, params, selection) {
   document.body.classList.toggle("variant-mode", Boolean(selection));
   document.title = `${displayTitle} — ${parentTitle} — MOX Arena Assistant`;
   document.querySelector("#detail-heading h1").textContent = displayTitle;
-  setText("#detail-eyebrow", selection ? "Vista variante" : "Dettaglio meta");
+  renderPercorso(parentTitle, selection);
+  setText("#detail-filters", rigaFiltri(params));
 
   const tags = document.querySelector("#detail-tags"); tags.replaceChildren();
   if (selection) tags.append(tag(parentTitle, "detail-tag parent-archetype-tag"));
@@ -184,17 +259,17 @@ function renderVariantFocus(deck, selection, params) {
   const parentTitle = deckLabel(deck);
   const sufficient = sampleSufficient(variant);
   const share = variantMetaShare(variant);
-  const shortId = String(variant.variante_id || "").slice(0, 8) || "n.d.";
 
+  // Archetipo, ID e rank sono già nelle etichette e nella riga filtri sotto il
+  // titolo: la vista variante non li ripete.
   setText("#variant-focus-title", `Variante osservata #${selection.index + 1}`);
-  setText("#variant-focus-parent", parentTitle);
-  setText("#variant-focus-id", `ID ${shortId}`);
-  setText("#variant-focus-rank", params.rank || "Tutti i rank");
 
+  // Il nome dell'archetipo va nello span sotto «Torna all'archetipo»: prima il
+  // primo span del pulsante era la freccia e veniva sovrascritto dal nome.
   const back = document.querySelector("#variant-focus-back");
   back.href = overviewUrl();
   back.querySelector("strong").textContent = "Torna all'archetipo";
-  back.querySelector("span").textContent = parentTitle;
+  back.querySelector(".back-parent").textContent = parentTitle;
 
   setText("#variant-focus-winrate", sufficient ? (formatPercent(variant.win_rate) || "—") : "Dati insufficienti");
   setText("#variant-focus-record", `${formatInteger(variant.vittorie)} V / ${formatInteger(variant.sconfitte)} S`);
@@ -225,6 +300,7 @@ function renderVariants(data) {
   const variants = Array.isArray(data.varianti) ? data.varianti : [];
   const totale = Number(data.varianti_osservate || variants.length);
   setText("#variants-count", `${totale} ${totale === 1 ? "variante osservata" : "varianti osservate"}`);
+  renderRipartizione(data);
   if (!variants.length && !data.altre_varianti) {
     const empty = document.createElement("p"); empty.className = "variants-empty";
     empty.textContent = "Nessuna variante osservata nel filtro corrente.";
@@ -257,7 +333,7 @@ function renderVariants(data) {
       const open = document.createElement("a");
       open.className = "variant-open";
       open.href = variantViewUrl(variant);
-      open.textContent = "Apri variante →";
+      open.textContent = "Apri variante";
       right.append(metrics, status, open);
     } else {
       right.append(metrics, status);
@@ -343,8 +419,7 @@ async function load() {
   const id = params.get("id");
   const variantId = params.get("variante") || "";
 
-  const back = new URL("./index.html", location.href); back.hash = "meta";
-  document.querySelector("#back-to-meta").href = back.href;
+  document.querySelector("#back-to-meta").href = metaUrl();
 
   try {
     if (!id && !impronta) {

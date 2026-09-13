@@ -47,7 +47,7 @@ test("le viste rese dopo il caricamento richiamano la traduzione inglese", () =>
 test("le pagine pubbliche non aggiungono testo italiano senza chiave inglese", () => {
   const dizionario = JSON.parse(leggi("i18n/en.json"));
   const mancanti = [];
-  for (const pagina of ["index.html", "draft.html", "download.html", "account.html", "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html", "archetipo.html"]) {
+  for (const pagina of ["index.html", "meta.html", "draft.html", "download.html", "account.html", "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html", "archetipo.html"]) {
     for (const testo of testiStatici(leggi(pagina))) {
       if (MARCATORI_ITALIANI.test(testo) && !dizionario[testo]) {
         mancanti.push(`${pagina}: ${testo}`);

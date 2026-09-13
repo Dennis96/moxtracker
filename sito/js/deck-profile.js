@@ -50,7 +50,19 @@ function bloccoProfilo(titolo, classe = "") {
   return blocco;
 }
 
-function rigaValori(titolo, voci) {
+function testoLingua(italiano, inglese) {
+  return document.documentElement.lang === "en" ? inglese : italiano;
+}
+
+// Ogni metrica del profilo dice che cosa conta (specifica, sezione 6).
+function notaProfilo(testo) {
+  const nota = document.createElement("p");
+  nota.className = "deck-profile-note";
+  nota.textContent = testo;
+  return nota;
+}
+
+function rigaValori(titolo, voci, nota = "") {
   const blocco = bloccoProfilo(titolo, "deck-profile-values-block");
   const elenco = document.createElement("div"); elenco.className = "deck-profile-values";
   for (const [nome, valore] of voci.filter(([, valore]) => Number(valore) > 0)) {
@@ -59,11 +71,8 @@ function rigaValori(titolo, voci) {
     voce.innerHTML = `<b>${valore}</b> ${etichetta}`; elenco.append(voce);
   }
   blocco.append(elenco);
+  if (nota) blocco.append(notaProfilo(nota));
   return blocco;
-}
-
-function testoLingua(italiano, inglese) {
-  return document.documentElement.lang === "en" ? inglese : italiano;
 }
 
 function curvaGrafica(curva) {
@@ -93,36 +102,38 @@ function curvaGrafica(curva) {
     colonna.append(barra, etichetta);
     grafico.append(colonna);
   }
-  blocco.append(grafico);
+  blocco.append(grafico, notaProfilo(testoLingua(
+    "Copie per costo di mana, terre escluse.",
+    "Copies by mana value, lands excluded.",
+  )));
   return blocco;
 }
 
-const NOMI_COLORI = {
-  W: ["bianco", "white"], U: ["blu", "blue"], B: ["nero", "black"],
-  R: ["rosso", "red"], G: ["verde", "green"], C: ["incolore", "colorless"],
+const FRASI_COLORI = {
+  W: ["copie con il bianco", "white copies"], U: ["copie con il blu", "blue copies"],
+  B: ["copie con il nero", "black copies"], R: ["copie con il rosso", "red copies"],
+  G: ["copie con il verde", "green copies"], C: ["copie incolori", "colorless copies"],
 };
 
 function coloriMana(colori) {
-  const blocco = bloccoProfilo("Colori del mazzo", "deck-profile-colors");
+  const blocco = bloccoProfilo("Copie per colore d'identità", "deck-profile-colors");
   const elenco = document.createElement("div"); elenco.className = "deck-color-values";
   for (const colore of ["W", "U", "B", "R", "G", "C"]) {
     const valore = Number(colori[colore]) || 0;
     if (!valore) continue;
     const voce = document.createElement("span"); voce.className = "deck-color-value";
-    const [italiano, inglese] = NOMI_COLORI[colore];
-    voce.setAttribute("aria-label", testoLingua(
-      `${valore} carte ${italiano}`,
-      `${valore} ${inglese} cards`,
-    ));
-    const conto = document.createElement("b"); conto.textContent = String(valore);
-    conto.setAttribute("aria-hidden", "true");
     const simbolo = document.createElement("span");
     simbolo.className = `mana-symbol mana-symbol-${colore}`;
     simbolo.textContent = colore;
     simbolo.setAttribute("aria-hidden", "true");
-    voce.append(conto, simbolo); elenco.append(voce);
+    const [italiano, inglese] = FRASI_COLORI[colore];
+    voce.append(simbolo, document.createTextNode(`${valore} ${testoLingua(italiano, inglese)}`));
+    elenco.append(voce);
   }
-  blocco.append(elenco);
+  blocco.append(elenco, notaProfilo(testoLingua(
+    "Una copia conta per ogni colore della sua identità, terre comprese: i numeri possono superare la dimensione del mazzo.",
+    "A copy counts once for each colour in its identity, lands included: totals can exceed the deck size.",
+  )));
   return blocco;
 }
 
@@ -131,9 +142,13 @@ export async function renderProfiloMazzo(host, carte, { campione = "" } = {}) {
   const attesa = document.createElement("p"); attesa.className = "detail-note";
   attesa.textContent = "Calcolo curva, tipi e fonti di mana…"; host.append(attesa);
   const profilo = await analizzaProfiloMazzo(carte);
+  const totaleCopie = Object.values(profilo.tipi).reduce((totale, valore) => totale + (Number(valore) || 0), 0);
   host.replaceChildren(
     curvaGrafica(profilo.curva),
-    rigaValori("Tipi di carta", Object.entries(profilo.tipi)),
+    rigaValori("Copie per tipo di carta", Object.entries(profilo.tipi), testoLingua(
+      `Ogni copia conta una volta: ${totaleCopie} carte in totale.`,
+      `Each copy counts once: ${totaleCopie} cards in total.`,
+    )),
     coloriMana(profilo.colori),
   );
   const terre = bloccoProfilo("Terre speciali e fixing");
