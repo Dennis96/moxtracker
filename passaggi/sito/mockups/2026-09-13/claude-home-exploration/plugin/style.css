@@ -1,0 +1,461 @@
+/* Home MOX, esplorazione Claude 13/09/2026.
+   Colori da sito/css/tokens.css; Spectral per i titoli, Hanken Grotesk per il resto. */
+
+:root {
+  color-scheme: dark;
+  --ink: #07080d;
+  --ink-2: #0c0d15;
+  --table: #14131d;
+  --violet: #7c2cff;
+  --violet-hover: #8e46ff;
+  --lilac: #c9a2ff;
+  --green: #61dd79;
+  --text: #f7f5fb;
+  --text-2: #d4d2dc;
+  --muted: #a7a6b2;
+  --line: rgba(190, 156, 255, 0.16);
+  --line-strong: rgba(185, 104, 255, 0.42);
+  --dash: rgba(201, 162, 255, 0.45);
+
+  --serif: "Spectral", Georgia, "Times New Roman", serif;
+  --sans: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+
+  --shell: min(100% - 80px, 1360px);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font: 400 16px/1.6 var(--sans);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+h1, h2, h3, p, ul, ol, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--lilac);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.shell { width: var(--shell); margin-inline: auto; }
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: -60px;
+  padding: 10px 14px;
+  background: var(--table);
+  border-radius: 8px;
+  z-index: 10;
+}
+.skip:focus { top: 12px; }
+
+/* Pulsanti */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 24px;
+  border-radius: 10px;
+  font: 600 16px/1 var(--sans);
+  text-decoration: none;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.button-primary { background: var(--violet); color: #fff; }
+.button-primary:hover { background: var(--violet-hover); }
+.button-ghost { border: 1px solid var(--dash); color: var(--text); }
+.button-ghost:hover { background: rgba(124, 44, 255, 0.14); border-color: var(--lilac); }
+.button-small { min-height: 40px; padding: 0 16px; font-size: 15px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Testata */
+
+.site-header { border-bottom: 1px solid var(--line); }
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  min-height: 72px;
+}
+
+.wordmark {
+  font: 800 22px/1 var(--sans);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.site-nav { display: flex; gap: 28px; margin-left: auto; }
+.site-nav a {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  padding: 6px 0;
+}
+.site-nav a:hover { color: var(--text); }
+.site-nav a[aria-current="page"] {
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--violet);
+}
+
+.header-end { display: flex; align-items: center; gap: 20px; }
+
+.lang {
+  background: none;
+  border: 0;
+  padding: 6px 2px;
+  color: var(--muted);
+  font: 600 14px/1 var(--sans);
+  cursor: pointer;
+}
+.lang:hover { color: var(--text); }
+
+/* Hero */
+
+.hero { padding: 28px 0 88px; overflow: hidden; }
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.hero-copy { position: relative; z-index: 1; max-width: 34rem; }
+
+.hero-copy h1 {
+  font: 600 clamp(2.3rem, 1.1rem + 2.45vw, 3.3rem)/1.12 var(--serif);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+.lede {
+  margin-top: 26px;
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--text-2);
+}
+
+.hero-copy .actions { margin-top: 34px; }
+
+.fineprint { margin-top: 16px; font-size: 14px; color: var(--muted); }
+
+.hero-visual { position: relative; isolation: isolate; }
+
+.client { position: relative; width: calc(100% - 56px); margin-inline: auto; }
+
+/* La testata del client, sfocata, fa da luce dietro la finestra. */
+.client-glow {
+  position: absolute;
+  inset: -12% -14% 30% -6%;
+  width: 120%;
+  height: 82%;
+  object-fit: cover;
+  filter: blur(46px) saturate(1.2);
+  opacity: 0.55;
+  z-index: -1;
+}
+
+.client-shot {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 6px rgba(124, 44, 255, 0.07);
+}
+
+/* Le tre carte salgono solo sulla fascia vuota in basso nel client
+   (circa l'ultimo 15% dell'altezza, 118 px su 763 nativi). */
+.tools {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: -9%;
+}
+
+.tool-shot {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: var(--table);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.62);
+}
+.tool-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+}
+
+.tool-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.25;
+}
+.tool-name img { width: 24px; height: auto; border-radius: 4px; flex: none; }
+
+/* L'unico movimento non richiesto: il client, poi i tre strumenti in ordine. */
+@media (prefers-reduced-motion: no-preference) {
+  .client { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
+  .tool { animation: rise .65s cubic-bezier(.2, .7, .2, 1) both; }
+  .tool:nth-child(1) { animation-delay: .5s; }
+  .tool:nth-child(2) { animation-delay: .65s; }
+  .tool:nth-child(3) { animation-delay: .8s; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(22px); }
+  }
+}
+
+/* Intestazioni di sezione */
+
+.section-head { max-width: 40rem; }
+.section-head h2 {
+  font: 600 clamp(2rem, 1.4rem + 1.3vw, 2.6rem)/1.15 var(--serif);
+  letter-spacing: -0.01em;
+}
+.section-head p { margin-top: 14px; font-size: 18px; color: var(--muted); }
+
+/* Cosa fa MOX: una linea del tempo, perché i momenti sono in sequenza. */
+
+.moments { padding: 112px 0 64px; border-top: 1px solid var(--line); }
+
+.timeline { position: relative; margin-top: 72px; }
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 40px;
+  width: 1px;
+  background: linear-gradient(var(--line-strong), var(--line) 85%, transparent);
+}
+
+.moment {
+  display: grid;
+  grid-template-columns: minmax(0, 31fr) minmax(0, 69fr);
+  gap: 56px;
+  padding-bottom: 104px;
+}
+
+.moment-text {
+  position: relative;
+  align-self: start;
+  padding-left: 40px;
+}
+.moment-text::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--lilac);
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.moment-text h3 { font: 600 28px/1.2 var(--serif); }
+
+.moment-tool {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 18px;
+  color: var(--lilac);
+  font-weight: 600;
+  font-size: 14px;
+}
+.moment-tool img { width: 20px; border-radius: 3px; }
+
+.moment-text p + p:not(.moment-tool) { margin-top: 14px; }
+.moment-text p:not(.moment-tool) { color: var(--text-2); font-size: 17px; line-height: 1.65; max-width: 30em; }
+
+.shot img,
+.shot-stage > img:first-child {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.shot figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+/* Il verde dei conteggi del Contatore segna ciò che esiste oggi. */
+.shot figcaption::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  transform: translateY(-1px);
+}
+
+.shot-narrow { max-width: 600px; }
+
+.shot-stage { position: relative; }
+.shot-stage .shot-inset {
+  position: absolute;
+  right: -20px;
+  bottom: -28px;
+  width: 26%;
+  max-width: 207px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+}
+.shot-partita figcaption { margin-top: 40px; }
+
+/* MOX sul web */
+
+.web {
+  padding: 96px 0;
+  background: var(--ink-2);
+  border-block: 1px solid var(--line);
+}
+
+.web-list { margin-top: 48px; }
+.web-list li {
+  display: grid;
+  grid-template-columns: 14rem minmax(0, 1fr) auto;
+  gap: 32px;
+  align-items: baseline;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+}
+.web-list li:last-child { border-bottom: 1px solid var(--line); }
+.web-list h3 { font: 600 26px/1.2 var(--serif); }
+.web-list p { color: var(--text-2); font-size: 17px; max-width: 36em; }
+.web-list a {
+  color: var(--lilac);
+  font-weight: 600;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  white-space: nowrap;
+}
+.web-list a:hover { color: var(--text); }
+
+/* In sviluppo e Pianificato: il tratteggio distingue il futuro dal reale. */
+
+.future { padding: 104px 0; }
+
+.future-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 80px;
+}
+
+.dev-list { display: grid; gap: 14px; margin-top: 40px; }
+.dev-list li {
+  padding: 22px 26px 24px;
+  border: 1px dashed var(--dash);
+  border-radius: 12px;
+}
+.dev-list h3 { font: 600 22px/1.25 var(--serif); }
+.dev-list p { margin-top: 6px; color: var(--text-2); }
+
+.plan-list { margin-top: 40px; }
+.plan-list li { padding: 16px 0; border-top: 1px dashed rgba(255, 255, 255, 0.12); }
+.plan-list li:first-child { border-top: 0; padding-top: 4px; }
+.plan-list h3 { font: 600 17px/1.35 var(--sans); color: var(--text-2); }
+.plan-list p { margin-top: 2px; color: var(--muted); }
+
+/* Chiusura */
+
+.closing {
+  position: relative;
+  isolation: isolate;
+  padding: 112px 0;
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+.closing::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../assets/header-glow.jpg") center / cover;
+  opacity: 0.45;
+  z-index: -1;
+}
+
+.closing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 64px;
+  align-items: end;
+}
+.closing h2 { font: 600 clamp(2.2rem, 1.5rem + 1.6vw, 3rem)/1.12 var(--serif); max-width: 14em; }
+.closing p { font-size: 18px; color: var(--text-2); max-width: 30em; }
+.closing .actions { margin-top: 26px; }
+
+/* Piede */
+
+.site-footer { border-top: 1px solid var(--line); }
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 40px;
+  padding: 36px 0;
+}
+.footer-row nav { display: flex; flex-wrap: wrap; gap: 24px; }
+.footer-row nav a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 15px; }
+.footer-row nav a:hover { color: var(--text); }
+.footer-row p { margin-left: auto; color: var(--muted); font-size: 14px; }
+
+/* Schermi stretti */
+
+@media (max-width: 1100px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
+  .hero-copy { max-width: 40rem; }
+  .moment { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-bottom: 88px; }
+  .shot { margin-left: 40px; }
+  .future-grid,
+  .closing-grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
+  .web-list li { grid-template-columns: 10rem minmax(0, 1fr); }
+  .web-list a { grid-column: 2; }
+}
+
+@media (max-width: 760px) {
+  :root { --shell: calc(100% - 40px); }
+  .site-nav { display: none; }
+  .header-end { margin-left: auto; }
+  .hero { padding: 32px 0 64px; }
+  .client { width: 100%; }
+  .tools { gap: 10px; margin-top: 12px; }
+  .tool-name { font-size: 13px; gap: 6px; align-items: flex-start; }
+  .tool-name img { width: 18px; }
+  .shot { margin-left: 0; }
+  .shot-stage .shot-inset { right: -6px; bottom: -20px; width: 32%; }
+  .web-list li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .web-list a { grid-column: auto; }
+  .footer-row p { margin-left: 0; }
+}

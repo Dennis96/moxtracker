@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MOX, assistente per MTG Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;800&family=Spectral:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Vai al contenuto</a>
+
+  <header class="site-header">
+    <div class="shell header-row">
+      <a class="wordmark" href="#top">MOX</a>
+      <nav class="site-nav" aria-label="Navigazione principale">
+        <a href="#top" aria-current="page">Home</a>
+        <a href="#web">Meta</a>
+        <a href="#web">Draft</a>
+        <a href="#web">Account</a>
+        <a href="#supporto">Supporto</a>
+      </nav>
+      <div class="header-end">
+        <button class="lang" type="button" aria-label="Lingua del sito: italiano. Passa all'inglese">IT / EN</button>
+        <a class="button button-primary button-small" href="#scarica">Scarica MOX</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="shell hero-grid">
+        <div class="hero-copy">
+          <h1 id="hero-title">MOX è un assistente per MTG Arena che lavora sul tuo PC, accanto al gioco.</h1>
+          <p class="lede">Mentre giochi conta le carte che restano nel tuo mazzo. Nel Draft ti suggerisce la scelta e ti propone il mazzo finale. Dopo, conserva i tuoi mazzi e le statistiche delle partite. Sul web trovi il Meta, i dati Draft e il tuo account.</p>
+          <div class="actions">
+            <a class="button button-primary" href="#scarica">Scarica MOX</a>
+            <a class="button button-ghost" href="#web">Esplora il Meta</a>
+          </div>
+          <p class="fineprint">Per Windows, in beta pubblica. Il download arriva da GitHub.</p>
+        </div>
+
+        <div class="hero-visual">
+          <div class="client">
+            <img class="client-glow" src="../assets/header-glow.jpg" alt="">
+            <img class="client-shot" src="../assets/client-home.webp" width="928" height="763" alt="La schermata iniziale di MOX: stato di MTG Arena, collezione, ultimo draft, risorse e l'elenco dei tre strumenti.">
+          </div>
+          <ul class="tools" aria-label="I tre strumenti di MOX, aperti">
+            <li class="tool">
+              <div class="tool-shot"><img src="../assets/card-contatore.webp" width="431" height="602" alt="Contatore in partita: restano 31 carte su 40, 14 terre, turno 4; per ogni carta le copie rimaste e la probabilità di pescarla."></div>
+              <p class="tool-name"><img src="../assets/icon-contatore.png" width="58" height="69" alt="">Contatore in partita</p>
+            </li>
+            <li class="tool">
+              <div class="tool-shot"><img src="../assets/card-draft.webp" width="402" height="561" alt="Assistente al draft: le carte della busta in ordine, con la percentuale di vittoria di ognuna; le prime due sono evidenziate."></div>
+              <p class="tool-name"><img src="../assets/icon-draft.png" width="58" height="69" alt="">Assistente al draft</p>
+            </li>
+            <li class="tool">
+              <div class="tool-shot"><img src="../assets/card-mazzi.webp" width="350" height="489" alt="I tuoi mazzi di Arena: un mazzo confrontato con la collezione, carta per carta, con le copie che possiedi."></div>
+              <p class="tool-name"><img src="../assets/icon-mazzi.png" width="58" height="69" alt="">I tuoi mazzi di Arena</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="moments" aria-labelledby="moments-title">
+      <div class="shell">
+        <header class="section-head">
+          <h2 id="moments-title">Cosa fa MOX</h2>
+          <p>Quattro momenti di una sessione su Arena. Ogni immagine qui sotto è una schermata del programma così com'è oggi.</p>
+        </header>
+
+        <ol class="timeline">
+          <li class="moment">
+            <div class="moment-text">
+              <h3>Durante la partita</h3>
+              <p class="moment-tool"><img src="../assets/icon-contatore.png" width="58" height="69" alt="">Contatore in partita</p>
+              <p>Si apre sopra Arena e tiene il conto delle carte che restano nel tuo mazzo: quante copie, quante terre, che probabilità hai di pescare ognuna. Un secondo pannello elenca le carte che l'avversario ha già rivelato.</p>
+              <p>Non ti dice cosa giocare: tiene il conto al posto tuo.</p>
+            </div>
+            <figure class="shot shot-partita">
+              <div class="shot-stage">
+                <img src="../assets/story-partita.webp" width="1100" height="660" alt="Una partita di MTG Arena con il pannello MOX del mazzo sul lato sinistro: restano 32 carte su 40, 14 terre, turno 2.">
+                <img class="shot-inset" src="../assets/story-avversario.webp" width="207" height="212" alt="Il pannello MOX dell'avversario: solo le carte rivelate, qui una Foresta.">
+              </div>
+              <figcaption>Schermata reale. A sinistra il pannello del tuo mazzo; nel riquadro, quello dell'avversario.</figcaption>
+            </figure>
+          </li>
+
+          <li class="moment">
+            <div class="moment-text">
+              <h3>Durante il Draft</h3>
+              <p class="moment-tool"><img src="../assets/icon-draft.png" width="58" height="69" alt="">Assistente al draft</p>
+              <p>Lo apri prima di entrare nel draft. A ogni busta mette in ordine le carte, con la percentuale di vittoria dai dati 17lands e un giudizio in chiaro: carta forte, buona nei tuoi colori, riempimento.</p>
+            </div>
+            <figure class="shot">
+              <img src="../assets/story-draft.webp" width="1442" height="940" alt="Un draft su Arena con la finestra dell'Assistente al draft a destra: la busta in ordine, le due scelte suggerite in evidenza.">
+              <figcaption>Schermata reale. A sinistra la busta in Arena, a destra la stessa busta ordinata da MOX.</figcaption>
+            </figure>
+          </li>
+
+          <li class="moment">
+            <div class="moment-text">
+              <h3>Dopo il Draft</h3>
+              <p class="moment-tool"><img src="../assets/icon-draft.png" width="58" height="69" alt="">Assistente al draft</p>
+              <p>Quando il draft finisce, propone il mazzo da montare con le carte del tuo pool: i colori principali, tre combinazioni a confronto e quante terre mettere, da 16 a 18.</p>
+            </div>
+            <figure class="shot shot-narrow">
+              <img src="../assets/story-mazzo-draft.webp" width="835" height="860" alt="Draft finito: MOX propone un mazzo nero e rosso di 40 carte, con due alternative e la scelta del numero di terre.">
+              <figcaption>Schermata reale. Il mazzo proposto a fine draft, carta per carta.</figcaption>
+            </figure>
+          </li>
+
+          <li class="moment">
+            <div class="moment-text">
+              <h3>Dopo le partite</h3>
+              <p class="moment-tool"><img src="../assets/icon-mazzi.png" width="58" height="69" alt="">I tuoi mazzi di Arena</p>
+              <p>I tuoi mazzi restano sul PC, con le statistiche di ogni versione: partite, vittorie, al gioco e alla risposta, formato per formato. Li confronti con la tua collezione, li copi negli appunti o li salvi su file per passarli a un amico.</p>
+            </div>
+            <figure class="shot">
+              <img src="../assets/story-statistiche.webp" width="1198" height="848" alt="La finestra I tuoi mazzi di Arena: l'elenco dei mazzi a sinistra, le statistiche del mazzo scelto a destra.">
+              <figcaption>Schermata reale. L'elenco dei mazzi e le statistiche di quello selezionato.</figcaption>
+            </figure>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="web" id="web" aria-labelledby="web-title">
+      <div class="shell">
+        <header class="section-head">
+          <h2 id="web-title">MOX sul web</h2>
+          <p>Il sito rende consultabili i dati che si possono pubblicare e, se accedi, il tuo archivio personale. Funziona anche con il programma chiuso.</p>
+        </header>
+        <ul class="web-list">
+          <li>
+            <h3>Meta</h3>
+            <p>Filtra gli archetipi per formato, periodo, rank, colore e strategia. Le soglie del campione restano visibili.</p>
+            <a href="#web">Esplora il Meta</a>
+          </li>
+          <li>
+            <h3>Draft</h3>
+            <p>Eventi e dati Limited, pubblicati quando il campione è affidabile.</p>
+            <a href="#web">Apri i dati Draft</a>
+          </li>
+          <li>
+            <h3>Il mio MOX</h3>
+            <p>Un accesso privato ai mazzi, alle partite e ai draft dei tuoi dispositivi.</p>
+            <a href="#web">Accedi a Il mio MOX</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="future" aria-label="Le prossime parti di MOX">
+      <div class="shell future-grid">
+        <div class="future-dev">
+          <header class="section-head">
+            <h2>In sviluppo</h2>
+            <p>Ci stiamo lavorando adesso. Nessuna di queste parti è disponibile oggi, e non hanno una data.</p>
+          </header>
+          <ul class="dev-list">
+            <li>
+              <h3>MOX Research</h3>
+              <p>Un modo più profondo per leggere i dati reali delle partite, quando metodo e campione saranno pronti.</p>
+            </li>
+            <li>
+              <h3>Draft Assistant Next Gen</h3>
+              <p>Un percorso più chiaro fra la scelta, il pool e la costruzione del mazzo finale.</p>
+            </li>
+            <li>
+              <h3>Nuova interfaccia</h3>
+              <p>Il programma per Windows avrà una nuova interfaccia, costruita con Tauri.</p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="future-plan">
+          <header class="section-head">
+            <h2>Pianificato</h2>
+            <p>Idee messe in fila per dopo, senza date. Possono cambiare.</p>
+          </header>
+          <ul class="plan-list">
+            <li>
+              <h3>Collezione e wildcard mancanti</h3>
+              <p>Quali carte ti mancano per completare una lista, e quante wildcard servono.</p>
+            </li>
+            <li>
+              <h3>«Posso costruire questo mazzo?»</h3>
+              <p>Una risposta chiara prima di spendere le wildcard.</p>
+            </li>
+            <li>
+              <h3>Editor dei mazzi più completo</h3>
+              <p>Più strumenti per modificare le liste dentro MOX.</p>
+            </li>
+            <li>
+              <h3>Ricerca carte e costruzione senza Arena</h3>
+              <p>Cercare carte e montare un mazzo anche con Arena chiuso.</p>
+            </li>
+            <li>
+              <h3>Condivisione dei mazzi</h3>
+              <p>Un modo controllato per passare una lista agli amici.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing" id="scarica" aria-labelledby="closing-title">
+      <div class="shell closing-grid">
+        <h2 id="closing-title">Prova MOX alla prossima partita.</h2>
+        <div>
+          <p>È un programma per Windows, in beta pubblica. Si scarica da GitHub e si apre accanto ad Arena.</p>
+          <div class="actions">
+            <a class="button button-primary" href="#scarica">Scarica MOX</a>
+            <a class="button button-ghost" href="#web">Esplora il Meta</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="supporto">
+    <div class="shell footer-row">
+      <a class="wordmark" href="#top">MOX</a>
+      <nav aria-label="Navigazione del sito">
+        <a href="#top">Home</a>
+        <a href="#web">Meta</a>
+        <a href="#web">Draft</a>
+        <a href="#web">Account</a>
+        <a href="#supporto">Supporto</a>
+      </nav>
+      <p>Mockup statico di esplorazione, senza API.</p>
+    </div>
+  </footer>
+</body>
+</html>
