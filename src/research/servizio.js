@@ -165,8 +165,16 @@ export async function consenti(richiesta, ambiente, config) {
       const impronta = await sha256Hex(segreto);
       for (const db of ["DB", "DRAFT_DB"]) {
         if (!ctx.disponibile(db)) continue;
-        const legacy = await ctx.first(descrittore("verificatore_legacy",
-          "SELECT cancellazione_hash FROM contributori WHERE mittente = ?1", [mittente], db));
+        let legacy;
+        try {
+          legacy = await ctx.first(descrittore("verificatore_legacy",
+            "SELECT cancellazione_hash FROM contributori WHERE mittente = ?1", [mittente], db));
+        } catch (guasto) {
+          // Un database senza la tabella legacy (lo staging R3 riceve solo la
+          // migrazione Research) non ha verificatori da confrontare.
+          if (!/no such table/i.test(String(guasto?.message))) throw guasto;
+          legacy = null;
+        }
         if (legacy && !stessoValore(legacy.cancellazione_hash, impronta)) {
           return esito(403, { errore: "lineage_credential_mismatch" });
         }

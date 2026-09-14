@@ -13,7 +13,6 @@ import { createServer } from "node:http";
 import { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
 
-import server from "../src/index.js";
 import { creaFintoD1 } from "../prove/finto-d1.js";
 
 const argomenti = process.argv.slice(2);
@@ -27,6 +26,10 @@ if (!file) {
   console.error("serve --db <file>");
   process.exit(2);
 }
+// `--staging`: il Worker di staging G5C-03 (con le sonde) invece di quello
+// nudo, per provare in locale lo script di acceptance prima di andare su D1.
+const staging = argomenti.includes("--staging");
+const server = (await import(staging ? "./research-staging/worker.mjs" : "../src/index.js")).default;
 const cap = Number(opzione("cap", "5"));
 const query = Number(opzione("query", "500"));
 const schema = fileURLToPath(new URL("../schema.sql", import.meta.url));
@@ -34,6 +37,7 @@ const db = creaFintoD1(schema, { file });
 
 const ambiente = {
   DB: db,
+  ...(staging ? { RESEARCH_MISURE: "attive", RESEARCH_MISURE_TOKEN: process.env.MOX_STAGING_TOKEN } : {}),
   RESEARCH_ENABLED: "true",
   RESEARCH_AMBIENTE: "prova_locale",
   RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: String(cap),

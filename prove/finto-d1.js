@@ -38,6 +38,9 @@ export function creaFintoD1(percorsoSchema, { file = ":memory:" } = {}) {
         const esito = statement.run(...argomenti);
         return { meta: { changes: Number(esito.changes) } };
       },
+      run() {
+        return this.esegui();
+      },
     };
   }
 

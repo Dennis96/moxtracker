@@ -234,6 +234,16 @@ test("il TOFU pretende il segreto gia' legato al mittente nei contributori legac
   await consenso(amb, MITTENTE, SEGRETO_ALTRO);
 });
 
+test("un D1 con la sola migrazione Research: senza tabelle legacy nessun verificatore, il consenso passa", async () => {
+  // Lo staging R3 riceve soltanto la migrazione Research: `contributori` non
+  // esiste, quindi non esiste nemmeno un verificatore legacy da confrontare.
+  const db = creaFintoD1(QUI + "../migrazioni/2026-09-14-research-r3.sql");
+  const amb = ambiente(db);
+  const token = await consenso(amb);
+  const esito = await manda(amb, "/research/partite", busta([bo1()]), { token });
+  assert.deepEqual(stati(esito), ["accepted_new"]);
+});
+
 test("delete: tombstone, dati via, vecchio token morto, stesso id soppresso, id nuovo ammesso", async () => {
   const db = nuovoDb();
   const amb = ambiente(db);
