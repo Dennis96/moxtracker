@@ -274,12 +274,16 @@ produzione.
 
 ## Prossimo lavoro
 
-0. Redesign e policy Brew: prima qualche giorno di prove sulla preview
-   Pages <https://preview.moxtracker.pages.dev>, poi, con autorizzazione
-   esplicita, il sito ufficiale <https://moxtracker.app> e il merge. Il Worker
-   esiste solo in produzione (`api.moxtracker.app`, anche per la preview):
-   pubblicarlo è un deploy di produzione da decidere a parte e, quando si fa,
-   va seguito subito dalla Pages corrispondente. Nessun housekeeping prima.
+0. Redesign: prima qualche giorno di prove sulla preview Pages
+   <https://preview.moxtracker.pages.dev>, poi, con autorizzazione esplicita,
+   il sito ufficiale <https://moxtracker.app> e il merge. La policy Brew si
+   vede solo dopo il deploy del Worker, che esiste solo in produzione
+   (`api.moxtracker.app`, anche per la preview): è un deploy di produzione da
+   decidere a parte. Ordine sicuro: prima la Pages ufficiale (il sito nuovo è
+   compatibile con il Worker attuale), poi il Worker. Allo smoke di quel
+   deploy aggiungere: Altro senza `vittorie` in `/meta` quando ci sono liste
+   sotto soglia, `/archetipo` con un'impronta inventata in 404,
+   `/gioco-risposta` senza vittorie né win rate. Nessun housekeeping prima.
 1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
    motion e download GitHub Latest).
 2. R3-PREP resta una proposta: attendere modello locale R2, golden packet
