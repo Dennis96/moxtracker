@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Il mio MOX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Spectral:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <a class="skip" href="#main">Vai al contenuto</a>
+
+  <header class="site-header">
+    <div class="shell header-row">
+      <a class="wordmark" href="index.html"><img src="../assets/mox-marchio-96.webp" width="32" height="32" alt="">MOX</a>
+      <nav class="site-nav" aria-label="Navigazione principale">
+        <a href="index.html">Home</a>
+        <a href="meta.html">Meta</a>
+        <a href="draft.html">Draft</a>
+        <a href="account.html" aria-current="page">Account</a>
+        <a href="#supporto">Supporto</a>
+      </nav>
+      <div class="header-end">
+        <details class="menu">
+          <summary>Menu</summary>
+          <nav aria-label="Menu del sito"><a href="index.html">Home</a> <a href="meta.html">Meta</a> <a href="draft.html">Draft</a> <a href="account.html" aria-current="page">Account</a> <a href="#supporto">Supporto</a></nav>
+        </details>
+        <button class="lang" type="button" aria-label="Lingua del sito: italiano. Passa all'inglese">IT / EN</button>
+        <a class="button button-primary button-small" href="index.html#scarica">Scarica MOX</a>
+      </div>
+    </div>
+  </header>
+
+  <p class="sample-note"><span class="shell"><strong>Dati di esempio.</strong> Numeri e nomi di questa pagina sono inventati per il mockup e non appartengono a un giocatore reale. Nel sito vero compaiono solo dati dell'API, uno stato vuoto o un caricamento.</span></p>
+
+  <main id="main" class="page">
+    <div class="shell account-tabs">
+      <header class="page-head">
+        <div>
+          <h1>Il mio MOX</h1>
+          <p class="lede">Mazzi, partite e draft associati ai tuoi dispositivi. Li vedi solo tu.</p>
+        </div>
+        <div class="account-chip">
+          <strong>Connesso con Discord</strong>
+          <span>2 dispositivi collegati</span>
+          <span>Ultimo invio ricevuto: 13/09, 21:40</span>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Sezioni del tuo MOX">
+        <a href="#panoramica">Panoramica</a>
+        <a href="#mazzi">Mazzi <span>6</span></a>
+        <a href="#partite">Partite <span>84</span></a>
+        <a href="#draft">Draft <span>7</span></a>
+        <a href="#scheda-account">Account</a>
+      </nav>
+
+      <section class="tab-panel" id="panoramica" aria-label="Panoramica">
+        <dl class="metrics metrics-6">
+          <div class="metric"><dt>Partite</dt><dd><strong>84</strong><small>Ricevute dai tuoi dispositivi</small></dd></div>
+          <div class="metric"><dt>Vittorie / sconfitte</dt><dd><strong>46 / 38</strong></dd></div>
+          <div class="metric"><dt>Win rate</dt><dd><strong class="up">54,8%</strong></dd></div>
+          <div class="metric"><dt>Al gioco / risposta</dt><dd><strong>58% / 51%</strong></dd></div>
+          <div class="metric"><dt>Durata media</dt><dd><strong>11 min</strong></dd></div>
+          <div class="metric"><dt>Draft registrati</dt><dd><strong>7</strong></dd></div>
+        </dl>
+
+        <div class="form-strip">
+          <span>Ultime dieci partite</span>
+          <span class="form" role="img" aria-label="Vinta, vinta, persa, vinta, persa, vinta, vinta, persa, vinta, vinta"><span class="w">V</span><span class="w">V</span><span class="l">S</span><span class="w">V</span><span class="l">S</span><span class="w">V</span><span class="w">V</span><span class="l">S</span><span class="w">V</span><span class="w">V</span></span>
+          <span>I consensi si modificano sempre nelle Opzioni di MOX, per ciascun dispositivo.</span>
+        </div>
+
+        <div class="two-col">
+          <section class="panel" aria-labelledby="p-mazzi">
+            <div class="panel-head">
+              <div>
+                <h2 id="p-mazzi">I miei mazzi</h2>
+                <p>Ogni riga è una decklist realmente usata.</p>
+              </div>
+              <a class="text-link" href="#mazzi">Tutti i mazzi</a>
+            </div>
+            <ul class="rows">
+              <li><span><span class="row-title">Mono White Auras</span><br><span class="row-sub">Standard BO1, 32 partite</span></span><span class="row-value up">59,4%<small>19 V / 13 S</small></span></li>
+              <li><span><span class="row-title">Izzet Spellementals</span><br><span class="row-sub">Standard BO1, 21 partite</span></span><span class="row-value">52,4%<small>11 V / 10 S</small></span></li>
+              <li><span><span class="row-title">Azorius Control</span><br><span class="row-sub">Standard BO3, 12 partite</span></span><span class="row-value down">41,7%<small>5 V / 7 S</small></span></li>
+            </ul>
+          </section>
+
+          <section class="panel rank-chart" aria-labelledby="p-rank">
+            <div class="panel-head">
+              <div>
+                <h2 id="p-rank">Andamento del rank</h2>
+                <p>I cambi ricevuti da Arena, in ordine.</p>
+              </div>
+            </div>
+            <svg viewBox="0 0 520 190" role="img" aria-label="Da Oro 2 a Platino 2 in sette cambi, con una ricaduta a Platino 4.">
+              <g stroke="rgba(190,156,255,0.14)">
+                <line x1="84" y1="20" x2="510" y2="20"/><line x1="84" y1="60" x2="510" y2="60"/><line x1="84" y1="100" x2="510" y2="100"/><line x1="84" y1="140" x2="510" y2="140"/><line x1="84" y1="180" x2="510" y2="180"/>
+              </g>
+              <text x="0" y="24">Platino 2</text><text x="0" y="64">Platino 3</text><text x="0" y="104">Platino 4</text><text x="0" y="144">Oro 1</text><text x="0" y="184">Oro 2</text>
+              <path d="M96 180 H156 V140 H226 V100 H296 V60 H366 V100 H436 V60 H496 V20" fill="none" stroke="#a644ff" stroke-width="2.5"/>
+              <g fill="#07080d" stroke="#c9a2ff" stroke-width="2">
+                <circle cx="96" cy="180" r="4"/><circle cx="156" cy="140" r="4"/><circle cx="226" cy="100" r="4"/><circle cx="296" cy="60" r="4"/><circle cx="366" cy="100" r="4"/><circle cx="436" cy="60" r="4"/><circle cx="496" cy="20" r="4"/>
+              </g>
+            </svg>
+            <p class="block-note">Standard classificato, 7 cambi fra il 21/08 e il 13/09.</p>
+          </section>
+        </div>
+
+        <div class="page-block" style="margin-top:24px">
+          <section class="panel" aria-labelledby="p-recenti">
+            <div class="panel-head">
+              <div>
+                <h2 id="p-recenti">Partite recenti</h2>
+                <p>Apri una partita per la decklist, l'ultima mano osservata e le carte rivelate dall'avversario.</p>
+              </div>
+              <a class="text-link" href="#partite">Tutte le partite</a>
+            </div>
+            <ul class="rows">
+              <li class="match-row"><span class="result w">V</span><span><span class="row-title">Mono White Auras</span><br><span class="row-sub">Contro Izzet Spellementals, Standard BO1</span></span><span class="row-value">13/09<small>21:12, 9 turni</small></span></li>
+              <li class="match-row"><span class="result l">S</span><span><span class="row-title">Mono White Auras</span><br><span class="row-sub">Contro Thor Capstone, Standard BO1</span></span><span class="row-value">13/09<small>20:51, 12 turni</small></span></li>
+              <li class="match-row"><span class="result w">V</span><span><span class="row-title">Draft HOB</span><br><span class="row-sub">Premier Draft, partita 3</span></span><span class="row-value">12/09<small>22:30, 8 turni</small></span></li>
+              <li class="match-row"><span class="result w">V</span><span><span class="row-title">Izzet Spellementals</span><br><span class="row-sub">Avversario non classificato, Standard BO1</span></span><span class="row-value">12/09<small>21:47, 7 turni</small></span></li>
+            </ul>
+          </section>
+
+        </div>
+      </section>
+
+      <section class="tab-panel" id="mazzi" aria-label="Mazzi">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>I miei mazzi</h2>
+              <p>Ogni riga è una decklist realmente usata. Aprila per vedere carte e statistiche.</p>
+            </div>
+            <span class="count">6 mazzi</span>
+          </div>
+          <ul class="rows">
+            <li><span><span class="row-title">Mono White Auras</span><br><span class="row-sub">Standard BO1, ultima partita 13/09</span></span><span class="row-value up">59,4%<small>32 partite, 19 V / 13 S</small></span></li>
+            <li><span><span class="row-title">Izzet Spellementals</span><br><span class="row-sub">Standard BO1, ultima partita 12/09</span></span><span class="row-value">52,4%<small>21 partite, 11 V / 10 S</small></span></li>
+            <li><span><span class="row-title">Azorius Control</span><br><span class="row-sub">Standard BO3, ultima partita 08/09</span></span><span class="row-value down">41,7%<small>12 partite, 5 V / 7 S</small></span></li>
+            <li><span><span class="row-title">Draft HOB nero rosso</span><br><span class="row-sub">Premier Draft, ultima partita 12/09</span></span><span class="row-value">62,5%<small>8 partite, 5 V / 3 S</small></span></li>
+            <li><span><span class="row-title">Golgari Midrange</span><br><span class="row-sub">Standard BO1, ultima partita 30/08</span></span><span class="row-value">50,0%<small>6 partite, 3 V / 3 S</small></span></li>
+            <li><span><span class="row-title">Mono Red Aggro</span><br><span class="row-sub">Standard BO1, ultima partita 24/08</span></span><span class="row-value">60,0%<small>5 partite, 3 V / 2 S</small></span></li>
+          </ul>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="partite" aria-label="Partite">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Le mie partite</h2>
+              <p>Apri una partita per vedere decklist, ultima mano osservata quando disponibile, andamento e carte rivelate dall'avversario.</p>
+            </div>
+            <span class="count">84 partite</span>
+          </div>
+          <form class="list-filters" aria-label="Filtri delle partite">
+            <div class="field"><label for="pf-mazzo">Mazzo</label><select id="pf-mazzo" class="select"><option>Tutti i mazzi</option></select></div>
+            <div class="field"><label for="pf-esito">Esito</label><select id="pf-esito" class="select"><option>Vinte e perse</option><option>Vinte</option><option>Perse</option></select></div>
+            <div class="field"><label for="pf-evento">Evento</label><select id="pf-evento" class="select"><option>Tutti gli eventi</option></select></div>
+            <button class="button button-ghost button-small" type="reset">Azzera filtri</button>
+          </form>
+          <ul class="rows">
+            <li class="match-row"><span class="result w">V</span><span><span class="row-title">Mono White Auras</span><br><span class="row-sub">Contro Izzet Spellementals, Standard BO1</span></span><span class="row-value">13/09<small>21:12, 9 turni, 12 min</small></span></li>
+            <li class="match-row"><span class="result l">S</span><span><span class="row-title">Mono White Auras</span><br><span class="row-sub">Contro Thor Capstone, Standard BO1</span></span><span class="row-value">13/09<small>20:51, 12 turni, 15 min</small></span></li>
+            <li class="match-row"><span class="result w">V</span><span><span class="row-title">Draft HOB</span><br><span class="row-sub">Premier Draft, partita 3</span></span><span class="row-value">12/09<small>22:30, 8 turni, 10 min</small></span></li>
+          </ul>
+        </section>
+
+        <section class="panel" aria-labelledby="p-contro">
+          <div class="panel-head">
+            <div>
+              <h2 id="p-contro">Contro gli archetipi</h2>
+              <p>Classificazione prudente, basata soltanto sulle carte avversarie rivelate.</p>
+            </div>
+          </div>
+          <ul class="rows">
+            <li><span><span class="row-title">Izzet Spellementals</span><br><span class="row-sub">9 partite</span></span><span class="row-value">5 V / 4 S</span></li>
+            <li><span><span class="row-title">Thor Capstone</span><br><span class="row-sub">6 partite</span></span><span class="row-value">2 V / 4 S</span></li>
+            <li><span><span class="row-title">Non classificati</span><br><span class="row-sub">21 partite, carte rivelate insufficienti</span></span><span class="row-value">12 V / 9 S</span></li>
+          </ul>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="draft" aria-label="Draft">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Draft e risultati</h2>
+              <p>Record ricostruiti soltanto dalle partite ricevute; le parti mancanti sono dichiarate.</p>
+            </div>
+            <span class="count">7 draft</span>
+          </div>
+          <ul class="rows">
+            <li><span><span class="row-title">HOB, Premier Draft</span><br><span class="row-sub">12/09, traccia Draft completa</span></span><span class="row-value up">5 V / 3 S<small>8 partite</small></span></li>
+            <li><span><span class="row-title">HOB, Pick-Two Draft</span><br><span class="row-sub">06/09, traccia Draft completa</span></span><span class="row-value">2 V / 3 S<small>5 partite</small></span></li>
+            <li><span><span class="row-title">HOB, Quick Draft</span><br><span class="row-sub">31/08, partite Limited senza traccia</span></span><span class="row-value">3 V / 2 S<small>5 partite, 1 mancante</small></span></li>
+          </ul>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="scheda-account" aria-label="Account">
+        <div class="service-grid">
+          <section class="panel">
+            <h2>Collega MOX</h2>
+            <p>Genera un codice monouso, poi inseriscilo nelle Opzioni di MOX. Scade dopo 10 minuti.</p>
+            <div class="actions"><button class="button button-primary button-small" type="button">Genera codice</button></div>
+          </section>
+          <section class="panel">
+            <h2>Dispositivi</h2>
+            <ul class="rows" style="margin-top:14px">
+              <li><span><span class="row-title">PC di casa</span><br><span class="row-sub">Ultimo invio 13/09, 21:40</span></span><span class="state state-ok">Contributo anonimo attivo</span></li>
+              <li><span><span class="row-title">Portatile</span><br><span class="row-sub">Ultimo invio 30/08, 18:02</span></span><span class="state state-below">Contributo non attivo</span></li>
+            </ul>
+          </section>
+          <section class="panel">
+            <h2>Ticket</h2>
+            <ul class="rows" style="margin-top:14px">
+              <li><span><span class="row-title">Il Contatore non si apre in BO3</span><br><span class="row-sub">Aperto il 10/09</span></span><span class="state state-below">In lavorazione</span></li>
+            </ul>
+            <div class="actions"><a class="button button-ghost button-small" href="#supporto">Apri un ticket</a></div>
+          </section>
+          <section class="panel">
+            <h2>Accessi</h2>
+            <p>MOX non gestisce password: accedi con Google o Discord.</p>
+            <ul class="rows" style="margin-top:14px">
+              <li><span class="row-title">Discord</span><span class="state state-ok">Collegato</span></li>
+              <li><span class="row-title">Google</span><button class="button button-ghost button-small" type="button">Collega Google</button></li>
+            </ul>
+          </section>
+          <section class="panel full">
+            <h2>I tuoi dati</h2>
+            <p>Puoi esportare tutto oppure soltanto la parte che ti serve.</p>
+            <div class="actions">
+              <button class="button button-ghost button-small" type="button">Esporta tutto</button>
+              <button class="button button-ghost button-small" type="button">Esporta partite</button>
+              <button class="button button-ghost button-small" type="button">Esporta Draft</button>
+              <button class="button button-ghost button-small" type="button">Esporta mazzi</button>
+              <button class="button button-ghost button-small" type="button">Esci</button>
+            </div>
+            <div class="danger-zone">
+              <h3>Cancellazione</h3>
+              <p>Ogni cancellazione è definitiva e chiede conferma.</p>
+              <div class="actions">
+                <button class="button button-danger button-small" type="button">Cancella partite</button>
+                <button class="button button-danger button-small" type="button">Cancella Draft</button>
+                <button class="button button-danger button-small" type="button">Cancella mazzi</button>
+                <button class="button button-danger button-small" type="button">Elimina dati e account</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer" id="supporto">
+    <div class="shell footer-row">
+      <a class="wordmark" href="index.html"><img src="../assets/mox-marchio-96.webp" width="32" height="32" alt="">MOX</a>
+      <nav aria-label="Navigazione del sito">
+        <a href="index.html">Home</a><a href="meta.html">Meta</a><a href="draft.html">Draft</a><a href="account.html">Account</a><a href="#supporto">Supporto</a>
+      </nav>
+      <p>Mockup statico con dati di esempio.</p>
+    </div>
+  </footer>
+</body>
+</html>

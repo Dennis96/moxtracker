@@ -88,8 +88,9 @@ test("dettaglio archetipo conserva periodo modalita e intervallo rank", async ()
 });
 
 test("decklist osservata richiede 30 partite, indipendentemente dal numero di installazioni", async () => {
+  // Sotto 30 partite il mazzo non classificato non si apre affatto: vedi la
+  // prova «risponde come se non esistesse».
   const casi = [
-    { partite: 29, contributori: 10, pubblicabile: false },
     { partite: 30, contributori: 1, pubblicabile: true },
     { partite: 60, contributori: 1, pubblicabile: true },
   ];
@@ -110,20 +111,36 @@ test("decklist osservata richiede 30 partite, indipendentemente dal numero di in
   }
 });
 
-test("risposta sotto soglia non serializza carte, Arena ID o contributor", async () => {
+test("un mazzo non classificato sotto 30 partite risponde come se non esistesse", async () => {
+  // Anche con dieci installazioni diverse: sotto soglia la lista non si
+  // conferma, niente V/S, decklist o impronta.
   const db = creaFintoD1(SCHEMA);
   inserisciPartite(db, {
-    impronta: IMPRONTA_SCONOSCIUTA, partite: 29, contributori: 1,
+    impronta: IMPRONTA_SCONOSCIUTA, partite: 29, contributori: 10,
     carte: [[CARTA_FIXTURE, 4]],
   });
-  const r = await leggiArchetipo(db,
+  const sotto = await leggiArchetipo(db,
     url(`/archetipo?formato=Standard&impronta=${IMPRONTA_SCONOSCIUTA}`));
-  const testo = JSON.stringify(r.corpo);
-  assert.equal(testo.includes(String(CARTA_FIXTURE)), false);
-  assert.equal(testo.includes("Ethereal Armor"), false);
-  assert.equal(testo.includes("mittente"), false);
-  assert.equal(testo.includes("contributore-0"), false);
-  assert.equal(testo.includes("contributori"), false);
+  const mai = await leggiArchetipo(db,
+    url(`/archetipo?formato=Standard&impronta=${"f".repeat(64)}`));
+  assert.equal(sotto.stato, 404);
+  assert.deepEqual(sotto, mai);
+  const testo = JSON.stringify(sotto);
+  for (const vietato of [String(CARTA_FIXTURE), "Ethereal Armor", "mittente", "contributore-0",
+    IMPRONTA_SCONOSCIUTA, "vittorie", "partite\""]) {
+    assert.equal(testo.includes(vietato), false, vietato);
+  }
+});
+
+test("via HTTP la lista sotto soglia e un'impronta mai vista hanno la stessa risposta", async () => {
+  const db = creaFintoD1(SCHEMA);
+  inserisciPartite(db, { impronta: IMPRONTA_SCONOSCIUTA, partite: 29, contributori: 1 });
+  const chiedi = async (impronta) => {
+    const risposta = await server.fetch(new Request(
+      `https://x.invalid/archetipo?formato=Standard&impronta=${impronta}`, { method: "GET" }), { DB: db });
+    return [risposta.status, await risposta.text()];
+  };
+  assert.deepEqual(await chiedi(IMPRONTA_SCONOSCIUTA), await chiedi("f".repeat(64)));
 });
 
 test("impronta valida apre il dettaglio e una malformata viene rifiutata", async () => {

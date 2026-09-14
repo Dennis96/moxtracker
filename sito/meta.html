@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080d">
+  <meta name="description" content="Meta Explorer di MOX: archetipi di MTG Arena per formato, periodo, rank, colore e strategia, con varianti osservate e soglie visibili.">
+  <title>Meta Explorer — MOX Arena Assistant</title>
+  <link rel="icon" href="./assets/mox.ico">
+  <link rel="stylesheet" href="./css/site.css">
+  <link rel="stylesheet" href="./css/card-images.css">
+  <link rel="stylesheet" href="./css/redesign.css">
+  <script type="module" src="./js/site-shell.js"></script>
+  <script type="module" src="./js/main.js"></script>
+</head>
+<body class="meta-page" data-page="meta">
+  <a class="skip-link" href="#meta">Vai al Meta Explorer</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Navigazione principale">
+      <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
+      <a class="nav-download" href="./download.html">Scarica MOX</a>
+    </nav>
+  </header>
+
+  <aside class="beta-banner" aria-label="Stato del servizio">
+    <strong>Beta pubblica</strong><span>Raccolta dati in corso: percentuali e risultati compaiono soltanto quando il campione è sufficiente.</span>
+  </aside>
+
+  <main id="meta" class="page meta-main">
+    <header class="page-head">
+      <div>
+        <h1>Meta Explorer</h1>
+        <p class="lede">Trova un archetipo per formato, rank, colore e strategia. Apri una riga per vedere l'archetipo, le sue varianti osservate su MOX e il dettaglio di ogni variante pubblicata.</p>
+      </div>
+      <p class="page-status" aria-live="polite"><strong id="meta-count">Caricamento…</strong><time id="meta-updated"></time></p>
+    </header>
+
+    <section class="meta-panel" aria-label="Filtri e archetipi">
+      <div class="explorer-controls" role="group" aria-label="Filtri Meta Explorer">
+        <div class="filter-field">
+          <label for="format-filter">Formato</label>
+          <span class="select-wrap"><select id="format-filter"></select></span>
+        </div>
+        <fieldset class="filter-field">
+          <legend>Periodo</legend>
+          <div class="segmented">
+            <label><input type="radio" name="periodo" value="7"><span>7 giorni</span></label>
+            <label><input type="radio" name="periodo" value="14"><span>14 giorni</span></label>
+            <label><input type="radio" name="periodo" value="30" checked><span>30 giorni</span></label>
+            <label><input type="radio" name="periodo" value="totale"><span>Tutto</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="filter-field">
+          <legend>Modalità</legend>
+          <div class="segmented">
+            <label><input type="radio" name="modalita" value="" checked><span>BO1 + BO3</span></label>
+            <label><input type="radio" name="modalita" value="BO1"><span>BO1</span></label>
+            <label><input type="radio" name="modalita" value="BO3"><span>BO3</span></label>
+          </div>
+        </fieldset>
+        <div class="filter-field rank-field">
+          <label for="rank-min" id="rank-legend">Rank</label>
+          <div class="rank-range">
+            <output id="rank-label" for="rank-min rank-max">Tutti i rank</output>
+            <div class="rank-track">
+              <span class="rank-selected" id="rank-selected"></span>
+              <input type="range" id="rank-min" min="0" max="5" step="1" value="0" aria-label="Rank più basso">
+              <input type="range" id="rank-max" min="0" max="5" step="1" value="5" aria-label="Rank più alto">
+            </div>
+            <ul class="rank-ticks" id="rank-ticks" aria-hidden="true"></ul>
+          </div>
+        </div>
+        <div class="filter-field search-field">
+          <label for="archetype-search">Cerca</label>
+          <div class="search-box"><span aria-hidden="true">⌕</span><input id="archetype-search" type="search" autocomplete="off" placeholder="Archetipo o lista…"></div>
+        </div>
+        <div class="filter-field strategy-field">
+          <label for="strategy-filter">Strategia</label>
+          <span class="select-wrap"><select id="strategy-filter" aria-describedby="classification-help"><option value="">Tutte le strategie</option></select></span>
+        </div>
+        <div class="filter-field color-field">
+          <span class="field-label">Colori</span>
+          <div class="color-filters" role="group" aria-label="Filtra per colori">
+            <button type="button" class="color-pip color-w" data-color="W" aria-pressed="false" title="Bianco">W</button>
+            <button type="button" class="color-pip color-u" data-color="U" aria-pressed="false" title="Blu">U</button>
+            <button type="button" class="color-pip color-b" data-color="B" aria-pressed="false" title="Nero">B</button>
+            <button type="button" class="color-pip color-r" data-color="R" aria-pressed="false" title="Rosso">R</button>
+            <button type="button" class="color-pip color-g" data-color="G" aria-pressed="false" title="Verde">G</button>
+          </div>
+        </div>
+        <button id="clear-local-filters" class="clear-filters button button-ghost button-small" type="button">Azzera filtri</button>
+      </div>
+      <p id="classification-help" class="classification-help">Colori e strategia si attiveranno automaticamente quando l'Archetype Engine alimenterà questi campi nell'API.</p>
+
+      <div id="meta-body" aria-live="polite"><div class="skeleton"></div></div>
+      <div class="meta-footer-row">
+        <p id="meta-threshold" class="note">Percentuali pubblicate da 30 partite.</p>
+        <p id="meta-visible" class="note"></p>
+      </div>
+    </section>
+
+    <section id="matchup" class="panel matchup-panel" aria-labelledby="matchup-title">
+      <div class="panel-inner">
+        <div class="panel-head">
+          <div>
+            <h2 id="matchup-title">Matchup tra archetipi</h2>
+            <p>Quanto performa un archetipo A contro un archetipo B. Una percentuale compare solo da 100 partite affidabili per coppia.</p>
+          </div>
+          <span class="status-badge">100+ per coppia</span>
+        </div>
+        <div id="matchup-state" class="unavailable" aria-live="polite"><div><h3>Caricamento matchup</h3><p>Verifica disponibilità in corso…</p></div></div>
+      </div>
+    </section>
+
+    <section id="metodo" class="panel methodology" aria-labelledby="method-title">
+      <div class="panel-inner">
+        <div class="panel-head"><h2 id="method-title">Come funzionano i dati</h2></div>
+        <ul class="method-list">
+          <li><h3>30+ percentuali</h3><p>Win rate e quota meta compaiono solo quando il campione raggiunge la soglia prevista.</p></li>
+          <li><h3>100+ matchup</h3><p>Ogni confronto tra due archetipi richiede almeno 100 partite affidabili.</p></li>
+          <li><h3>Dati anonimi</h3><p>Nessun nome giocatore e nessun dato personale viene mostrato nel meta pubblico.</p></li>
+          <li><h3>Nessun numero inventato</h3><p>Sotto soglia mostriamo i conteggi reali e quante partite mancano, non percentuali finte.</p></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></nav>
+      <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia Mox</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
+    </div>
+  </footer>
+</body>
+</html>

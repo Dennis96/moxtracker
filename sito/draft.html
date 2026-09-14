@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07080d">
   <meta name="description" content="Come Mox usa dati Draft anonimi e aggregati per verificare l'algoritmo e migliorare i consigli locali.">
-  <title>Come Mox migliora il Draft — MOX Arena Assistant</title>
+  <title>Assistente al Draft e dati Limited — MOX Arena Assistant</title>
   <link rel="icon" href="./assets/mox.ico">
   <link rel="stylesheet" href="./css/site.css?v=20260823-1">
   <link rel="stylesheet" href="./css/draft.css">
+  <link rel="stylesheet" href="./css/redesign.css">
   <script type="module" src="./js/site-shell.js"></script>
   <script type="module" src="./js/draft.js"></script>
 </head>
@@ -18,7 +19,8 @@
     <nav class="nav" aria-label="Navigazione principale">
       <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
       <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
-      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./index.html#meta">Meta</a><a data-route="draft" href="#laboratorio">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
+      <a class="nav-download" href="./download.html">Scarica MOX</a>
     </nav>
   </header>
 
@@ -26,80 +28,124 @@
     <strong>Metodo Draft in beta</strong><span>Stiamo raccogliendo i primi contributi anonimi per verificare l'algoritmo: nessuna modifica avviene automaticamente.</span>
   </aside>
 
-  <main>
-    <section class="draft-hero" aria-labelledby="draft-title">
-      <div class="draft-hero-inner">
-        <div>
-          <span class="eyebrow">Trasparenza sull'algoritmo</span>
-          <h1 id="draft-title">Come Mox migliora il Draft</h1>
-          <p>Mox consiglia in tempo reale sul tuo PC. Se scegli di contribuire, i Draft anonimi ci aiutano a capire quali segnali sono affidabili e a rendere i consigli futuri più precisi.</p>
+  <main class="page draft-main">
+    <header class="page-head draft-head">
+      <div>
+        <h1>Assistente al Draft e dati Limited</h1>
+        <p class="lede">Nel programma, MOX ti accompagna una busta alla volta e a fine draft propone il mazzo da montare. Sul sito trovi i draft condivisi in forma anonima e il metodo con cui li usiamo.</p>
+        <div class="actions">
+          <a class="button button-primary" href="./download.html">Scarica MOX</a>
+          <a class="button button-ghost" href="#laboratorio">Vedi i dati Draft</a>
         </div>
-        <img src="./assets/branding/mox-marchio.webp" alt="" aria-hidden="true">
+        <p class="fineprint">Windows · Beta pubblica · Download da GitHub</p>
+      </div>
+      <figure class="draft-head-shot">
+        <img src="./assets/home/preview-draft.webp" width="768" height="549" alt="La finestra Assistente al draft: la busta in ordine con la percentuale di vittoria di ogni carta e un giudizio; le due scelte suggerite in evidenza.">
+        <figcaption class="real-note">Schermata reale dell'Assistente al draft, prima scelta del pacchetto.</figcaption>
+      </figure>
+    </header>
+
+    <section aria-labelledby="prog-title">
+      <div class="part-head part-head-first">
+        <h2 id="prog-title">Nel programma</h2>
+        <p>Due momenti, sul tuo PC, accanto ad Arena. Il consiglio viene calcolato in locale mentre giochi.</p>
+      </div>
+      <div class="feature-pair">
+        <article class="feature">
+          <img src="./assets/home/story-draft.webp" width="1442" height="940" alt="Un draft su Arena con la finestra dell'Assistente al draft a destra: la busta in ordine, le due scelte suggerite in evidenza.">
+          <p class="real-note">Schermata reale. A sinistra la busta in Arena, a destra la stessa busta ordinata da MOX.</p>
+          <h3>Durante il Draft</h3>
+          <p>A ogni busta MOX mette in ordine le carte, con la percentuale di vittoria dai dati 17lands e un giudizio in chiaro: carta forte, buona nei tuoi colori, riempimento. Tiene una scelta principale e dice quando esistono alternative equivalenti.</p>
+        </article>
+        <article class="feature">
+          <img src="./assets/home/story-mazzo-draft.webp" width="835" height="860" alt="Draft finito: MOX propone un mazzo nero e rosso di 40 carte, con due alternative e la scelta del numero di terre.">
+          <p class="real-note">Schermata reale. Il mazzo proposto a fine draft.</p>
+          <h3>A draft finito</h3>
+          <p>Propone il mazzo da montare con le carte del tuo pool: i colori principali, tre combinazioni a confronto e quante terre mettere, da 16 a 18.</p>
+        </article>
       </div>
     </section>
 
-    <section id="laboratorio" class="draft-content">
-      <section class="draft-flow" aria-labelledby="flow-title">
-        <div class="flow-heading"><span class="eyebrow">Il percorso dei dati</span><h2 id="flow-title">Un consiglio migliore, senza seguire i giocatori</h2><p>Il sito serve a rendere verificabile il metodo. Le scelte restano tue; Mox non cambia regole da solo.</p></div>
-        <div class="flow-grid">
-          <article class="flow-card"><span class="flow-number">1</span><h3>Draft con Mox</h3><p>Il consiglio viene calcolato localmente mentre giochi.</p></article>
-          <article class="flow-card"><span class="flow-number">2</span><h3>Consenso separato</h3><p>Solo chi lo attiva invia un resoconto anonimo del Draft.</p></article>
-          <article class="flow-card"><span class="flow-number">3</span><h3>Campioni separati</h3><p>Set, evento e periodo restano separati per non mescolare segnali diversi.</p></article>
-          <article class="flow-card"><span class="flow-number">4</span><h3>Aggiornamento verificato</h3><p>Una regola cambia soltanto se le prove mostrano un miglioramento stabile.</p></article>
-        </div>
-        <div class="flow-notes"><p><strong>Sul tuo PC:</strong> consigli e statistiche personali.</p><p><strong>Sul sito:</strong> solo aggregati pubblici; le tracce anonime complete restano in un archivio privato.</p></div>
-      </section>
+    <section id="laboratorio" aria-labelledby="dati-title">
+      <div class="part-head">
+        <h2 id="dati-title">Dati Limited sul sito</h2>
+        <p>I draft condivisi da chi ha scelto di contribuire, per set, evento Arena e periodo. Qui non compaiono statistiche personali né tracce incomplete.</p>
+      </div>
 
-      <section class="panel draft-controls-panel" aria-labelledby="filters-title">
+      <section class="panel draft-controls-panel" aria-label="Filtri dei draft condivisi">
         <div class="panel-inner">
-          <div class="panel-heading-row">
-            <div><h2 id="filters-title" class="panel-title"><span class="icon" aria-hidden="true">⌁</span>Draft condivisi</h2><p class="panel-lead">Esplora i contributi pubblicabili per espansione, evento Arena e periodo. Nessuna statistica personale o traccia incompleta compare qui.</p></div>
-            <time id="draft-updated" class="draft-updated"></time>
-          </div>
           <form id="draft-filters" class="draft-filters">
             <label>Set <span class="select-wrap"><select id="draft-set"><option value="">Tutti i set</option></select></span></label>
             <label>Evento Arena <span class="select-wrap"><select id="draft-format"><option value="">Tutti</option><option value="PremierDraft">Premier Draft</option><option value="QuickDraft">Quick Draft</option><option value="TradDraft">Traditional Draft</option><option value="PickTwoDraft">Pick-Two Draft</option></select></span></label>
             <label>Periodo <span class="select-wrap"><select id="draft-period"><option value="7">7 giorni</option><option value="14">14 giorni</option><option value="30" selected>30 giorni</option><option value="totale">Tutto</option></select></span></label>
-            <button class="cta" type="submit">Aggiorna</button>
+            <button class="button button-primary" type="submit">Aggiorna</button>
           </form>
+          <time id="draft-updated" class="draft-updated"></time>
         </div>
       </section>
 
       <div id="draft-error" class="detail-error" hidden></div>
-      <section id="draft-summary" class="draft-summary" aria-live="polite">
-        <article class="draft-metric"><span>Draft completi</span><strong id="draft-count">—</strong><small>Tracce valide nella vista</small></article>
-        <article class="draft-metric"><span>Scelte registrate</span><strong id="draft-picks">—</strong><small>Decisioni aggregate, non profili giocatore</small></article>
-        <article class="draft-metric"><span>Partite collegate</span><strong id="draft-matches">—</strong><small>Risultati associati ai Draft</small></article>
-        <article class="draft-metric"><span>Win rate</span><strong id="draft-winrate">—</strong><small id="draft-match-note">Pubblicato da almeno 30 match</small></article>
-      </section>
+      <dl id="draft-summary" class="metrics draft-metrics" aria-live="polite">
+        <div class="metric"><dt>Draft completi</dt><dd><strong id="draft-count">—</strong><small>Tracce valide nella vista</small></dd></div>
+        <div class="metric"><dt>Scelte registrate</dt><dd><strong id="draft-picks">—</strong><small>Decisioni aggregate, non profili giocatore</small></dd></div>
+        <div class="metric"><dt>Partite collegate</dt><dd><strong id="draft-matches">—</strong><small>Risultati associati ai Draft</small></dd></div>
+        <div class="metric"><dt>Win rate</dt><dd><strong id="draft-winrate">—</strong><small id="draft-match-note">Servono almeno 30 match collegati</small></dd></div>
+      </dl>
 
       <section class="panel draft-phases-panel" aria-labelledby="events-title">
         <div class="panel-inner">
-          <div class="panel-heading-row"><div><h2 id="events-title" class="panel-title magenta"><span class="icon" aria-hidden="true">▥</span>Espansioni ed eventi</h2><p class="panel-lead">Apri un gruppo per applicare set ed evento ai filtri.</p></div></div>
+          <div class="panel-head"><div><h2 id="events-title">Espansioni ed eventi</h2><p>Apri un gruppo per applicare set ed evento ai filtri.</p></div></div>
           <div id="draft-events" class="phase-grid"><div class="skeleton"></div></div>
         </div>
       </section>
 
       <section class="panel draft-phases-panel" aria-labelledby="insights-title">
         <div class="panel-inner">
-          <div class="panel-heading-row"><div><h2 id="insights-title" class="panel-title"><span class="icon" aria-hidden="true">◈</span>Colori e carte</h2><p class="panel-lead">Le combinazioni di colore e le carte migliori appariranno solo quando l'indice pubblico avrà un campione affidabile per set, evento e periodo.</p></div><span class="threshold-badge">In raccolta</span></div>
-          <div class="draft-empty"><div><strong>Nessun numero prematuro</strong><p>Le tracce grezze, le calibrazioni interne e i confronti fra politiche restano privati e non vengono usati per riempire questa pagina.</p></div></div>
+          <div class="panel-head">
+            <div><h2 id="insights-title">Colori e carte</h2><p>Le combinazioni di colore e le carte migliori appariranno solo quando l'indice pubblico avrà un campione affidabile per set, evento e periodo.</p></div>
+            <span class="status-badge status-soon">In raccolta</span>
+          </div>
+          <div class="soon-box"><h3>Nessun numero prematuro</h3><p>Le tracce grezze, le calibrazioni interne e i confronti fra politiche restano privati e non vengono usati per riempire questa pagina.</p></div>
         </div>
       </section>
+    </section>
+
+    <section aria-labelledby="metodo-title">
+      <div class="part-head">
+        <h2 id="metodo-title">Il metodo</h2>
+        <p>Il sito serve a rendere verificabile il metodo. Le scelte restano tue; Mox non cambia regole da solo.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Draft con Mox</h3><p>Il consiglio viene calcolato localmente mentre giochi.</p></li>
+        <li><h3>Consenso separato</h3><p>Solo chi lo attiva invia un resoconto anonimo del Draft.</p></li>
+        <li><h3>Campioni separati</h3><p>Set, evento e periodo restano separati per non mescolare segnali diversi.</p></li>
+        <li><h3>Aggiornamento verificato</h3><p>Una regola cambia soltanto se le prove mostrano un miglioramento stabile.</p></li>
+      </ol>
+      <div class="where">
+        <p><strong>Sul tuo PC:</strong> consigli e statistiche personali.</p>
+        <p><strong>Sul sito:</strong> solo aggregati pubblici; le tracce anonime complete restano in un archivio privato.</p>
+      </div>
 
       <section class="panel draft-method" aria-labelledby="draft-method-title">
         <div class="panel-inner">
-          <h2 id="draft-method-title" class="panel-title"><span class="icon" aria-hidden="true">ⓘ</span>Le garanzie del metodo</h2>
-          <div class="method-grid">
-            <article class="method-card"><div class="method-icon">1</div><div><strong>Consiglio locale</strong><p>Mox mantiene una scelta principale, ma dichiara quando esistono alternative statisticamente equivalenti.</p></div></article>
-            <article class="method-card"><div class="method-icon">±</div><div><strong>Campione e incertezza</strong><p>Ogni percentuale pubblicata porta il campione e un intervallo di affidabilità.</p></div></article>
-            <article class="method-card"><div class="method-icon">⌁</div><div><strong>Segnali separati</strong><p>Set, evento e periodo non vengono mescolati per creare numeri più attraenti ma meno utili.</p></div></article>
-            <article class="method-card"><div class="method-icon">◉</div><div><strong>Privacy e controllo</strong><p>I dati completi anonimi restano privati; il sito espone solo aggregati e il consenso è revocabile.</p></div></article>
-          </div>
+          <div class="panel-head"><h2 id="draft-method-title">Le garanzie del metodo</h2></div>
+          <ul class="method-list">
+            <li><h3>Consiglio locale</h3><p>Mox mantiene una scelta principale, ma dichiara quando esistono alternative statisticamente equivalenti.</p></li>
+            <li><h3>Campione e incertezza</h3><p>Ogni percentuale pubblicata porta il campione e un intervallo di affidabilità.</p></li>
+            <li><h3>Segnali separati</h3><p>Set, evento e periodo non vengono mescolati per creare numeri più attraenti ma meno utili.</p></li>
+            <li><h3>Privacy e controllo</h3><p>I dati completi anonimi restano privati; il sito espone solo aggregati e il consenso è revocabile.</p></li>
+          </ul>
         </div>
       </section>
     </section>
   </main>
-  <footer class="site-footer"><nav aria-label="Footer"><a data-route="home" href="./index.html">MOX</a><span>•</span><a data-route="meta" href="./index.html#meta">Meta</a><span>•</span><a href="./cosa-invia-mox.html">Cosa invia Mox</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a data-route="support" href="./supporto.html">Supporto</a><span>•</span><a data-route="account" href="./account.html">Account</a></nav></footer>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></nav>
+      <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia Mox</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
+    </div>
+  </footer>
 </body>
 </html>

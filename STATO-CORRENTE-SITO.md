@@ -1,8 +1,10 @@
 # Stato corrente — sito Mox
 
 Aggiornato il 14 settembre 2026: `moxtracker.app` pubblica il frontend stabile
-pre-redesign (`f897a943`, build `61a708af281eea70`, sezione sotto); il redesign
-non è in produzione. Stato verificato il 10 settembre 2026: la preview
+pre-redesign (`f897a943`, build `61a708af281eea70`); il redesign e la policy
+Brew/privacy sono integrati in `main` ma non pubblicati su Pages production.
+La preview va ripubblicata con il redesign dal `main` integrato e il Worker non
+è ancora aggiornato (sezioni sotto). Fino al 13 settembre la preview
 funzionale pubblicata era `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
 manualmente e i collaudi R0 7–13 sono conclusi. `origin/main` prima di questo
 housekeeping è `39dc8a6`, commit esclusivamente documentale: dopo la preview non
@@ -47,6 +49,127 @@ del sito.
   prevede la procedura; il redesign vi torna nella fase successiva.
 - Il redesign **non** è pubblicato su `moxtracker.app`. Nessun deploy Worker,
   nessuna modifica D1/schema/migrazioni, Research o R3.
+
+## Redesign e policy Brew/privacy: integrati in `main`, non in produzione
+
+Implementati sul branch `claude/site-redesign-implementation-2026-09-13` il
+13–14 settembre e integrati in `main` con un merge normale il 14 settembre.
+Su `moxtracker.app` resta il frontend pre-redesign della sezione sopra.
+
+- Branch `claude/site-redesign-implementation-2026-09-13`, creato dalla
+  baseline `fe29cc6d25de8f8e0e1aef34db5137e9491e3833`. Fonte canonica:
+  [specifica congelata](passaggi/sito/SPEC-SITO-MOX-REDESIGN-2026-09-13.md);
+  [piano di implementazione](passaggi/sito/PIANO-IMPLEMENTAZIONE-REDESIGN-2026-09-13.md).
+- Commit: `d6273fb` implementazione, `8bc4822` correzioni della code review,
+  `15720c4` correzioni della review finale (ultimo commit di codice). Questo
+  file è aggiornato nel commit successivo.
+- **Home e Meta separati.** `index.html` è la Home (titolo descrittivo, Cosa fa
+  MOX, MOX sul web, In sviluppo, Pianificato). Il Meta Explorer vive in
+  `meta.html`, pubblicato anche come `en/meta.html`; navigazione, footer e
+  pagine di servizio puntano lì.
+- **Compatibilità `#meta`.** `sito/js/meta-legacy.js`, caricato solo dalla Home,
+  porta `/#meta`, `/en/#meta` e `/index.html#meta` (e i vecchi `#matchup`,
+  `#metodo`) su `meta.html` della stessa lingua con `location.replace`,
+  conservando la query. `meta.html` non lo carica: nessun ciclo. Vale anche
+  con la Home già aperta, tramite `hashchange`.
+- **Archetipo → varianti → dettaglio variante.** Contratto URL invariato
+  (`formato`, `periodo`, `rank`, `modalita`, `impronta`, `id`, `variante`).
+  «Cambia filtri» e il percorso tornano al Meta con gli stessi filtri, che
+  `main.js` riapplica solo se validi.
+- **Draft**: prima il prodotto, poi i dati Limited, poi il metodo. **Account**:
+  cinque schede (Panoramica, Mazzi, Partite, Draft, Account) con tutte le
+  funzioni precedenti: login Google/Discord, mazzi, partite, Draft, rank,
+  avversari, dettagli, paginazione, collegamento Mox, dispositivi, ticket,
+  ticket amministratore, export, logout, cancellazioni, consensi.
+- **Shell comune**: font locali Spectral e Hanken Grotesk con licenza OFL in
+  `sito/assets/fonts/`, CTA «Scarica MOX», menu mobile, footer unico,
+  breakpoint 1100/760, `prefers-reduced-motion`.
+- **Nessun numero di esempio nel sito reale**: solo dati API, stato vuoto o
+  caricamento. Le schermate in `sito/assets/home/` sono prese dalle pagine
+  reali; quella dell'Account viene dal banco sintetico ed è dichiarata «Dati di
+  esempio».
+- **Meta su telefono**: sotto 760 px restano le schede per archetipo del sito
+  attuale (sezione 6 della specifica, «prevale il sito attuale») invece della
+  tabella a scorrimento orizzontale descritta nella sezione 9. Scelta
+  confermata dall'utente il 13/09.
+- **Banco sintetico per l'Account in locale**: con
+  `MOX_BANCO_SINTETICO=prove/fixtures/account-sintetico.json`,
+  `strumenti/anteprima_sito.mjs` risponde con dati inventati ai soli
+  `/account/*`. Non entra nella build.
+- **Verifiche su `15720c4`**: `npm run prove` 205/205; `npm run sito:build`
+  build `79a117d1ca69f748`, 91 file; smoke
+  `node strumenti/smoke_beta.mjs --site http://localhost:8790` 13/13 OK.
+- **Browser locale**: su `d6273fb` sono state verificate le route IT/EN HTTP
+  200, l'assenza di immagini rotte e di overflow a 375 px su Home, Meta e
+  Account, il menu mobile (Escape e ritorno del focus), le schede Account da
+  tastiera, `/en/#meta` → `/en/meta.html` e `/index.html#matchup` →
+  `/meta.html#matchup`. Dopo le correzioni sono stati ricontrollati: i filtri
+  Archetipo ↔ Meta, i rank in italiano, i conteggi delle schede Account e i
+  testi inglesi delle schede del Meta su telefono. Dopo la review finale: il
+  riquadro «Other variants» e il titolo della scheda di una variante in
+  inglese, e la query di `meta.html` che segue rank, modalità e reset.
+- **Code review**: nessun finding critico. I due importanti sono risolti (Meta
+  su telefono: decisione registrata sopra e una sola voce «Sotto soglia»;
+  questo file aggiornato). I minori M1–M9 sono risolti. M10 non è applicato:
+  il pulsante della Home conserva `href="#download"` perché `download.js` lo
+  sostituisce con lo ZIP Latest e la prova di pre-lancio lo richiede.
+- **Review finale su `e4318d3`**: nessun finding critico. Risolti in
+  `15720c4` i due importanti (frasi italiane nel riquadro «Altre varianti» e
+  nel titolo della variante in inglese) e due minori («Apri partita» in
+  inglese, query del Meta allineata ai filtri). Resta un minore: le prove di
+  M1/M2 controllano il testo del sorgente e non il comportamento, come il
+  resto della suite per i moduli che toccano il DOM all'avvio.
+- **Limiti noti**: miniature delle carte da Scryfall non verificate in
+  headless; i file di licenza OFL conservano gli spazi finali dell'originale;
+  la configurazione `.claude/launch.json` delle preview locali è fuori dal
+  repository.
+- **Meta, «Altro (Brew)» espandibile** (delta successivo a `e64c1b4`): la riga
+  resta aggregata e un pulsante apre le liste arrivate a 30 partite («Brew #N»,
+  nome neutro), ognuna con il dettaglio per impronta e i filtri del Meta; le
+  altre restano una sola voce «N liste sotto soglia», senza link, impronte né
+  V/S. Finché c'è almeno una lista sotto soglia la riga Altro non pubblica
+  V/S né win rate (solo partite, quota e numero di liste) e `/gioco-risposta`
+  pubblica soltanto le partite al gioco e alla risposta, così il record delle
+  liste sotto soglia non si ricava per sottrazione; il dettaglio per impronta
+  di una lista non classificata sotto 30 partite risponde come un'impronta mai
+  vista (404, stessa risposta). Restano aperti, come decisioni separate, lo
+  stesso limite per le «Altre varianti» degli archetipi riconosciuti e, come
+  per ogni aggregato, la fetta di una lista già pubblica ricavabile con filtri
+  complementari (BO1 + BO3, intervalli di rank). Tocca `src/lettura.js` e `src/dettaglio-archetipo.js` (campi
+  nuovi `varianti_brew`, `brew_sotto_soglia`, `record_pubblico`, retrocompatibili):
+  sul sito compare solo dopo un deploy del Worker, che non è stato fatto.
+  Sviluppo futuro, non implementato:
+  [roadmap aggiornamento catalogo archetipi](passaggi/sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md).
+- **Confini del lavoro sul branch**: nessun deploy Worker e nessun deploy di
+  produzione del redesign; il merge in `main` è del 14 settembre. Il redesign
+  non ha modificato `src/**`; il delta
+  Brew tocca soltanto `src/lettura.js` e `src/dettaglio-archetipo.js`. Non modificati `schema.sql`,
+  `schema-draft.sql`, `migrazioni/**`, Worker, D1, Cloudflare, storage, packet,
+  Research, R3, mox-core.
+
+## Preview del 14 settembre 2026 dal branch — redesign (superata)
+
+- Superata nella stessa giornata: durante la promozione la preview è tornata
+  alla build pre-redesign `61a708af281eea70` (deployment `62141e1b`) e viene
+  ripubblicata con il redesign dal `main` integrato.
+- Pubblicata soltanto la Pages del branch
+  `claude/site-redesign-implementation-2026-09-13`, commit `5ec157d`, build
+  `4ee3d62ce501aba7` (91 file), con
+  `wrangler pages deploy .dist/sito --project-name moxtracker --branch preview`.
+- URL alias: <https://preview.moxtracker.pages.dev>.
+- URL immutabile: <https://360112e1.moxtracker.pages.dev>.
+- Worker **non** pubblicato: la preview usa l'API di produzione
+  `api.moxtracker.app` con il codice di prima. Il gruppo «Altro (Brew)» resta
+  quindi come prima (riga aggregata con V/S, nessun pulsante) e la policy Brew
+  non è ancora attiva; il sito nuovo è compatibile con il Worker attuale.
+- Smoke `node strumenti/smoke_beta.mjs --site https://preview.moxtracker.pages.dev`:
+  14/14 OK (pagine IT/EN, API salute/Meta/Draft, gate Account 401, CORS
+  Account 204, GitHub Latest).
+- Browser sulla preview: build servita `4ee3d62ce501aba7`; `/#meta` →
+  `/meta` e `/en/#meta` → `/en/meta`; nessun errore in console.
+- Piano dell'utente: qualche giorno di prove sulla preview, poi sito
+  ufficiale e merge. Nessun deploy Worker, nessun deploy produzione, nessun
+  merge.
 
 ## Preview del 31 agosto 2026 (superata)
 
@@ -189,6 +312,17 @@ produzione.
 
 ## Prossimo lavoro
 
+0. Redesign: integrato in `main` il 14 settembre, non su `moxtracker.app`.
+   Prima qualche giorno di prove sulla preview Pages
+   <https://preview.moxtracker.pages.dev>, poi, solo con un nuovo mandato
+   esplicito, il redesign sul sito ufficiale <https://moxtracker.app>. La policy Brew si
+   vede solo dopo il deploy del Worker, che esiste solo in produzione
+   (`api.moxtracker.app`, anche per la preview): è un deploy di produzione da
+   decidere a parte. Ordine sicuro: prima la Pages ufficiale (il sito nuovo è
+   compatibile con il Worker attuale), poi il Worker. Allo smoke di quel
+   deploy aggiungere: Altro senza `vittorie` in `/meta` quando ci sono liste
+   sotto soglia, `/archetipo` con un'impronta inventata in 404,
+   `/gioco-risposta` senza vittorie né win rate. Nessun housekeeping prima.
 1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
    motion e download GitHub Latest).
 2. R3-PREP resta una proposta: attendere modello locale R2, golden packet

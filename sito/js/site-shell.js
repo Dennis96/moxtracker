@@ -5,7 +5,7 @@ const inglese = document.documentElement.lang === "en";
 
 const percorsi = {
   home: "./index.html",
-  meta: "./index.html#meta",
+  meta: "./meta.html",
   draft: "./draft.html",
   download: "./download.html",
   account: "./account.html",

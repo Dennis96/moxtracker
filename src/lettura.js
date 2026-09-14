@@ -178,13 +178,49 @@ function mazzettoPubblico(mazzo) {
   };
 }
 
-function raggruppaBrew(mazzi, totale, soglia) {
+function confrontaTesto(a, b) {
+  const x = String(a ?? "");
+  const y = String(b ?? "");
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+
+// Una lista di Altro: la soglia si riapplica qui, cosi' un win rate sotto 30
+// partite non esce nemmeno se arrivasse dal motore.
+function varianteBrew(mazzo, indice, totale, soglia) {
+  const partite = Number(mazzo.partite || 0);
+  const vittorie = Number(mazzo.vittorie || 0);
+  const sufficienti = partite >= soglia;
+  return {
+    etichetta: `Brew #${indice + 1}`,
+    impronta: mazzo.impronta || null,
+    partite, vittorie, sconfitte: partite - vittorie,
+    dati_sufficienti: sufficienti,
+    win_rate: sufficienti ? percentuale(vittorie, partite) : null,
+    quota_meta: sufficienti ? percentuale(partite, totale) : null,
+  };
+}
+
+export function raggruppaBrew(mazzi, totale, soglia) {
   const riconosciuti = mazzi.filter((mazzo) => mazzo.archetipo_id);
   const brew = mazzi.filter((mazzo) => !mazzo.archetipo_id);
   if (!brew.length) return riconosciuti;
   const partite = brew.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0);
   const vittorie = brew.reduce((somma, mazzo) => somma + Number(mazzo.vittorie || 0), 0);
   const sufficienti = partite >= soglia;
+  // Ordine fisso (partite, vittorie, impronta) che non dipende da D1. Una per
+  // una, con nome neutro e impronta per il dettaglio, solo le liste arrivate
+  // alla soglia; le altre restano un conteggio senza impronta ne' V/S, perche'
+  // una lista giocata poche volte puo' essere di una sola persona.
+  const ordinate = [...brew].sort((a, b) => Number(b.partite || 0) - Number(a.partite || 0) ||
+    Number(b.vittorie || 0) - Number(a.vittorie || 0) ||
+    confrontaTesto(a.impronta, b.impronta));
+  const sottoSoglia = ordinate.filter((mazzo) => Number(mazzo.partite || 0) < soglia);
+  const variantiBrew = ordinate.filter((mazzo) => Number(mazzo.partite || 0) >= soglia)
+    .map((mazzo, indice) => varianteBrew(mazzo, indice, totale, soglia));
+  // Finche' c'e' una lista sotto soglia il record del gruppo non esce:
+  // sottraendo i Brew pubblici si ricaverebbe quello delle liste sotto soglia
+  // (esatto, se ne resta una). Partite e quota restano: non rivelano nulla.
+  const recordPubblico = sottoSoglia.length === 0;
   riconosciuti.push({
     nome: "Altro (Brew)", archetipo: "Altro (Brew)", archetipo_id: null,
     tipo_dettaglio: "altro", strategia: null, colori: [], modalita: null,
@@ -193,10 +229,17 @@ function raggruppaBrew(mazzi, totale, soglia) {
       somma + Number(mazzo.impronte_raggruppate || 1), 0),
     varianti_rilevate: brew.reduce((somma, mazzo) =>
       somma + Number(mazzo.varianti_rilevate || 1), 0),
-    partite, vittorie, sconfitte: partite - vittorie,
+    partite,
+    ...(recordPubblico ? { vittorie, sconfitte: partite - vittorie } : {}),
+    record_pubblico: recordPubblico,
     dati_sufficienti: sufficienti,
-    win_rate: sufficienti ? percentuale(vittorie, partite) : null,
+    win_rate: recordPubblico && sufficienti ? percentuale(vittorie, partite) : null,
     quota_meta: sufficienti ? percentuale(partite, totale) : null,
+    varianti_brew: variantiBrew,
+    brew_sotto_soglia: {
+      liste: sottoSoglia.length,
+      partite: sottoSoglia.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0),
+    },
   });
   return riconosciuti.sort((a, b) => b.partite - a.partite ||
     String(a.nome).localeCompare(String(b.nome)));
@@ -208,10 +251,11 @@ export async function leggiGiocoRisposta(db, indirizzo) {
   const testa = await quadro(db, filtro);
 
   const filtroNoto = filtri(indirizzo, ["su_gioco IS NOT NULL"]);
+  // Solo quante partite al gioco e alla risposta. Vittorie e win rate globali
+  // permetterebbero di ricavare per sottrazione, togliendo le righe pubbliche
+  // del Meta, il record delle liste Brew sotto soglia. Il sito non li usa.
   const esito = await db.prepare(
-    `SELECT su_gioco,
-            COUNT(*) AS partite,
-            SUM(CASE WHEN esito = 'vinta' THEN 1 ELSE 0 END) AS vittorie
+    `SELECT su_gioco, COUNT(*) AS partite
      FROM partite ${filtroNoto.where}
      GROUP BY su_gioco
      ORDER BY su_gioco DESC`
@@ -219,17 +263,8 @@ export async function leggiGiocoRisposta(db, indirizzo) {
 
   const gruppi = new Map((esito.results || []).map((r) => [Number(r.su_gioco), r]));
   const prepara = (chiave) => {
-    const riga = gruppi.get(chiave) || { partite: 0, vittorie: 0 };
-    const partite = Number(riga.partite || 0);
-    const vittorie = Number(riga.vittorie || 0);
-    const sufficienti = partite >= SOGLIA_META;
-    return {
-      partite,
-      vittorie,
-      sconfitte: partite - vittorie,
-      dati_sufficienti: sufficienti,
-      win_rate: sufficienti ? percentuale(vittorie, partite) : null,
-    };
+    const partite = Number(gruppi.get(chiave)?.partite || 0);
+    return { partite, dati_sufficienti: partite >= SOGLIA_META };
   };
   const alGioco = prepara(1);
   const allaRisposta = prepara(0);

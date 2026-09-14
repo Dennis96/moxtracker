@@ -9,7 +9,7 @@ const js = readFileSync(QUI + "../sito/js/draft.js", "utf8");
 const css = readFileSync(QUI + "../sito/css/draft.css", "utf8");
 
 test("Draft pubblico separa set evento e periodo senza esporre diagnostica interna", () => {
-  assert.match(html, /Come Mox migliora il Draft/);
+  assert.match(html, /Assistente al Draft e dati Limited/);
   assert.match(html, /Consenso separato/);
   assert.match(html, /nessuna modifica avviene automaticamente/);
   assert.match(html, /solo aggregati pubblici/);
@@ -22,7 +22,7 @@ test("Draft pubblico separa set evento e periodo senza esporre diagnostica inter
   assert.match(html, /Espansioni ed eventi/);
   assert.doesNotMatch(html, /Accordo con il consiglio|Verifica per fase|Politica:/);
   assert.doesNotMatch(js, /accordo_mox|draft-policy|tracce_marcate|mazzo_montato/);
-  assert.match(js, /Dati insufficienti/);
+  assert.match(js, /Sotto soglia/);
   assert.match(js, /riga\.set/);
   assert.match(js, /riga\.formato/);
   assert.match(js, /function aggiornaSet/);

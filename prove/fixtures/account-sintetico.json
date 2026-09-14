@@ -1,0 +1,55 @@
+{
+  "/account/dashboard": {
+    "account": { "nome": "Giocatore di prova", "provider": ["discord"], "amministratore": false },
+    "partite": [
+      { "quando": "2026-09-13T19:12:00Z" },
+      { "quando": "2026-09-13T18:51:00Z" }
+    ],
+    "draft": [
+      { "id": 9001, "set_code": "HOB", "formato": "PremierDraft", "pick": 42, "completo": true, "partite": 8, "vittorie": 5, "sconfitte": 3, "ricevuto": "2026-09-12T20:30:00Z", "iniziato": "2026-09-12T19:40:00Z" },
+      { "id": 9002, "set_code": "HOB", "formato": "PickTwoDraft", "pick": 42, "completo": true, "partite": 5, "vittorie": 2, "sconfitte": 3, "ricevuto": "2026-09-06T21:10:00Z", "iniziato": "2026-09-06T20:20:00Z" }
+    ],
+    "dispositivi": [
+      { "nome": "PC di prova", "mittente": "prova-1", "collegato": "2026-08-21T10:00:00Z", "consenso_partite": true, "consenso_draft": true, "consensi_aggiornati": "2026-09-13T19:00:00Z" }
+    ],
+    "totali": { "draft": 2 }
+  },
+  "/account/stats": {
+    "totali": { "partite": 48, "vittorie": 27, "sconfitte": 21, "win_rate": 56.3, "al_gioco": "59%", "alla_risposta": "53%", "durata_media": 674 },
+    "forma_recente": [
+      { "esito": "vinta" }, { "esito": "vinta" }, { "esito": "persa" }, { "esito": "vinta" }, { "esito": "persa" },
+      { "esito": "vinta" }, { "esito": "vinta" }, { "esito": "persa" }, { "esito": "vinta" }, { "esito": "vinta" }
+    ],
+    "andamento_rank": [
+      { "classe": "Gold", "livello": 2, "valore": 10, "data": "2026-08-21T10:00:00Z" },
+      { "classe": "Gold", "livello": 1, "valore": 11, "data": "2026-08-27T10:00:00Z" },
+      { "classe": "Platinum", "livello": 4, "valore": 12, "data": "2026-09-02T10:00:00Z" },
+      { "classe": "Platinum", "livello": 3, "valore": 13, "data": "2026-09-09T10:00:00Z" },
+      { "classe": "Platinum", "livello": 2, "valore": 14, "data": "2026-09-13T10:00:00Z" }
+    ],
+    "avversari": {
+      "riconosciuti": [
+        { "nome": "Izzet Spellementals", "strategia": "Tempo", "colori": ["U", "R"], "vittorie": 5, "sconfitte": 4, "partite": 9, "win_rate": 55.6 },
+        { "nome": "Thor Capstone", "strategia": "Ramp", "colori": ["R"], "vittorie": 2, "sconfitte": 4, "partite": 6, "win_rate": 33.3 }
+      ],
+      "non_riconosciuti": 12
+    },
+    "mazzi": [
+      { "impronta": "a1a1a1a1a1a1a1a1", "nome": "Mono White Auras", "formato": "Standard", "modalita": "BO1", "partite": 22, "vittorie": 14, "sconfitte": 8, "win_rate": 63.6, "carte": [], "in_arena": true },
+      { "impronta": "b2b2b2b2b2b2b2b2", "nome": "Izzet Spellementals", "formato": "Standard", "modalita": "BO1", "partite": 15, "vittorie": 8, "sconfitte": 7, "win_rate": 53.3, "carte": [], "in_arena": true },
+      { "impronta": "c3c3c3c3c3c3c3c3", "nome": "Azorius Control", "formato": "Standard", "modalita": "BO3", "partite": 11, "vittorie": 5, "sconfitte": 6, "win_rate": 45.5, "carte": [], "in_arena": false }
+    ],
+    "eventi": [ { "nome": "Standard", "partite": 48, "valore": "Standard" } ],
+    "sessioni_limited": [],
+    "sincronizzazione": { "mazzi": false }
+  },
+  "/account/tickets": { "ticket": [] },
+  "/account/matches": {
+    "totale": 3,
+    "partite": [
+      { "id": 71, "esito": "vinta", "quando": "2026-09-13T19:12:00Z", "formato": "Standard", "turni": 9, "durata": 720, "su_gioco": 1 },
+      { "id": 70, "esito": "persa", "quando": "2026-09-13T18:51:00Z", "formato": "Standard", "turni": 12, "durata": 905, "su_gioco": 0 },
+      { "id": 69, "esito": "vinta", "quando": "2026-09-12T21:47:00Z", "formato": "Standard", "turni": 7, "durata": 540, "su_gioco": 1 }
+    ]
+  }
+}

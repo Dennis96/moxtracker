@@ -1,10 +1,10 @@
-import { DEFAULT_FORMAT, FORMATS, RANKS } from "./config.js?v=20260822-3";
-import { fetchMeta, fetchScontri, fetchStatisticheDraft } from "./api.js";
-import { preparaDownloadLatest } from "./download.js";
+import { DEFAULT_FORMAT, FORMATS, RANKS, nomeRank as nomeRankLingua } from "./config.js?v=20260822-3";
+import { fetchMeta, fetchScontri } from "./api.js";
 import { availableStrategies, classificationAvailable, deckColors, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { renderMeta, renderMetaError, renderMetaLoading, renderScontri, renderScontriError, renderScontriLoading } from "./render.js";
 import { traduciDocumento } from "./translate.js";
 
+// Modulo della pagina Meta (meta.html). La Home non lo carica più.
 const state = {
   apiFilters: { formato: DEFAULT_FORMAT, rank: "", periodo: "30", modalita: "" },
   localFilters: { search: "", colors: [], strategy: "" },
@@ -12,8 +12,19 @@ const state = {
   sort: { key: "partite", direction: "desc" },
   controllers: new Map(),
 };
-const LOCALE = document.documentElement.lang === "en" ? "en-US" : "it-IT";
-const ASSET_BASE = document.documentElement.lang === "en" ? "../assets" : "./assets";
+const INGLESE = document.documentElement.lang === "en";
+const ASSET_BASE = INGLESE ? "../assets" : "./assets";
+const nomeRank = (classe) => nomeRankLingua(classe, INGLESE);
+
+// Periodo e modalità sono gruppi di scelta a segmenti (radio con lo stesso name).
+function valoreSegmento(nome) {
+  return document.querySelector(`input[name="${nome}"]:checked`)?.value ?? "";
+}
+
+function impostaSegmento(nome, valore) {
+  const scelta = document.querySelector(`input[name="${nome}"][value="${valore}"]`);
+  if (scelta) scelta.checked = true;
+}
 
 function controllerFor(key) {
   state.controllers.get(key)?.abort();
@@ -22,10 +33,30 @@ function controllerFor(key) {
   return controller;
 }
 
+// «Cambia filtri» dalla pagina archetipo arriva con i filtri attivi nella query:
+// li applichiamo solo se corrispondono a una scelta che la pagina offre.
+function applicaFiltriDaUrl(format, minimo, massimo, classi) {
+  const params = new URLSearchParams(location.search);
+  const formato = params.get("formato");
+  if (FORMATS.includes(formato)) { state.apiFilters.formato = formato; format.value = formato; }
+  for (const nome of ["periodo", "modalita"]) {
+    const valore = params.get(nome);
+    const valido = [...document.querySelectorAll(`input[name="${nome}"]`)].some((scelta) => scelta.value === valore);
+    if (valore !== null && valido) { state.apiFilters[nome] = valore; impostaSegmento(nome, valore); }
+  }
+  const indici = String(params.get("rank") || "").split(",")
+    .map((classe) => classi.indexOf(classe)).filter((indice) => indice >= 0);
+  if (indici.length) {
+    const da = Math.min(...indici);
+    const a = Math.max(...indici);
+    minimo.value = String(da);
+    massimo.value = String(a);
+    state.apiFilters.rank = a - da + 1 === classi.length ? "" : classi.slice(da, a + 1).join(",");
+  }
+}
+
 function setupApiFilters() {
   const format = document.querySelector("#format-filter");
-  const period = document.querySelector("#period-filter");
-  const mode = document.querySelector("#mode-filter");
   for (const value of FORMATS) {
     const option = document.createElement("option");
     option.value = value; option.textContent = value; format.append(option);
@@ -52,7 +83,7 @@ function setupApiFilters() {
     // Niente lazy: sono sei icone da tre chilobyte in cima alla pagina, e
     // rimandarle significa solo mostrare sei buchi al primo sguardo.
     icona.alt = ""; icona.width = 24; icona.height = 24; icona.decoding = "async";
-    voce.append(icona); voce.title = classe; tacche.append(voce);
+    voce.append(icona); voce.title = nomeRank(classe); tacche.append(voce);
   }
 
   const scelti = () => {
@@ -69,8 +100,8 @@ function setupApiFilters() {
     evidenza.style.width = `${(a - da) * passo}%`;
     const elenco = scelti();
     etichetta.textContent = elenco.length === classi.length ? "Tutti i rank"
-      : elenco.length === 1 ? `Solo ${elenco[0]}`
-        : `Da ${elenco[0]} a ${elenco[elenco.length - 1]}`;
+      : elenco.length === 1 ? `Solo ${nomeRank(elenco[0])}`
+        : `Da ${nomeRank(elenco[0])} a ${nomeRank(elenco[elenco.length - 1])}`;
     for (const [indice, voce] of [...tacche.children].entries()) {
       voce.classList.toggle("attivo", indice >= da && indice <= a);
     }
@@ -86,9 +117,9 @@ function setupApiFilters() {
     loadAll();
   };
   format.addEventListener("change", cambiato);
-  for (const select of [period, mode]) {
-    select.addEventListener("change", () => {
-      state.apiFilters = { ...state.apiFilters, periodo: period.value, modalita: mode.value };
+  for (const scelta of document.querySelectorAll('input[name="periodo"], input[name="modalita"]')) {
+    scelta.addEventListener("change", () => {
+      state.apiFilters = { ...state.apiFilters, periodo: valoreSegmento("periodo"), modalita: valoreSegmento("modalita") };
       loadAll();
     });
   }
@@ -96,6 +127,7 @@ function setupApiFilters() {
     cursore.addEventListener("input", disegna);
     cursore.addEventListener("change", cambiato);
   }
+  applicaFiltriDaUrl(format, minimo, massimo, classi);
   disegna();
 }
 
@@ -138,8 +170,8 @@ function setupLocalFilters() {
     search.value = "";
     strategy.value = "";
     document.querySelector("#format-filter").value = DEFAULT_FORMAT;
-    document.querySelector("#period-filter").value = "30";
-    document.querySelector("#mode-filter").value = "";
+    impostaSegmento("periodo", "30");
+    impostaSegmento("modalita", "");
     document.querySelector("#rank-min").value = "0";
     document.querySelector("#rank-max").value = "5";
     document.querySelector("#rank-min").dispatchEvent(new Event("input"));
@@ -181,43 +213,16 @@ function syncClassificationControls(decks, catalogInfo = null) {
   help.classList.toggle("ready", enabled);
 }
 
-function setupDownload() {
-  preparaDownloadLatest();
-}
-
 async function loadMeta() {
   renderMetaLoading();
   const controller = controllerFor("meta");
   try {
     state.meta = await fetchMeta(state.apiFilters, { signal: controller.signal });
-    document.querySelector("#home-games").textContent = new Intl.NumberFormat(LOCALE).format(state.meta.partite_totali || 0);
-    aggiornaDataHome(state.meta.aggiornato);
     syncClassificationControls(state.meta.mazzi, state.meta.catalogo_archetipi);
     renderMeta(state.meta, state.sort, state.localFilters, state.apiFilters);
     traduciDocumento();
   } catch (error) {
     if (error.name !== "AbortError") { renderMetaError(error); traduciDocumento(); }
-  }
-}
-
-function aggiornaDataHome(valore) {
-  if (!valore) return;
-  const elemento = document.querySelector("#home-updated");
-  const nuova = new Date(valore);
-  const corrente = elemento.dataset.iso ? new Date(elemento.dataset.iso) : null;
-  if (!corrente || nuova > corrente) {
-    elemento.dataset.iso = nuova.toISOString();
-    elemento.textContent = nuova.toLocaleDateString(LOCALE, { day: "2-digit", month: "short", year: "numeric" });
-  }
-}
-
-async function loadDraftSummary() {
-  try {
-    const dati = await fetchStatisticheDraft();
-    document.querySelector("#home-drafts").textContent = new Intl.NumberFormat(LOCALE).format(dati.totali?.draft || 0);
-    aggiornaDataHome(dati.totali?.aggiornato || dati.aggiornato);
-  } catch {
-    document.querySelector("#home-drafts").textContent = "In raccolta";
   }
 }
 
@@ -228,7 +233,20 @@ async function loadScontri() {
   catch (error) { if (error.name !== "AbortError") { renderScontriError(error); traduciDocumento(); } }
 }
 
-function loadAll() { loadMeta(); loadScontri(); }
+// La query segue i filtri attivi: ricaricando la pagina, o tornando da un
+// archetipo, si ritrovano quelli scelti e non quelli con cui si era arrivati.
+function aggiornaQuery() {
+  const url = new URL(location.href);
+  const filtri = state.apiFilters;
+  const valori = { formato: filtri.formato === DEFAULT_FORMAT ? "" : filtri.formato,
+    periodo: filtri.periodo === "30" ? "" : filtri.periodo, modalita: filtri.modalita, rank: filtri.rank };
+  for (const [nome, valore] of Object.entries(valori)) {
+    if (valore) url.searchParams.set(nome, valore); else url.searchParams.delete(nome);
+  }
+  if (url.href !== location.href) history.replaceState(history.state, "", url);
+}
+
+function loadAll() { aggiornaQuery(); loadMeta(); loadScontri(); }
 
 document.addEventListener("click", event => {
   const sort = event.target.closest("[data-sort]");
@@ -247,6 +265,4 @@ document.addEventListener("click", event => {
 
 setupApiFilters();
 setupLocalFilters();
-setupDownload();
 loadAll();
-loadDraftSummary();

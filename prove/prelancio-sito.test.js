@@ -34,16 +34,19 @@ test("pre-lancio scarica lo ZIP della release GitHub più recente", () => {
   // Il numero di versione scritto a mano nel pulsante invecchia a ogni
   // release: il 23/08/2026 il sito serviva gia' la 2.9.13 e i due pulsanti
   // dicevano ancora 2.9.12. L'URL e' stabile, il testo deve esserlo altrettanto.
-  assert.match(home, /Scarica MOX per Windows/);
+  assert.match(home, /data-download href="#download">Scarica MOX</);
   assert.doesNotMatch(home, /Scarica MOX \d/);
 });
 
 test("pre-lancio espone beta, privacy e Draft anche nella navigazione mobile", () => {
-  for (const pagina of ["index.html", "draft.html", "download.html", "archetipo.html", "privacy.html"]) {
+  // Dal redesign la barra beta sta sulle pagine di dati, non sulla Home
+  // (passaggi/sito/SPEC-SITO-MOX-REDESIGN-2026-09-13.md, sezione 3).
+  for (const pagina of ["meta.html", "draft.html", "download.html", "archetipo.html", "privacy.html"]) {
     const html = leggi(pagina);
     assert.match(html, /beta-banner/);
     assert.match(html, /privacy\.html/);
   }
+  assert.match(leggi("index.html"), /privacy\.html/);
   assert.match(leggi("index.html"), /id="nav-toggle"/);
   assert.match(leggi("css/site.css"), /\.nav-links\[data-open\]/);
   assert.doesNotMatch(leggi("css/site.css"), /nav-links a:nth-child\(n\+3\)/);
@@ -85,23 +88,22 @@ test("pre-lancio compatta i matchup ancora non pubblicabili", () => {
   assert.match(leggi("css/site.css"), /matchup-panel\.is-unavailable/);
 });
 
-test("homepage presenta Mox con valore personale, due schermate reali e pagine di trasparenza", () => {
+test("homepage presenta Mox come da specifica, con schermate reali e pagine di trasparenza", () => {
   const home = leggi("index.html");
-  assert.match(home, /mox-draft-scelta\.png/);
-  assert.match(home, /mox-draft-mazzo\.png/);
-  assert.match(home, /id="home-games"/);
-  assert.match(home, /id="home-drafts"/);
+  // Specifica del redesign, sezione 5: il titolo dice che cosa è MOX oggi.
+  assert.match(home, /Tracker, Assistente al Draft, mazzi e statistiche per MTG Arena\./);
+  assert.match(home, /assets\/home\/client-home\.webp/);
+  assert.match(home, /assets\/home\/story-draft\.webp/);
   assert.match(home, /cosa-invia-mox\.html/);
   assert.match(home, /note-versione\.html/);
   assert.match(home, /download\.html/);
-  assert.match(home, /tiene il conto delle partite/);
-  assert.match(home, /archivio di risultati e mazzi/);
-  assert.match(home, /Tracker, Draft e statistiche per MTG Arena/);
-  assert.match(home, /Se scegli di contribuire, i dati anonimi/);
-  assert.match(home, /condivisione con gli amici sarà una scelta separata/);
-  assert.match(home, /contatore in game/);
-  assert.match(home, /research-teaser panel" hidden/,
-    "il copy Research resta preparato ma non viene ancora pubblicato");
+  // MOX Research compare una sola volta, fra le parti in sviluppo: senza data,
+  // senza link e senza alcuna funzione dichiarata disponibile.
+  const sviluppo = home.match(/<ul class="dev-list">([\s\S]*?)<\/ul>/)?.[1] || "";
+  assert.match(sviluppo, /MOX Research/);
+  assert.doesNotMatch(sviluppo, /<a\s|\b20\d\d\b/);
+  assert.equal((home.match(/MOX Research/g) || []).length, 1,
+    "Research resta soltanto nella lista In sviluppo");
   assert.match(leggi("download.html"), /data-github-release/);
   assert.match(leggi("js/download.js"), /releaseGitHubLatest/);
   assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
@@ -111,8 +113,8 @@ test("homepage presenta Mox con valore personale, due schermate reali e pagine d
 test("il reset del Meta ripristina anche periodo, modalita e rank", () => {
   const main = leggi("js/main.js");
   assert.match(main, /state\.apiFilters = \{ formato: DEFAULT_FORMAT, rank: "", periodo: "30", modalita: "" \}/);
-  assert.match(main, /#period-filter["']\)\.value = "30"/);
-  assert.match(main, /#mode-filter["']\)\.value = ""/);
+  assert.match(main, /impostaSegmento\("periodo", "30"\)/);
+  assert.match(main, /impostaSegmento\("modalita", ""\)/);
   assert.match(main, /#rank-min["']\)\.value = "0"/);
   assert.match(main, /#rank-max["']\)\.value = "5"/);
   assert.match(leggi("css/site.css"), /@media \(max-width: 1500px\)[\s\S]*?explorer-controls/);

@@ -7,6 +7,13 @@ const RADICE = resolve(process.env.MOX_SITO_DIR ||
   fileURLToPath(new URL("../.dist/sito", import.meta.url)));
 const PORTA = Number(process.env.MOX_SITO_PORTA || 8790);
 const API = String(process.env.MOX_API_ORIGIN || "https://api.moxtracker.app").replace(/\/$/, "");
+// Banco sintetico facoltativo per verificare in locale Il mio MOX o una
+// risposta del Meta che l'API pubblicata non ha ancora: risponde soltanto alle
+// route elencate nel file JSON (dati inventati, fuori dalla build; la query
+// non conta); tutto il resto continua ad andare all'API.
+const BANCO = process.env.MOX_BANCO_SINTETICO
+  ? JSON.parse(await readFile(resolve(process.env.MOX_BANCO_SINTETICO), "utf8"))
+  : null;
 const TIPI = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],
@@ -15,6 +22,7 @@ const TIPI = new Map([
   [".svg", "image/svg+xml"],
   [".txt", "text/plain; charset=utf-8"],
   [".webp", "image/webp"],
+  [".woff2", "font/woff2"],
 ]);
 
 function rispondi(res, stato, corpo, tipo = "text/plain; charset=utf-8") {
@@ -29,6 +37,10 @@ function rispondi(res, stato, corpo, tipo = "text/plain; charset=utf-8") {
 
 async function inoltraApi(url, res) {
   const percorso = url.pathname.slice(4) || "/salute";
+  if (BANCO && Object.prototype.hasOwnProperty.call(BANCO, percorso)) {
+    rispondi(res, 200, JSON.stringify(BANCO[percorso]), "application/json; charset=utf-8");
+    return;
+  }
   try {
     const risposta = await fetch(API + percorso + url.search, {
       headers: { accept: "application/json" },

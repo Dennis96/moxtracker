@@ -131,13 +131,14 @@ test("supporto distingue ticket anonimo e account e limita gli allegati", () => 
 });
 
 test("il rank si sceglie come intervallo, non come voce singola", () => {
-  const html = leggi("index.html");
+  // Dal redesign il Meta Explorer vive in meta.html, non più nella Home.
+  const html = leggi("meta.html");
   const js = leggi("js/main.js");
   const css = leggi("css/site.css");
   assert.match(html, /id="rank-min"/);
   assert.match(html, /id="rank-max"/);
   assert.doesNotMatch(html, /<select id="rank-filter"/);
-  assert.match(js, /Da \$\{elenco\[0\]\} a \$\{elenco\[elenco\.length - 1\]\}/);
+  assert.match(js, /Da \$\{nomeRank\(elenco\[0\]\)\} a \$\{nomeRank\(elenco\[elenco\.length - 1\]\)\}/);
   assert.match(js, /elenco\.join\(","\)/);
   assert.match(css, /\.rank-track/);
 });

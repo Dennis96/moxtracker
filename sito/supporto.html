@@ -6,6 +6,7 @@
   <title>Supporto — MOX Arena Assistant</title>
   <link rel="icon" href="./assets/mox.ico"><link rel="stylesheet" href="./css/site.css?v=20260823-1">
   <link rel="stylesheet" href="./css/account-support.css?v=20260823-1">
+  <link rel="stylesheet" href="./css/redesign.css">
   <script type="module" src="./js/site-shell.js"></script>
   <script type="module" src="./js/supporto.js?v=20260823-1"></script>
 </head>
@@ -14,7 +15,7 @@
   <header class="site-header"><nav class="nav" aria-label="Navigazione principale">
     <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
     <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
-    <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./index.html#meta">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
+    <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div><a class="nav-download" href="./download.html">Scarica MOX</a>
   </nav></header>
   <main id="supporto" class="service-main">
     <section class="service-hero"><span class="eyebrow">Segnalazioni tracciabili</span><h1>Supporto MOX</h1><p>Segnala un bug, un problema nei dati o una funzione da sviluppare. Se non accedi riceverai un link segreto: conservalo, perché è l’unico modo per rileggere il ticket.</p></section>
@@ -34,5 +35,11 @@
       <aside class="panel service-card"><h2>Prima di inviare</h2><p>Puoi scegliere il pacchetto diagnostico <code>.zip</code> creato da Mox, fino a 10 MB. Include sempre <code>rapporto.json</code>; include <code>Player.log</code> solo se hai selezionato esplicitamente quella condivisione in Mox. Puoi allegare anche uno screenshot PNG, JPEG o WebP. Gli archivi generici non sono accettati.</p><p><strong>Il pacchetto diagnostico resta privato:</strong> è visibile solo a chi apre il ticket e agli amministratori del supporto, non entra nel Meta pubblico.</p><p id="ticket-email-note" class="hidden"><strong>Notifiche email facoltative:</strong> confermi l’indirizzo con un link. Le email non contengono il messaggio del ticket né gli allegati.</p><div class="service-actions"><a class="service-button" href="./account.html">Vai al tuo account</a><a class="service-button" href="./privacy.html">Privacy</a></div></aside>
     </section>
   </main>
-  <footer class="site-footer"><nav aria-label="Footer"><a data-route="home" href="./index.html">MOX</a><span>•</span><a data-route="meta" href="./index.html#meta">Meta</a><span>•</span><a data-route="draft" href="./draft.html">Draft</a><span>•</span><a href="./privacy.html">Privacy</a><span>•</span><a data-route="support" href="./supporto.html">Supporto</a><span>•</span><a data-route="account" href="./account.html">Account</a></nav></footer>
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
+      <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></nav>
+      <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia Mox</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
+    </div>
+  </footer>
 </body></html>

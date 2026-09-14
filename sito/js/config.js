@@ -5,6 +5,11 @@ export const API_BASE = LOCALE ? `${window.location.origin}/api` : "https://api.
 export const DEFAULT_FORMAT = "Standard";
 export const FORMATS = ["Standard"];
 export const RANKS = ["", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Mythic"];
+// L'API usa le classi in inglese; in italiano le mostriamo con i nomi di Arena.
+const NOMI_RANK_IT = { Bronze: "Bronzo", Silver: "Argento", Gold: "Oro", Platinum: "Platino", Diamond: "Diamante", Mythic: "Mitico" };
+export function nomeRank(classe, inglese = false) {
+  return inglese ? classe : NOMI_RANK_IT[classe] || classe;
+}
 
 // Il click sul sito risolve la release GitHub più recente e scarica il suo
 // asset ZIP. Il pulsante non punta mai alla pagina delle release né

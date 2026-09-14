@@ -1,10 +1,12 @@
-import { DEFAULT_FORMAT } from "./config.js";
+import { DEFAULT_FORMAT, nomeRank } from "./config.js";
 import { fetchArchetipo } from "./api.js";
-import { deckLabel, formatInteger, formatPercent, sampleSufficient, shortFingerprint } from "./format.js";
-import { classificationSummary, deckArchetypeId, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
+import { deckLabel, formatInteger, formatPercent, sampleSufficient } from "./format.js";
+import { classificationSummary, deckColors, deckIsClassified, deckMode, deckStrategy, observedDecklistCards, strategyLabel } from "./meta-model.js";
 import { createCardListItem, parseReferenceLine } from "./card-images.js";
 import { renderProfiloMazzo } from "./deck-profile.js";
 import { traduciDocumento } from "./translate.js";
+
+const INGLESE = document.documentElement.lang === "en";
 
 function tag(text, className = "") {
   const node = document.createElement("span"); node.className = className; node.textContent = text; return node;
@@ -26,13 +28,98 @@ function selectedVariant(data, variantId) {
 function overviewUrl() {
   const url = new URL(location.href);
   url.searchParams.delete("variante");
+  url.hash = "";
   return url.href;
 }
 
 function variantViewUrl(variant) {
   const url = new URL(location.href);
   url.searchParams.set("variante", String(variant?.variante_id || ""));
+  url.hash = "";
   return url.href;
+}
+
+// Il Meta vive in meta.html: il percorso e «Cambia filtri» portano lì con gli
+// stessi filtri, che main.js riapplica.
+function metaUrl() {
+  const url = new URL("./meta.html", location.href);
+  const attuali = new URLSearchParams(location.search);
+  for (const nome of ["formato", "periodo", "modalita", "rank"]) {
+    const valore = attuali.get(nome);
+    if (valore) url.searchParams.set(nome, valore);
+  }
+  return url.href;
+}
+
+function nomiRank(rank) {
+  return String(rank).split(",").map((classe) => nomeRank(classe, INGLESE)).join(", ");
+}
+
+// Riga dei filtri attivi, sotto il titolo: formato, periodo, modalità, rank.
+export function rigaFiltri({ formato, periodo, modalita, rank }) {
+  const tempo = periodo === "totale"
+    ? (INGLESE ? "all time" : "tutto il periodo")
+    : (INGLESE ? `last ${periodo} days` : `ultimi ${periodo} giorni`);
+  const livelli = rank ? `rank ${nomiRank(rank)}` : (INGLESE ? "all ranks" : "tutti i rank");
+  return [formato, tempo, modalita || "BO1 + BO3", livelli].join(", ");
+}
+
+// Quante partite dell'archetipo stanno in varianti con decklist pubblicata e
+// quante in liste ancora sotto soglia: è la barra sopra l'elenco delle varianti.
+export function ripartizioneVarianti(data) {
+  const varianti = Array.isArray(data?.varianti) ? data.varianti : [];
+  const pubblicate = varianti.filter((variante) => variante?.decklist_pubblicabile === true);
+  const nonPubblicate = varianti.filter((variante) => variante?.decklist_pubblicabile !== true);
+  const somma = (elenco) => elenco.reduce((totale, variante) => totale + (Number(variante?.partite) || 0), 0);
+  const altre = data?.altre_varianti || {};
+  const partitePubblicate = somma(pubblicate);
+  const sottoSoglia = somma(nonPubblicate) + (Number(altre.partite) || 0);
+  return {
+    pubblicate: partitePubblicate,
+    variantiPubblicate: pubblicate.length,
+    sottoSoglia,
+    liste: nonPubblicate.length + (Number(altre.varianti) || 0),
+    totale: partitePubblicate + sottoSoglia,
+  };
+}
+
+function renderRipartizione(data) {
+  const box = document.querySelector("#variants-split");
+  const r = ripartizioneVarianti(data);
+  box.hidden = !r.totale;
+  if (!r.totale) return;
+  const quota = Math.round((r.pubblicate / r.totale) * 1000) / 10;
+  box.querySelector(".split-pub").style.width = `${quota}%`;
+  box.querySelector(".split-rest").style.width = `${Math.max(0, 100 - quota)}%`;
+  const [totale, pubblicate, sotto, liste] = [r.totale, r.pubblicate, r.sottoSoglia, r.liste].map(formatInteger);
+  // La frase parla delle partite delle varianti, non del totale dell'archetipo:
+  // se l'API non elencasse ogni variante, i due numeri potrebbero non coincidere.
+  setText("#variants-split-note", INGLESE
+    ? `Across ${totale} matches in observed variants: ${pubblicate} in ${r.variantiPubblicate === 1 ? "the published variant" : "published variants"}, ${sotto} in ${liste} ${r.liste === 1 ? "list" : "lists"} still below the threshold.`
+    : `Sulle ${totale} partite delle varianti osservate: ${pubblicate} ${r.variantiPubblicate === 1 ? "nella variante pubblicata" : "nelle varianti pubblicate"}, ${sotto} in ${liste} ${r.liste === 1 ? "lista" : "liste"} ancora sotto soglia.`);
+}
+
+function vocePercorso(testo, href = null) {
+  const voce = document.createElement("li");
+  if (href) {
+    const link = document.createElement("a"); link.href = href; link.textContent = testo; voce.append(link);
+  } else {
+    voce.textContent = testo;
+    voce.setAttribute("aria-current", "page");
+  }
+  return voce;
+}
+
+function renderPercorso(parentTitle, selection) {
+  const lista = document.querySelector("#detail-path ol");
+  const explorer = vocePercorso("Meta Explorer", metaUrl());
+  if (!selection) {
+    lista.replaceChildren(explorer, vocePercorso(parentTitle));
+    return;
+  }
+  lista.replaceChildren(explorer, vocePercorso(parentTitle, overviewUrl()),
+    vocePercorso("Varianti osservate", `${overviewUrl()}#variants-panel`),
+    vocePercorso(`Variante osservata #${selection.index + 1}`));
 }
 
 function variantMetaShare(variant) {
@@ -46,11 +133,16 @@ function renderDeck(deck, params, selection) {
   const classified = deckIsClassified(deck);
   const variant = selection?.variant || null;
   const stats = variant || deck;
-  const displayTitle = selection ? `Variante osservata #${selection.index + 1}` : parentTitle;
+  // Il titolo della scheda del browser non passa dalla traduzione a runtime:
+  // lo scriviamo già nella lingua della pagina.
+  const displayTitle = selection
+    ? (INGLESE ? `Observed variant #${selection.index + 1}` : `Variante osservata #${selection.index + 1}`)
+    : parentTitle;
   document.body.classList.toggle("variant-mode", Boolean(selection));
-  document.title = `${displayTitle} — ${parentTitle} — MOX Arena Assistant`;
+  document.title = selection ? `${displayTitle} — ${parentTitle} — MOX Arena Assistant` : `${parentTitle} — MOX Arena Assistant`;
   document.querySelector("#detail-heading h1").textContent = displayTitle;
-  setText("#detail-eyebrow", selection ? "Vista variante" : "Dettaglio meta");
+  renderPercorso(parentTitle, selection);
+  setText("#detail-filters", rigaFiltri(params));
 
   const tags = document.querySelector("#detail-tags"); tags.replaceChildren();
   if (selection) tags.append(tag(parentTitle, "detail-tag parent-archetype-tag"));
@@ -63,11 +155,11 @@ function renderDeck(deck, params, selection) {
     if (mode) tags.append(tag(mode, "detail-tag"));
     if (!colors.length && !strategy) tags.append(tag(classificationSummary(deck), "detail-tag"));
   } else {
+    // Una lista non classificata non ha nome: l'impronta resta tecnica e
+    // serve solo al collegamento, non si mostra.
     tags.append(tag("Archetipo non ancora confermato", "detail-tag pending-tag"));
-    const fingerprint = deck?.varianti?.[0]?.impronta;
-    if (fingerprint) tags.append(tag(`ID tecnico ${shortFingerprint(fingerprint)}`, "detail-tag"));
   }
-  if (selection) tags.append(tag(`ID ${String(variant.variante_id || "").slice(0, 8)}`, "detail-tag variant-tag"));
+  if (selection && classified) tags.append(tag(`ID ${String(variant.variante_id || "").slice(0, 8)}`, "detail-tag variant-tag"));
 
   if (!selection) {
     const sufficient = sampleSufficient(stats);
@@ -77,7 +169,7 @@ function renderDeck(deck, params, selection) {
     setText("#detail-share-note", sufficient ? "Quota nel filtro corrente" : "Pubblicata da 30 partite");
     setText("#detail-games", formatInteger(stats.partite));
     setText("#detail-record", `${formatInteger(stats.vittorie)} V / ${formatInteger(stats.sconfitte)} S`);
-    setText("#detail-rank", params.rank || "Tutti");
+    setText("#detail-rank", params.rank ? nomiRank(params.rank) : "Tutti");
   }
 }
 
@@ -184,17 +276,17 @@ function renderVariantFocus(deck, selection, params) {
   const parentTitle = deckLabel(deck);
   const sufficient = sampleSufficient(variant);
   const share = variantMetaShare(variant);
-  const shortId = String(variant.variante_id || "").slice(0, 8) || "n.d.";
 
+  // Archetipo, ID e rank sono già nelle etichette e nella riga filtri sotto il
+  // titolo: la vista variante non li ripete.
   setText("#variant-focus-title", `Variante osservata #${selection.index + 1}`);
-  setText("#variant-focus-parent", parentTitle);
-  setText("#variant-focus-id", `ID ${shortId}`);
-  setText("#variant-focus-rank", params.rank || "Tutti i rank");
 
+  // Il nome dell'archetipo va nello span sotto «Torna all'archetipo»: prima il
+  // primo span del pulsante era la freccia e veniva sovrascritto dal nome.
   const back = document.querySelector("#variant-focus-back");
   back.href = overviewUrl();
   back.querySelector("strong").textContent = "Torna all'archetipo";
-  back.querySelector("span").textContent = parentTitle;
+  back.querySelector(".back-parent").textContent = parentTitle;
 
   setText("#variant-focus-winrate", sufficient ? (formatPercent(variant.win_rate) || "—") : "Dati insufficienti");
   setText("#variant-focus-record", `${formatInteger(variant.vittorie)} V / ${formatInteger(variant.sconfitte)} S`);
@@ -225,6 +317,7 @@ function renderVariants(data) {
   const variants = Array.isArray(data.varianti) ? data.varianti : [];
   const totale = Number(data.varianti_osservate || variants.length);
   setText("#variants-count", `${totale} ${totale === 1 ? "variante osservata" : "varianti osservate"}`);
+  renderRipartizione(data);
   if (!variants.length && !data.altre_varianti) {
     const empty = document.createElement("p"); empty.className = "variants-empty";
     empty.textContent = "Nessuna variante osservata nel filtro corrente.";
@@ -240,7 +333,7 @@ function renderVariants(data) {
     const title = document.createElement("strong"); title.textContent = index === 0
       ? "Lista più rappresentativa" : `Variante osservata #${index + 1}`;
     const sub = document.createElement("small"); sub.textContent = `ID ${String(variant.variante_id || "").slice(0, 8) || "n.d."}`;
-    identity.append(title, sub);
+    identity.append(title, ...(recognized ? [sub] : []));
 
     const right = document.createElement("div"); right.className = "variant-head-right";
     const metrics = document.createElement("div"); metrics.className = "variant-metrics";
@@ -257,7 +350,7 @@ function renderVariants(data) {
       const open = document.createElement("a");
       open.className = "variant-open";
       open.href = variantViewUrl(variant);
-      open.textContent = "Apri variante →";
+      open.textContent = "Apri variante";
       right.append(metrics, status, open);
     } else {
       right.append(metrics, status);
@@ -275,7 +368,27 @@ function renderVariants(data) {
     altre.className = "variant-card variant-summary-card other-variants";
     const quante = Number(data.altre_varianti.varianti || 0);
     const partite = Number(data.altre_varianti.partite || 0);
-    altre.innerHTML = `<div class="variant-head"><div><strong>Altre varianti</strong><small>${quante} ${quante === 1 ? "lista sotto soglia" : "liste sotto soglia"}</small></div><div class="variant-metrics"><span><b>${formatInteger(partite)}</b> partite aggregate</span><span>Dati e decklist non pubblicati</span></div></div>`;
+    // Numero e parola stanno nello stesso nodo di testo: la traduzione esatta
+    // non li riconoscerebbe, quindi il testo nasce già nella lingua della pagina.
+    const testa = document.createElement("div"); testa.className = "variant-head";
+    const identita = document.createElement("div");
+    const titolo = document.createElement("strong"); titolo.textContent = INGLESE ? "Other variants" : "Altre varianti";
+    const liste = document.createElement("small");
+    liste.textContent = INGLESE
+      ? `${quante} ${quante === 1 ? "list" : "lists"} below threshold`
+      : `${quante} ${quante === 1 ? "lista sotto soglia" : "liste sotto soglia"}`;
+    identita.append(titolo, liste);
+    const metriche = document.createElement("div"); metriche.className = "variant-metrics";
+    const aggregate = document.createElement("span");
+    const numero = document.createElement("b"); numero.textContent = formatInteger(partite);
+    aggregate.append(numero, INGLESE
+      ? ` aggregated ${partite === 1 ? "match" : "matches"}`
+      : ` ${partite === 1 ? "partita aggregata" : "partite aggregate"}`);
+    const riservati = document.createElement("span");
+    riservati.textContent = INGLESE ? "Data and decklists not published" : "Dati e decklist non pubblicati";
+    metriche.append(aggregate, riservati);
+    testa.append(identita, metriche);
+    altre.append(testa);
     host.append(altre);
   }
 }
@@ -343,8 +456,8 @@ async function load() {
   const id = params.get("id");
   const variantId = params.get("variante") || "";
 
-  const back = new URL("./index.html", location.href); back.hash = "meta";
-  document.querySelector("#back-to-meta").href = back.href;
+  document.querySelector("#back-to-meta").href = metaUrl();
+  document.querySelector("#detail-change-filters").href = metaUrl();
 
   try {
     if (!id && !impronta) {

@@ -4,6 +4,7 @@ import { renderProfiloMazzo } from "./deck-profile.js";
 import { ordinaVociDraft, raggruppaCartePool } from "./account-draft.js";
 import { eliminaSessioneAccountPreview, intestazioniSessioneAccount } from "./sessione-account.js";
 import { traduciDocumento } from "./translate.js";
+import { mostraScheda } from "./account-tabs.js";
 
 const $ = (id) => document.getElementById(id);
 const INGLESE = document.documentElement.lang === "en";
@@ -502,6 +503,7 @@ function apriMazzo(mazzo) {
     $("detail-dialog").close();
     $("filter-deck").value = mazzo.impronta;
     applicaFiltri();
+    mostraScheda("partite");
     $("matches-section").scrollIntoView({ behavior: "smooth" });
   });
   azioni.append(copia, condividi, partite);
@@ -598,13 +600,14 @@ function renderDraft() {
   }
   if (!contenitore.childNodes.length) contenitore.append(
     riga("Nessun Draft collegato", "I prossimi eventi compariranno qui."));
+  $("tab-count-draft").textContent = numeri.format(tutti.length);
   aggiornaControlliElenco("draft", tutti.length, stato.limiteDraft);
 }
 
 function apriSessione(sessione) {
   const elenco = nodo("div", "session-match-list");
   for (const id of sessione.partite_id) {
-    const b = nodo("button", "service-button", `Apri partita ${id}`);
+    const b = nodo("button", "service-button", INGLESE ? `Open match ${id}` : `Apri partita ${id}`);
     b.type = "button";
     b.addEventListener("click", () => apriPartita(id));
     elenco.append(b);
@@ -728,30 +731,52 @@ async function caricaPartite(aggiungi = false) {
   } finally { impostaDisabilitatiControlli("matches", false); }
 }
 
+function creaRigaPartita(partita) {
+  const mazzo = mazzoDellaPartita(partita);
+  const bottone = nodo("button", "personal-match-row");
+  bottone.type = "button";
+  const esito = nodo("span", `match-result ${partita.esito === "vinta" ? "win" : "loss"}`,
+    partita.esito === "vinta" ? "V" : "S");
+  const testo = nodo("span", "match-copy");
+  testo.append(nodo("strong", "", mazzo ? nomeMazzo(mazzo)
+    : (partita.formato || partita.evento || "Partita")),
+  nodo("small", "", [dataOra(partita.quando || partita.ricevuta),
+    partita.formato || partita.evento, rankPartita(partita)].filter(Boolean).join(" · ")));
+  const dati = nodo("span", "match-data", [
+    partita.su_gioco === 1 ? (INGLESE ? "On the play" : "Al gioco")
+      : partita.su_gioco === 0 ? (INGLESE ? "On the draw" : "Alla risposta") : null,
+    partita.turni ? `${partita.turni} ${INGLESE ? "turns" : "turni"}` : null,
+    partita.durata ? durata(partita.durata) : null,
+  ].filter(Boolean).join(" · "));
+  bottone.append(esito, testo, dati, nodo("span", "row-chevron", "›"));
+  bottone.addEventListener("click", () => apriPartita(partita.id));
+  return bottone;
+}
+
+// Panoramica: i tre mazzi con più partite e le ultime quattro partite, con le
+// stesse righe delle schede Mazzi e Partite. Solo dati dell'API o uno stato vuoto.
+function renderPanoramicaMazzi() {
+  const contenitore = $("overview-decks");
+  const mazzi = [...stato.statistiche.mazzi]
+    .sort((a, b) => Number(b.partite || 0) - Number(a.partite || 0)).slice(0, 3);
+  contenitore.replaceChildren(...mazzi.map(creaRigaMazzo));
+  if (!mazzi.length) contenitore.append(riga("Nessun mazzo disponibile",
+    "Le partite senza decklist restano comunque nella cronologia."));
+}
+
+function renderPanoramicaPartite() {
+  const contenitore = $("overview-matches");
+  const partite = stato.partite.slice(0, 4);
+  contenitore.replaceChildren(...partite.map(creaRigaPartita));
+  if (!partite.length) contenitore.append(riga("Nessuna partita ricevuta",
+    "Le partite compaiono qui dopo il primo invio di Mox."));
+}
+
 function renderPartite() {
   const contenitore = $("matches");
   contenitore.replaceChildren();
   $("matches-count").textContent = `${stato.partite.length} di ${stato.totale}`;
-  for (const partita of stato.partite) {
-    const mazzo = mazzoDellaPartita(partita);
-    const bottone = nodo("button", "personal-match-row");
-    bottone.type = "button";
-    const esito = nodo("span", `match-result ${partita.esito === "vinta" ? "win" : "loss"}`,
-      partita.esito === "vinta" ? "V" : "S");
-    const testo = nodo("span", "match-copy");
-    testo.append(nodo("strong", "", mazzo ? nomeMazzo(mazzo)
-      : (partita.formato || partita.evento || "Partita")),
-    nodo("small", "", [dataOra(partita.quando || partita.ricevuta),
-      partita.formato || partita.evento, rankPartita(partita)].filter(Boolean).join(" · ")));
-    const dati = nodo("span", "match-data", [
-      partita.su_gioco === 1 ? "Al gioco" : partita.su_gioco === 0 ? "Alla risposta" : null,
-      partita.turni ? `${partita.turni} turni` : null,
-      partita.durata ? durata(partita.durata) : null,
-    ].filter(Boolean).join(" · "));
-    bottone.append(esito, testo, dati, nodo("span", "row-chevron", "›"));
-    bottone.addEventListener("click", () => apriPartita(partita.id));
-    contenitore.append(bottone);
-  }
+  for (const partita of stato.partite) contenitore.append(creaRigaPartita(partita));
   if (!stato.partite.length) contenitore.append(
     riga("Nessuna partita con questi filtri", "Prova ad azzerare i filtri."));
   aggiornaControlliElenco("matches", stato.totale, stato.partite.length);
@@ -852,6 +877,11 @@ function applicaFiltri() {
 
 async function carica() {
   $("account-loading").classList.remove("hidden");
+  // Un nuovo caricamento (dopo una revoca o una cancellazione) riparte senza
+  // filtri: la Panoramica mostra le ultime partite di tutti i mazzi.
+  stato.filtri = { mazzo: "", esito: "", evento: "" };
+  stato.offset = 0;
+  $("filter-result").value = "";
   try {
     const [dashboard, statistiche, ticket] = await Promise.all([
       api("/account/dashboard"), api("/account/stats"), api("/account/tickets"),
@@ -863,8 +893,10 @@ async function carica() {
     $("account-name").textContent = dashboard.account.nome;
     const provider = new Set(dashboard.account.provider || []);
     const accessi = [...provider].map((p) => p === "google" ? "Google" : "Discord").join(", ");
-    $("provider-status").textContent = `Accessi collegati: ${accessi}`;
-    $("account-accesses").textContent = `Accessi collegati: ${accessi}. Puoi aggiungere l'altro provider senza creare un secondo account.`;
+    $("provider-status").textContent = INGLESE ? `Linked sign-ins: ${accessi}` : `Accessi collegati: ${accessi}`;
+    $("account-accesses").textContent = INGLESE
+      ? `Linked sign-ins: ${accessi}. You can add the other provider without creating a second account.`
+      : `Accessi collegati: ${accessi}. Puoi aggiungere l'altro provider senza creare un secondo account.`;
     $("link-google").classList.toggle("hidden", provider.has("google"));
     $("link-discord").classList.toggle("hidden", provider.has("discord"));
     $("admin-link").classList.toggle("hidden", !dashboard.account.amministratore);
@@ -893,13 +925,21 @@ async function carica() {
       link.href = `./supporto.html?ticket=${t.id}`;
       return riga(t.titolo, `${t.categoria} · ${t.stato.replaceAll("_", " ")}`, link);
     }), "Nessun ticket");
+    const dispositivi = dashboard.dispositivi.length;
+    $("devices-count").textContent = INGLESE
+      ? `${dispositivi} linked ${dispositivi === 1 ? "device" : "devices"}`
+      : `${dispositivi} ${dispositivi === 1 ? "dispositivo collegato" : "dispositivi collegati"}`;
+    $("tab-count-mazzi").textContent = numeri.format(statistiche.mazzi.length);
+    $("tab-count-partite").textContent = numeri.format(statistiche.totali.partite);
     mostraPanoramica();
     renderMazzi();
+    renderPanoramicaMazzi();
     renderRank();
     renderAvversari();
     renderDraft();
     popolaFiltri();
     await caricaPartite(false);
+    renderPanoramicaPartite();
     traduciDocumento();
   } catch (errore) {
     $("account-loading").classList.add("hidden");

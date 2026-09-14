@@ -81,6 +81,8 @@ export function filterMetaDecks(decks, filters = {}) {
         deckMode(deck),
         deckColors(deck).join(" "),
         deck?.impronta,
+        // Cercando «Brew #3» deve restare visibile la riga Altro che la contiene.
+        ...(Array.isArray(deck?.varianti_brew) ? deck.varianti_brew.map((variante) => variante?.etichetta) : []),
       ].filter(Boolean).join(" ").toLocaleLowerCase("it");
       if (!haystack.includes(search)) return false;
     }
