@@ -1,7 +1,8 @@
 // Il benchmark di capacita' Research contro il Worker di STAGING.
 //
 //   MOX_STAGING_TOKEN=<token misure> node strumenti/research-staging/capacita.mjs \
-//     --url https://moxtracker-research-staging.<sottodominio>.workers.dev --limite 50 --out capacita.json
+//     --url https://moxtracker-research-staging.<sottodominio>.workers.dev \
+//     --budget-righe <righe scritte> [--forme tipica,p95] [--senza-batch] [--limite 50] [--out capacita.json]
 //
 // Per ogni forma di contribution (tipica, p95, grande, worst-case legale) e
 // per alcuni batch rappresentativi misura, sul D1 reale: query riservate,
@@ -9,14 +10,16 @@
 // durata SQL, crescita del database (`size_after`) e latenza vista dal
 // client. La CPU si legge a parte da `wrangler tail`. Dati solo sintetici.
 //
-// Le forme sono sintetiche ma dimensionate sulle misure del corpus reale
-// (G4: contribution media 3.332 byte, p95 5.379, massimo 7.983; al massimo 3
-// game, 63 eventi per game, 77 voci di main e 19 copie di sideboard). Il
-// worst-case legale e' il massimo che il validator ammette.
+// `--budget-righe` e' obbligatorio contro lo staging: la quota D1 gratuita e'
+// dell'account intero (R3-OP-01). Prima di partire la run stima le righe
+// scritte e, se supera il tetto, non manda niente; durante la run si ferma
+// prima della richiesta che lo supererebbe. Le forme stanno in `forme.mjs`.
 
-import { randomBytes } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { writeFileSync } from "node:fs";
+
+import { BudgetRighe, RIGHE_CONSENSO, RigheOltreBudget, fermaSeOltre, righeMisurate, stimaRigheRichiesta,
+  tettoDaArgomenti } from "./budget-righe.mjs";
+import { FORME, GOLDEN, contribution, copia, esa } from "./forme.mjs";
 
 const argomenti = process.argv.slice(2);
 const opzione = (nome, ripiego = null) => {
@@ -32,71 +35,51 @@ if (!LOCALE && (!BASE || !/^https:\/\/moxtracker-research-staging\.[a-z0-9-]+\.w
   console.error("serve --url dello staging workers.dev"); process.exit(2);
 }
 if (!TOKEN) { console.error("manca MOX_STAGING_TOKEN"); process.exit(2); }
+const TETTO = tettoDaArgomenti(argomenti, LOCALE);
+const SCELTE = (opzione("forme") || Object.keys(FORME).join(",")).split(",");
+if (SCELTE.some((nome) => !FORME[nome])) {
+  console.error(`--forme fra: ${Object.keys(FORME).join(",")}`); process.exit(2);
+}
 
-const QUI = fileURLToPath(new URL(".", import.meta.url));
-const GOLDEN = JSON.parse(readFileSync(QUI + "../../prove/fixtures/research-golden-rev2.json", "utf8"));
-const copia = (x) => JSON.parse(JSON.stringify(x));
-const esa = (n) => randomBytes(n).toString("hex");
+// Il piano: ogni forma da sola, poi (senza `--senza-batch`) alcuni batch
+// rappresentativi, che sono la parte che scrive di piu'.
+const PIANO = [
+  ...Object.keys(FORME).map((nome) => ({ nome, n: 1, ripetizioni: nome === "worst-case legale" ? 2 : RIPETIZIONI })),
+  ...(argomenti.includes("--senza-batch") ? []
+    : [["tipica", 5], ["tipica", 10], ["tipica", 33], ["p95", 10]].map(([nome, n]) => ({ nome, n, ripetizioni: 3 }))),
+].filter((passo) => SCELTE.includes(passo.nome));
+
+// Ogni richiesta porta contribution nuove: niente aggiornamenti da stimare.
+const stimaUpload = (nome, n) => n * stimaRigheRichiesta([contribution(FORME[nome])]);
+const STIMA = PIANO.reduce((totale, p) => totale + RIGHE_CONSENSO + p.ripetizioni * stimaUpload(p.nome, p.n), 0);
+fermaSeOltre(STIMA, TETTO);
+const budget = new BudgetRighe(TETTO);
 
 const PAUSA_MS = Number(opzione("pausa", "0"));
 let ETICHETTA = "";
 
 // La forma viaggia nella query string: il Worker la ignora, ma `wrangler
 // tail` la riporta, e cosi' la CPU si attribuisce alla forma giusta anche
-// quando il tail perde qualche evento.
-async function applica(percorso, corpo, { token, config } = {}) {
+// quando il tail perde qualche evento. La stima si prenota prima di mandare.
+async function applica(percorso, corpo, { token, config } = {}, stima) {
+  budget.prenota(stima, `${percorso} (${ETICHETTA})`);
   if (PAUSA_MS) await new Promise((r) => setTimeout(r, PAUSA_MS));
   const inizio = performance.now();
-  const r = await fetch(`${BASE}/__misure/applica?${ETICHETTA}`, { method: "POST",
-    headers: { "content-type": "application/json", "x-mox-misure": TOKEN },
-    body: JSON.stringify({ percorso, corpo, config,
-      headers: token ? { authorization: `Bearer ${token}` } : {} }) });
-  const dati = await r.json();
+  let dati;
+  try {
+    const r = await fetch(`${BASE}/__misure/applica?${ETICHETTA}`, { method: "POST",
+      headers: { "content-type": "application/json", "x-mox-misure": TOKEN },
+      body: JSON.stringify({ percorso, corpo, config,
+        headers: token ? { authorization: `Bearer ${token}` } : {} }) });
+    dati = await r.json();
+  } catch (guasto) {
+    // Senza risposta la richiesta puo' aver scritto lo stesso: vale la stima.
+    budget.registra(null, stima);
+    throw guasto;
+  }
+  budget.registra(righeMisurate(dati.strumento), stima);
   return { ...dati, ms: Math.round(performance.now() - inizio) };
 }
-
-// Un game con `eventi` eventi propri, `main` voci di mazzo e `side` voci di
-// sideboard. Le carte sono grpId sintetici; gli event_id sono casuali.
-function game(numero, { eventi, main, side }) {
-  const g = { game_number: numero, on_play: numero % 2 === 1, mulligans: 0, free_mulligans: 0,
-    mulligan_type: "MulliganType_London", result: "vinta", turni: 9,
-    state_reset_observed: false, state_gap_observed: false,
-    deck: { main: Object.fromEntries(Array.from({ length: main }, (_, i) => [String(70000 + i), i < 20 ? 3 : 1])),
-      sideboard: Object.fromEntries(Array.from({ length: side }, (_, i) => [String(90000 + i), 1])) },
-    deck_source: { kind: "initial_declaration" } };
-  const somma = Object.values(g.deck.main).reduce((a, b) => a + b, 0);
-  if (somma > 250) g.deck.main = Object.fromEntries(Object.keys(g.deck.main).map((k) => [k, 1]));
-  const tipi = ["draws", "casts", "lands"];
-  const quanti = [Math.ceil(eventi * 0.45), Math.ceil(eventi * 0.35), 0];
-  quanti[2] = Math.max(0, eventi - quanti[0] - quanti[1]);
-  if (eventi > 400) throw new Error("oltre il validator");
-  // Oltre 200 per tipo si sposta sugli altri tipi (limite del validator).
-  for (let i = 0; i < 3; i += 1) {
-    if (quanti[i] > 200) { const avanzo = quanti[i] - 200; quanti[i] = 200; quanti[(i + 1) % 3] += avanzo; }
-  }
-  tipi.forEach((t, i) => {
-    if (quanti[i]) g[t] = Array.from({ length: quanti[i] }, (_, j) => ({ event_id: esa(32), turno: 1 + (j % 40), card_id: 70000 + (j % 20) }));
-  });
-  return g;
-}
-
-function contribution(forma) {
-  const base = copia(GOLDEN.richiesta.partite[0]);
-  const games = forma.games.map((g, i) => game(i + 1, g));
-  return { id_pubblico: esa(32), revisione: { modello: 1, osservazioni: 1 },
-    quando: base.quando, fuso: base.fuso, turni: 12, evento: "SyntheticBench", esito: "vinta",
-    arena: base.arena, avversario: { carte: Array.from({ length: forma.avversario }, (_, i) => 80000 + i) },
-    games };
-}
-
-const FORME = {
-  tipica: { games: [{ eventi: 20, main: 30, side: 0 }], avversario: 8 },
-  p95: { games: [{ eventi: 25, main: 32, side: 10 }, { eventi: 25, main: 32, side: 10 }], avversario: 14 },
-  grande: { games: [{ eventi: 63, main: 77, side: 19 }, { eventi: 40, main: 77, side: 19 },
-    { eventi: 40, main: 77, side: 19 }], avversario: 27 },
-  "worst-case legale": { games: Array.from({ length: 5 }, () => ({ eventi: 400, main: 250, side: 250 })),
-    avversario: 200 },
-};
 
 const percentile = (valori, p) => {
   const ordinati = [...valori].sort((a, b) => a - b);
@@ -108,7 +91,7 @@ async function misura(nome, crea, n, ripetizioni) {
   const config = { RESEARCH_MAX_D1_QUERIES_PER_REQUEST: String(LIMITE), RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "33" };
   ETICHETTA = `fase=consenso&forma=${encodeURIComponent(nome)}&n=${n}`;
   const consenso = await applica("/research/consenso", { mittente: chi.mittente,
-    segreto_cancellazione: chi.segreto, versione_consenso: 1 }, { config });
+    segreto_cancellazione: chi.segreto, versione_consenso: 1 }, { config }, RIGHE_CONSENSO);
   const token = consenso.corpo?.generation;
   const campioni = [];
   let dimensionePrima = consenso.strumento?.dimensione_db_dopo ?? null;
@@ -117,7 +100,7 @@ async function misura(nome, crea, n, ripetizioni) {
     const partite = Array.from({ length: n }, crea);
     const corpo = { ...copia(GOLDEN.richiesta), mittente: chi.mittente, segreto_cancellazione: chi.segreto, partite };
     const byte = Buffer.byteLength(JSON.stringify(corpo));
-    const r = await applica("/research/partite", corpo, { token, config });
+    const r = await applica("/research/partite", corpo, { token, config }, stimaRigheRichiesta(partite));
     const dopo = r.strumento?.dimensione_db_dopo ?? null;
     campioni.push({ byte, stato: r.stato, errore: r.corpo?.errore ?? null,
       charged: r.corpo?.diagnostica?.charged ?? null, letture: r.strumento?.letture,
@@ -147,12 +130,20 @@ async function misura(nome, crea, n, ripetizioni) {
 }
 
 const risultati = [];
-for (const [nome, forma] of Object.entries(FORME)) {
-  risultati.push(await misura(nome, () => contribution(forma), 1, nome === "worst-case legale" ? 2 : RIPETIZIONI));
+let fermata = null;
+try {
+  for (const passo of PIANO) {
+    risultati.push(await misura(passo.nome, () => contribution(FORME[passo.nome]), passo.n, passo.ripetizioni));
+  }
+} catch (errore) {
+  if (!(errore instanceof RigheOltreBudget)) throw errore;
+  fermata = errore.message;
+  console.error(`fermata dal budget prima della richiesta: ${fermata}`);
 }
-for (const [nome, n] of [["tipica", 5], ["tipica", 10], ["tipica", 33], ["p95", 10]]) {
-  risultati.push(await misura(nome, () => contribution(FORME[nome]), n, 3));
-}
-const uscita = { url: BASE, limite_query: LIMITE, misurato: new Date().toISOString(), risultati };
+const uscita = { url: BASE, limite_query: LIMITE, misurato: new Date().toISOString(),
+  budget_righe: { tetto: TETTO, stima_preventiva: STIMA, consumate: budget.consumate,
+    oltre_stima: budget.oltre_stima, fermata }, risultati };
 if (USCITA) writeFileSync(USCITA, JSON.stringify(uscita, null, 1));
-console.log("capacita': misure concluse");
+console.log(`righe scritte: ${budget.consumate} su un tetto di ${TETTO} (stima preventiva ${STIMA})`);
+console.log(fermata ? "capacita': run fermata dal budget" : "capacita': misure concluse");
+process.exit(fermata ? 3 : 0);

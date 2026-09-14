@@ -1,15 +1,25 @@
 // L'acceptance G5C-03 contro il Worker di STAGING. Mai contro produzione.
 //
 //   MOX_STAGING_TOKEN=<token misure> node strumenti/research-staging/accettazione.mjs \
-//     --url https://moxtracker-research-staging.<sottodominio>.workers.dev --out evidenze.json
+//     --url https://moxtracker-research-staging.<sottodominio>.workers.dev \
+//     --budget-righe <righe scritte> [--fasi rollback,flusso] [--out evidenze.json]
 //
 // Il token non viene mai stampato. Tutti i dati sono sintetici: mittenti e
 // segreti casuali per ogni esecuzione, contribution derivate dalla golden rev2.
 // Rifiuta di partire se l'URL non e' uno staging workers.dev.
+//
+// `--budget-righe` e' obbligatorio contro lo staging: la quota D1 gratuita e'
+// dell'account intero (R3-OP-01). La run gira due volte: prima in
+// simulazione, senza rete, per sommare le prenotazioni di tutte le richieste
+// (la stima preventiva, che se supera il tetto ferma tutto); poi per davvero,
+// prenotando ogni richiesta prima di mandarla.
 
 import { randomBytes } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+
+import { BudgetRighe, RIGHE_CONSENSO, RIGHE_REVOCA, RIGHE_SONDA, RigheOltreBudget, fermaSeOltre,
+  righeMisurate, stimaRigheContribution, tettoDaArgomenti } from "./budget-righe.mjs";
 
 const argomenti = process.argv.slice(2);
 const opzione = (nome) => { const i = argomenti.indexOf(`--${nome}`); return i >= 0 ? argomenti[i + 1] : null; };
@@ -22,6 +32,12 @@ if (!LOCALE && (!BASE || !/^https:\/\/moxtracker-research-staging\.[a-z0-9-]+\.w
   process.exit(2);
 }
 if (!TOKEN) { console.error("manca MOX_STAGING_TOKEN"); process.exit(2); }
+const TETTO = tettoDaArgomenti(argomenti, LOCALE);
+const TUTTE_LE_FASI = ["limiti", "rollback", "qualification", "flusso", "budget", "payload", "corse"];
+const FASI = (opzione("fasi") || TUTTE_LE_FASI.join(",")).split(",");
+if (FASI.some((f) => !TUTTE_LE_FASI.includes(f))) {
+  console.error(`--fasi fra: ${TUTTE_LE_FASI.join(",")}`); process.exit(2);
+}
 
 const QUI = fileURLToPath(new URL(".", import.meta.url));
 const GOLDEN = JSON.parse(readFileSync(QUI + "../../prove/fixtures/research-golden-rev2.json", "utf8"));
@@ -29,7 +45,47 @@ const copia = (x) => JSON.parse(JSON.stringify(x));
 const esa = (byte) => randomBytes(byte).toString("hex");
 const evidenze = { url: BASE, iniziata: new Date().toISOString(), fasi: {} };
 const verdetti = [];
+
+// ------------------------------------------------------------ budget
+
+let SIMULAZIONE = false;
+let stimaPreventiva = 0;
+let budget = null;
+const inviate = new Map();       // mittente -> id_pubblico gia' mandati
+const righeLineage = new Map();  // mittente -> righe stimate ancora nel D1
+
+function stimaSonda(nome, corpo) {
+  if (nome === "rollback") return RIGHE_SONDA;
+  if (nome !== "applica") return 0;
+  const { percorso, corpo: dentro = {} } = corpo;
+  const mittente = dentro.mittente;
+  if (percorso === "/research/consenso") return RIGHE_CONSENSO;
+  if (percorso === "/research/consenso/revoca") return RIGHE_REVOCA;
+  // Il delete cancella tutto cio' che la lineage ha scritto: le stesse righe.
+  if (percorso === "/research/elimina") return (righeLineage.get(mittente) || 0) + RIGHE_CONSENSO;
+  if (percorso === "/research/partite") {
+    const visti = inviate.get(mittente) || new Set();
+    inviate.set(mittente, visti);
+    let stima = 0;
+    for (const c of dentro.partite || []) {
+      const righe = stimaRigheContribution(c);
+      // Un id gia' mandato puo' diventare un aggiornamento: cancella e riscrive.
+      stima += visti.has(c.id_pubblico) ? 2 * righe : righe;
+      visti.add(c.id_pubblico);
+    }
+    righeLineage.set(mittente, (righeLineage.get(mittente) || 0) + stima);
+    return stima;
+  }
+  return RIGHE_SONDA;
+}
+
+const FINTE = {
+  applica: { stato: 200, corpo: { stato: 200, corpo: { stato: "deleted" }, strumento: { letture: 0, statement: 0 } }, ms: 0 },
+  sonda: { stato: 200, corpo: { ok: true }, ms: 0 },
+};
+
 const verifica = (nome, ok, dettaglio) => {
+  if (SIMULAZIONE) return;
   verdetti.push({ nome, ok: Boolean(ok), ...(ok ? {} : { dettaglio }) });
   console.log(`[${ok ? "OK " : "NO "}] ${nome}`);
 };
@@ -45,7 +101,32 @@ async function chiama(percorso, { metodo = "POST", corpo, intestazioni = {} } = 
   return { stato: r.status, corpo: dati, ms: Math.round(performance.now() - inizio) };
 }
 
-const sonda = (nome, corpo) => chiama(`/__misure/${nome}`, { corpo, intestazioni: { "x-mox-misure": TOKEN } });
+// Ogni scrittura passa di qui. La prenotazione e' sincrona, prima del primo
+// `await`: anche le richieste lanciate insieme contano tutte.
+async function sonda(nome, corpo) {
+  const stima = stimaSonda(nome, corpo);
+  const elimina = corpo?.percorso === "/research/elimina" ? corpo.corpo.mittente : null;
+  if (SIMULAZIONE) {
+    stimaPreventiva += stima;
+    if (elimina) righeLineage.set(elimina, 0);
+    return copia(nome === "applica" ? FINTE.applica : FINTE.sonda);
+  }
+  budget.prenota(stima, nome === "applica" ? corpo.percorso : `sonda ${nome}`);
+  let r;
+  try {
+    r = await chiama(`/__misure/${nome}`, { corpo, intestazioni: { "x-mox-misure": TOKEN } });
+  } catch (guasto) {
+    // Senza risposta la richiesta puo' aver scritto lo stesso: vale la stima.
+    budget.registra(null, stima);
+    throw guasto;
+  }
+  const misurate = budget.registra(righeMisurate(r.corpo?.strumento), stima);
+  if (elimina) {
+    righeLineage.set(elimina, r.corpo?.corpo?.stato === "deleted" ? 0
+      : Math.max(0, (righeLineage.get(elimina) || 0) - misurate));
+  }
+  return r;
+}
 
 async function applica(percorso, corpo, { token, config, qualification } = {}) {
   const r = await sonda("applica", { percorso, corpo, config, qualification,
@@ -106,9 +187,11 @@ async function faseRollback() {
   const casi = {};
   for (const caso of ["check", "unique", "fk", "ok"]) casi[caso] = (await sonda("rollback", { caso })).corpo;
   evidenze.fasi.rollback = casi;
+  // Deve scattare proprio il vincolo del caso, non un errore qualsiasi.
+  const atteso = { check: /CHECK constraint/i, unique: /UNIQUE constraint/i, fk: /FOREIGN KEY constraint/i };
   for (const caso of ["check", "unique", "fk"]) {
     verifica(`rollback · ${caso} dentro batch() annulla anche lo statement precedente`,
-      casi[caso].errore && casi[caso].righe_dopo === 0, casi[caso]);
+      atteso[caso].test(casi[caso].errore || "") && casi[caso].righe_dopo === 0, casi[caso]);
   }
   verifica("rollback · batch() riuscito lascia la riga", casi.ok.errore === null && casi.ok.righe_dopo === 1, casi.ok);
   const sql = (await sonda("sql", {})).corpo;
@@ -284,20 +367,46 @@ async function faseQualification() {
 
 // ------------------------------------------------------------ main
 
-const salute = await chiama("/salute", { metodo: "GET" });
-evidenze.fasi.salute = salute.corpo?.research;
-verifica("salute · il Worker di staging risponde", salute.stato === 200, salute);
-await faseLimiti();
-const limite = Math.max(1, evidenze.fasi.limite_letture.massimo_ok);
-await faseRollback();
-await faseQualification();
-await faseFlusso(Math.min(limite, 1000));
-await faseBudget(Math.min(limite, 1000));
-await fasePayload(Math.min(limite, 1000));
-await faseCorse(Math.min(limite, 1000));
+async function esegui() {
+  if (!SIMULAZIONE) {
+    const salute = await chiama("/salute", { metodo: "GET" });
+    evidenze.fasi.salute = salute.corpo?.research;
+    verifica("salute · il Worker di staging risponde", salute.stato === 200, salute);
+  }
+  const scelte = new Set(FASI);
+  if (scelte.has("limiti")) await faseLimiti();
+  // Senza la fase dei limiti vale il limite gia' misurato sullo staging (1.000).
+  const limite = Math.min(Math.max(1, evidenze.fasi.limite_letture?.massimo_ok ?? 1000), 1000);
+  if (scelte.has("rollback")) await faseRollback();
+  if (scelte.has("qualification")) await faseQualification();
+  if (scelte.has("flusso")) await faseFlusso(limite);
+  if (scelte.has("budget")) await faseBudget(limite);
+  if (scelte.has("payload")) await fasePayload(limite);
+  if (scelte.has("corse")) await faseCorse(limite);
+}
+
+SIMULAZIONE = true;
+await esegui();
+SIMULAZIONE = false;
+fermaSeOltre(stimaPreventiva, TETTO);
+evidenze.fasi = {};
+inviate.clear();
+righeLineage.clear();
+budget = new BudgetRighe(TETTO);
+let fermata = null;
+try {
+  await esegui();
+} catch (errore) {
+  if (!(errore instanceof RigheOltreBudget)) throw errore;
+  fermata = errore.message;
+  console.error(`fermata dal budget prima della richiesta: ${fermata}`);
+}
 evidenze.finita = new Date().toISOString();
+evidenze.budget_righe = { tetto: TETTO, stima_preventiva: stimaPreventiva, fasi: FASI,
+  consumate: budget.consumate, oltre_stima: budget.oltre_stima, fermata };
 evidenze.verdetti = verdetti;
 if (USCITA) writeFileSync(USCITA, JSON.stringify(evidenze, null, 1));
 const passate = verdetti.filter((v) => v.ok).length;
+console.log(`righe scritte: ${budget.consumate} su un tetto di ${TETTO} (stima preventiva ${stimaPreventiva})`);
 console.log(`acceptance G5C-03: ${passate}/${verdetti.length} verifiche passate`);
-process.exit(passate === verdetti.length ? 0 : 1);
+process.exit(fermata ? 3 : passate === verdetti.length ? 0 : 1);

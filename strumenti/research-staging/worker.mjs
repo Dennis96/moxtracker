@@ -45,10 +45,12 @@ function autorizzata(richiesta, ambiente) {
 // Il binding strumentato: conta cio' che raggiunge D1 e somma il meta.
 export function strumenta(db) {
   const conti = { letture: 0, statement: 0, batch: [], righe_lette: 0, righe_scritte: 0,
-    durata_sql_ms: 0, meta_visti: 0, dimensione_db_dopo: null };
+    durata_sql_ms: 0, meta_visti: 0, meta_senza_righe: 0, dimensione_db_dopo: null };
   const somma = (meta) => {
     if (!meta) return;
     conti.meta_visti += 1;
+    // Chi tiene il budget di righe deve sapere quando la misura non c'e'.
+    if (!Number.isFinite(meta.rows_written)) conti.meta_senza_righe += 1;
     conti.righe_lette += meta.rows_read || 0;
     conti.righe_scritte += meta.rows_written || 0;
     conti.durata_sql_ms += meta.duration || 0;
@@ -123,8 +125,9 @@ async function rollback(db, { caso }) {
     check: db.prepare("INSERT INTO research_guardia (ok) VALUES (0)"),
     unique: db.prepare(`INSERT INTO research_consent_tombstone (hash, creato, motivo)
       VALUES (?1, 'g5c03', 'delete')`).bind(marca),
-    fk: db.prepare(`INSERT INTO research_event (mittente, id_pubblico, game_number, event_type,
-      event_id, turno, card_id) VALUES ('m', 'i', 1, 'draw', 'e', 1, 1)`),
+    // Nessun game con contribution_id -1: deve scattare la chiave esterna.
+    fk: db.prepare(`INSERT INTO research_event (contribution_id, game_number, event_type,
+      event_id, turno, card_id) VALUES (-1, 1, 'draw', 'e', 1, 1)`),
     ok: db.prepare("SELECT 1"),
   }[caso];
   let errore = null;

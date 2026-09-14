@@ -43,9 +43,13 @@ test("senza token, o con le misure spente, le sonde non esistono", async () => {
 
 test("rollback: CHECK, UNIQUE e FOREIGN KEY annullano anche lo statement precedente", async () => {
   const db = creaFintoD1(MIGRAZIONE);
+  // Deve scattare proprio il vincolo del caso: un errore qualsiasi (una
+  // colonna che non esiste piu' dopo una migrazione) annullerebbe il batch lo
+  // stesso e la prova passerebbe per il motivo sbagliato.
+  const atteso = { check: /CHECK constraint/i, unique: /UNIQUE constraint/i, fk: /FOREIGN KEY constraint/i };
   for (const caso of ["check", "unique", "fk"]) {
     const { corpo } = await sonda(ambiente(db), "/__misure/rollback", { caso });
-    assert.ok(corpo.errore, caso);
+    assert.match(corpo.errore || "", atteso[caso], caso);
     assert.equal(corpo.righe_dopo, 0, caso);
   }
   const ok = await sonda(ambiente(db), "/__misure/rollback", { caso: "ok" });
@@ -75,6 +79,9 @@ test("applica: route vera, configurazione scelta, binding strumentato", async ()
   assert.equal(upload.corpo.strumento.letture, d.letture, "letture viste dal binding = ledger");
   assert.equal(upload.corpo.strumento.statement, d.statement_tentati);
   assert.equal(d.statement_tentati, d.statement_pianificati);
+  // Il finto D1 non riporta rows_written: il binding lo deve dire, perche' il
+  // budget di righe non scambi una misura assente per zero righe.
+  assert.ok(upload.corpo.strumento.meta_senza_righe > 0, JSON.stringify(upload.corpo.strumento));
   const stretto = await sonda(amb, "/__misure/applica", { percorso: "/research/partite",
     headers: { authorization: `Bearer ${token}` }, corpo: GOLDEN.richiesta,
     config: { RESEARCH_MAX_D1_QUERIES_PER_REQUEST: "4" } });

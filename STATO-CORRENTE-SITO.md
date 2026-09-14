@@ -46,6 +46,19 @@ Dati solo sintetici. **Non toccati:** D1 `moxtracker`, Worker di produzione,
 report [R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md](passaggi/research/audit/R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md).
 La qualification di misura scade il 16/09/2026: poi lo staging torna chiuso.
 
+**Incidente operativo R3-OP-01 (14/09/2026, ~18:40 UTC → reset 00:00 UTC):**
+i benchmark sullo staging hanno superato le 100.000 righe scritte al giorno
+del **piano D1 gratuito**, che vale per l'account intero. Da quel momento fino
+al reset anche il D1 di produzione `moxtracker` ha rifiutato le scritture
+(«Your account has exceeded D1's free tier daily row write limit»): invii di
+partite e Draft rimasti nelle code dei client, login, sincronizzazioni e ticket
+possibili in errore; letture, sito e download non toccati. L'account e'
+**Workers Free**, non Paid come scritto in un primo momento. Rimedio: budget
+preventivo di righe scritte obbligatorio negli strumenti di staging
+(`--budget-righe`, stima prima della run, arresto prima della richiesta che
+lo supererebbe); dopo il reset solo verifiche in sola lettura, nuove scritture
+staging solo con via esplicito.
+
 ## Regola operativa obbligatoria
 
 Dopo ogni modifica conclusa e **dopo ogni deploy preview riuscito**, aggiornare
