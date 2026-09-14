@@ -30,8 +30,20 @@ const controlli = [
   ["gate account", `${api}/account/me`, /accesso richiesto/i, 401],
 ];
 
+// Il Meta separato esiste solo dal redesign: sui siti che non pubblicano
+// meta.html quei due controlli si saltano invece di contare come guasti. Se il
+// manifesto non si legge, i controlli restano.
+const manifesto = await fetch(`${base}/build-manifest.json`)
+  .then((risposta) => (risposta.ok ? risposta.json() : null)).catch(() => null);
+const conMetaSeparato = !manifesto?.file || Object.hasOwn(manifesto.file, "meta.html");
+const soloMetaSeparato = new Set(["meta", "meta inglese"]);
+
 let fallimenti = 0;
 for (const [nome, url, atteso, statoAtteso = 200] of controlli) {
+  if (soloMetaSeparato.has(nome) && !conMetaSeparato) {
+    console.log(`SALTATO ${nome}: il sito non pubblica meta.html`);
+    continue;
+  }
   try {
     const risposta = await fetch(url, { redirect: "follow",
       headers: { accept: "text/html,application/json;q=0.9" } });
