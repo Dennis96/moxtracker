@@ -36,6 +36,16 @@ qualification del runtime reale non esistono; `/salute` lo dichiara. Il sito
 non cambia (build identica). Report:
 [R3-LOCAL-IMPLEMENTATION-SERVER-CLAUDE-2026-09-14.md](passaggi/research/audit/R3-LOCAL-IMPLEMENTATION-SERVER-CLAUDE-2026-09-14.md).
 
+**Staging Research G5C-03 (14/09/2026, autorizzato):** creati il D1
+`moxtracker-research-staging` (`02829757-…`, sola migration R3) e il Worker
+`moxtracker-research-staging` su workers.dev, senza route ne' dominio, da
+`wrangler.research-staging.toml` (branch server, commit `28c0395`→`1de1c28`;
+versioni `1da20383`, `5ea787f1` e successive con i soli segreti di staging).
+Dati solo sintetici. **Non toccati:** D1 `moxtracker`, Worker di produzione,
+`api.moxtracker.app`, Pages, preview, `main`. Acceptance 36/36 e benchmark nel
+report [R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md](passaggi/research/audit/R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md).
+La qualification di misura scade il 16/09/2026: poi lo staging torna chiuso.
+
 ## Regola operativa obbligatoria
 
 Dopo ogni modifica conclusa e **dopo ogni deploy preview riuscito**, aggiornare

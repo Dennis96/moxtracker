@@ -38,9 +38,16 @@ const GOLDEN = JSON.parse(readFileSync(QUI + "../../prove/fixtures/research-gold
 const copia = (x) => JSON.parse(JSON.stringify(x));
 const esa = (n) => randomBytes(n).toString("hex");
 
+const PAUSA_MS = Number(opzione("pausa", "0"));
+let ETICHETTA = "";
+
+// La forma viaggia nella query string: il Worker la ignora, ma `wrangler
+// tail` la riporta, e cosi' la CPU si attribuisce alla forma giusta anche
+// quando il tail perde qualche evento.
 async function applica(percorso, corpo, { token, config } = {}) {
+  if (PAUSA_MS) await new Promise((r) => setTimeout(r, PAUSA_MS));
   const inizio = performance.now();
-  const r = await fetch(`${BASE}/__misure/applica`, { method: "POST",
+  const r = await fetch(`${BASE}/__misure/applica?${ETICHETTA}`, { method: "POST",
     headers: { "content-type": "application/json", "x-mox-misure": TOKEN },
     body: JSON.stringify({ percorso, corpo, config,
       headers: token ? { authorization: `Bearer ${token}` } : {} }) });
@@ -99,11 +106,13 @@ const percentile = (valori, p) => {
 async function misura(nome, crea, n, ripetizioni) {
   const chi = { mittente: esa(16), segreto: esa(32) };
   const config = { RESEARCH_MAX_D1_QUERIES_PER_REQUEST: String(LIMITE), RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "33" };
+  ETICHETTA = `fase=consenso&forma=${encodeURIComponent(nome)}&n=${n}`;
   const consenso = await applica("/research/consenso", { mittente: chi.mittente,
     segreto_cancellazione: chi.segreto, versione_consenso: 1 }, { config });
   const token = consenso.corpo?.generation;
   const campioni = [];
   let dimensionePrima = consenso.strumento?.dimensione_db_dopo ?? null;
+  ETICHETTA = `fase=upload&forma=${encodeURIComponent(nome)}&n=${n}`;
   for (let i = 0; i < ripetizioni; i += 1) {
     const partite = Array.from({ length: n }, crea);
     const corpo = { ...copia(GOLDEN.richiesta), mittente: chi.mittente, segreto_cancellazione: chi.segreto, partite };
