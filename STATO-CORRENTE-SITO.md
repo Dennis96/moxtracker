@@ -1,8 +1,8 @@
 # Stato corrente — sito Mox
 
-Aggiornato il 13 settembre 2026: il redesign è implementato su un branch e non
-è pubblicato (sezione sotto). Stato verificato il 10 settembre 2026: la preview funzionale pubblicata
-resta `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
+Aggiornato il 14 settembre 2026: la preview Pages ora serve il redesign
+(`5ec157d`, sezione sotto); sito ufficiale e Worker invariati. Fino al 13
+settembre la preview funzionale pubblicata era `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
 manualmente e i collaudi R0 7–13 sono conclusi. `origin/main` prima di questo
 housekeeping è `39dc8a6`, commit esclusivamente documentale: dopo la preview non
 è avvenuto alcun nuovo deploy Pages, Worker o sito.
@@ -112,7 +112,28 @@ del sito.
   `schema-draft.sql`, `migrazioni/**`, Worker, D1, Cloudflare, storage, packet,
   Research, R3, mox-core.
 
-## Ultima preview pubblicata
+## Preview pubblicata il 14 settembre 2026 — redesign e policy Brew
+
+- Pubblicata soltanto la Pages del branch
+  `claude/site-redesign-implementation-2026-09-13`, commit `5ec157d`, build
+  `4ee3d62ce501aba7` (91 file), con
+  `wrangler pages deploy .dist/sito --project-name moxtracker --branch preview`.
+- URL alias: <https://preview.moxtracker.pages.dev>.
+- URL immutabile: <https://360112e1.moxtracker.pages.dev>.
+- Worker **non** pubblicato: la preview usa l'API di produzione
+  `api.moxtracker.app` con il codice di prima. Il gruppo «Altro (Brew)» resta
+  quindi come prima (riga aggregata con V/S, nessun pulsante) e la policy Brew
+  non è ancora attiva; il sito nuovo è compatibile con il Worker attuale.
+- Smoke `node strumenti/smoke_beta.mjs --site https://preview.moxtracker.pages.dev`:
+  14/14 OK (pagine IT/EN, API salute/Meta/Draft, gate Account 401, CORS
+  Account 204, GitHub Latest).
+- Browser sulla preview: build servita `4ee3d62ce501aba7`; `/#meta` →
+  `/meta` e `/en/#meta` → `/en/meta`; nessun errore in console.
+- Piano dell'utente: qualche giorno di prove sulla preview, poi sito
+  ufficiale e merge. Nessun deploy Worker, nessun deploy produzione, nessun
+  merge.
+
+## Preview del 31 agosto 2026 (superata)
 
 - Data: 31 agosto 2026.
 - Commit sito: `5fa3d34` — RC locale con Account/Draft, M6 e readiness R0.
