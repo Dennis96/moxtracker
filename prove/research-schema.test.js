@@ -47,7 +47,7 @@ test("chiavi esterne e CHECK fermano stati impossibili", () => {
   db.exec("PRAGMA foreign_keys = ON");
   db.exec(SCHEMA);
   assert.throws(() => db.prepare(`INSERT INTO research_event VALUES
-    ('m', 'i', 1, 'draw', 'e', 1, 1)`).run(), /FOREIGN KEY/);
+    (1, 1, 'draw', 'e', 1, 1)`).run(), /FOREIGN KEY/);
   assert.throws(() => db.prepare(`INSERT INTO research_revisione_server VALUES
     ('m', 'i', 1, 'g', 't', 0)`).run(), /CHECK/);
   assert.throws(() => db.prepare(`INSERT INTO research_contribution (mittente, id_pubblico,

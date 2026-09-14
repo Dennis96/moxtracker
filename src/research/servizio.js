@@ -114,21 +114,26 @@ function soppressa(ctx, tag) {
 }
 
 async function leggiCorrente(ctx, mittente, idPubblico) {
+  // Una snapshot effettiva sta nella contribution; le varianti solo in
+  // conflitto (compattazione D1). Il summary che ne esce e' lo stesso di prima.
   const { results: righe = [] } = await ctx.all(descrittore("prejoin_lettura", `SELECT
-    c.versione_server, c.revisione_modello, c.revisione_osservazioni, c.overflow,
-    v.variant_hash, v.body
+    c.versione_server, c.revisione_modello, c.revisione_osservazioni, c.overflow, c.stato,
+    c.snapshot, c.variant_hash, v.variant_hash AS variante_hash, v.body AS variante_body
     FROM research_contribution c LEFT JOIN research_contribution_variante v
-      ON v.mittente = c.mittente AND v.id_pubblico = c.id_pubblico
+      ON v.contribution_id = c.id
     WHERE c.mittente = ?1 AND c.id_pubblico = ?2 ORDER BY v.variant_hash`,
   [mittente, idPubblico]));
   if (!righe.length) return { versione_server: 0, summary: null };
   const prima = righe[0];
+  const retained = prima.stato === "effettiva"
+    ? [{ hash: prima.variant_hash, body: JSON.parse(prima.snapshot) }]
+    : righe.filter((r) => r.variante_hash)
+      .map((r) => ({ hash: r.variante_hash, body: JSON.parse(r.variante_body) }));
   return {
     versione_server: prima.versione_server,
     summary: {
       revisione: { modello: prima.revisione_modello, osservazioni: prima.revisione_osservazioni },
-      retained: righe.filter((r) => r.variant_hash)
-        .map((r) => ({ hash: r.variant_hash, body: JSON.parse(r.body) })),
+      retained,
       overflow: Boolean(prima.overflow),
     },
   };

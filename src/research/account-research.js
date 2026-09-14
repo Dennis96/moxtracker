@@ -47,14 +47,15 @@ export async function esportaResearch(ambiente, mittenti) {
        snapshot, ricevuta, aggiornata FROM research_contribution WHERE ${dentro}
        ORDER BY ricevuta, id_pubblico`, [lista]));
     const { results: varianti = [] } = await ctx.all(descrittore("export_varianti",
-      `SELECT v.mittente, v.id_pubblico, v.variant_hash, v.body
+      `SELECT c.mittente, c.id_pubblico, v.variant_hash, v.body
        FROM research_contribution_variante v JOIN research_contribution c
-         ON c.mittente = v.mittente AND c.id_pubblico = v.id_pubblico
-       WHERE c.stato = 'conflitto' AND v.${dentro} ORDER BY v.variant_hash`, [lista]));
+         ON c.id = v.contribution_id
+       WHERE c.stato = 'conflitto' AND c.${dentro} ORDER BY v.variant_hash`, [lista]));
     const { results: storia = [] } = await ctx.all(descrittore("export_storia",
-      `SELECT mittente, id_pubblico, revisione_modello, revisione_osservazioni, variant_hash,
-       overflow, body, archiviata FROM research_snapshot_storia WHERE ${dentro}
-       ORDER BY archiviata, id_pubblico, variant_hash`, [lista]));
+      `SELECT c.mittente, c.id_pubblico, s.revisione_modello, s.revisione_osservazioni,
+       s.variant_hash, s.overflow, s.body, s.archiviata
+       FROM research_snapshot_storia s JOIN research_contribution c ON c.id = s.contribution_id
+       WHERE c.${dentro} ORDER BY s.archiviata, c.id_pubblico, s.variant_hash`, [lista]));
     const { results: consensi = [] } = await ctx.all(descrittore("export_consensi",
       `SELECT mittente, versione_consenso, stato, creata, revocata
        FROM research_consent_generation WHERE ${dentro} ORDER BY creata`, [lista]));

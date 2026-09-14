@@ -143,10 +143,17 @@ async function funzioniSql(db) {
   return { json_each: json.n, row_value_not_in: riga.n, foreign_keys: chiavi };
 }
 
+// Dopo la compattazione le figlie della contribution non hanno `mittente`:
+// si contano per chiave interna.
+const CON_MITTENTE = new Set(["research_contribution", "research_revisione_server",
+  "research_consent_generation"]);
+
 async function stato(db, { mittente }) {
   const fuori = {};
   for (const tabella of TABELLE) {
-    fuori[tabella] = (await db.prepare(`SELECT COUNT(*) AS n FROM ${tabella} WHERE mittente = ?1`)
+    const dove = CON_MITTENTE.has(tabella) ? "mittente = ?1"
+      : "contribution_id IN (SELECT id FROM research_contribution WHERE mittente = ?1)";
+    fuori[tabella] = (await db.prepare(`SELECT COUNT(*) AS n FROM ${tabella} WHERE ${dove}`)
       .bind(mittente).first()).n;
   }
   for (const tabella of ["research_deleted_contribution", "research_consent_tombstone", "research_lineage"]) {

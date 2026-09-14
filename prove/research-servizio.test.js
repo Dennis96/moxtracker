@@ -161,6 +161,28 @@ test("revisione maggiore, minore, conflitto e overflow", async () => {
   assert.equal(rifiutata.corpo.risultati[0].motivo_codice, "modello_non_supportato");
 });
 
+test("il corpo effettivo sta in un posto solo; le varianti esistono solo nei conflitti", async () => {
+  const db = nuovoDb();
+  const amb = ambiente(db);
+  const token = await consenso(amb);
+  await manda(amb, "/research/partite", busta([bo1()]), { token });
+  assert.equal(db.conta("research_contribution_variante"), 0);
+  const [effettiva] = db.tutte("SELECT snapshot, variant_hash FROM research_contribution");
+  assert.ok(effettiva.snapshot && effettiva.variant_hash);
+  const altra = bo1(); altra.turni = 7;
+  assert.deepEqual(stati(await manda(amb, "/research/partite", busta([altra]), { token })), ["conflict"]);
+  assert.equal(db.conta("research_contribution_variante"), 2, "entrambe le varianti, anche quella che era effettiva");
+  // Retry della variante che era effettiva: stato invariato, niente scritture.
+  const prima = db.registro.statement;
+  assert.deepEqual(stati(await manda(amb, "/research/partite", busta([bo1()]), { token })), ["conflict"]);
+  assert.equal(db.registro.statement, prima);
+  const bump = bo1(); bump.revisione.osservazioni = 3;
+  assert.deepEqual(stati(await manda(amb, "/research/partite", busta([bump]), { token })), ["updated"]);
+  assert.equal(db.conta("research_contribution_variante"), 0, "una revisione maggiore risolve e le varianti spariscono");
+  assert.equal(db.conta("research_snapshot_storia"), 2, "il summary conteso finisce in storia");
+  assert.equal(db.conta("research_event"), 4);
+});
+
 test("due mittenti nello stesso match: due contribution, nessun overwrite", async () => {
   const db = nuovoDb();
   const amb = ambiente(db);
@@ -299,11 +321,12 @@ test("il piano eseguito coincide con i descriptor riservati", async () => {
   const token = await consenso(amb);
   const prima = db.registro.statement;
   const esito = await manda(amb, "/research/partite", busta([bo1(), bo3()]), { token });
-  // BO1: guardia, contribution, variante, game, eventi, mazzo = 6.
-  // BO3: guardia, contribution, variante, game, eventi, mazzo x2, delta = 8.
-  assert.equal(db.registro.statement - prima, 14);
-  assert.equal(esito.corpo.diagnostica.statement_pianificati, 14);
-  assert.equal(esito.corpo.diagnostica.charged, esito.corpo.diagnostica.letture + 14);
+  // Dopo la compattazione D1 una snapshot effettiva non scrive varianti.
+  // BO1: guardia, contribution, game, eventi, mazzo = 5.
+  // BO3: guardia, contribution, game, eventi, mazzo x2, delta = 7.
+  assert.equal(db.registro.statement - prima, 12);
+  assert.equal(esito.corpo.diagnostica.statement_pianificati, 12);
+  assert.equal(esito.corpo.diagnostica.charged, esito.corpo.diagnostica.letture + 12);
 });
 
 test("corsa CAS: chi perde rilegge, ripianifica e diventa stale", async () => {

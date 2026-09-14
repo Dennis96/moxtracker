@@ -28,17 +28,23 @@ async function nuova(contribution) {
     { versione_server: 0, summary: null });
 }
 
-test("una contribution nuova: guardia, contribution, variante e proiezioni, niente delete", async () => {
+test("una contribution nuova: guardia, contribution e proiezioni; il corpo una volta sola", async () => {
   const piano = await nuova(copia(GOLDEN.richiesta.partite[0]));
   assert.equal(piano.outcome.esito, "accepted_new");
-  assert.deepEqual(tipi(piano), ["guardia_cas", "contribution_upsert", "variante_insert",
+  // Compattazione D1: una snapshot effettiva vive solo nella contribution,
+  // la tabella delle varianti serve solo ai conflitti.
+  assert.deepEqual(tipi(piano), ["guardia_cas", "contribution_upsert",
     "game_insert", "event_insert", "deck_insert"]);
   const guardia = piano.atomic_write_batch[0];
   assert.equal(guardia.params[2], 1, "la versione successiva a 0");
   assert.ok(Object.isFrozen(piano) && Object.isFrozen(piano.atomic_write_batch));
   // BO1 golden: 2 draw + 1 cast + 1 land, main di 3 voci e sideboard {}.
-  assert.equal((piano.atomic_write_batch[4].params.length - 2) / 5, 4);
-  assert.equal((piano.atomic_write_batch[5].params.length - 2) / 4, 3);
+  assert.equal((piano.atomic_write_batch[3].params.length - 2) / 5, 4);
+  assert.equal((piano.atomic_write_batch[4].params.length - 2) / 4, 3);
+  // Le proiezioni non ripetono mittente e id_pubblico: puntano alla chiave
+  // interna della contribution.
+  assert.match(piano.atomic_write_batch[3].sql, /contribution_id/);
+  assert.doesNotMatch(piano.atomic_write_batch[3].sql, /\(mittente, id_pubblico/);
 });
 
 test("un aggiornamento riscrive proiezioni e varianti e archivia la snapshot superata", async () => {
@@ -49,7 +55,7 @@ test("un aggiornamento riscrive proiezioni e varianti e archivia la snapshot sup
   const piano = planContribution(CONTESTO, await summaryDaContribution(nuovaSnap), corrente);
   assert.equal(piano.outcome.esito, "updated");
   assert.deepEqual(tipi(piano), ["guardia_cas", "contribution_upsert",
-    "storia_insert", "storia_potatura", "variante_delete", "variante_insert",
+    "storia_insert", "storia_potatura",
     "event_delete", "deck_delete", "delta_delete", "game_delete",
     // 33 righe di mazzo (3 game x 11 voci) con 24 righe per statement: due chunk.
     "game_insert", "event_insert", "deck_insert", "deck_insert", "delta_insert"]);
@@ -62,8 +68,11 @@ test("un conflitto toglie le proiezioni e non ne scrive di nuove", async () => {
   const corrente = { versione_server: 1, summary: await summaryDaContribution(a) };
   const piano = planContribution(CONTESTO, await summaryDaContribution(b), corrente);
   assert.equal(piano.outcome.esito, "conflict");
-  assert.deepEqual(tipi(piano), ["guardia_cas", "contribution_upsert", "variante_delete",
+  // Da effettiva a conflitto: la variante che era effettiva entra nella
+  // tabella delle varianti insieme a quella nuova.
+  assert.deepEqual(tipi(piano), ["guardia_cas", "contribution_upsert",
     "variante_insert", "event_delete", "deck_delete", "delta_delete", "game_delete"]);
+  assert.equal((piano.atomic_write_batch[2].params.length - 2) / 3, 2);
   const upsert = piano.atomic_write_batch[1];
   assert.ok(upsert.params.includes("conflitto"));
   // Da conflitto a conflitto le proiezioni non esistono: niente delete inutili.

@@ -228,7 +228,7 @@ test("un database senza tabelle Research: export e delete account funzionano com
 test("censimento: ogni tabella Research e' cancellata dal delete o e' un'eccezione opaca", () => {
   const schema = readFileSync(SCHEMA, "utf8");
   const tabelle = new Map();
-  for (const [, nome, corpo] of schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+) \(([\s\S]*?)\n\);/g)) {
+  for (const [, nome, corpo] of schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+) \(([\s\S]*?)\n\)( WITHOUT ROWID)?;/g)) {
     tabelle.set(nome, corpo);
   }
   const research = [...tabelle.keys()].filter((t) => t.startsWith("research_"));

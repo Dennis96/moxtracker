@@ -15,6 +15,11 @@ import { confrontaRevisione, decidi, effettiva } from "./join.js";
 export const MAX_PARAMETRI = 100;
 const CONDIVISI = 2;
 
+// La chiave interna della contribution, risolta dentro lo stesso statement:
+// le proiezioni non ripetono piu' `mittente` e `id_pubblico` (compattazione D1).
+// Se la contribution non c'e' vale NULL e il NOT NULL abortisce il batch.
+const CID = "(SELECT id FROM research_contribution WHERE mittente = ?1 AND id_pubblico = ?2)";
+
 export async function summaryDaContribution(contribution) {
   return {
     revisione: { modello: contribution.revisione.modello,
@@ -43,10 +48,12 @@ function inserimenti(kind, tabella, colonne, righe, mittente, idPubblico, verbo 
     const params = [mittente, idPubblico];
     const valori = blocco.map((riga) => {
       const segni = riga.map((v) => { params.push(v); return `?${params.length}`; });
-      return `(?1, ?2, ${segni.join(", ")})`;
+      return `(${segni.join(", ")})`;
     });
+    const scelte = colonne.map((_, i) => `column${i + 1}`).join(", ");
     fuori.push(descrittore(kind,
-      `${verbo} INTO ${tabella} (mittente, id_pubblico, ${colonne.join(", ")}) VALUES ${valori.join(", ")}`,
+      `${verbo} INTO ${tabella} (contribution_id, ${colonne.join(", ")}) `
+      + `SELECT ${CID}, ${scelte} FROM (VALUES ${valori.join(", ")})`,
       params));
   }
   return fuori;
@@ -93,7 +100,7 @@ function deleteProiezioni(mittente, idPubblico) {
     ["event_delete", "research_event"], ["deck_delete", "research_deck_card"],
     ["delta_delete", "research_sideboard_delta"], ["game_delete", "research_game_contribution"],
   ].map(([kind, tabella]) => descrittore(kind,
-    `DELETE FROM ${tabella} WHERE mittente = ?1 AND id_pubblico = ?2`, [mittente, idPubblico]));
+    `DELETE FROM ${tabella} WHERE contribution_id = ${CID}`, [mittente, idPubblico]));
 }
 
 const SQL_GUARDIA_CAS = `INSERT INTO research_revisione_server
@@ -165,21 +172,26 @@ export function planContribution(contesto, arrivo, corrente) {
         prima.overflow ? 1 : 0, J(v.body), adesso]), mittente, idPubblico,
       "INSERT OR IGNORE"));
     batch.push(descrittore("storia_potatura", `DELETE FROM research_snapshot_storia
-      WHERE mittente = ?1 AND id_pubblico = ?2
+      WHERE contribution_id = ${CID}
       AND (revisione_modello, revisione_osservazioni) NOT IN (
         SELECT revisione_modello, revisione_osservazioni FROM research_snapshot_storia
-        WHERE mittente = ?1 AND id_pubblico = ?2
+        WHERE contribution_id = ${CID}
         GROUP BY revisione_modello, revisione_osservazioni
         ORDER BY revisione_modello DESC, revisione_osservazioni DESC LIMIT 2)`,
     [mittente, idPubblico]));
   }
-  if (prima) {
+  // Le varianti esistono solo in conflitto: una snapshot effettiva sta nella
+  // contribution e basta. Da effettiva a conflitto entrano tutte le
+  // trattenute, compresa quella che era effettiva.
+  if (prima && !effettiva(prima)) {
     batch.push(descrittore("variante_delete", `DELETE FROM research_contribution_variante
-      WHERE mittente = ?1 AND id_pubblico = ?2`, [mittente, idPubblico]));
+      WHERE contribution_id = ${CID}`, [mittente, idPubblico]));
   }
-  batch.push(...inserimenti("variante_insert", "research_contribution_variante",
-    ["variant_hash", "body", "ricevuta"],
-    nuovo.retained.map((v) => [v.hash, J(v.body), adesso]), mittente, idPubblico));
+  if (!effettivo) {
+    batch.push(...inserimenti("variante_insert", "research_contribution_variante",
+      ["variant_hash", "body", "ricevuta"],
+      nuovo.retained.map((v) => [v.hash, J(v.body), adesso]), mittente, idPubblico));
+  }
 
   // Le proiezioni esistono solo se lo stato precedente era effettivo.
   if (prima && effettiva(prima)) batch.push(...deleteProiezioni(mittente, idPubblico));
@@ -213,18 +225,21 @@ export function pianoDeleteContribution({ lineage_tag: lineage, mittente, id_pub
   const params = [adesso, ...tag.flatMap((t) => [t.tag, t.key_version])];
   const cancella = (kind, tabella) => descrittore(kind,
     `DELETE FROM ${tabella} WHERE mittente = ?1 AND id_pubblico = ?2`, [mittente, id]);
+  // Figlie della contribution: per chiave interna, prima che la contribution sparisca.
+  const cancellaFiglie = (kind, tabella) => descrittore(kind,
+    `DELETE FROM ${tabella} WHERE contribution_id = ${CID}`, [mittente, id]);
   return Object.freeze([
     guardia("guardia_deleting",
       "EXISTS (SELECT 1 FROM research_lineage WHERE lineage_tag = ?1 AND stato = 'deleting')",
       [lineage]),
     descrittore("tombstone_insert", `INSERT OR IGNORE INTO research_deleted_contribution
       (tag, key_version, creato, motivo) VALUES ${segni.join(", ")}`, params),
-    cancella("event_delete", "research_event"),
-    cancella("deck_delete", "research_deck_card"),
-    cancella("delta_delete", "research_sideboard_delta"),
-    cancella("game_delete", "research_game_contribution"),
-    cancella("variante_delete", "research_contribution_variante"),
-    cancella("storia_delete", "research_snapshot_storia"),
+    cancellaFiglie("event_delete", "research_event"),
+    cancellaFiglie("deck_delete", "research_deck_card"),
+    cancellaFiglie("delta_delete", "research_sideboard_delta"),
+    cancellaFiglie("game_delete", "research_game_contribution"),
+    cancellaFiglie("variante_delete", "research_contribution_variante"),
+    cancellaFiglie("storia_delete", "research_snapshot_storia"),
     cancella("revisione_delete", "research_revisione_server"),
     cancella("contribution_delete", "research_contribution"),
     descrittore("guardia_svuota", SQL_GUARDIA_SVUOTA, []),
