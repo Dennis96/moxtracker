@@ -1,7 +1,9 @@
 # Stato corrente — sito Mox
 
-Stato letto e verificato il 10 settembre 2026. La preview funzionale pubblicata
-resta `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
+Aggiornato il 14 settembre 2026: `moxtracker.app` pubblica il frontend stabile
+pre-redesign (`f897a943`, build `61a708af281eea70`, sezione sotto); il redesign
+non è in produzione. Stato verificato il 10 settembre 2026: la preview
+funzionale pubblicata era `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
 manualmente e i collaudi R0 7–13 sono conclusi. `origin/main` prima di questo
 housekeeping è `39dc8a6`, commit esclusivamente documentale: dopo la preview non
 è avvenuto alcun nuovo deploy Pages, Worker o sito.
@@ -19,7 +21,34 @@ modificato. La chat successiva legge questo file prima di proporre o eseguire
 nuovo lavoro. Non creare handoff alternativi: questo è l'unico stato operativo
 del sito.
 
-## Ultima preview pubblicata
+## Produzione Pages del 14 settembre 2026 — frontend stabile pre-redesign
+
+- `moxtracker.app` → frontend **pre-redesign**, commit sorgente
+  `f897a9431cc2d9eaede62a7fdbcbb4a9870282bb` (stesso contenuto `sito/` e `src/`
+  di `cf2f45e`), build `61a708af281eea70`, 63 file.
+- Pubblicato con il gate canonico `npm run sito:release`:
+  - preview dello stesso commit: deployment `62141e1b`
+    (<https://62141e1b.moxtracker.pages.dev>), record
+    `preview-f897a9431cc2-62141e1b.json`, smoke 6/6 HTTP 200;
+  - produzione: deployment `c30921d1` (<https://c30921d1.moxtracker.pages.dev>),
+    record `production-f897a9431cc2-c30921d1.json`, conferma
+    `PUBBLICA-SITO-PRODUZIONE`, prove visive desktop `84019c1d…` e mobile
+    `88dfd878…` (screenshot della preview stabile), smoke 6/6 HTTP 200.
+    Prove del gate 191/191.
+- Verifiche su `moxtracker.app`: build e commit serviti corrispondenti; Home,
+  Draft, Account, Supporto, Privacy, Download, Cosa invia Mox, Note di versione
+  e pagine EN HTTP 200; Meta attuale nella Home; nessun errore JS.
+  `smoke_beta.mjs --site https://moxtracker.app`: tutto OK tranne CORS Account
+  HTTP 403, limite preesistente: il Worker autorizza come origine con
+  credenziali soltanto `preview.moxtracker.pages.dev` (`SITE_ORIGIN`), quindi
+  il login Account da `moxtracker.app` non funziona. Worker non modificato per
+  aggirarlo.
+- Per pochi minuti la preview è tornata alla stessa build pre-redesign, come
+  prevede la procedura; il redesign vi torna nella fase successiva.
+- Il redesign **non** è pubblicato su `moxtracker.app`. Nessun deploy Worker,
+  nessuna modifica D1/schema/migrazioni, Research o R3.
+
+## Preview del 31 agosto 2026 (superata)
 
 - Data: 31 agosto 2026.
 - Commit sito: `5fa3d34` — RC locale con Account/Draft, M6 e readiness R0.
