@@ -13,6 +13,16 @@ La GitHub Release Latest del client è `mox-v2-beta2.10.0`, non prerelease, con
 il solo asset `Mox-v2-beta2.10.0-con-python.zip`. Questa distribuzione del
 client non modifica il codice attualmente pubblicato su Pages o Worker.
 
+## Housekeeping Research pre-R3 — 14 settembre 2026
+
+`main` include i cinque addendum Research/server G3B → Final M8, integrati
+come soli documenti in un housekeeping successivo alla chiusura sito. La linea
+consolidata ha **FINAL DELTA VERIFICATION: PASS WITH CONDITIONS** e
+**R3 IMPLEMENTATION GATE: OPEN WITH MANDATORY CONDITIONS**; R3 non è avviata
+né implementata. Nessun file `src/**` o `sito/**`, schema, migration,
+configurazione Pages/Worker, deploy o dato operativo è stato modificato. Le
+condizioni obbligatorie restano interne al futuro task R3 sul runtime reale.
+
 ## Regola operativa obbligatoria
 
 Dopo ogni modifica conclusa e **dopo ogni deploy preview riuscito**, aggiornare
