@@ -112,7 +112,7 @@ test("le liste sotto soglia restano una voce sola, senza link, impronte o percen
   assert.match(prima.textContent, /%/);
   assert.ok(resto.classList.contains("brew-rest"));
   assert.match(resto.textContent, /7 liste sotto soglia/);
-  assert.match(resto.textContent, /67/);
+  assert.equal(resto.querySelectorAll("td")[1].textContent, "67", "la colonna Partite");
   assert.match(resto.textContent, /Dati e decklist non pubblicati/);
   assert.doesNotMatch(resto.textContent, /%/);
   assert.equal(resto.querySelector("a"), null);

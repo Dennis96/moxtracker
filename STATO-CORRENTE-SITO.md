@@ -92,8 +92,12 @@ del sito.
 - **Meta, «Altro (Brew)» espandibile** (delta successivo a `e64c1b4`): la riga
   resta aggregata e un pulsante apre le liste arrivate a 30 partite («Brew #N»,
   nome neutro), ognuna con il dettaglio per impronta e i filtri del Meta; le
-  altre restano una sola voce «N liste sotto soglia», senza link, impronte né
-  V/S. Tocca `src/lettura.js` (campi nuovi `varianti_brew` e
+  altre restano una sola voce «N liste sotto soglia», senza link né impronte e
+  senza V/S lista per lista. Il V/S del gruppo sotto soglia resta ricavabile
+  per sottrazione dalla riga Altro e, con una sola lista sotto soglia,
+  coincide con quella lista: da decidere prima del deploy del Worker, insieme
+  al dettaglio per impronta che oggi risponde anche sotto soglia a chi conosce
+  l'impronta. Tocca `src/lettura.js` (campi nuovi `varianti_brew` e
   `brew_sotto_soglia`, retrocompatibili):
   sul sito compare solo dopo un deploy del Worker, che non è stato fatto.
   Sviluppo futuro, non implementato:

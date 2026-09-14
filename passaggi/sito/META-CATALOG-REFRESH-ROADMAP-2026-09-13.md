@@ -13,8 +13,9 @@ Worker, D1 o fonti: ogni passo richiede un mandato separato.
   `npm run genera-archetipi` (`strumenti/genera_catalogo_archetipi.py`).
   Per esaminare un caso singolo esiste già `npm run diagnostica-archetipo`.
 - Ciò che il catalogo non riconosce finisce in «Altro (Brew)». Dal 13/09 il
-  gruppo si apre sul sito e mostra le singole liste osservate («Brew #N»),
-  ognuna con il proprio dettaglio per impronta. Nessuna di queste liste viene
+  gruppo si apre sul sito: le liste arrivate a 30 partite compaiono una per
+  una («Brew #N»), ognuna con il proprio dettaglio per impronta; le altre
+  restano un conteggio («N liste sotto soglia»). Nessuna di queste liste viene
   nominata, colorata o promossa ad archetipo.
 - Il modello resta questo:
   - **archetipo** = famiglia strategica, riconosciuta da un nucleo di carte
