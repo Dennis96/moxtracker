@@ -23,6 +23,19 @@ né implementata. Nessun file `src/**` o `sito/**`, schema, migration,
 configurazione Pages/Worker, deploy o dato operativo è stato modificato. Le
 condizioni obbligatorie restano interne al futuro task R3 sul runtime reale.
 
+## Research R3 locale — 14 settembre 2026 (branch non fuso)
+
+Sul branch `claude/r3-research-implementation-server-2026-09-14` il Worker ha
+le route Research separate (`/research/partite`, `/research/consenso`,
+`/research/consenso/revoca`, `/research/elimina`), il gateway D1
+budgetizzato, lo schema Research in coda a `schema.sql` e la migrazione
+`migrazioni/2026-09-14-research-r3.sql`. **Niente di questo e' pubblicato**:
+nessun deploy Worker o Pages, nessuna migration D1 remota, nessun merge in
+`main`. Research resta spenta e fail-closed finche' la configurazione e la
+qualification del runtime reale non esistono; `/salute` lo dichiara. Il sito
+non cambia (build identica). Report:
+[R3-LOCAL-IMPLEMENTATION-SERVER-CLAUDE-2026-09-14.md](passaggi/research/audit/R3-LOCAL-IMPLEMENTATION-SERVER-CLAUDE-2026-09-14.md).
+
 ## Regola operativa obbligatoria
 
 Dopo ogni modifica conclusa e **dopo ogni deploy preview riuscito**, aggiornare
