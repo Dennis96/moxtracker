@@ -67,6 +67,34 @@ del sito.
 - Prima dell'aggiornamento del Worker il gruppo «Altro (Brew)» resta come
   prima (nessun pulsante): è atteso.
 
+## Chiusura della fase — 14 settembre 2026
+
+- **Account da `moxtracker.app`:** in `wrangler.toml` `SITE_ORIGIN` torna a
+  `https://moxtracker.app` e `PREVIEW_ORIGIN` resta la preview (commit
+  `f37cea8`). Worker ripubblicato: versione
+  `3e26ca1c-4cb9-4e80-afcf-0e8228d52d94` al posto di
+  `33069c30-4601-4605-8ca4-1918c5b244df` (rollback preparato, non servito).
+  CORS Account 204 da `moxtracker.app` e dalla preview, 403 da un'origine
+  estranea; il login da `moxtracker.app` torna a `moxtracker.app/account.html`,
+  quello dalla preview alla preview. Effetto voluto: i link nelle email dei
+  ticket aprono ora il sito ufficiale.
+- **Smoke:** `smoke_beta.mjs` legge il `build-manifest` e salta «meta» e «meta
+  inglese» sui siti che non pubblicano `meta.html`. Su `moxtracker.app` è ora
+  tutto OK (quei due controlli risultano SALTATI); sulla preview 14/14.
+- **Privacy Brew dopo il nuovo deploy:** verificata di nuovo sull'API reale,
+  invariata (Altro senza V/S con liste sotto soglia, Brew singoli solo da 30
+  partite, 404 identico per le impronte, `/gioco-risposta` senza vittorie).
+- **Limite accettato dall'utente:** nel frontend pre-redesign di
+  `moxtracker.app` la riga resta «Altro (Brew)» anche in inglese; si risolve
+  portando il redesign sull'ufficiale.
+- **Pulizia:** dopo questo commit viene rimossa la worktree di lavoro
+  `claude-promozione-main-2026-09-14` (staccando prima la giunzione
+  `node_modules`) insieme al branch locale già confluito
+  `claude/chiusura-fase-sito-2026-09-14`. I record `.release/` della
+  promozione sono copiati in
+  `worktrees/claude-site-home-exploration-2026-09-13/.release/`.
+- Prove 230/230. Nessuna modifica D1, schema, migrazioni, Research o R3.
+
 ## Worker del 14 settembre 2026 — policy Brew/privacy attiva
 
 - `api.moxtracker.app`: deploy con `npm run pubblica` (`wrangler deploy`) dal
@@ -99,17 +127,19 @@ del sito.
   dal Worker: l'Account da `moxtracker.app` è bloccato dal CORS (403,
   `SITE_ORIGIN` = preview) con errori CORS in console e il pannello di accesso
   visibile; lo smoke di `main` segna «meta inglese» su `moxtracker.app` perché
-  il frontend pre-redesign non ha la pagina `/en/meta`.
+  il frontend pre-redesign non ha la pagina `/en/meta`. Tutti e due risolti
+  nella chiusura della fase (sezione sopra).
 
 ### Fotografia al 14 settembre 2026
 
-- **Main:** il commit che contiene questa sezione, sopra `0c638a8` (merge
-  `1c3f09c`).
+- **Main:** il commit di chiusura che contiene la sezione «Chiusura della
+  fase», sopra `f37cea8` (merge `1c3f09c`).
 - **Pages production (`moxtracker.app`):** frontend pre-redesign, commit
   `f897a943`, build `61a708af281eea70`, deployment `c30921d1`.
 - **Pages preview:** redesign, commit `1c3f09c`, build `4ee3d62ce501aba7`,
   deployment `ae78372e`.
-- **Worker:** versione `33069c30`, policy Brew/privacy attiva.
+- **Worker:** versione `3e26ca1c`, policy Brew/privacy attiva, Account da
+  `moxtracker.app` e dalla preview.
 - **Database, schema, migrazioni:** nessuna modifica.
 - **Research/R3:** nessuna modifica.
 - **Merge:** eseguito. **Housekeeping:** non eseguito.
@@ -380,8 +410,8 @@ produzione.
    Prima qualche giorno di prove sulla preview Pages
    <https://preview.moxtracker.pages.dev>, poi, solo con un nuovo mandato
    esplicito, il redesign sul sito ufficiale <https://moxtracker.app>. La policy Brew/privacy
-   è attiva dal deploy Worker del 14 settembre (`33069c30`; rollback a
-   `59e455d0`). A ogni deploy successivo ripetere i controlli privacy: Altro
+   è attiva dal deploy Worker del 14 settembre (oggi `3e26ca1c`; versioni
+   precedenti `33069c30` e `59e455d0`). A ogni deploy successivo ripetere i controlli privacy: Altro
    senza `vittorie` in `/meta` quando ci sono liste sotto soglia, `/archetipo`
    con un'impronta inventata in 404, `/gioco-risposta` senza vittorie né win
    rate. Nessun housekeeping prima.
