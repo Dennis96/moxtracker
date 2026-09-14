@@ -416,6 +416,12 @@ produzione.
 
 ## Prossimo lavoro
 
+Il backlog separato per gli interventi frontend e backend emersi dal collaudo
+è in
+[Prossimi sviluppi del sito — frontend e backend](passaggi/sito/PROSSIMI-SVILUPPI-SITO-2026-09-14.md).
+La sua presenza non autorizza Worker, API, D1, schema, migrazioni, merge o
+deploy: ogni voce va avviata con un mandato separato.
+
 0. Redesign: integrato in `main` il 14 settembre, non su `moxtracker.app`.
    Prima qualche giorno di prove sulla preview Pages
    <https://preview.moxtracker.pages.dev>, poi, solo con un nuovo mandato
