@@ -1,10 +1,9 @@
 # Stato corrente — sito Mox
 
 Aggiornato il 14 settembre 2026: `moxtracker.app` pubblica il frontend stabile
-pre-redesign (`f897a943`, build `61a708af281eea70`); il redesign e la policy
-Brew/privacy sono integrati in `main` ma non pubblicati su Pages production.
-La preview va ripubblicata con il redesign dal `main` integrato e il Worker non
-è ancora aggiornato (sezioni sotto). Fino al 13 settembre la preview
+pre-redesign (`f897a943`, build `61a708af281eea70`); `main` integra redesign e
+policy Brew/privacy; la preview pubblica il redesign e `api.moxtracker.app` usa
+il Worker nuovo con la policy Brew/privacy attiva (sezioni sotto). Fino al 13 settembre la preview
 funzionale pubblicata era `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
 manualmente e i collaudi R0 7–13 sono conclusi. `origin/main` prima di questo
 housekeeping è `39dc8a6`, commit esclusivamente documentale: dopo la preview non
@@ -67,6 +66,53 @@ del sito.
   `/en/meta`; nessun errore JS.
 - Prima dell'aggiornamento del Worker il gruppo «Altro (Brew)» resta come
   prima (nessun pulsante): è atteso.
+
+## Worker del 14 settembre 2026 — policy Brew/privacy attiva
+
+- `api.moxtracker.app`: deploy con `npm run pubblica` (`wrangler deploy`) dal
+  `main` `0c638a8`. Versione precedente `59e455d0-0b05-4090-8466-5981499f0d5d`
+  (10/09, 100%), nuova `33069c30-4601-4605-8ca4-1918c5b244df` (100%). Rollback
+  preparato con `wrangler rollback 59e455d0-0b05-4090-8466-5981499f0d5d`: non è
+  servito.
+- Delta Worker rispetto a `f897a943`: solo `src/lettura.js` e
+  `src/dettaglio-archetipo.js`; `wrangler.toml`, binding e variabili invariati
+  (prova a vuoto); nessuna migrazione, schema, D1, Research o R3.
+- Smoke privacy sull'API reale: `/meta` su 30 e 7 giorni e sul totale — Altro
+  senza V/S e con win rate nullo quando ci sono liste sotto soglia
+  (`record_pubblico: false`), Brew singoli solo da 30 partite, nessuna impronta
+  oltre quelle dei Brew pubblici; `/archetipo` con impronte inventate: 404
+  identico; `/gioco-risposta` senza vittorie né win rate. Regressioni: `/salute`
+  vivo, archetipo riconosciuto 200, API Meta e Draft OK, CORS pubblico `*` da
+  preview e da `moxtracker.app`, CORS Account 204 dalla preview.
+- Brew reali (30 giorni, API pubblica): 3 da 30 partite in su (35, 34 e 31
+  partite; dettaglio 200 con decklist pubblicabile), 6 liste sotto soglia per
+  60 partite. Sui 7 giorni: 1 e 4.
+- Preview (redesign + Worker nuovo): «9 liste» apre Brew #1–#3 con «Apri» e «6
+  liste sotto soglia — 60 — Dati e decklist non pubblicati»; la riga Altro
+  mostra «— — Non pubblicato»; nessuna impronta visibile; dettaglio Brew e
+  ritorno al Meta con i filtri; mobile EN a 375 px senza overflow; smoke 14/14;
+  nessun errore JS.
+- `moxtracker.app` (frontend pre-redesign) con il Worker nuovo: compatibile.
+  Altro mostra «160 · — · — · Dati insufficienti / Insufficient data · 51,78%»
+  (è la quota, non il win rate) e nessun link Brew; Home, Meta, Draft,
+  Supporto, Download e IT/EN senza errori JS. Limiti preesistenti, non causati
+  dal Worker: l'Account da `moxtracker.app` è bloccato dal CORS (403,
+  `SITE_ORIGIN` = preview) con errori CORS in console e il pannello di accesso
+  visibile; lo smoke di `main` segna «meta inglese» su `moxtracker.app` perché
+  il frontend pre-redesign non ha la pagina `/en/meta`.
+
+### Fotografia al 14 settembre 2026
+
+- **Main:** il commit che contiene questa sezione, sopra `0c638a8` (merge
+  `1c3f09c`).
+- **Pages production (`moxtracker.app`):** frontend pre-redesign, commit
+  `f897a943`, build `61a708af281eea70`, deployment `c30921d1`.
+- **Pages preview:** redesign, commit `1c3f09c`, build `4ee3d62ce501aba7`,
+  deployment `ae78372e`.
+- **Worker:** versione `33069c30`, policy Brew/privacy attiva.
+- **Database, schema, migrazioni:** nessuna modifica.
+- **Research/R3:** nessuna modifica.
+- **Merge:** eseguito. **Housekeeping:** non eseguito.
 
 ## Redesign e policy Brew/privacy: integrati in `main`, non in produzione
 
@@ -155,7 +201,7 @@ Su `moxtracker.app` resta il frontend pre-redesign della sezione sopra.
   per ogni aggregato, la fetta di una lista già pubblica ricavabile con filtri
   complementari (BO1 + BO3, intervalli di rank). Tocca `src/lettura.js` e `src/dettaglio-archetipo.js` (campi
   nuovi `varianti_brew`, `brew_sotto_soglia`, `record_pubblico`, retrocompatibili):
-  sul sito compare solo dopo un deploy del Worker, che non è stato fatto.
+  attivo dal deploy Worker del 14 settembre (versione `33069c30`).
   Sviluppo futuro, non implementato:
   [roadmap aggiornamento catalogo archetipi](passaggi/sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md).
 - **Confini del lavoro sul branch**: nessun deploy Worker e nessun deploy di
@@ -333,14 +379,12 @@ produzione.
 0. Redesign: integrato in `main` il 14 settembre, non su `moxtracker.app`.
    Prima qualche giorno di prove sulla preview Pages
    <https://preview.moxtracker.pages.dev>, poi, solo con un nuovo mandato
-   esplicito, il redesign sul sito ufficiale <https://moxtracker.app>. La policy Brew si
-   vede solo dopo il deploy del Worker, che esiste solo in produzione
-   (`api.moxtracker.app`, anche per la preview): è un deploy di produzione da
-   decidere a parte. Ordine sicuro: prima la Pages ufficiale (il sito nuovo è
-   compatibile con il Worker attuale), poi il Worker. Allo smoke di quel
-   deploy aggiungere: Altro senza `vittorie` in `/meta` quando ci sono liste
-   sotto soglia, `/archetipo` con un'impronta inventata in 404,
-   `/gioco-risposta` senza vittorie né win rate. Nessun housekeeping prima.
+   esplicito, il redesign sul sito ufficiale <https://moxtracker.app>. La policy Brew/privacy
+   è attiva dal deploy Worker del 14 settembre (`33069c30`; rollback a
+   `59e455d0`). A ogni deploy successivo ripetere i controlli privacy: Altro
+   senza `vittorie` in `/meta` quando ci sono liste sotto soglia, `/archetipo`
+   con un'impronta inventata in 404, `/gioco-risposta` senza vittorie né win
+   rate. Nessun housekeeping prima.
 1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
    motion e download GitHub Latest).
 2. R3-PREP resta una proposta: attendere modello locale R2, golden packet
