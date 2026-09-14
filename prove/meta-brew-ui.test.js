@@ -247,7 +247,7 @@ test("il dettaglio di una lista non classificata non mostra identificativi tecni
 
 test("la lista Brew pubblicata offre copia Arena, descrizione e profilo", () => {
   const archetipo = leggi("js/archetype.js");
-  assert.match(archetipo, /preparaCopiaArena\(copia, testoArena\(cards, `Brew #\$\{index \+ 1\}`\)\)/);
+  assert.match(archetipo, /preparaCopiaArena\(copia, testoArena\(cards, recognized \? `Variante osservata #\$\{index \+ 1\}` : `Brew #\$\{index \+ 1\}`\)\)/);
   assert.match(archetipo, /Lista effettivamente osservata/);
   assert.match(archetipo, /brew-deck-profile/);
   assert.match(archetipo, /renderProfiloMazzo\(profilo, cards/);

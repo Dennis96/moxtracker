@@ -40,10 +40,9 @@ test("liste di riferimento restano compatibili con API pre-S1-A", () => {
   assert.match(source, /!ref\?\.origine \|\| ref\.origine === "catalogo_reference"/);
 });
 
-test("la panoramica archetipo mostra solo il riepilogo delle varianti riconosciute", () => {
+test("la panoramica archetipo apre inline le varianti riconosciute e i Brew", () => {
   const source = leggi("../sito/js/archetype.js");
   const detail = leggi("../sito/archetipo.html");
-  assert.match(source, /"Apri variante"/);
   assert.match(source, /Lista più rappresentativa/);
   assert.match(source, /Altre varianti/);
   assert.match(source, /navigator\.clipboard\.writeText/);
@@ -53,37 +52,25 @@ test("la panoramica archetipo mostra solo il riepilogo delle varianti riconosciu
   assert.doesNotMatch(source, /mox-deck-arena\.txt/);
   assert.match(source, /Decklist pubblicata/);
   assert.match(source, /Decklist da 30 partite/);
-  assert.match(source, /if \(!recognized\) renderObservedDecklistInline\(article, variant, index\)/);
+  assert.match(source, /renderObservedDecklistInline\(article, variant, index, \{/);
+  assert.match(source, /recognized,/);
+  assert.match(source, /selected: selection\?\.index === index/);
   assert.match(source, /renderRepresentativeProfile/);
   assert.match(source, /renderProfiloMazzo/);
   assert.match(detail, /Profilo della lista rappresentativa/);
   assert.match(detail, /terre speciali e fixing/i);
 });
 
-test("la vista variante e una pagina focus distinta e non replica la panoramica archetipo", () => {
+test("un URL variante apre lo stesso accordion senza nascondere la panoramica", () => {
   const source = leggi("../sito/js/archetype.js");
-  const detail = leggi("../sito/archetipo.html");
-  const css = leggi("../sito/css/step53.css");
 
   assert.match(source, /searchParams\.set\("variante"/);
   assert.match(source, /function selectedVariant/);
-  assert.match(source, /function renderVariantFocus/);
-  assert.match(source, /overviewIds = \["detail-summary", "detail-grid", "variants-panel", "trend-panel"\]/);
-  assert.match(source, /renderVariantDecklist\(variant\)/);
-  assert.match(source, /if \(!selection\) \{[\s\S]*?renderReferences\(data\)/);
-
-  assert.match(detail, /id="variant-focus"/);
-  assert.match(detail, /id="variant-focus-back"/);
-  assert.match(detail, /Statistiche avanzate/);
-  assert.match(detail, /Decklist della variante/);
-  assert.match(detail, /Le liste di riferimento del catalogo restano nella panoramica dell'archetipo/);
-  assert.doesNotMatch(detail, /id="variant-view-banner"/);
-
-  assert.match(css, /\.variant-focus-header/);
-  assert.match(css, /\.variant-focus-back/);
-  assert.match(css, /\.variant-focus-body/);
-  assert.match(css, /#detail-summary\[hidden\][\s\S]*?#detail-grid\[hidden\][\s\S]*?display:none !important/);
-  assert.match(css, /\.detail-page\.variant-mode \.detail-hero/);
+  assert.match(source, /details\.open = selected/);
+  assert.match(source, /history\.replaceState\(null, "", url\)/);
+  assert.match(source, /renderDeck\(data, filtri, null\)/);
+  assert.match(source, /renderVariants\(data, selection\)/);
+  assert.doesNotMatch(source, /renderVariantFocus\(data, selection, filtri\)/);
 });
 
 test("il sito usa un solo tema scuro senza preferenze locali residue", () => {

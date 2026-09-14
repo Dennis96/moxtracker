@@ -297,22 +297,35 @@ function renderVariantFocus(deck, selection, params) {
   renderVariantDecklist(variant);
 }
 
-function renderObservedDecklistInline(article, variant, index) {
+function aggiornaVarianteNellUrl(variant, aperta) {
+  const url = new URL(location.href);
+  const id = String(variant?.variante_id || "");
+  if (aperta) url.searchParams.set("variante", id);
+  else if (url.searchParams.get("variante") === id) url.searchParams.delete("variante");
+  history.replaceState(null, "", url);
+}
+
+function renderObservedDecklistInline(article, variant, index, { recognized = false, selected = false } = {}) {
   const cards = observedDecklistCards(variant);
   if (variant.decklist_pubblicabile !== true) {
     article.append(protectedDecklistBlock());
     return;
   }
   const details = document.createElement("details"); details.className = "variant-details";
+  details.open = selected;
   const summary = document.createElement("summary"); summary.textContent = "Mostra decklist osservata";
   const introduzione = document.createElement("div"); introduzione.className = "brew-decklist-intro";
   const descrizione = document.createElement("p"); descrizione.className = "variant-note";
-  descrizione.textContent = INGLESE
-    ? `List observed in ${formatInteger(variant.partite)} matches. It is not a confirmed archetype: it is published as a Brew after reaching the required threshold.`
-    : `Lista effettivamente osservata in ${formatInteger(variant.partite)} partite. Non è un archetipo confermato: viene pubblicata come Brew dopo la soglia prevista.`;
+  descrizione.textContent = recognized
+    ? (INGLESE
+      ? `Variant observed in ${formatInteger(variant.partite)} matches of this archetype.`
+      : `Variante osservata in ${formatInteger(variant.partite)} partite di questo archetipo.`)
+    : (INGLESE
+      ? `List observed in ${formatInteger(variant.partite)} matches. It is not a confirmed archetype: it is published as a Brew after reaching the required threshold.`
+      : `Lista effettivamente osservata in ${formatInteger(variant.partite)} partite. Non è un archetipo confermato: viene pubblicata come Brew dopo la soglia prevista.`);
   const copia = document.createElement("button"); copia.type = "button";
   copia.className = "button button-primary button-small"; copia.textContent = "Copia per Arena";
-  preparaCopiaArena(copia, testoArena(cards, `Brew #${index + 1}`));
+  preparaCopiaArena(copia, testoArena(cards, recognized ? `Variante osservata #${index + 1}` : `Brew #${index + 1}`));
   introduzione.append(descrizione, copia);
   const list = document.createElement("ul"); list.className = "decklist-cards";
   for (const card of cards) list.append(cardLine(card));
@@ -320,16 +333,21 @@ function renderObservedDecklistInline(article, variant, index) {
   details.append(summary, introduzione, list, profilo);
   article.append(details);
   let profiloCaricato = false;
-  details.addEventListener("toggle", () => {
+  const caricaProfilo = () => {
     if (!details.open || profiloCaricato) return;
     profiloCaricato = true;
     renderProfiloMazzo(profilo, cards, { campione: INGLESE
-      ? `Brew observed in ${formatInteger(variant.partite)} matches.`
-      : `Brew osservato in ${formatInteger(variant.partite)} partite.` });
+      ? `${recognized ? "Variant" : "Brew"} observed in ${formatInteger(variant.partite)} matches.`
+      : `${recognized ? "Variante" : "Brew"} osservata in ${formatInteger(variant.partite)} partite.` });
+  };
+  details.addEventListener("toggle", () => {
+    if (recognized) aggiornaVarianteNellUrl(variant, details.open);
+    caricaProfilo();
   });
+  caricaProfilo();
 }
 
-function renderVariants(data) {
+function renderVariants(data, selection = null) {
   const host = document.querySelector("#variants-list");
   host.replaceChildren();
   const variants = Array.isArray(data.varianti) ? data.varianti : [];
@@ -364,21 +382,14 @@ function renderVariants(data) {
     status.className = `variant-summary-status ${variant.decklist_pubblicabile === true ? "is-public" : "is-locked"}`;
     status.textContent = variant.decklist_pubblicabile === true ? "Decklist pubblicata" : "Decklist da 30 partite";
 
-    if (recognized) {
-      const open = document.createElement("a");
-      open.className = "variant-open";
-      open.href = variantViewUrl(variant);
-      open.textContent = "Apri variante";
-      right.append(metrics, status, open);
-    } else {
-      right.append(metrics, status);
-    }
+    right.append(metrics, status);
     head.append(identity, right);
     article.append(head);
 
-    // Un mazzo non classificato non ha una panoramica archetipo separata:
-    // qui conserviamo la decklist inline quando la soglia la rende pubblica.
-    if (!recognized) renderObservedDecklistInline(article, variant, index);
+    renderObservedDecklistInline(article, variant, index, {
+      recognized,
+      selected: selection?.index === index,
+    });
     host.append(article);
   }
   if (data.altre_varianti) {
@@ -490,16 +501,17 @@ async function load() {
       return;
     }
 
-    renderDeck(data, filtri, selection);
-    renderVariantFocus(data, selection, filtri);
+    // Anche un URL condiviso con ?variante= resta nella panoramica e apre
+    // direttamente l'accordion corrispondente.
+    renderDeck(data, filtri, null);
 
     const unclassified = data.tipo_dettaglio === "non_classificato";
-    if (!selection) {
-      renderVariants(data);
-      document.querySelector("#reference-panel").hidden = unclassified;
-      if (!unclassified) renderReferences(data);
-      renderRepresentativeProfile(data);
-    }
+    renderVariants(data, selection);
+    const haProfiloInline = (data.varianti || []).some((variant) => variant.decklist_pubblicabile === true);
+    document.querySelector("#deck-profile-panel").hidden = haProfiloInline;
+    document.querySelector("#reference-panel").hidden = unclassified;
+    if (!unclassified) renderReferences(data);
+    if (!haProfiloInline) renderRepresentativeProfile(data);
     traduciDocumento();
   } catch (error) {
     renderError(error.message || "Impossibile leggere i dati del meta.");
