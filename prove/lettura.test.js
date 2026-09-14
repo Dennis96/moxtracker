@@ -130,15 +130,24 @@ test("senza Brew non compare Altro e nessuna variante Brew", () => {
   const mazzi = raggruppaBrew([mazzo(null, 40, 20, "mono-rosso")], 40, SOGLIA_META);
   assert.equal(mazzi.length, 1);
   assert.equal(altroDi(mazzi), undefined);
-  assert.ok(mazzi.every((m) => !("varianti_brew" in m)));
+  assert.ok(mazzi.every((m) => !("varianti_brew" in m) && !("brew_sotto_soglia" in m)));
 });
 
-test("un solo Brew: Altro lo elenca come Brew #1 con la sua impronta", () => {
-  const altro = altroDi(raggruppaBrew([mazzo("c".repeat(64), 12, 7)], 12, SOGLIA_META));
+test("un Brew da 30 partite compare come Brew #1 con la sua impronta", () => {
+  const altro = altroDi(raggruppaBrew([mazzo("c".repeat(64), 30, 18)], 30, SOGLIA_META));
   assert.deepEqual(altro.varianti_brew, [{
-    etichetta: "Brew #1", impronta: "c".repeat(64), partite: 12, vittorie: 7, sconfitte: 5,
-    dati_sufficienti: false, win_rate: null, quota_meta: null,
+    etichetta: "Brew #1", impronta: "c".repeat(64), partite: 30, vittorie: 18, sconfitte: 12,
+    dati_sufficienti: true, win_rate: 60, quota_meta: 100,
   }]);
+  assert.deepEqual(altro.brew_sotto_soglia, { liste: 0, partite: 0 });
+});
+
+test("un Brew sotto soglia resta solo nel conteggio: niente impronta, niente V/S", () => {
+  const altro = altroDi(raggruppaBrew([mazzo("c".repeat(64), 12, 7)], 12, SOGLIA_META));
+  assert.deepEqual(altro.varianti_brew, []);
+  assert.deepEqual(altro.brew_sotto_soglia, { liste: 1, partite: 12 });
+  assert.equal(JSON.stringify(altro).includes("c".repeat(64)), false);
+  assert.equal(altro.partite, 12, "la riga Altro continua a contare anche questa lista");
 });
 
 test("piu' Brew: ordine per partite, vittorie e impronta, qualunque sia l'ordine di arrivo", () => {
@@ -154,7 +163,7 @@ test("piu' Brew: ordine per partite, vittorie e impronta, qualunque sia l'ordine
   }
 });
 
-test("le varianti Brew lasciano invariati i totali di Altro e il win rate resta sotto soglia", () => {
+test("le varianti Brew lasciano invariati i totali di Altro; sotto soglia resta un conteggio", () => {
   // La seconda lista arriva con un win rate che non doveva esserci: sotto 30
   // partite non si pubblica comunque.
   const trapelato = { ...mazzo("b".repeat(64), 29, 29), win_rate: 100, quota_meta: 29 };
@@ -167,13 +176,13 @@ test("le varianti Brew lasciano invariati i totali di Altro e il win rate resta 
   assert.equal(altro.impronta, null);
   assert.equal(altro.impronte_raggruppate, 2);
   assert.equal(altro.varianti_rilevate, 2);
-  const [prima, seconda] = altro.varianti_brew;
+  assert.equal(altro.varianti_brew.length, 1);
+  const [prima] = altro.varianti_brew;
   assert.equal(prima.dati_sufficienti, true);
   assert.equal(prima.win_rate, 64.58);
   assert.equal(prima.quota_meta, 48);
-  assert.equal(seconda.dati_sufficienti, false);
-  assert.equal(seconda.win_rate, null);
-  assert.equal(seconda.quota_meta, null);
+  assert.deepEqual(altro.brew_sotto_soglia, { liste: 1, partite: 29 });
+  assert.equal(JSON.stringify(altro).includes("b".repeat(64)), false);
 });
 
 test("meta pubblica le varianti di Altro con l'impronta per il dettaglio", async () => {
@@ -187,7 +196,10 @@ test("meta pubblica le varianti di Altro con l'impronta per il dettaglio", async
   const r = await leggiMeta(db, url("/meta?formato=Standard"));
   const altro = altroDi(r.corpo.mazzi);
   assert.deepEqual(altro.varianti_brew.map((v) => [v.etichetta, v.impronta, v.win_rate]),
-    [["Brew #1", "a".repeat(64), 60], ["Brew #2", "b".repeat(64), null]]);
+    [["Brew #1", "a".repeat(64), 60]]);
+  assert.deepEqual(altro.brew_sotto_soglia, { liste: 1, partite: 29 });
+  assert.equal(JSON.stringify(r.corpo).includes("b".repeat(64)), false,
+    "l'impronta di una lista sotto soglia non esce dall'API");
 });
 
 test("il formato e' obbligatorio", async () => {

@@ -207,13 +207,15 @@ export function raggruppaBrew(mazzi, totale, soglia) {
   const partite = brew.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0);
   const vittorie = brew.reduce((somma, mazzo) => somma + Number(mazzo.vittorie || 0), 0);
   const sufficienti = partite >= soglia;
-  // Le liste che compongono Altro restano consultabili una per una: ordine
-  // fisso (partite, vittorie, impronta) che non dipende da D1 e un nome neutro.
-  // L'impronta serve solo al collegamento con il dettaglio, non si mostra.
-  const variantiBrew = [...brew]
-    .sort((a, b) => Number(b.partite || 0) - Number(a.partite || 0) ||
-      Number(b.vittorie || 0) - Number(a.vittorie || 0) ||
-      confrontaTesto(a.impronta, b.impronta))
+  // Ordine fisso (partite, vittorie, impronta) che non dipende da D1. Una per
+  // una, con nome neutro e impronta per il dettaglio, solo le liste arrivate
+  // alla soglia; le altre restano un conteggio senza impronta ne' V/S, perche'
+  // una lista giocata poche volte puo' essere di una sola persona.
+  const ordinate = [...brew].sort((a, b) => Number(b.partite || 0) - Number(a.partite || 0) ||
+    Number(b.vittorie || 0) - Number(a.vittorie || 0) ||
+    confrontaTesto(a.impronta, b.impronta));
+  const sottoSoglia = ordinate.filter((mazzo) => Number(mazzo.partite || 0) < soglia);
+  const variantiBrew = ordinate.filter((mazzo) => Number(mazzo.partite || 0) >= soglia)
     .map((mazzo, indice) => varianteBrew(mazzo, indice, totale, soglia));
   riconosciuti.push({
     nome: "Altro (Brew)", archetipo: "Altro (Brew)", archetipo_id: null,
@@ -228,6 +230,10 @@ export function raggruppaBrew(mazzi, totale, soglia) {
     win_rate: sufficienti ? percentuale(vittorie, partite) : null,
     quota_meta: sufficienti ? percentuale(partite, totale) : null,
     varianti_brew: variantiBrew,
+    brew_sotto_soglia: {
+      liste: sottoSoglia.length,
+      partite: sottoSoglia.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0),
+    },
   });
   return riconosciuti.sort((a, b) => b.partite - a.partite ||
     String(a.nome).localeCompare(String(b.nome)));

@@ -90,9 +90,11 @@ del sito.
   la configurazione `.claude/launch.json` delle preview locali è fuori dal
   repository.
 - **Meta, «Altro (Brew)» espandibile** (delta successivo a `e64c1b4`): la riga
-  resta aggregata e un pulsante apre le singole liste («Brew #N», nome neutro,
-  win rate solo da 30 partite), ognuna con il dettaglio per impronta e i filtri
-  del Meta. Tocca `src/lettura.js` (campo nuovo `varianti_brew`, retrocompatibile):
+  resta aggregata e un pulsante apre le liste arrivate a 30 partite («Brew #N»,
+  nome neutro), ognuna con il dettaglio per impronta e i filtri del Meta; le
+  altre restano una sola voce «N liste sotto soglia», senza link, impronte né
+  V/S. Tocca `src/lettura.js` (campi nuovi `varianti_brew` e
+  `brew_sotto_soglia`, retrocompatibili):
   sul sito compare solo dopo un deploy del Worker, che non è stato fatto.
   Sviluppo futuro, non implementato:
   [roadmap aggiornamento catalogo archetipi](passaggi/sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md).

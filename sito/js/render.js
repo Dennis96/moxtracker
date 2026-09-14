@@ -64,9 +64,62 @@ function cellaSottoSoglia(deck, soglia) {
 // la compongono. Lo stato sopravvive ai ridisegni (ordinamento, filtri locali).
 let brewAperto = false;
 
+// Una per una solo le liste arrivate alla soglia, con la loro impronta.
 function variantiBrew(deck) {
   return (Array.isArray(deck?.varianti_brew) ? deck.varianti_brew : [])
-    .filter((variante) => typeof variante?.impronta === "string" && variante.impronta.trim());
+    .filter((variante) => typeof variante?.impronta === "string" && variante.impronta.trim() &&
+      sampleSufficient(variante));
+}
+
+// Le liste sotto soglia arrivano solo come conteggio: una voce, senza link.
+function sottoSogliaBrew(deck) {
+  const liste = Number(deck?.brew_sotto_soglia?.liste) || 0;
+  return liste > 0 ? { liste, partite: Number(deck.brew_sotto_soglia.partite) || 0 } : null;
+}
+
+function testiRestoBrew(sotto, soglia) {
+  const una = sotto.liste === 1;
+  const quante = formatInteger(sotto.liste);
+  const limite = formatInteger(Number(soglia) || 30);
+  if (INGLESE) {
+    return {
+      titolo: `${quante} ${una ? "list" : "lists"} below threshold`,
+      nota: una ? `It doesn't have ${limite} matches yet: it appears here on its own once it gets there.`
+        : `None has ${limite} matches yet: each appears here on its own once it gets there.`,
+      breve: una ? `It appears on its own from ${limite} matches.` : `Each appears on its own from ${limite} matches.`,
+      riservati: "Data and decklists not published",
+    };
+  }
+  return {
+    titolo: `${quante} ${una ? "lista" : "liste"} sotto soglia`,
+    nota: una ? `Non ha ancora ${limite} partite: compare qui da sola quando ci arriva.`
+      : `Nessuna ha ancora ${limite} partite: compaiono qui una per una quando ci arrivano.`,
+    breve: una ? `Compare da sola da ${limite} partite.` : `Compaiono una per una da ${limite} partite.`,
+    riservati: "Dati e decklist non pubblicati",
+  };
+}
+
+function rigaRestoBrew(sotto, soglia) {
+  const testi = testiRestoBrew(sotto, soglia);
+  const tr = el("tr", "brew-child brew-rest");
+  const nome = el("td", "brew-child-name");
+  nome.append(el("strong", "", testi.titolo), el("small", "", testi.nota));
+  const stato = el("td", "brew-rest-state", testi.riservati);
+  stato.colSpan = 2;
+  tr.append(nome, metaCell(formatInteger(sotto.partite)), metaCell("—"), metaCell("—"), stato, el("td", "open-cell"));
+  return tr;
+}
+
+function schedaRestoBrew(sotto, soglia) {
+  const testi = testiRestoBrew(sotto, soglia);
+  const scheda = el("div", "mobile-brew-child brew-rest");
+  const testa = el("div", "mobile-brew-child-head");
+  testa.append(el("strong", "", testi.titolo),
+    el("span", "", `${formatInteger(sotto.partite)} ${partiteBreve(sotto.partite)}`));
+  const valori = el("div", "mobile-brew-child-meta");
+  valori.append(el("span", "", testi.breve));
+  scheda.append(testa, valori);
+  return scheda;
 }
 
 function etichettaBrew(variante, indice) {
@@ -232,9 +285,11 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
   let tbody = document.createElement("tbody");
   for (const deck of decks) {
     const varianti = variantiBrew(deck);
+    const sotto = sottoSogliaBrew(deck);
+    const liste = varianti.length + (sotto?.liste || 0);
     const tr = document.createElement("tr");
     const tdDeck = document.createElement("td"); tdDeck.append(renderDeckIdentity(deck, apiFilters));
-    if (varianti.length) tdDeck.append(bottoneBrew(varianti.length, "meta-brew-righe"));
+    if (liste) tdDeck.append(bottoneBrew(liste, "meta-brew-righe"));
     tr.append(tdDeck);
     tr.append(metaCell(formatInteger(deck.partite)), metaCell(formatInteger(deck.vittorie)), metaCell(formatInteger(deck.sconfitte)));
     if (sampleSufficient(deck)) {
@@ -259,12 +314,13 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     }
     tr.append(tdApri);
     tbody.append(tr);
-    if (varianti.length) {
+    if (liste) {
       // Le liste di Altro stanno in un tbody proprio, subito sotto la riga
       // aggregata: e' il contenitore che il pulsante apre e chiude.
       const figli = gruppoBrew("tbody", "meta-brew-righe");
       varianti.forEach((variante, indice) =>
         figli.append(rigaBrew(variante, indice, apiFilters, data.soglia_percentuali)));
+      if (sotto) figli.append(rigaRestoBrew(sotto, data.soglia_percentuali));
       table.append(tbody, figli);
       tbody = document.createElement("tbody");
     }
@@ -302,13 +358,16 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     if (!sufficiente) card.append(el("p", "mobile-below", testoSottoSoglia(deck, data.soglia_percentuali)));
     // Il pulsante non puo' stare dentro una scheda che e' gia' un link.
     const varianti = variantiBrew(deck);
-    const bottone = varianti.length ? bottoneBrew(varianti.length, "meta-brew-schede") : null;
+    const sotto = sottoSogliaBrew(deck);
+    const liste = varianti.length + (sotto?.liste || 0);
+    const bottone = liste ? bottoneBrew(liste, "meta-brew-schede") : null;
     if (bottone && !url) card.append(bottone);
     mobile.append(card);
     if (bottone && url) mobile.append(bottone);
     if (bottone) {
       const figli = gruppoBrew("div", "meta-brew-schede", "mobile-brew-children");
       varianti.forEach((variante, indice) => figli.append(schedaBrew(variante, indice, apiFilters)));
+      if (sotto) figli.append(schedaRestoBrew(sotto, data.soglia_percentuali));
       mobile.append(figli);
     }
   }

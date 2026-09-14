@@ -491,6 +491,13 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
 .mobile-brew-child-head span { color: var(--muted); font-size: 14px; }
 .mobile-brew-child-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; color: var(--muted); font-size: 13.5px; }
 .mobile-brew-child-meta strong { color: var(--text); font-weight: 600; }
+/* Le liste sotto soglia: una voce sola, spenta, senza link ne' freccia. */
+#meta-body .brew-child.brew-rest td { color: var(--muted); background: rgba(255, 255, 255, 0.008); }
+#meta-body .brew-child.brew-rest .brew-child-name { box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.08); }
+.brew-rest .brew-child-name strong { color: var(--muted); }
+#meta-body .brew-rest .brew-rest-state { text-align: right; font-size: 14px; }
+.mobile-brew-child.brew-rest { border-style: solid; border-color: transparent; background: rgba(255, 255, 255, 0.025); color: var(--muted); }
+.mobile-brew-child.brew-rest strong { color: var(--muted); }
 
 .matchup-panel { margin-top: 48px; }
 .matchup-panel::before { display: none; }
