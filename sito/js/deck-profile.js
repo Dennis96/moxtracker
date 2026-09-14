@@ -110,13 +110,16 @@ function curvaGrafica(curva) {
 }
 
 const FRASI_COLORI = {
-  W: ["copie con il bianco", "white copies"], U: ["copie con il blu", "blue copies"],
-  B: ["copie con il nero", "black copies"], R: ["copie con il rosso", "red copies"],
-  G: ["copie con il verde", "green copies"], C: ["copie incolori", "colorless copies"],
+  W: ["copie la cui identità include il bianco", "copies whose identity includes white"],
+  U: ["copie la cui identità include il blu", "copies whose identity includes blue"],
+  B: ["copie la cui identità include il nero", "copies whose identity includes black"],
+  R: ["copie la cui identità include il rosso", "copies whose identity includes red"],
+  G: ["copie la cui identità include il verde", "copies whose identity includes green"],
+  C: ["copie con identità incolore", "copies with a colourless identity"],
 };
 
 function coloriMana(colori) {
-  const blocco = bloccoProfilo("Copie per colore d'identità", "deck-profile-colors");
+  const blocco = bloccoProfilo("Copie per identità di colore", "deck-profile-colors");
   const elenco = document.createElement("div"); elenco.className = "deck-color-values";
   for (const colore of ["W", "U", "B", "R", "G", "C"]) {
     const valore = Number(colori[colore]) || 0;
@@ -131,8 +134,8 @@ function coloriMana(colori) {
     elenco.append(voce);
   }
   blocco.append(elenco, notaProfilo(testoLingua(
-    "Una copia conta per ogni colore della sua identità, terre comprese: i numeri possono superare la dimensione del mazzo.",
-    "A copy counts once for each colour in its identity, lands included: totals can exceed the deck size.",
+    "Non sono costi o fonti di mana. Una carta multicolore conta in ogni colore della sua identità, terre comprese: la somma può superare le carte del mazzo.",
+    "These are not mana costs or sources. A multicolour card counts in every colour of its identity, including lands, so the sum can exceed the deck size.",
   )));
   return blocco;
 }
@@ -140,7 +143,7 @@ function coloriMana(colori) {
 export async function renderProfiloMazzo(host, carte, { campione = "" } = {}) {
   host.replaceChildren();
   const attesa = document.createElement("p"); attesa.className = "detail-note";
-  attesa.textContent = "Calcolo curva, tipi e fonti di mana…"; host.append(attesa);
+  attesa.textContent = "Calcolo curva, tipi e identità di colore…"; host.append(attesa);
   const profilo = await analizzaProfiloMazzo(carte);
   const totaleCopie = Object.values(profilo.tipi).reduce((totale, valore) => totale + (Number(valore) || 0), 0);
   host.replaceChildren(

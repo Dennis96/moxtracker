@@ -94,6 +94,29 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /\/account\/delete-section/);
 });
 
+test("account espone tooltip rank accessibile e fallback mazzo senza hash", () => {
+  const html = leggi("account.html");
+  const js = leggi("js/account.js");
+  const css = leggi("css/account-support.css");
+  assert.match(js, /classList\.add\("rank-point-target"\)/);
+  assert.match(js, /setAttribute\("tabindex", "0"\)/);
+  assert.match(js, /setAttribute\("role", "tooltip"\)/);
+  assert.match(js, /addEventListener\("mouseenter"/);
+  assert.match(js, /addEventListener\("focus"/);
+  assert.match(css, /\.rank-tooltip/);
+  assert.match(js, /Mazzo \$\{formato\} senza nome/);
+  assert.doesNotMatch(js, /\$\{String\(mazzo\?\.impronta/);
+  assert.match(html, /non permettono ancora di filtrarlo per singolo mazzo/);
+});
+
+test("supporto mantiene il modulo e aggiunge FAQ native", () => {
+  const html = leggi("supporto.html");
+  assert.match(html, /id="ticket-form"/);
+  assert.match(html, /id="support-faq-title"/);
+  assert.match(html, /Domande frequenti/);
+  assert.equal((html.match(/<details>/g) || []).length, 4);
+});
+
 test("il logout account cancella la sessione preview prima di ricaricare", () => {
   const js = leggi("js/account.js");
   assert.match(js, /eliminaSessioneAccountPreview\(\);\s*location\.reload\(\);/);

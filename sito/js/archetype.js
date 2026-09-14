@@ -297,7 +297,7 @@ function renderVariantFocus(deck, selection, params) {
   renderVariantDecklist(variant);
 }
 
-function renderObservedDecklistInline(article, variant) {
+function renderObservedDecklistInline(article, variant, index) {
   const cards = observedDecklistCards(variant);
   if (variant.decklist_pubblicabile !== true) {
     article.append(protectedDecklistBlock());
@@ -305,10 +305,28 @@ function renderObservedDecklistInline(article, variant) {
   }
   const details = document.createElement("details"); details.className = "variant-details";
   const summary = document.createElement("summary"); summary.textContent = "Mostra decklist osservata";
+  const introduzione = document.createElement("div"); introduzione.className = "brew-decklist-intro";
+  const descrizione = document.createElement("p"); descrizione.className = "variant-note";
+  descrizione.textContent = INGLESE
+    ? `List observed in ${formatInteger(variant.partite)} matches. It is not a confirmed archetype: it is published as a Brew after reaching the required threshold.`
+    : `Lista effettivamente osservata in ${formatInteger(variant.partite)} partite. Non è un archetipo confermato: viene pubblicata come Brew dopo la soglia prevista.`;
+  const copia = document.createElement("button"); copia.type = "button";
+  copia.className = "button button-primary button-small"; copia.textContent = "Copia per Arena";
+  preparaCopiaArena(copia, testoArena(cards, `Brew #${index + 1}`));
+  introduzione.append(descrizione, copia);
   const list = document.createElement("ul"); list.className = "decklist-cards";
   for (const card of cards) list.append(cardLine(card));
-  details.append(summary, list);
+  const profilo = document.createElement("section"); profilo.className = "deck-profile brew-deck-profile";
+  details.append(summary, introduzione, list, profilo);
   article.append(details);
+  let profiloCaricato = false;
+  details.addEventListener("toggle", () => {
+    if (!details.open || profiloCaricato) return;
+    profiloCaricato = true;
+    renderProfiloMazzo(profilo, cards, { campione: INGLESE
+      ? `Brew observed in ${formatInteger(variant.partite)} matches.`
+      : `Brew osservato in ${formatInteger(variant.partite)} partite.` });
+  });
 }
 
 function renderVariants(data) {
@@ -360,7 +378,7 @@ function renderVariants(data) {
 
     // Un mazzo non classificato non ha una panoramica archetipo separata:
     // qui conserviamo la decklist inline quando la soglia la rende pubblica.
-    if (!recognized) renderObservedDecklistInline(article, variant);
+    if (!recognized) renderObservedDecklistInline(article, variant, index);
     host.append(article);
   }
   if (data.altre_varianti) {

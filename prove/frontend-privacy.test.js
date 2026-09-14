@@ -53,7 +53,7 @@ test("la panoramica archetipo mostra solo il riepilogo delle varianti riconosciu
   assert.doesNotMatch(source, /mox-deck-arena\.txt/);
   assert.match(source, /Decklist pubblicata/);
   assert.match(source, /Decklist da 30 partite/);
-  assert.match(source, /if \(!recognized\) renderObservedDecklistInline\(article, variant\)/);
+  assert.match(source, /if \(!recognized\) renderObservedDecklistInline\(article, variant, index\)/);
   assert.match(source, /renderRepresentativeProfile/);
   assert.match(source, /renderProfiloMazzo/);
   assert.match(detail, /Profilo della lista rappresentativa/);

@@ -119,8 +119,8 @@ test("archetipo: ordine della specifica e contratto URL invariato", () => {
 test("profilo della lista con etichette per esteso", () => {
   const js = leggi("js/deck-profile.js");
   assert.match(js, /"Copie per tipo di carta"/);
-  assert.match(js, /"Copie per colore d'identità"/);
-  assert.match(js, /copie con il/);
+  assert.match(js, /"Copie per identità di colore"/);
+  assert.match(js, /identità include il/);
   assert.doesNotMatch(js, /"Colori del mazzo"/);
 });
 
