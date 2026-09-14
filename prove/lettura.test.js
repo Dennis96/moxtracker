@@ -22,7 +22,7 @@ function url(percorso) {
   return new URL("https://x.invalid" + percorso);
 }
 
-test("meta raggruppa le liste Brew in Altro e applica la soglia al gruppo", async () => {
+test("meta raggruppa le liste Brew in Altro; con una lista sotto soglia il record del gruppo non esce", async () => {
   const db = creaFintoD1(SCHEMA);
   for (let i = 0; i < 30; i += 1) {
     aggiungi(db, {
@@ -42,7 +42,12 @@ test("meta raggruppa le liste Brew in Altro e applica la soglia al gruppo", asyn
   assert.equal(r.corpo.partite_totali, 59);
   assert.equal(r.corpo.mazzi.length, 1);
   assert.equal(r.corpo.mazzi[0].partite, 59);
-  assert.equal(r.corpo.mazzi[0].win_rate, 79.66);
+  // La lista da 29 partite resta sotto soglia: V/S e win rate di Altro non
+  // escono, altrimenti sottraendo il Brew pubblico si ricaverebbe il suo record.
+  assert.equal(r.corpo.mazzi[0].record_pubblico, false);
+  assert.equal("vittorie" in r.corpo.mazzi[0], false);
+  assert.equal("sconfitte" in r.corpo.mazzi[0], false);
+  assert.equal(r.corpo.mazzi[0].win_rate, null);
   assert.equal(r.corpo.mazzi[0].quota_meta, 100);
   assert.equal(r.corpo.mazzi[0].nome, "Altro (Brew)");
   assert.equal(r.corpo.mazzi[0].impronte_raggruppate, 2);
@@ -148,6 +153,17 @@ test("un Brew sotto soglia resta solo nel conteggio: niente impronta, niente V/S
   assert.deepEqual(altro.brew_sotto_soglia, { liste: 1, partite: 12 });
   assert.equal(JSON.stringify(altro).includes("c".repeat(64)), false);
   assert.equal(altro.partite, 12, "la riga Altro continua a contare anche questa lista");
+  assert.equal("vittorie" in altro, false);
+  assert.equal(altro.record_pubblico, false);
+});
+
+test("quando tutte le liste arrivano a 30 partite Altro ripubblica V/S e win rate", () => {
+  const altro = altroDi(raggruppaBrew(
+    [mazzo("a".repeat(64), 48, 31), mazzo("b".repeat(64), 30, 12)], 78, SOGLIA_META));
+  assert.equal(altro.record_pubblico, true);
+  assert.equal(altro.vittorie, 43);
+  assert.equal(altro.sconfitte, 35);
+  assert.equal(altro.win_rate, 55.13);
 });
 
 test("piu' Brew: ordine per partite, vittorie e impronta, qualunque sia l'ordine di arrivo", () => {
@@ -169,10 +185,11 @@ test("le varianti Brew lasciano invariati i totali di Altro; sotto soglia resta 
   const trapelato = { ...mazzo("b".repeat(64), 29, 29), win_rate: 100, quota_meta: 29 };
   const altro = altroDi(raggruppaBrew([mazzo("a".repeat(64), 48, 31), trapelato], 100, SOGLIA_META));
   assert.equal(altro.partite, 77);
-  assert.equal(altro.vittorie, 60);
-  assert.equal(altro.sconfitte, 17);
-  assert.equal(altro.win_rate, 77.92);
+  assert.equal("vittorie" in altro, false);
+  assert.equal("sconfitte" in altro, false);
+  assert.equal(altro.win_rate, null);
   assert.equal(altro.quota_meta, 77);
+  assert.equal(altro.record_pubblico, false);
   assert.equal(altro.impronta, null);
   assert.equal(altro.impronte_raggruppate, 2);
   assert.equal(altro.varianti_rilevate, 2);

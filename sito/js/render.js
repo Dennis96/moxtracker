@@ -60,6 +60,15 @@ function cellaSottoSoglia(deck, soglia) {
   return cella;
 }
 
+// «Altro (Brew)» con liste sotto soglia: sottraendo i Brew pubblici dal record
+// del gruppo si ricaverebbe quello delle liste sotto soglia, quindi non esce.
+function cellaRecordRiservato() {
+  const cella = el("td", "meta-below");
+  cella.append(el("strong", "", INGLESE ? "Not published" : "Non pubblicato"),
+    el("small", "", INGLESE ? "while some lists are below threshold" : "finché ci sono liste sotto soglia"));
+  return cella;
+}
+
 // «Altro (Brew)» resta una riga aggregata; il pulsante apre le liste reali che
 // la compongono. Lo stato sopravvive ai ridisegni (ordinamento, filtri locali).
 let brewAperto = false;
@@ -291,10 +300,12 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     const tdDeck = document.createElement("td"); tdDeck.append(renderDeckIdentity(deck, apiFilters));
     if (liste) tdDeck.append(bottoneBrew(liste, "meta-brew-righe"));
     tr.append(tdDeck);
-    tr.append(metaCell(formatInteger(deck.partite)), metaCell(formatInteger(deck.vittorie)), metaCell(formatInteger(deck.sconfitte)));
+    const riservato = deck?.record_pubblico === false;
+    tr.append(metaCell(formatInteger(deck.partite)), metaCell(riservato ? "—" : formatInteger(deck.vittorie)),
+      metaCell(riservato ? "—" : formatInteger(deck.sconfitte)));
     if (sampleSufficient(deck)) {
       const wr = formatPercent(deck.win_rate);
-      tr.append(metaCell(wr || "—", wr ? winRateClass(deck.win_rate) : ""));
+      tr.append(riservato ? cellaRecordRiservato() : metaCell(wr || "—", wr ? winRateClass(deck.win_rate) : ""));
       const share = formatPercent(deck.quota_meta);
       const tdShare = document.createElement("td");
       const cell = el("div", "share-cell"); cell.append(el("span", "", share || "—"));
@@ -346,10 +357,12 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     }
     const grid = el("div", "mobile-deck-grid");
     // Sotto soglia una sola voce, non due «Sotto soglia» uguali (specifica, sezione 6).
+    const riservato = deck?.record_pubblico === false;
     const values = [
-      ["V / S", `${formatInteger(deck.vittorie)} / ${formatInteger(deck.sconfitte)}`],
+      ["V / S", riservato ? "—" : `${formatInteger(deck.vittorie)} / ${formatInteger(deck.sconfitte)}`],
       ...(sufficiente
-        ? [["Win rate", formatPercent(deck.win_rate)], ["Quota meta", formatPercent(deck.quota_meta)]]
+        ? [["Win rate", riservato ? (INGLESE ? "Not published" : "Non pubblicato") : formatPercent(deck.win_rate)],
+          ["Quota meta", formatPercent(deck.quota_meta)]]
         : [["Win rate e quota meta", "Sotto soglia"]]),
       [deck.impronta && !classified ? "ID tecnico" : "Modalità", deck.impronta && !classified ? shortFingerprint(deck.impronta) : (deckMode(deck) || "—")],
     ];

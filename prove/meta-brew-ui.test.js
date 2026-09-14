@@ -27,6 +27,13 @@ function dati({ conVarianti = true, pubbliche = 2, sotto = { liste: 7, partite: 
         dati_sufficienti: true, win_rate: 54.05, quota_meta: 24.34 },
     ].slice(0, pubbliche);
     altro.brew_sotto_soglia = sotto;
+    // Come il backend: con liste sotto soglia il record del gruppo non esce.
+    altro.record_pubblico = !(sotto?.liste > 0);
+    if (!altro.record_pubblico) {
+      delete altro.vittorie;
+      delete altro.sconfitte;
+      altro.win_rate = null;
+    }
   }
   return { partite_totali: 152, aggiornato: "2026-09-13T10:00:00Z", soglia_percentuali: 30,
     partite_senza_rank: 0, mazzi: [altro] };
@@ -123,6 +130,35 @@ test("le liste sotto soglia restano una voce sola, senza link, impronte o percen
   assert.equal(voce.querySelector("a"), null);
 });
 
+const celleAltro = (documento) =>
+  documento.querySelector("tbody").querySelector("tr").querySelectorAll("td").map((td) => td.textContent);
+
+test("con liste sotto soglia la riga Altro mostra partite e quota ma non V/S né win rate", async () => {
+  const { documento, render } = await montaMeta();
+  render.renderMeta(dati(), ORDINE, {}, FILTRI);
+  const celle = celleAltro(documento);
+  assert.equal(celle[1], "152");
+  assert.equal(celle[2], "—");
+  assert.equal(celle[3], "—");
+  assert.match(celle[4], /^Non pubblicato/);
+  assert.match(celle[4], /finché ci sono liste sotto soglia/);
+  assert.doesNotMatch(celle[4], /%/);
+  assert.match(celle[5], /100/);
+  const scheda = documento.querySelector(".mobile-deck");
+  assert.match(scheda.textContent, /V \/ S—/);
+  assert.match(scheda.textContent, /Win rateNon pubblicato/);
+  assert.doesNotMatch(scheda.textContent, /87|65|57/);
+});
+
+test("quando tutte le liste sono pubbliche la riga Altro mostra di nuovo V/S e win rate", async () => {
+  const { documento, render } = await montaMeta();
+  render.renderMeta(dati({ sotto: { liste: 0, partite: 0 } }), ORDINE, {}, FILTRI);
+  const celle = celleAltro(documento);
+  assert.equal(celle[2], "87");
+  assert.equal(celle[3], "65");
+  assert.match(celle[4], /57,24/);
+});
+
 test("mobile: la scheda Altro ha il suo pulsante e schede figlie con il link", async () => {
   const { documento, render } = await montaMeta();
   render.renderMeta(dati(), ORDINE, {}, FILTRI);
@@ -164,6 +200,9 @@ test("in inglese i testi nuovi nascono in inglese o hanno la traduzione a runtim
     assert.match(gruppo.querySelector(".brew-rest").textContent, /7 lists below threshold/);
   }
   assert.match(gruppi[0].textContent, /Data and decklists not published/);
+  const celle = celleAltro(documento);
+  assert.match(celle[4], /^Not published/);
+  assert.match(celle[4], /while some lists are below threshold/);
   // Ogni testo italiano rimasto deve avere la traduzione che translate.js
   // applica a runtime: una chiave esatta di en.json.
   const foglie = [];

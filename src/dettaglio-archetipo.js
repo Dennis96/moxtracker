@@ -129,6 +129,12 @@ function variante(riga, classificazione, carte, totaleMeta) {
   return fuori;
 }
 
+// Una sola risposta per «non c'e'»: vale sia per l'impronta mai vista sia per
+// la lista non classificata sotto soglia, cosi' le due non si distinguono.
+function nonTrovato() {
+  return { errore: "archetipo non presente nei dati del filtro corrente", stato: 404 };
+}
+
 export async function leggiArchetipo(db, indirizzo) {
   const p = parametri(indirizzo);
   if (p.errore) return { errore: p.errore, stato: 400 };
@@ -165,7 +171,14 @@ export async function leggiArchetipo(db, indirizzo) {
   const righe = p.tipo === "riconosciuto"
     ? tutte.filter(riga => classificazioni.get(String(riga.impronta || ""))?.archetipo_id === p.id)
     : tutte;
-  if (!righe.length) return { errore: "archetipo non presente nei dati del filtro corrente", stato: 404 };
+  if (!righe.length) return nonTrovato();
+  // Un mazzo non classificato sotto soglia non si conferma nemmeno: la
+  // risposta e' identica a quella di un'impronta mai vista, senza V/S,
+  // decklist o impronta. Il Meta lo mostra solo dentro «N liste sotto soglia».
+  if (p.tipo === "non_classificato" &&
+      !decklistPubblicabile(righe.reduce((somma, riga) => somma + numero(riga.partite), 0))) {
+    return nonTrovato();
+  }
 
   const carte = cartePerImpronta(carteEsito.results || []);
   let partite = 0;

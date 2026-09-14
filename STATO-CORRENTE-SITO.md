@@ -92,19 +92,21 @@ del sito.
 - **Meta, «Altro (Brew)» espandibile** (delta successivo a `e64c1b4`): la riga
   resta aggregata e un pulsante apre le liste arrivate a 30 partite («Brew #N»,
   nome neutro), ognuna con il dettaglio per impronta e i filtri del Meta; le
-  altre restano una sola voce «N liste sotto soglia», senza link né impronte e
-  senza V/S lista per lista. Il V/S del gruppo sotto soglia resta ricavabile
-  per sottrazione dalla riga Altro e, con una sola lista sotto soglia,
-  coincide con quella lista: da decidere prima del deploy del Worker, insieme
-  al dettaglio per impronta che oggi risponde anche sotto soglia a chi conosce
-  l'impronta. Tocca `src/lettura.js` (campi nuovi `varianti_brew` e
-  `brew_sotto_soglia`, retrocompatibili):
+  altre restano una sola voce «N liste sotto soglia», senza link, impronte né
+  V/S. Finché c'è almeno una lista sotto soglia la riga Altro non pubblica
+  V/S né win rate (solo partite, quota e numero di liste), così il record
+  delle liste sotto soglia non si ricava per sottrazione; il dettaglio per
+  impronta di una lista non classificata sotto 30 partite risponde come
+  un'impronta mai vista (404, stessa risposta). Resta aperto, come decisione
+  separata, lo stesso limite per le «Altre varianti» degli archetipi
+  riconosciuti. Tocca `src/lettura.js` e `src/dettaglio-archetipo.js` (campi
+  nuovi `varianti_brew`, `brew_sotto_soglia`, `record_pubblico`, retrocompatibili):
   sul sito compare solo dopo un deploy del Worker, che non è stato fatto.
   Sviluppo futuro, non implementato:
   [roadmap aggiornamento catalogo archetipi](passaggi/sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md).
 - **Confini**: nessun deploy Pages / nessun deploy Worker / nessun deploy
   produzione / nessun merge. Il redesign non ha modificato `src/**`; il delta
-  Brew tocca soltanto `src/lettura.js`. Non modificati `schema.sql`,
+  Brew tocca soltanto `src/lettura.js` e `src/dettaglio-archetipo.js`. Non modificati `schema.sql`,
   `schema-draft.sql`, `migrazioni/**`, Worker, D1, Cloudflare, storage, packet,
   Research, R3, mox-core.
 

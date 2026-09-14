@@ -217,6 +217,10 @@ export function raggruppaBrew(mazzi, totale, soglia) {
   const sottoSoglia = ordinate.filter((mazzo) => Number(mazzo.partite || 0) < soglia);
   const variantiBrew = ordinate.filter((mazzo) => Number(mazzo.partite || 0) >= soglia)
     .map((mazzo, indice) => varianteBrew(mazzo, indice, totale, soglia));
+  // Finche' c'e' una lista sotto soglia il record del gruppo non esce:
+  // sottraendo i Brew pubblici si ricaverebbe quello delle liste sotto soglia
+  // (esatto, se ne resta una). Partite e quota restano: non rivelano nulla.
+  const recordPubblico = sottoSoglia.length === 0;
   riconosciuti.push({
     nome: "Altro (Brew)", archetipo: "Altro (Brew)", archetipo_id: null,
     tipo_dettaglio: "altro", strategia: null, colori: [], modalita: null,
@@ -225,9 +229,11 @@ export function raggruppaBrew(mazzi, totale, soglia) {
       somma + Number(mazzo.impronte_raggruppate || 1), 0),
     varianti_rilevate: brew.reduce((somma, mazzo) =>
       somma + Number(mazzo.varianti_rilevate || 1), 0),
-    partite, vittorie, sconfitte: partite - vittorie,
+    partite,
+    ...(recordPubblico ? { vittorie, sconfitte: partite - vittorie } : {}),
+    record_pubblico: recordPubblico,
     dati_sufficienti: sufficienti,
-    win_rate: sufficienti ? percentuale(vittorie, partite) : null,
+    win_rate: recordPubblico && sufficienti ? percentuale(vittorie, partite) : null,
     quota_meta: sufficienti ? percentuale(partite, totale) : null,
     varianti_brew: variantiBrew,
     brew_sotto_soglia: {

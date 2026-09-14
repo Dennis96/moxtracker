@@ -148,6 +148,17 @@ Evoluzioni possibili, tutte da autorizzare a parte:
 - modifica delle soglie del classificatore senza review e regressione;
 - nuovi claim di meta-archetipo sul sito.
 
+## Punto aperto collegato: le «Altre varianti» degli archetipi
+
+Il 14/09 per i Brew si è deciso che, finché c'è una lista sotto soglia, la
+riga «Altro (Brew)» non pubblica V/S né win rate, e che il dettaglio di una
+lista non classificata sotto 30 partite risponde come un'impronta mai vista.
+Per gli archetipi riconosciuti resta il comportamento precedente: il V/S
+dell'archetipo meno quello delle varianti pubbliche dà il record delle «Altre
+varianti» sotto soglia, esatto quando ne resta una sola. Chiuderlo
+cambierebbe molto il Meta, perché quasi tutti gli archetipi perderebbero V/S e
+win rate: è una decisione separata.
+
 ## Da decidere prima di iniziare
 
 - l'elenco delle fonti consentite e chi lo mantiene;
