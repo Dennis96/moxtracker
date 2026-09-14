@@ -1,0 +1,1088 @@
+{
+  "descrizione": "Golden sintetica del wire Research rev2 (G5 remediation, 13/09/2026). La richiesta e' valida per il validator rev2; i vettori permettono di ricalcolare ogni event_id e ogni impronta. Il BO1 esce dalla pipeline R2 v5 applicata a due log sintetici; il BO3 e' costruito a mano.",
+  "match_id_sintetici": {
+    "BO1": "G5R-SYNTHETIC-BO1-2026-09-13",
+    "BO3": "G5R-SYNTHETIC-BO3-2026-09-13"
+  },
+  "richiesta": {
+    "versione": 4,
+    "mox": "G5-remediation-golden-synthetic",
+    "mittente": "11111111111111111111111111111111",
+    "segreto_cancellazione": "2222222222222222222222222222222222222222222222222222222222222222",
+    "consenso_research": {
+      "versione": 1
+    },
+    "partite": [
+      {
+        "id_pubblico": "82e29c66e32836cfad218f03b55f69edfb6321c34eb45dc6d3b154f3f62d3296",
+        "revisione": {
+          "modello": 1,
+          "osservazioni": 2
+        },
+        "quando": "2026-09-13T08:00:00Z",
+        "fuso": 120,
+        "turni": 6,
+        "evento": "SyntheticBO1",
+        "esito": "vinta",
+        "arena": "synthetic-2026.62",
+        "avversario": {
+          "carte": [
+            9001,
+            9002
+          ]
+        },
+        "games": [
+          {
+            "game_number": 1,
+            "on_play": false,
+            "mulligan_type": "MulliganType_London",
+            "deck": {
+              "main": {
+                "11": 4,
+                "12": 4,
+                "13": 52
+              },
+              "sideboard": {}
+            },
+            "deck_source": {
+              "kind": "initial_declaration"
+            },
+            "turni": 4,
+            "state_reset_observed": true,
+            "state_gap_observed": false,
+            "draws": [
+              {
+                "event_id": "b90dbd3675793d8f87d02103c7c35ec64aadb8cc3fc8d773e1e157b862626838",
+                "turno": 2,
+                "card_id": 11
+              },
+              {
+                "event_id": "1d0984c6ca34c1b815258710400aec10c196907bf467b5a2e4aeff8df913ad3b",
+                "turno": 2,
+                "card_id": 11
+              }
+            ],
+            "casts": [
+              {
+                "event_id": "63356095557f913b8817f2c90daf05749056a42bdc427d176a1c178f46023fc4",
+                "turno": 3,
+                "card_id": 12
+              }
+            ],
+            "lands": [
+              {
+                "event_id": "66f7e4b4c03ce8aef227d6ca181b639f72f62731e45c02f212a60183d6a0eb4e",
+                "turno": 1,
+                "card_id": 13
+              }
+            ],
+            "incomplete_event_types": [
+              "draw"
+            ],
+            "conflicted_event_ids": [
+              "8927a1faf1aca39cf4f513df04cc360844d0f8df2682903b80c4e6725bd399de"
+            ]
+          }
+        ]
+      },
+      {
+        "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+        "revisione": {
+          "modello": 1,
+          "osservazioni": 3
+        },
+        "quando": "2026-09-13T09:00:00Z",
+        "fuso": 120,
+        "turni": 24,
+        "evento": "SyntheticBO3",
+        "formato": "Standard",
+        "esito": "vinta",
+        "arena": "synthetic-2026.62",
+        "avversario": {
+          "carte": [
+            9101,
+            9102,
+            9103
+          ]
+        },
+        "campi_contesi": [
+          "rank"
+        ],
+        "games": [
+          {
+            "game_number": 1,
+            "on_play": true,
+            "mulligans": 1,
+            "free_mulligans": 0,
+            "mulligan_type": "MulliganType_London",
+            "opening_hand_kept": [
+              2001,
+              2002,
+              2003,
+              2004,
+              2005,
+              2006
+            ],
+            "opening_hand_size": 6,
+            "cards_bottomed": 1,
+            "deck": {
+              "main": {
+                "2001": 4,
+                "2002": 4,
+                "2003": 4,
+                "2004": 4,
+                "2005": 4,
+                "2006": 4,
+                "3001": 2,
+                "6001": 34
+              },
+              "sideboard": {
+                "4001": 2,
+                "5001": 2,
+                "5002": 11
+              }
+            },
+            "deck_source": {
+              "kind": "initial_declaration"
+            },
+            "result": "persa",
+            "turni": 8,
+            "state_reset_observed": false,
+            "state_gap_observed": false,
+            "draws": [
+              {
+                "event_id": "e7e3a836bad7f92e7d22fafb33220d489235a9276313ca1e7766c749aec04f99",
+                "turno": 2,
+                "card_id": 2001
+              }
+            ],
+            "casts": [
+              {
+                "event_id": "2e77dd8ad244bc9c50dd5cf1ffa2b93a30edf17d05faafbec5e027599cb5614a",
+                "turno": 3,
+                "card_id": 2002
+              }
+            ],
+            "lands": [
+              {
+                "event_id": "51df28528df6cd082a676a9e3eda1c58dc7b9ac823de9499165e7f1a8a2c73f9",
+                "turno": 1,
+                "card_id": 2003
+              }
+            ]
+          },
+          {
+            "game_number": 2,
+            "deck": {
+              "main": {
+                "2001": 4,
+                "2002": 4,
+                "2003": 4,
+                "2004": 4,
+                "2005": 4,
+                "2006": 4,
+                "3001": 2,
+                "6001": 34
+              },
+              "sideboard": {
+                "4001": 2,
+                "5001": 2,
+                "5002": 11
+              }
+            },
+            "deck_source": {
+              "kind": "sideboard_submission",
+              "compared_to_game": 1
+            },
+            "sideboard_in": [],
+            "sideboard_out": [],
+            "result": "vinta",
+            "turni": 7,
+            "state_reset_observed": false,
+            "state_gap_observed": false,
+            "conflicted_fields": [
+              "on_play"
+            ],
+            "draws": [
+              {
+                "event_id": "bce0300713a76b1997765a885c13754d4de50b1b7c0b8c560c9cba20737839a7",
+                "turno": 2,
+                "card_id": 2001
+              }
+            ],
+            "casts": [
+              {
+                "event_id": "dbf8c429e40f131502c2517e8489121774d6ce17f96d256754109f849ad61b25",
+                "turno": 4,
+                "card_id": 2002
+              }
+            ],
+            "lands": [
+              {
+                "event_id": "78fcfcf68a00f3ef1690674d81521881a3c30dd475ccb64ff29af50bba368d66",
+                "turno": 1,
+                "card_id": 2003
+              }
+            ]
+          },
+          {
+            "game_number": 3,
+            "on_play": true,
+            "mulligans": 1,
+            "free_mulligans": 0,
+            "mulligan_type": "MulliganType_London",
+            "cards_bottomed": 1,
+            "deck": {
+              "main": {
+                "2001": 4,
+                "2002": 4,
+                "2003": 4,
+                "2004": 4,
+                "2005": 4,
+                "2006": 4,
+                "4001": 2,
+                "6001": 34
+              },
+              "sideboard": {
+                "3001": 2,
+                "5001": 2,
+                "5002": 11
+              }
+            },
+            "deck_source": {
+              "kind": "sideboard_submission",
+              "compared_to_game": 2
+            },
+            "sideboard_in": [
+              4001,
+              4001
+            ],
+            "sideboard_out": [
+              3001,
+              3001
+            ],
+            "result": "vinta",
+            "turni": 9,
+            "state_reset_observed": true,
+            "state_gap_observed": true,
+            "incomplete_event_types": [
+              "cast"
+            ],
+            "conflicted_fields": [
+              "opening_hand"
+            ],
+            "conflicted_event_ids": [
+              "0d36d834a0037c2ebcd5cb16a663308044d98ce38c489b6efd72a7f553f0734e"
+            ],
+            "draws": [
+              {
+                "event_id": "00e31727b1052574ade426e9c18c415fd8367bd19814ed1a6515c01abe8f0801",
+                "turno": 2,
+                "card_id": 4001
+              }
+            ],
+            "casts": [
+              {
+                "event_id": "3f2aafd9e0ef102cbaeca3e21a944a2e26716947694ca8eaac1f6422a1fbe8e7",
+                "turno": 4,
+                "card_id": 4001
+              }
+            ],
+            "lands": [
+              {
+                "event_id": "b026578ec93b39d3f6aa641715130dffca10f780633248cff0ff461f5f5844e5",
+                "turno": 1,
+                "card_id": 2003
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "vettori_event_id": [
+    {
+      "id_pubblico": "82e29c66e32836cfad218f03b55f69edfb6321c34eb45dc6d3b154f3f62d3296",
+      "game_number": 1,
+      "event_type": "land",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          104
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              35
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "PlayLand"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "2dc447eb69258598e4d97b2efcba097fe83a897d231096955999605a92469cba",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 1003
+        },
+        "annotation_fingerprint": "2dc447eb69258598e4d97b2efcba097fe83a897d231096955999605a92469cba",
+        "affected_index": 0
+      },
+      "event_id": "66f7e4b4c03ce8aef227d6ca181b639f72f62731e45c02f212a60183d6a0eb4e",
+      "nota": "terra con annotation id"
+    },
+    {
+      "id_pubblico": "82e29c66e32836cfad218f03b55f69edfb6321c34eb45dc6d3b154f3f62d3296",
+      "game_number": 1,
+      "event_type": "draw",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          101
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              32
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "Draw"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "979c926e9cd823233495b24d9ab20e54d595c2e10372febfa4180780dbef4395",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 1001
+        },
+        "annotation_fingerprint": "979c926e9cd823233495b24d9ab20e54d595c2e10372febfa4180780dbef4395",
+        "affected_index": 0
+      },
+      "event_id": "b90dbd3675793d8f87d02103c7c35ec64aadb8cc3fc8d773e1e157b862626838",
+      "nota": "pescata riemessa nello state Full 102 (reset), stesso turno: una sola occorrenza"
+    },
+    {
+      "id_pubblico": "82e29c66e32836cfad218f03b55f69edfb6321c34eb45dc6d3b154f3f62d3296",
+      "game_number": 1,
+      "event_type": "draw",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          103
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              32
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "Draw"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "ce4e8b596df7b8290df8b0512674b9efdb17d35527ab7b0e605fd1327f406932",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 1002
+        },
+        "annotation_fingerprint": "ce4e8b596df7b8290df8b0512674b9efdb17d35527ab7b0e605fd1327f406932",
+        "affected_index": 0
+      },
+      "event_id": "1d0984c6ca34c1b815258710400aec10c196907bf467b5a2e4aeff8df913ad3b",
+      "nota": "seconda pescata reale, stessa carta e stesso turno: distinta"
+    },
+    {
+      "id_pubblico": "82e29c66e32836cfad218f03b55f69edfb6321c34eb45dc6d3b154f3f62d3296",
+      "game_number": 1,
+      "event_type": "cast",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          102
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              34
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "CastSpell"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "9625c640dfb478443bff74bb7977eb10cb5cc7b35e5ac009e098cd99c5d9f446",
+      "occurrence": {
+        "kind": "annotation_fingerprint",
+        "game_state_id": 103,
+        "annotation_fingerprint": "9625c640dfb478443bff74bb7977eb10cb5cc7b35e5ac009e098cd99c5d9f446",
+        "multiplicity_rank": 0,
+        "affected_index": 0
+      },
+      "event_id": "63356095557f913b8817f2c90daf05749056a42bdc427d176a1c178f46023fc4",
+      "nota": "fallback senza annotation id: resta legato allo state"
+    },
+    {
+      "id_pubblico": "82e29c66e32836cfad218f03b55f69edfb6321c34eb45dc6d3b154f3f62d3296",
+      "game_number": 1,
+      "event_type": "draw",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          105
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              32
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "Draw"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "ef3e68d280d61f220e5bdc28cb22fe9c6b594b4cdb98dc355c5b664c95b8d5dc",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 1006
+        },
+        "annotation_fingerprint": "ef3e68d280d61f220e5bdc28cb22fe9c6b594b4cdb98dc355c5b664c95b8d5dc",
+        "affected_index": 0
+      },
+      "event_id": "8927a1faf1aca39cf4f513df04cc360844d0f8df2682903b80c4e6725bd399de",
+      "nota": "riemessa da un altro archivio con turno diverso: contesa, solo in conflicted_event_ids"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 1,
+      "event_type": "draw",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          201
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              32
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "Draw"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "6924f62edf20ab12cecf3c9cf0b1b71c7f177d20cfba8fe66f854ebd4522c943",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 2001
+        },
+        "annotation_fingerprint": "6924f62edf20ab12cecf3c9cf0b1b71c7f177d20cfba8fe66f854ebd4522c943",
+        "affected_index": 0
+      },
+      "event_id": "e7e3a836bad7f92e7d22fafb33220d489235a9276313ca1e7766c749aec04f99",
+      "nota": "G1 draw"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 1,
+      "event_type": "cast",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          202
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              34
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "CastSpell"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "04a2437e1e0c80300e016c5d7d54ce90ea0326cf23c7322c358e037a1b582183",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 2002
+        },
+        "annotation_fingerprint": "04a2437e1e0c80300e016c5d7d54ce90ea0326cf23c7322c358e037a1b582183",
+        "affected_index": 0
+      },
+      "event_id": "2e77dd8ad244bc9c50dd5cf1ffa2b93a30edf17d05faafbec5e027599cb5614a",
+      "nota": "G1 cast"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 1,
+      "event_type": "land",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          203
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              35
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "PlayLand"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "336b793225fc00fca7f789f551527618b4806a1ec20608fd285d787c71895bb6",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 2003
+        },
+        "annotation_fingerprint": "336b793225fc00fca7f789f551527618b4806a1ec20608fd285d787c71895bb6",
+        "affected_index": 0
+      },
+      "event_id": "51df28528df6cd082a676a9e3eda1c58dc7b9ac823de9499165e7f1a8a2c73f9",
+      "nota": "G1 land"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 2,
+      "event_type": "draw",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          301
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              32
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "Draw"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "662a490691792d58cfd22a90d328022011e4415f812c014f95bf60513ab82908",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 3001
+        },
+        "annotation_fingerprint": "662a490691792d58cfd22a90d328022011e4415f812c014f95bf60513ab82908",
+        "affected_index": 0
+      },
+      "event_id": "bce0300713a76b1997765a885c13754d4de50b1b7c0b8c560c9cba20737839a7",
+      "nota": "G2 draw"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 2,
+      "event_type": "cast",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          302
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              34
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "CastSpell"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "aba2d7a53d47e8ce5f4df8f473c70d85b7b8fa2eac63f6813b9f03ba175433bd",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 3002
+        },
+        "annotation_fingerprint": "aba2d7a53d47e8ce5f4df8f473c70d85b7b8fa2eac63f6813b9f03ba175433bd",
+        "affected_index": 0
+      },
+      "event_id": "dbf8c429e40f131502c2517e8489121774d6ce17f96d256754109f849ad61b25",
+      "nota": "G2 cast"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 2,
+      "event_type": "land",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          303
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              35
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "PlayLand"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "5384573d6af9202a407671f589bf0142923a2a34c9fcf945dfacf05c490b167a",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 3003
+        },
+        "annotation_fingerprint": "5384573d6af9202a407671f589bf0142923a2a34c9fcf945dfacf05c490b167a",
+        "affected_index": 0
+      },
+      "event_id": "78fcfcf68a00f3ef1690674d81521881a3c30dd475ccb64ff29af50bba368d66",
+      "nota": "G2 land"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 3,
+      "event_type": "draw",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          401
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              32
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "Draw"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "4034b46312ec7ef9addffc332928ebeac73d348dc80da7db4b14490a50d9ef9c",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 4001
+        },
+        "annotation_fingerprint": "4034b46312ec7ef9addffc332928ebeac73d348dc80da7db4b14490a50d9ef9c",
+        "affected_index": 0
+      },
+      "event_id": "00e31727b1052574ade426e9c18c415fd8367bd19814ed1a6515c01abe8f0801",
+      "nota": "G3 draw"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 3,
+      "event_type": "cast",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          402
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              34
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "CastSpell"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "5846a47b28ee96a60907a99c7de0355b4dae429ac6964fb65e6c044db5759fb6",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 4002
+        },
+        "annotation_fingerprint": "5846a47b28ee96a60907a99c7de0355b4dae429ac6964fb65e6c044db5759fb6",
+        "affected_index": 0
+      },
+      "event_id": "3f2aafd9e0ef102cbaeca3e21a944a2e26716947694ca8eaac1f6422a1fbe8e7",
+      "nota": "G3 cast"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 3,
+      "event_type": "land",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          403
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              35
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "PlayLand"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "98d94d009ea353286b6a193ddde61ac7d2ecd3a1a969c012720eaaed1f0f7032",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 4003
+        },
+        "annotation_fingerprint": "98d94d009ea353286b6a193ddde61ac7d2ecd3a1a969c012720eaaed1f0f7032",
+        "affected_index": 0
+      },
+      "event_id": "b026578ec93b39d3f6aa641715130dffca10f780633248cff0ff461f5f5844e5",
+      "nota": "G3 land"
+    },
+    {
+      "id_pubblico": "93462054bb2658fd5c444898128ba69c409a9ee02b7ecefe7ae3aedb4958e547",
+      "game_number": 3,
+      "event_type": "cast",
+      "firma_annotazione": {
+        "type": [
+          "AnnotationType_ZoneTransfer"
+        ],
+        "affectedIds": [
+          405
+        ],
+        "details": [
+          {
+            "key": "zone_src",
+            "valueInt32": [
+              31
+            ],
+            "valueString": []
+          },
+          {
+            "key": "zone_dest",
+            "valueInt32": [
+              34
+            ],
+            "valueString": []
+          },
+          {
+            "key": "category",
+            "valueInt32": [],
+            "valueString": [
+              "CastSpell"
+            ]
+          }
+        ]
+      },
+      "annotation_fingerprint": "4370e8a7d5bd805be4784c203a5b6719bb7dd2f7497ad0548877b39db4ebb324",
+      "occurrence": {
+        "kind": "annotation_id",
+        "annotation_id": {
+          "type": "integer",
+          "value": 4005
+        },
+        "annotation_fingerprint": "4370e8a7d5bd805be4784c203a5b6719bb7dd2f7497ad0548877b39db4ebb324",
+        "affected_index": 0
+      },
+      "event_id": "0d36d834a0037c2ebcd5cb16a663308044d98ce38c489b6efd72a7f553f0734e",
+      "nota": "G3 cast conteso"
+    }
+  ],
+  "vettore_normalizzazione": {
+    "firma": {
+      "type": [
+        "AnnotationType_ZoneTransfer"
+      ],
+      "affectedIds": [
+        101
+      ],
+      "details": [
+        {
+          "key": "zone_src",
+          "valueInt32": [
+            32
+          ],
+          "valueString": []
+        },
+        {
+          "key": "zone_dest",
+          "valueInt32": [
+            31
+          ],
+          "valueString": []
+        },
+        {
+          "key": "category",
+          "valueInt32": [],
+          "valueString": [
+            "Draw"
+          ]
+        }
+      ]
+    },
+    "firma_con_dettagli_in_ordine_inverso": {
+      "type": [
+        "AnnotationType_ZoneTransfer"
+      ],
+      "affectedIds": [
+        101
+      ],
+      "details": [
+        {
+          "key": "category",
+          "valueInt32": [],
+          "valueString": [
+            "Draw"
+          ]
+        },
+        {
+          "key": "zone_dest",
+          "valueInt32": [
+            31
+          ],
+          "valueString": []
+        },
+        {
+          "key": "zone_src",
+          "valueInt32": [
+            32
+          ],
+          "valueString": []
+        }
+      ]
+    },
+    "impronta_di_entrambe": "979c926e9cd823233495b24d9ab20e54d595c2e10372febfa4180780dbef4395"
+  }
+}

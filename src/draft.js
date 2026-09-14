@@ -1,6 +1,8 @@
 // Ricezione e lettura dei Draft. Le tracce complete restano nel bucket R2
 // privato; D1 conserva soltanto indici e fatti aggregabili.
 
+import { eliminaResearchMittente } from "./research/account-research.js";
+
 export const VERSIONI_DRAFT_ACCETTATE = [1];
 
 export const LIMITI_DRAFT = {
@@ -635,7 +637,16 @@ export async function eliminaContributi(richiesta, ambiente, risposta) {
   if (!registrati.length || registrati.some((c) => c.cancellazione_hash !== hash)) {
     return risposta({ errore: "segreto non riconosciuto" }, 403);
   }
-  return risposta({ eliminati: await eliminaMittente(ambiente, corpo.mittente) });
+  // Research prima del legacy: se la lineage non si chiude del tutto le
+  // credenziali legacy restano e la stessa richiesta si puo' ripetere.
+  const research = await eliminaResearchMittente(ambiente, corpo.mittente);
+  if (research.stato !== "deleted") {
+    return risposta({ errore: "cancellazione_research_in_corso", retryable: true }, 409);
+  }
+  // La forma della risposta legacy resta quella di prima; il conteggio
+  // Research compare solo quando c'era qualcosa da cancellare.
+  return risposta({ eliminati: { ...await eliminaMittente(ambiente, corpo.mittente),
+    ...(research.eliminate ? { research: research.eliminate } : {}) } });
 }
 
 // Usata dall'account solo dopo che l'installazione e' stata collegata provando
