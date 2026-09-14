@@ -45,13 +45,18 @@ function autorizzata(richiesta, ambiente) {
 // Il binding strumentato: conta cio' che raggiunge D1 e somma il meta.
 export function strumenta(db) {
   const conti = { letture: 0, statement: 0, batch: [], righe_lette: 0, righe_scritte: 0,
-    durata_sql_ms: 0, meta_visti: 0 };
+    durata_sql_ms: 0, meta_visti: 0, dimensione_db_dopo: null };
   const somma = (meta) => {
     if (!meta) return;
     conti.meta_visti += 1;
     conti.righe_lette += meta.rows_read || 0;
     conti.righe_scritte += meta.rows_written || 0;
     conti.durata_sql_ms += meta.duration || 0;
+    // D1 dice quanto pesa il database dopo ogni statement: il massimo visto
+    // nella richiesta e' la dimensione dopo le sue scritture.
+    if (Number.isFinite(meta.size_after)) {
+      conti.dimensione_db_dopo = Math.max(conti.dimensione_db_dopo ?? 0, meta.size_after);
+    }
   };
   const avvolgi = (stmt) => ({
     interno: stmt,
