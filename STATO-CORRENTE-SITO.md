@@ -50,6 +50,24 @@ del sito.
 - Il redesign **non** è pubblicato su `moxtracker.app`. Nessun deploy Worker,
   nessuna modifica D1/schema/migrazioni, Research o R3.
 
+## Preview del 14 settembre 2026 dal `main` integrato — redesign
+
+- `preview.moxtracker.pages.dev` → redesign, commit sorgente `main`
+  `1c3f09cf94c4b46b0a798aa4d94b43eb854150c5` (merge), build
+  `4ee3d62ce501aba7`, 91 file.
+- Pubblicata con il gate canonico `npm run sito:release -- --environment=preview
+  --deploy`: deployment `ae78372e` (<https://ae78372e.moxtracker.pages.dev>),
+  record `preview-1c3f09cf94c4-ae78372e.json`, prove del gate 228/228, smoke
+  del gate 6/6 HTTP 200.
+- `smoke_beta.mjs --site https://preview.moxtracker.pages.dev`: 14/14 OK
+  (pagine IT/EN, Meta, API salute/Meta/Draft, gate Account 401, CORS Account
+  204, GitHub Latest).
+- Browser: build e commit serviti corrispondenti; nuova Home, Meta separato,
+  Draft, Account a cinque schede, pagine IT/EN HTTP 200, `/en/#meta` →
+  `/en/meta`; nessun errore JS.
+- Prima dell'aggiornamento del Worker il gruppo «Altro (Brew)» resta come
+  prima (nessun pulsante): è atteso.
+
 ## Redesign e policy Brew/privacy: integrati in `main`, non in produzione
 
 Implementati sul branch `claude/site-redesign-implementation-2026-09-13` il
