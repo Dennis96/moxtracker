@@ -15,6 +15,17 @@ test("il candidato esclude i campioni sotto soglia e penalizza l'incertezza", ()
   assert.ok(risultato[0].wilson_95_inferiore > risultato[1].wilson_95_inferiore);
 });
 
+test("Altro senza record pubblico non entra nel confronto", () => {
+  const risultato = confrontaFormule({ mazzi: [
+    { nome: "Grande", partite: 100, vittorie: 55, win_rate: 55, quota_meta: 50,
+      dati_sufficienti: true },
+    { nome: "Altro (Brew)", partite: 40, win_rate: null, quota_meta: 20,
+      dati_sufficienti: true, record_pubblico: false },
+  ] });
+  assert.deepEqual(risultato.map((r) => r.nome), ["Grande"]);
+  assert.ok(risultato.every((r) => Number.isFinite(r.wilson_95_inferiore)));
+});
+
 test("Wilson resta nell'intervallo e non inventa un valore senza partite", () => {
   assert.equal(limiteWilson(0, 0), null);
   assert.ok(limiteWilson(5, 10) > 0 && limiteWilson(5, 10) < 0.5);

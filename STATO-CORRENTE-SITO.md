@@ -94,12 +94,14 @@ del sito.
   nome neutro), ognuna con il dettaglio per impronta e i filtri del Meta; le
   altre restano una sola voce «N liste sotto soglia», senza link, impronte né
   V/S. Finché c'è almeno una lista sotto soglia la riga Altro non pubblica
-  V/S né win rate (solo partite, quota e numero di liste), così il record
-  delle liste sotto soglia non si ricava per sottrazione; il dettaglio per
-  impronta di una lista non classificata sotto 30 partite risponde come
-  un'impronta mai vista (404, stessa risposta). Resta aperto, come decisione
-  separata, lo stesso limite per le «Altre varianti» degli archetipi
-  riconosciuti. Tocca `src/lettura.js` e `src/dettaglio-archetipo.js` (campi
+  V/S né win rate (solo partite, quota e numero di liste) e `/gioco-risposta`
+  pubblica soltanto le partite al gioco e alla risposta, così il record delle
+  liste sotto soglia non si ricava per sottrazione; il dettaglio per impronta
+  di una lista non classificata sotto 30 partite risponde come un'impronta mai
+  vista (404, stessa risposta). Restano aperti, come decisioni separate, lo
+  stesso limite per le «Altre varianti» degli archetipi riconosciuti e, come
+  per ogni aggregato, la fetta di una lista già pubblica ricavabile con filtri
+  complementari (BO1 + BO3, intervalli di rank). Tocca `src/lettura.js` e `src/dettaglio-archetipo.js` (campi
   nuovi `varianti_brew`, `brew_sotto_soglia`, `record_pubblico`, retrocompatibili):
   sul sito compare solo dopo un deploy del Worker, che non è stato fatto.
   Sviluppo futuro, non implementato:
@@ -251,9 +253,12 @@ produzione.
 
 ## Prossimo lavoro
 
-0. Review del coordinatore sul branch
-   `claude/site-redesign-implementation-2026-09-13` prima di qualsiasi preview
-   o merge del redesign.
+0. Redesign e policy Brew: prima qualche giorno di prove sulla preview
+   Pages <https://preview.moxtracker.pages.dev>, poi, con autorizzazione
+   esplicita, il sito ufficiale <https://moxtracker.app> e il merge. Il Worker
+   esiste solo in produzione (`api.moxtracker.app`, anche per la preview):
+   pubblicarlo è un deploy di produzione da decidere a parte e, quando si fa,
+   va seguito subito dalla Pages corrispondente. Nessun housekeeping prima.
 1. Completare i collaudi manuali R0 1–6 (browser desktop, telefono, reduced
    motion e download GitHub Latest).
 2. R3-PREP resta una proposta: attendere modello locale R2, golden packet

@@ -17,8 +17,11 @@ function percentile(valori, valore) {
 }
 
 export function confrontaFormule(meta) {
+  // Solo righe con il record pubblico: «Altro (Brew)» con liste sotto soglia
+  // arriva senza vittorie e con win rate nullo (Number(null) sarebbe 0).
   const eleggibili = (meta.mazzi || []).filter((m) => m.dati_sufficienti &&
-    Number.isFinite(Number(m.win_rate)) && Number(m.partite) >= 30);
+    m.win_rate !== null && m.win_rate !== undefined && Number.isFinite(Number(m.win_rate)) &&
+    Number.isFinite(Number(m.vittorie)) && Number(m.partite) >= 30);
   const campioni = eleggibili.map((m) => Math.log1p(Number(m.partite)));
   return eleggibili.map((m) => {
     const n = Number(m.partite);

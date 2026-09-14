@@ -251,10 +251,11 @@ export async function leggiGiocoRisposta(db, indirizzo) {
   const testa = await quadro(db, filtro);
 
   const filtroNoto = filtri(indirizzo, ["su_gioco IS NOT NULL"]);
+  // Solo quante partite al gioco e alla risposta. Vittorie e win rate globali
+  // permetterebbero di ricavare per sottrazione, togliendo le righe pubbliche
+  // del Meta, il record delle liste Brew sotto soglia. Il sito non li usa.
   const esito = await db.prepare(
-    `SELECT su_gioco,
-            COUNT(*) AS partite,
-            SUM(CASE WHEN esito = 'vinta' THEN 1 ELSE 0 END) AS vittorie
+    `SELECT su_gioco, COUNT(*) AS partite
      FROM partite ${filtroNoto.where}
      GROUP BY su_gioco
      ORDER BY su_gioco DESC`
@@ -262,17 +263,8 @@ export async function leggiGiocoRisposta(db, indirizzo) {
 
   const gruppi = new Map((esito.results || []).map((r) => [Number(r.su_gioco), r]));
   const prepara = (chiave) => {
-    const riga = gruppi.get(chiave) || { partite: 0, vittorie: 0 };
-    const partite = Number(riga.partite || 0);
-    const vittorie = Number(riga.vittorie || 0);
-    const sufficienti = partite >= SOGLIA_META;
-    return {
-      partite,
-      vittorie,
-      sconfitte: partite - vittorie,
-      dati_sufficienti: sufficienti,
-      win_rate: sufficienti ? percentuale(vittorie, partite) : null,
-    };
+    const partite = Number(gruppi.get(chiave)?.partite || 0);
+    return { partite, dati_sufficienti: partite >= SOGLIA_META };
   };
   const alGioco = prepara(1);
   const allaRisposta = prepara(0);

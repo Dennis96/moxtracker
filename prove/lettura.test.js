@@ -84,7 +84,7 @@ test("meta separa periodo e BO1/BO3", async () => {
   assert.equal(nonValido.stato, 400);
 });
 
-test("gioco-risposta usa la stessa soglia di 30 per le percentuali", async () => {
+test("gioco-risposta pubblica solo le partite al gioco e alla risposta", async () => {
   const db = creaFintoD1(SCHEMA);
   for (let i = 0; i < 30; i += 1) {
     aggiungi(db, {
@@ -104,8 +104,34 @@ test("gioco-risposta usa la stessa soglia di 30 per le percentuali", async () =>
   const r = await leggiGiocoRisposta(db, url("/gioco-risposta?formato=Standard"));
   assert.equal(r.corpo.partite_totali, 36);
   assert.equal(r.corpo.partite_con_iniziativa_nota, 35);
-  assert.equal(r.corpo.al_gioco.win_rate, 50);
-  assert.equal(r.corpo.alla_risposta.win_rate, null);
+  assert.equal(r.corpo.al_gioco.partite, 30);
+  assert.equal(r.corpo.alla_risposta.partite, 5);
+  // Vittorie e win rate globali permetterebbero di ricavare per sottrazione
+  // il record delle liste Brew sotto soglia: non escono.
+  const testo = JSON.stringify(r.corpo);
+  assert.equal(testo.includes("vittorie"), false);
+  assert.equal(testo.includes("sconfitte"), false);
+  assert.equal(testo.includes("win_rate"), false);
+});
+
+test("Meta e gioco-risposta insieme non isolano il record di una lista sotto soglia", async () => {
+  const db = creaFintoD1(SCHEMA);
+  const liste = [["a", 48, 31], ["b", 37, 20], ["c", 12, 9]];
+  let n = 0;
+  for (const [lettera, partite, vinte] of liste) {
+    for (let i = 0; i < partite; i += 1) {
+      aggiungi(db, { id: `x${String(n++).padStart(9, "0")}`, impronta: lettera.repeat(64),
+        esito: i < vinte ? "vinta" : "persa", su: i % 2 });
+    }
+  }
+  const meta = await leggiMeta(db, url("/meta?formato=Standard"));
+  const gioco = await leggiGiocoRisposta(db, url("/gioco-risposta?formato=Standard"));
+  const altro = altroDi(meta.corpo.mazzi);
+  assert.equal(altro.brew_sotto_soglia.liste, 1);
+  assert.equal("vittorie" in altro, false);
+  // Nessuna somma di vittorie pubblica da cui togliere i Brew pubblici.
+  assert.equal(JSON.stringify(gioco.corpo).includes("vittorie"), false);
+  assert.equal(JSON.stringify(gioco.corpo).includes("win_rate"), false);
 });
 
 test("scontri dichiara esplicitamente che non puo' inventare l'avversario", async () => {
