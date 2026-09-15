@@ -38,7 +38,8 @@ const db = creaFintoD1(schema, { file });
 const ambiente = {
   DB: db,
   ...(staging ? { RESEARCH_MISURE: "attive", RESEARCH_MISURE_TOKEN: process.env.MOX_STAGING_TOKEN } : {}),
-  RESEARCH_ENABLED: "true",
+  // `--modo drain` per provare il rollback dal client vero (blocker B4).
+  RESEARCH_MODE: opzione("modo", "on"),
   RESEARCH_AMBIENTE: "prova_locale",
   RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: String(cap),
   RESEARCH_MAX_D1_QUERIES_PER_REQUEST: String(query),

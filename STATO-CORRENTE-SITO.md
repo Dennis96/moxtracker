@@ -68,6 +68,16 @@ l'account e' Workers Paid** (5 $/mese: 50 M righe scritte al mese incluse,
 1.000 query per invocazione, 10 GB per database); il tetto di righe negli
 strumenti di staging resta obbligatorio.
 
+**Remediation dei blocker R3 (15/09/2026, branch
+`claude/r3-final-blockers-remediation-2026-09-15`, non fuso, non deployato).**
+Research ha tre modalità (`RESEARCH_MODE` off/drain/on); `wrangler.toml` di
+produzione parte da `off`, con cap 33/1000, deployment
+`research-produzione-r3` e due limitatori Research (ingresso 29021, ciclo di
+vita 29022). Dopo la 2.11.0 il rollback è `drain`, mai un Worker senza le route
+Research: [runbook](passaggi/research/RUNBOOK-R3-PRODUZIONE.md),
+[report](passaggi/research/audit/R3-FINAL-BLOCKERS-REMEDIATION-SERVER-CLAUDE-2026-09-15.md).
+Sito di produzione e preview non toccati.
+
 ## Regola operativa obbligatoria
 
 Dopo ogni modifica conclusa e **dopo ogni deploy preview riuscito**, aggiornare

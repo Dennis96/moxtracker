@@ -29,7 +29,7 @@ const CHIAVI = JSON.stringify({
 });
 
 function ambiente(db, query) {
-  return { DB: db, RESEARCH_ENABLED: "true", RESEARCH_AMBIENTE: "prova_locale",
+  return { DB: db, RESEARCH_MODE: "on", RESEARCH_AMBIENTE: "prova_locale",
     RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "33",
     RESEARCH_MAX_D1_QUERIES_PER_REQUEST: String(query), RESEARCH_DEPLOYMENT: "prova-locale",
     RESEARCH_HMAC_KEYS: CHIAVI,

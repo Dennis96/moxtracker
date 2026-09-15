@@ -34,7 +34,7 @@ const CHIAVI = JSON.stringify({
 
 function research(query = 500) {
   return {
-    RESEARCH_ENABLED: "true", RESEARCH_AMBIENTE: "prova_locale",
+    RESEARCH_MODE: "on", RESEARCH_AMBIENTE: "prova_locale",
     RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "5",
     RESEARCH_MAX_D1_QUERIES_PER_REQUEST: String(query),
     RESEARCH_DEPLOYMENT: "prova-locale",
@@ -215,7 +215,7 @@ test("un database senza tabelle Research: export e delete account funzionano com
   const percorso = join(cartella, "schema-legacy.sql");
   writeFileSync(percorso, legacy);
   const env = ambiente(percorso);
-  delete env.RESEARCH_ENABLED;
+  delete env.RESEARCH_MODE;
   const sessione = await accedi(env);
   const esporta = await account(env, sessione, "/account/export");
   assert.equal(esporta.stato, 200);

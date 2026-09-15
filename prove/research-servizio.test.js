@@ -31,7 +31,7 @@ const SEGRETO_ALTRO = "4".repeat(64);
 function ambiente(db, { cap = 5, query = 500, ...extra } = {}) {
   return {
     DB: db,
-    RESEARCH_ENABLED: "true",
+    RESEARCH_MODE: "on",
     RESEARCH_AMBIENTE: "prova_locale",
     RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: String(cap),
     RESEARCH_MAX_D1_QUERIES_PER_REQUEST: String(query),
@@ -89,7 +89,7 @@ test("/salute pubblica il blocco research dalla stessa configurazione", async ()
 
 test("con Research spenta le route rispondono 503 senza toccare D1", async () => {
   const db = nuovoDb();
-  const amb = ambiente(db, { RESEARCH_ENABLED: undefined });
+  const amb = ambiente(db, { RESEARCH_MODE: undefined });
   for (const percorso of ["/research/partite", "/research/consenso", "/research/elimina"]) {
     const esito = await manda(amb, percorso, busta([bo1()]), { token: "a".repeat(64) });
     assert.equal(esito.stato, 503, percorso);

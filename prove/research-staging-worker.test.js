@@ -18,7 +18,7 @@ function ambiente(db, extra = {}) {
   return {
     DB: db, RESEARCH_MISURE: "attive", RESEARCH_MISURE_TOKEN: TOKEN,
     RESEARCH_AMBIENTE: "staging", RESEARCH_DEPLOYMENT: "research-staging-g5c03",
-    RESEARCH_ENABLED: "true", RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "5",
+    RESEARCH_MODE: "on", RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "5",
     RESEARCH_MAX_D1_QUERIES_PER_REQUEST: "40",
     RESEARCH_HMAC_KEYS: JSON.stringify({
       lineage: { corrente: 1, versioni: { 1: "ab".repeat(32) } },

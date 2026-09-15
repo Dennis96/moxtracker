@@ -47,7 +47,7 @@ test("a runtime ogni statement Research passa da budget.js", async () => {
   const db = creaFintoD1(join(QUI, "..", "schema.sql"));
   const s = spia(db);
   const amb = {
-    DB: s.binding, RESEARCH_ENABLED: "true", RESEARCH_AMBIENTE: "prova_locale",
+    DB: s.binding, RESEARCH_MODE: "on", RESEARCH_AMBIENTE: "prova_locale",
     RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "5", RESEARCH_MAX_D1_QUERIES_PER_REQUEST: "500",
     RESEARCH_DEPLOYMENT: "prova-locale", RESEARCH_HMAC_KEYS: CHIAVI,
     RESEARCH_RUNTIME_QUALIFICATION: JSON.stringify({ versione: 1, id: "q",

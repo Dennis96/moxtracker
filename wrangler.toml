@@ -24,6 +24,18 @@ RESEND_FROM = "Mox Support <noreply@moxtracker.app>"
 # Ponte temporaneo: i client fino alla 2.9.21 ricevono il manifesto dopo che
 # la loro GUI ha iniziato mainloop. La 2.9.22 corregge il difetto nel client.
 MOX_RELEASE_RECOVERY_DELAY_MS = "1500"
+# Research R3. `RESEARCH_MODE` e' off (niente Research), drain (il rollback:
+# niente consensi nuovi ne' upload, revoca e cancellazione aperte) oppure on.
+# Si parte da off; il runbook `passaggi/research/RUNBOOK-R3-PRODUZIONE.md` dice
+# quando e come passare a on e, se serve, tornare a drain - mai a un Worker
+# senza le route Research, una volta distribuita la 2.11.0. Le chiavi HMAC sono
+# un secret (`RESEARCH_HMAC_KEYS`), mai qui; la qualification di runtime nasce
+# al deploy con `strumenti/research-produzione/qualification.mjs`.
+RESEARCH_MODE = "off"
+RESEARCH_AMBIENTE = "produzione"
+RESEARCH_DEPLOYMENT = "research-produzione-r3"
+RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST = "33"
+RESEARCH_MAX_D1_QUERIES_PER_REQUEST = "1000"
 
 # Pulizia giornaliera: allegati dei ticket chiusi dopo 90 giorni, intero
 # ticket dopo 365 giorni. La funzione e' idempotente e lavora a lotti.
@@ -36,6 +48,30 @@ namespace_id = "29011"
 
   [ratelimits.simple]
   limit = 10
+  period = 60
+
+# Research, ingresso (consenso nuovo e upload), per origine e per mittente. Un
+# client manda al piu' una richiesta ogni 33 contribution in coda, piu' un
+# consenso: 30 al minuto coprono lo svuotamento di una coda di ~1.000 partite in
+# un colpo solo. Senza questo binding, con RESEARCH_MODE=on, Research non parte.
+[[ratelimits]]
+name = "RESEARCH_RATE_LIMITER_INGRESSO"
+namespace_id = "29021"
+
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
+# Research, ciclo di vita (revoca e cancellazione), solo per mittente e su un
+# binding separato: chi abusa dell'ingresso non puo' impedire a nessuno di
+# ritirare il consenso. Una cancellazione lunga chiede fino a 20 richieste di
+# seguito (continuation 202): 60 al minuto non la interrompono mai.
+[[ratelimits]]
+name = "RESEARCH_RATE_LIMITER_CICLO"
+namespace_id = "29022"
+
+  [ratelimits.simple]
+  limit = 60
   period = 60
 
 # L'indirizzo definitivo del server. Sta su un sottodominio suo, separato dal

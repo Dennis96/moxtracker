@@ -32,12 +32,15 @@ function qualifica(cambia = {}) {
 
 function ambiente(cambia = {}) {
   return {
-    RESEARCH_ENABLED: "true",
+    RESEARCH_MODE: "on",
     RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "5",
     RESEARCH_MAX_D1_QUERIES_PER_REQUEST: "300",
     RESEARCH_DEPLOYMENT: "staging-1",
     RESEARCH_RUNTIME_QUALIFICATION: qualifica(),
     RESEARCH_HMAC_KEYS: CHIAVI_VERE,
+    // Senza luogo dichiarato vale la produzione, dove il limitatore
+    // d'ingresso e' obbligatorio (blocker B4): "tutto valido" lo comprende.
+    RESEARCH_RATE_LIMITER_INGRESSO: { limit: async () => ({ success: true }) },
     ...cambia,
   };
 }
@@ -52,7 +55,7 @@ test("con tutto valido Research e' accesa con i cap configurati", () => {
 
 test("senza interruttore esplicito resta spenta", () => {
   for (const valore of [undefined, "", "1", "TRUE", "si", true]) {
-    const config = configResearch(ambiente({ RESEARCH_ENABLED: valore }), ADESSO);
+    const config = configResearch(ambiente({ RESEARCH_MODE: valore }), ADESSO);
     assert.equal(config.enabled, false, String(valore));
   }
 });

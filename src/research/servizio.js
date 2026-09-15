@@ -60,16 +60,38 @@ async function corpoLifecycle(richiesta, chiavi) {
   return { corpo };
 }
 
-async function limitaFrequenza(ambiente, richiesta, mittente) {
-  const limitatore = ambiente.RESEARCH_RATE_LIMITER;
+// Due limitatori separati (blocker B4). L'ingresso (consenso nuovo, upload)
+// conta per origine e per mittente: un mittente nuovo a ogni richiesta e'
+// proprio il modo di inondare il database. Il ciclo di vita conta solo per
+// mittente e sta su un binding suo: chi abusa dell'ingresso non puo' impedire
+// a un altro di revocare o cancellare. In produzione il limitatore d'ingresso
+// e' obbligatorio (lo pretende `config.js`); quello del ciclo, se manca, non
+// blocca niente, perche' revoca e cancellazione non devono mai diventare
+// impossibili.
+async function limitaIngresso(ambiente, richiesta, mittente) {
+  const limitatore = ambiente.RESEARCH_RATE_LIMITER_INGRESSO;
   if (!limitatore) return true;
   const origine = richiesta.headers.get("cf-connecting-ip") || "sconosciuta";
-  for (const chiave of [`research-origine:${origine}`, `research-mittente:${mittente}`]) {
+  for (const chiave of [`research-ingresso:origine:${origine}`,
+    `research-ingresso:mittente:${mittente}`]) {
     const { success } = await limitatore.limit({ key: chiave });
     if (!success) return false;
   }
   return true;
 }
+
+async function limitaCiclo(ambiente, mittente) {
+  const limitatore = ambiente.RESEARCH_RATE_LIMITER_CICLO;
+  if (!limitatore) return true;
+  const { success } = await limitatore.limit({ key: `research-ciclo:mittente:${mittente}` });
+  return success;
+}
+
+// Ogni risposta di revoca e cancellazione dice a quale operazione risponde
+// (blocker B1): il client chiude un pendente solo davanti a una conferma che
+// porta la sua operazione, mai davanti a un 404 generico di un Worker che le
+// route Research non le conosce.
+const conOperazione = (operazione, { stato, corpo }) => ({ stato, corpo: { operazione, ...corpo } });
 
 function versioni(famiglia) {
   return Object.keys(famiglia.versioni).map(Number).sort((a, b) => a - b);
@@ -152,7 +174,7 @@ export async function consenti(richiesta, ambiente, config) {
   if (!VERSIONI_CONSENSO_RESEARCH.includes(corpo.versione_consenso)) {
     return esito(400, { errore: "versione_consenso_non_supportata" });
   }
-  if (!await limitaFrequenza(ambiente, richiesta, corpo.mittente)) {
+  if (!await limitaIngresso(ambiente, richiesta, corpo.mittente)) {
     return esito(429, { errore: "troppe_richieste" });
   }
   const { mittente, segreto_cancellazione: segreto, versione_consenso: versione } = corpo;
@@ -223,8 +245,13 @@ async function autenticaLineage(ctx, chiavi, corpo) {
 }
 
 export async function revoca(richiesta, ambiente, config) {
+  return conOperazione("revoca", await revocaPerRichiesta(richiesta, ambiente, config));
+}
+
+async function revocaPerRichiesta(richiesta, ambiente, config) {
   const { corpo, errore } = await corpoLifecycle(richiesta, ["mittente", "segreto_cancellazione"]);
   if (errore) return errore;
+  if (!await limitaCiclo(ambiente, corpo.mittente)) return esito(429, { errore: "troppe_richieste" });
   const ctx = contestoResearch(ambiente, config.max_d1_queries_per_request);
   try {
     const { riga, errore: negato } = await autenticaLineage(ctx, config.chiavi, corpo);
@@ -278,8 +305,13 @@ export async function eliminaLineage(ctx, chiavi, { lineage_tag: lineage, mitten
 }
 
 export async function elimina(richiesta, ambiente, config) {
+  return conOperazione("elimina", await eliminaPerRichiesta(richiesta, ambiente, config));
+}
+
+async function eliminaPerRichiesta(richiesta, ambiente, config) {
   const { corpo, errore } = await corpoLifecycle(richiesta, ["mittente", "segreto_cancellazione"]);
   if (errore) return errore;
+  if (!await limitaCiclo(ambiente, corpo.mittente)) return esito(429, { errore: "troppe_richieste" });
   const ctx = contestoResearch(ambiente, config.max_d1_queries_per_request);
   try {
     const { riga, errore: negato } = await autenticaLineage(ctx, config.chiavi, corpo);
@@ -371,7 +403,7 @@ export async function riceviResearch(richiesta, ambiente, config) {
       ...(busta.cap ? { cap: busta.cap } : {}) });
   }
   const { mittente, segreto_cancellazione: segreto } = corpo;
-  if (!await limitaFrequenza(ambiente, richiesta, mittente)) {
+  if (!await limitaIngresso(ambiente, richiesta, mittente)) {
     return esito(429, { errore: "troppe_richieste" });
   }
   const risultati = [];
