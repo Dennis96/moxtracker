@@ -9,6 +9,38 @@ client è `mox-v2-beta2.11.0`, non prerelease, con il solo asset
 `Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli nella sezione
 sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 
+## S1 Brew backend — 15 settembre 2026 (branch non fuso)
+
+- **Branch:** `claude/s1-brew-backend-2026-09-15` da `main` `75bcac4`;
+  commit `b6c940d` (codice, prove, migrazione e contratto), piu' questo
+  aggiornamento di stato.
+- **Cosa:** gruppi Brew a raggio. La distanza si misura sul main deck per
+  nome carta, k = 4, algoritmo `main-multiset-radius-v1`. Identificativi
+  opachi persistenti `bg_`/`bv_`. `/meta` aggiunge `gruppi_brew` e
+  `raggruppamento_brew`, e i campi legacy restano identici. Nuovo
+  `/archetipo?id_brew=`; il percorso `?impronta=` dice a quale gruppo
+  appartiene la lista.
+- **Persistenza:** migrazione additiva
+  `migrazioni/2026-09-15-brew-gruppi.sql`; strumento locale
+  `strumenti/brew_gruppi.mjs` (analisi, report k=3/4/5, apply); cron spento
+  finche' `BREW_GRUPPI` non vale `"on"`.
+- **Decisione dell'utente:** in S1 solo le quasi-copie. Le famiglie con lo
+  stesso nucleo passano dal refresh curato del catalogo.
+- **Privacy:** entrano nei gruppi solo liste con 30 partite totali. Un gruppo
+  mostra solo le varianti pubbliche nel filtro, e le liste sotto soglia
+  restano nel conteggio globale di prima.
+- **Verifiche:** `npm run prove` 394/394, nessuna saltata. `npm run
+  sito:build` produce `346ce2023c50e91c`, identica alla preview. La
+  migrazione e' provata su SQLite e su D1 locale di Wrangler (`--local`,
+  cartella temporanea).
+- **Non toccati:** `main`, Worker, Pages, D1 remoto, `mox-core`, Research,
+  `sito/**`.
+- **Documenti:** il [contratto B1 e i report](passaggi/sito/S1-BREW-CONTRATTO-B1-2026-09-15.md)
+  e l'[handoff della review](passaggi/handoff/HANDOFF-S1-BREW-BACKEND-REVIEW-2026-09-15.md).
+- **Prossimi passi**, ognuno con il suo mandato: review indipendente, merge,
+  migrazione remota con verifica dei trigger, deploy del Worker,
+  `BREW_GRUPPI = "on"`, poi S2/F1 sul sito.
+
 ## R3 in produzione e preview — 15 settembre 2026
 
 - **Merge:** `main` `12fb5c4` → `b2b3732` (fast-forward del branch approvato
