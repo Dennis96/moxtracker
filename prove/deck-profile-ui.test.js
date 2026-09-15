@@ -14,7 +14,11 @@ test("profilo mazzo rende la curva come grafico e i colori come simboli mana", (
   assert.match(script, /mana-curve-column/);
   assert.match(script, /function coloriMana\(colori\)/);
   assert.match(script, /mana-symbol-\$\{colore\}/);
-  assert.match(script, /"Copie per colore d'identità"/);
+  assert.match(script, /"Copie per identità di colore"/);
+  assert.match(script, /Non sono costi o fonti di mana/);
+  assert.match(script, /Una carta multicolore conta in ogni colore della sua identità/);
+  assert.match(leggi("../sito/js/card-images.js"), /colors: Array\.isArray\(card\.color_identity\)/,
+    "il profilo usa la color identity di Scryfall, non il costo di mana");
   assert.doesNotMatch(script, /blocco\.append\(heading, elenco\)/);
   assert.match(css, /\.mana-curve-bar/);
   assert.match(css, /\.mana-symbol-W/);

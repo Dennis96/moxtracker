@@ -245,6 +245,14 @@ test("il dettaglio di una lista non classificata non mostra identificativi tecni
   assert.match(archetipo, /if \(selection && classified\) tags\.append/);
 });
 
+test("la lista Brew pubblicata offre copia Arena, descrizione e profilo", () => {
+  const archetipo = leggi("js/archetype.js");
+  assert.match(archetipo, /preparaCopiaArena\(copia, testoArena\(cards, recognized \? `Variante osservata #\$\{index \+ 1\}` : `Brew #\$\{index \+ 1\}`\)\)/);
+  assert.match(archetipo, /Lista effettivamente osservata/);
+  assert.match(archetipo, /brew-deck-profile/);
+  assert.match(archetipo, /renderProfiloMazzo\(profilo, cards/);
+});
+
 test("senza varianti_brew dall'API la riga Altro resta com'era", async () => {
   const { documento, render } = await montaMeta();
   render.renderMeta(dati({ conVarianti: false }), ORDINE, {}, FILTRI);

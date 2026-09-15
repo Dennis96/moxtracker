@@ -25,6 +25,12 @@
 .service-row-head { display: flex; justify-content: space-between; gap: 15px; align-items: center; }
 .service-row strong { overflow-wrap: anywhere; }
 .service-row small, .service-muted { color: var(--muted); }
+.support-faq { margin-top: 16px; }
+.support-faq-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.support-faq-list details { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--surface-2); }
+.support-faq-list summary { color: var(--text); font-weight: 800; cursor: pointer; }
+.support-faq-list summary:focus-visible { outline: 2px solid #c762ff; outline-offset: 4px; border-radius: 3px; }
+.support-faq-list p { margin: 10px 0 0; }
 .service-code { margin: 14px 0 4px; font: 900 1.9rem/1 ui-monospace, monospace; letter-spacing: .12em; color: #d78dff; }
 .service-kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .service-kpi { border: 1px solid var(--line); border-radius: 10px; padding: 15px; background: var(--surface-2); }
@@ -43,6 +49,7 @@
 .account-heading, .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .account-heading h2, .section-heading h2 { margin: 5px 0 4px; }
 .section-heading p { margin: 0; max-width: 760px; color: var(--muted); }
+.section-heading .section-limit { margin-top: 7px; color: #ffc28f; font-size: .78rem; }
 .section-count { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; color: var(--muted); font-size: .75rem; }
 .account-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
 .account-kpis .service-kpi strong { font-size: clamp(1.2rem, 2.4vw, 1.8rem); }
@@ -53,10 +60,14 @@
 .account-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .account-insights .section-heading { display: grid; gap: 10px; }
 .account-insights .section-count { justify-self: start; }
-.rank-chart { min-height: 250px; margin-top: 18px; display: grid; align-items: center; }
+.rank-chart { position: relative; min-height: 250px; margin-top: 18px; display: grid; align-items: center; }
 .rank-svg { display: block; width: 100%; height: auto; min-height: 210px; overflow: visible; }
 .rank-line { fill: none; stroke: #c762ff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
-.rank-point { fill: #f1ccff; stroke: #7b27bd; stroke-width: 4; }
+.rank-point { fill: #f1ccff; stroke: #7b27bd; stroke-width: 4; pointer-events: none; }
+.rank-point-target { fill: transparent; cursor: help; outline: none; }
+.rank-point-target:is(:hover, :focus) + .rank-point { fill: #fff; stroke: #c762ff; stroke-width: 6; }
+.rank-tooltip { position: absolute; z-index: 2; max-width: min(260px, calc(100% - 16px)); transform: translate(-50%, calc(-100% - 12px)); border: 1px solid rgba(199,98,255,.55); border-radius: 8px; padding: 8px 10px; background: #171020; color: var(--text); box-shadow: 0 8px 28px rgba(0,0,0,.42); font-size: .78rem; font-weight: 750; pointer-events: none; white-space: nowrap; }
+.rank-tooltip[hidden] { display: none; }
 .opponent-stats { display: grid; gap: 8px; margin-top: 18px; }
 .opponent-stat-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
 .opponent-stat-copy, .opponent-stat-numbers { display: grid; gap: 4px; }
@@ -139,6 +150,7 @@
 .session-match-list { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 760px) {
   .service-grid { grid-template-columns: 1fr; }
+  .support-faq-list { grid-template-columns: 1fr; }
   .service-card.full { grid-column: auto; }
   .service-row-head { align-items: flex-start; flex-direction: column; gap: 6px; }
   .account-heading, .section-heading { display: grid; gap: 10px; }

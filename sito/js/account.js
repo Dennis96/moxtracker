@@ -107,9 +107,11 @@ function etichettaMazzo(mazzo) {
 
 function nomeMazzo(mazzo) {
   if (mazzo?.nome_personalizzato) return mazzo.nome_personalizzato;
+  if (mazzo?.nome_arena) return mazzo.nome_arena;
   if (mazzo?.nome) return mazzo.nome;
-  const tipo = mazzo?.formato || mazzo?.evento || "Mazzo";
-  return `${tipo} · ${String(mazzo?.impronta || "").slice(0, 8)}`;
+  if (mazzo?.archetipo) return mazzo.archetipo;
+  const formato = mazzo?.formato || mazzo?.evento;
+  return formato ? `Mazzo ${formato} senza nome` : "Mazzo senza nome";
 }
 
 function nomeArenaMazzo(nome) {
@@ -370,25 +372,51 @@ function renderRank() {
   }));
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", `0 0 ${larghezza} ${altezza}`);
-  svg.setAttribute("role", "img");
+  svg.setAttribute("role", "group");
   svg.setAttribute("aria-label", `Andamento rank da ${etichettaRank(primo)} a ${etichettaRank(ultimo)}`);
   svg.classList.add("rank-svg");
+  const tooltip = nodo("div", "rank-tooltip");
+  tooltip.id = "rank-tooltip";
+  tooltip.setAttribute("role", "tooltip");
+  tooltip.hidden = true;
+  const mostraTooltip = (coordinata) => {
+    tooltip.textContent = `${etichettaRank(coordinata.punto)} · ${dataOra(coordinata.punto.data)}`;
+    const sinistra = Math.min(82, Math.max(18, coordinata.x / larghezza * 100));
+    tooltip.style.left = `${sinistra}%`;
+    tooltip.style.top = `${coordinata.y / altezza * 100}%`;
+    tooltip.hidden = false;
+  };
+  const nascondiTooltip = () => { tooltip.hidden = true; };
   const linea = document.createElementNS(svg.namespaceURI, "polyline");
   linea.setAttribute("points", coordinate.map((p) => `${p.x},${p.y}`).join(" "));
   linea.classList.add("rank-line");
   svg.append(linea);
   for (const coordinata of coordinate) {
+    const bersaglio = document.createElementNS(svg.namespaceURI, "circle");
+    bersaglio.setAttribute("cx", coordinata.x);
+    bersaglio.setAttribute("cy", coordinata.y);
+    bersaglio.setAttribute("r", "16");
+    bersaglio.setAttribute("tabindex", "0");
+    bersaglio.setAttribute("role", "img");
+    bersaglio.setAttribute("aria-describedby", tooltip.id);
+    bersaglio.setAttribute("aria-label", `${etichettaRank(coordinata.punto)}, ${dataOra(coordinata.punto.data)}`);
+    bersaglio.classList.add("rank-point-target");
     const cerchio = document.createElementNS(svg.namespaceURI, "circle");
     cerchio.setAttribute("cx", coordinata.x);
     cerchio.setAttribute("cy", coordinata.y);
     cerchio.setAttribute("r", "5");
     cerchio.classList.add("rank-point");
-    const titolo = document.createElementNS(svg.namespaceURI, "title");
-    titolo.textContent = `${etichettaRank(coordinata.punto)} · ${dataOra(coordinata.punto.data)}`;
-    cerchio.append(titolo);
-    svg.append(cerchio);
+    cerchio.setAttribute("aria-hidden", "true");
+    bersaglio.addEventListener("mouseenter", () => mostraTooltip(coordinata));
+    bersaglio.addEventListener("mouseleave", nascondiTooltip);
+    bersaglio.addEventListener("focus", () => mostraTooltip(coordinata));
+    bersaglio.addEventListener("blur", nascondiTooltip);
+    bersaglio.addEventListener("keydown", (evento) => {
+      if (evento.key === "Escape") { nascondiTooltip(); bersaglio.blur(); }
+    });
+    svg.append(bersaglio, cerchio);
   }
-  contenitore.append(svg);
+  contenitore.append(svg, tooltip);
 }
 
 function renderAvversari() {
