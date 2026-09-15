@@ -13,6 +13,7 @@ import {
 import { gestisciAccount, pulisciCredenzialiScadute } from "./account.js";
 import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
 import { controllaStorageGiornaliero } from "./monitoraggio.js";
+import { assegnaBrewProgrammato } from "./brew-gruppi.js";
 import { configResearch, saluteResearch } from "./research/config.js";
 import { gestisciResearch } from "./research/rotte.js";
 
@@ -356,6 +357,9 @@ export default {
       pulisciTicketScaduti(ambiente),
       pulisciCredenzialiScadute(ambiente),
       controllaStorageGiornaliero(ambiente),
+      // Spento finche' `BREW_GRUPPI` non vale "on" (S1): i nuovi membri dei
+      // gruppi Brew non si assegnano mai durante una GET.
+      assegnaBrewProgrammato(ambiente),
     ]));
   },
 };

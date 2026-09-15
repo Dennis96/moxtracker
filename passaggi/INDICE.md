@@ -14,6 +14,10 @@ fonte operativa del sito, inclusi commit, preview, verifiche e confini.
    progettazione, senza autorizzazione a ingestion, D1 o deploy.
 4. [Report R0](report/R0-SITO-PUBLIC-READINESS-2026-08-31.md) — verdetto
    storico `READY WITH MANUAL CHECKS`.
+5. [Contratto B1 dei gruppi Brew](sito/S1-BREW-CONTRATTO-B1-2026-09-15.md) —
+   S1 backend su branch non fuso: distanza, k, identificativi, privacy e API
+   per S2; handoff della review in
+   [handoff/HANDOFF-S1-BREW-BACKEND-REVIEW-2026-09-15.md](handoff/HANDOFF-S1-BREW-BACKEND-REVIEW-2026-09-15.md).
 
 ## Storico
 
