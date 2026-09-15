@@ -1,6 +1,33 @@
 # Runbook R3 — Research in produzione
 
-Aggiornato: 15/09/2026 (remediation dei blocker della review indipendente).
+Aggiornato: 15/09/2026 (FASE B: Research accesa in produzione).
+
+## Stato di produzione — 15/09/2026
+
+- **Research: `on`** dal Worker `d4c12c58-6197-4ccf-ab55-e6c8805ecce8`
+  (configurazione di `main` `46cb6da`); `/salute`: `enabled: true`, transport 4,
+  modello 1, cap 33/1000, qualification `q-produzione-2026-09-15` **valida fino
+  al 2026-10-15T00:00:00Z**, da rinnovare prima.
+- **`VERSIONE_R3_MINIMA = 86cded53-c0b2-4b11-85e0-c061a7dc7f95`** (primo deploy
+  R3, in `off`).
+- **Rollback rapido a drain:** `npx wrangler rollback
+  c06c8632-5976-4735-b7d4-ffc985ecadaa` rimette in un colpo solo R3 in `drain`
+  con chiavi, qualification e manifesti 2.11.0 (è la versione del collaudo in
+  drain di questa FASE B). La strada normale resta `RESEARCH_MODE = "drain"`,
+  commit e deploy.
+- **Attenzione:** una versione del Worker porta con sé i secret del momento in
+  cui è nata. Le versioni prima di `2fef7b3c` hanno i manifesti della 2.10.0
+  (e prima di `98721501` nemmeno le chiavi HMAC): un rollback lì riporterebbe
+  indietro anche l'aggiornamento automatico dei client.
+- Versioni della giornata: `3e26ca1c` (pre-R3) → `98721501` (chiavi HMAC) →
+  `86cded53` (R3 `off`) → `e7615b2f`, `2fef7b3c` (manifesti 2.11.0 canary e
+  stable) → `0429f6c3` (`on`) → `c06c8632` (`drain`, collaudo) → `d4c12c58`
+  (`on`).
+- Smoke di produzione: legacy identico prima e dopo (26 controlli in `off`,
+  23 in `on`, nessuna differenza); Research on 12/12 (consenso, upload,
+  retry `unchanged`, revoca, vecchia generation 403, nuovo consenso, delete,
+  403 dopo il delete); drain 6/6; nessuna lineage in `deleting`, nessuna
+  generation orfana, nessun dato sintetico rimasto.
 
 ## La regola che non si tocca
 
@@ -43,16 +70,17 @@ npx wrangler deploy --dry-run --outdir .dist/worker-dry-run
 `verifica.mjs` deve dire `verifica: ok`; il dry-run deve mostrare `DB
 (moxtracker)`, i due limitatori Research e la modalità attesa.
 
-## Primo deploy
+## Primo deploy (fatto il 15/09/2026)
 
-1. `RESEARCH_MODE = "off"` (è lo stato del file): il Worker nuovo si comporta
-   come prima per tutto il resto. Smoke legacy: `/salute`, `/partite`, Draft,
-   account, ticket.
-2. Registrare qui l'identificativo della versione appena pubblicata:
-   `VERSIONE_R3_MINIMA = <da registrare al primo deploy>`. Da qui in avanti è la
-   versione più vecchia verso cui è lecito un rollback di codice.
-3. Migrazione R3 sul D1 `moxtracker` (solo aggiunte). Lo schema resta anche se
-   Research viene spenta: non si fanno `DROP`.
+1. **Prima** la migrazione R3 sul D1 `moxtracker` (solo aggiunte): anche in
+   `off` la cancellazione dell'account dal sito cancella pure i dati Research,
+   quindi un Worker R3 senza le tabelle la farebbe fallire. Lo schema resta
+   anche se Research viene spenta: non si fanno `DROP`.
+2. Poi il Worker con `RESEARCH_MODE = "off"`: si comporta come prima per tutto
+   il resto. Smoke legacy: `/salute`, `/partite`, Draft, account, ticket.
+3. Registrata qui la versione appena pubblicata:
+   `VERSIONE_R3_MINIMA = 86cded53-c0b2-4b11-85e0-c061a7dc7f95`. Da qui in avanti
+   è la versione più vecchia verso cui è lecito un rollback di codice.
 
 ## Accendere Research (off o drain → on)
 

@@ -1,17 +1,51 @@
 # Stato corrente — sito Mox
 
-Aggiornato il 14 settembre 2026: `moxtracker.app` pubblica il frontend stabile
-pre-redesign (`f897a943`, build `61a708af281eea70`); `main` integra redesign e
-policy Brew/privacy; la preview pubblica il redesign e `api.moxtracker.app` usa
-il Worker nuovo con la policy Brew/privacy attiva (sezioni sotto). Fino al 13 settembre la preview
-funzionale pubblicata era `cf2f45e`, build Pages `61a708af281eea70`; il fix logout è confermato
-manualmente e i collaudi R0 7–13 sono conclusi. `origin/main` prima di questo
-housekeeping è `39dc8a6`, commit esclusivamente documentale: dopo la preview non
-è avvenuto alcun nuovo deploy Pages, Worker o sito.
+Aggiornato il 15 settembre 2026: `moxtracker.app` pubblica ancora il frontend
+stabile pre-redesign (`f897a943`, build `61a708af281eea70`), **non
+ridistribuito**; la preview pubblica `main` `b2b3732` (redesign e correzioni
+frontend di Codex); `api.moxtracker.app` usa il Worker R3 con **Research
+accesa**; il D1 `moxtracker` ha lo schema R3. La GitHub Release Latest del
+client è `mox-v2-beta2.11.0`, non prerelease, con il solo asset
+`Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli nella sezione
+sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 
-La GitHub Release Latest del client è `mox-v2-beta2.10.0`, non prerelease, con
-il solo asset `Mox-v2-beta2.10.0-con-python.zip`. Questa distribuzione del
-client non modifica il codice attualmente pubblicato su Pages o Worker.
+## R3 in produzione e preview — 15 settembre 2026
+
+- **Merge:** `main` `12fb5c4` → `b2b3732` (fast-forward del branch approvato
+  `claude/r3-final-blockers-remediation-2026-09-15`: R3 server, compattazione
+  D1, remediation B1–B4, frontend di Codex già integrato: `ccf3d7c`, `c8e904c`,
+  `23ca180`, verificati antenati), poi `46cb6da` (Research `on`). Prove
+  351/351 su `b2b3732`, 352/352 su `46cb6da`.
+- **Preview:** `npm run sito:release -- --environment=preview --deploy` da
+  `main` `b2b3732`: build `346ce2023c50e91c`, 91 file, deployment `bf867206`
+  (<https://bf867206.moxtracker.pages.dev>), record
+  `preview-b2b373212fd0-bf867206.json`, smoke del gate 6/6;
+  `smoke_beta.mjs --site https://preview.moxtracker.pages.dev` 14/14.
+- **Sito ufficiale:** invariato. `moxtracker.app` serve la build
+  `61a708af281eea70` di `f897a943` prima e dopo; `smoke_beta.mjs` tutto OK
+  (Meta separato saltato, come previsto sul frontend pre-redesign). Il
+  redesign sul sito ufficiale resta un mandato separato.
+- **D1 `moxtracker`** (`85145457-…`): migrazione
+  `migrazioni/2026-09-14-research-r3.sql`, 13 tabelle e 4 indici Research; le
+  19 tabelle legacy intatte (conteggi prima/dopo coerenti col solo traffico
+  vero). Bookmark di Time Travel prima della migrazione:
+  `00000402-00000000-000050e7-a3d286346c31627d07901d3aeaf7afae`.
+- **Worker:** chiavi HMAC di produzione nuove (secret, separate dallo
+  staging); R3 prima in `off` (`86cded53`, `VERSIONE_R3_MINIMA`), smoke legacy
+  identico al Worker precedente `3e26ca1c`; poi `on` (`d4c12c58`) con la
+  qualification generata, valida fino al 15/10/2026. Collaudo in `drain`
+  (`c06c8632`) e ritorno a `on`. Account Workers Paid dal 15/09/2026.
+- **Research, smoke di produzione:** on 12/12, drain 6/6, nessun dato
+  sintetico rimasto; privacy Brew invariata (`/meta` senza vittorie sotto
+  soglia, `/archetipo` con impronta inventata respinto come prima,
+  `/gioco-risposta` senza vittorie).
+- **Release client 2.11.0:** manifesto su canary, canary reale 2.10.0 →
+  2.11.0, poi gli stessi byte su stable; installer su R2 servito da
+  `/mox/download.exe` con lo SHA atteso.
+- **Rollback:** dopo la 2.11.0 il rollback è `drain`, mai un Worker senza le
+  route Research: comandi e versioni nel runbook.
+- Lo staging Research resta com'era; l'incidente R3-OP-01 è conservato nella
+  sezione del 14 settembre.
 
 ## Housekeeping Research pre-R3 — 14 settembre 2026
 
