@@ -23,6 +23,51 @@ né implementata. Nessun file `src/**` o `sito/**`, schema, migration,
 configurazione Pages/Worker, deploy o dato operativo è stato modificato. Le
 condizioni obbligatorie restano interne al futuro task R3 sul runtime reale.
 
+## Research R3 locale — 14 settembre 2026 (branch non fuso)
+
+Sul branch `claude/r3-research-implementation-server-2026-09-14` il Worker ha
+le route Research separate (`/research/partite`, `/research/consenso`,
+`/research/consenso/revoca`, `/research/elimina`), il gateway D1
+budgetizzato, lo schema Research in coda a `schema.sql` e la migrazione
+`migrazioni/2026-09-14-research-r3.sql`. **Niente di questo e' pubblicato**:
+nessun deploy Worker o Pages, nessuna migration D1 remota, nessun merge in
+`main`. Research resta spenta e fail-closed finche' la configurazione e la
+qualification del runtime reale non esistono; `/salute` lo dichiara. Il sito
+non cambia (build identica). Report:
+[R3-LOCAL-IMPLEMENTATION-SERVER-CLAUDE-2026-09-14.md](passaggi/research/audit/R3-LOCAL-IMPLEMENTATION-SERVER-CLAUDE-2026-09-14.md).
+
+**Staging Research G5C-03 (14/09/2026, autorizzato):** creati il D1
+`moxtracker-research-staging` (`02829757-…`, sola migration R3) e il Worker
+`moxtracker-research-staging` su workers.dev, senza route ne' dominio, da
+`wrangler.research-staging.toml` (branch server, commit `28c0395`→`1de1c28`;
+versioni `1da20383`, `5ea787f1` e successive con i soli segreti di staging).
+Dati solo sintetici. **Non toccati:** D1 `moxtracker`, Worker di produzione,
+`api.moxtracker.app`, Pages, preview, `main`. Acceptance 36/36 e benchmark nel
+report [R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md](passaggi/research/audit/R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md).
+La qualification di misura scade il 16/09/2026: poi lo staging torna chiuso.
+
+**Incidente operativo R3-OP-01 (14/09/2026, dopo le 20:51 UTC → reset 00:00 UTC):**
+i benchmark sullo staging hanno superato le 100.000 righe scritte al giorno
+del **piano D1 gratuito**, che vale per l'account intero (250.903 righe nelle
+24 ore sullo staging, da `wrangler d1 info`). Dall'arresto fino al reset anche
+il D1 di produzione `moxtracker` ha rifiutato le scritture («Your account has
+exceeded D1's free tier daily row write limit»): invii di partite e Draft
+rimasti nelle code dei client, login, sincronizzazioni e ticket possibili in
+errore; letture, sito e download non toccati. L'ultima partita scritta e'
+delle 20:51:14 UTC, l'ultimo Draft delle 20:19:03 UTC: l'orario «~18:40»
+scritto in un primo momento era sbagliato. Allora l'account era **Workers
+Free**, non Paid come scritto in un primo momento. Rimedio: budget preventivo
+di righe scritte obbligatorio negli strumenti di staging (`--budget-righe`,
+stima prima della run, arresto prima della richiesta che lo supererebbe).
+
+Verifica del 15/09/2026, 05:06 UTC, in sola lettura: `/salute` risponde
+`vivo`, i due D1 di produzione si leggono, nessuna partita ne' Draft dopo il
+reset (nessun client attivo di notte). La prima scrittura dopo il reset,
+sullo staging, e' passata: il limite dell'account e' tolto. Dal **15/09/2026
+l'account e' Workers Paid** (5 $/mese: 50 M righe scritte al mese incluse,
+1.000 query per invocazione, 10 GB per database); il tetto di righe negli
+strumenti di staging resta obbligatorio.
+
 ## Regola operativa obbligatoria
 
 Dopo ogni modifica conclusa e **dopo ogni deploy preview riuscito**, aggiornare

@@ -13,6 +13,8 @@ import {
 import { gestisciAccount, pulisciCredenzialiScadute } from "./account.js";
 import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
 import { controllaStorageGiornaliero } from "./monitoraggio.js";
+import { configResearch, saluteResearch } from "./research/config.js";
+import { gestisciResearch } from "./research/rotte.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -243,6 +245,11 @@ export default {
   async fetch(richiesta, ambiente) {
     const indirizzo = new URL(richiesta.url);
 
+    // Research ha route sue, prima di tutto il resto: niente CORS e niente
+    // ripiego sul percorso legacy.
+    const research = await gestisciResearch(richiesta, ambiente, indirizzo);
+    if (research) return research;
+
     const ticket = await gestisciTicket(richiesta, ambiente, indirizzo);
     if (ticket) return ticket;
     const account = await gestisciAccount(richiesta, ambiente, indirizzo);
@@ -254,7 +261,8 @@ export default {
 
     if (indirizzo.pathname === "/salute") {
       return risposta({ stato: "vivo", versioni_partite_accettate: VERSIONI_ACCETTATE,
-        versioni_draft_accettate: VERSIONI_DRAFT_ACCETTATE });
+        versioni_draft_accettate: VERSIONI_DRAFT_ACCETTATE,
+        research: saluteResearch(configResearch(ambiente)) });
     }
 
     if (indirizzo.pathname === "/mox/release") {

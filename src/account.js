@@ -1,6 +1,7 @@
 // Account facoltativi, OAuth e collegamento sicuro delle installazioni Mox.
 
 import { eliminaMittente, sha256 } from "./draft.js";
+import { eliminaResearchMittente, esportaResearch } from "./research/account-research.js";
 import { classificaFirma, classificaImpronte, firmaDaCarte,
   nomeCartaArena, stampaCartaArena } from "./archetipi.js";
 
@@ -946,11 +947,12 @@ async function esporta(richiesta, ambiente, utente) {
     .bind(utente.id).all();
   const mazziArena = await mazziSincronizzati(ambiente.DB, utente.id);
   const mittenti = quadro.dispositivi.map((d) => d.mittente);
+  const research = await esportaResearch(ambiente, mittenti);
   if (!mittenti.length) return rispostaAccount(richiesta, ambiente,
     { versione: 1, esportato: new Date().toISOString(), account: {
       id: utente.id, nome: utente.nome,
     }, dati: quadro, nomi_mazzi: nomiMazzi.results || [],
-      mazzi_arena: mazziArena });
+      mazzi_arena: mazziArena, research });
   const segni = mittenti.map(() => "?").join(", ");
   const partite = await ambiente.DB.prepare(
     `SELECT dato FROM partite WHERE mittente IN (${segni}) ORDER BY ricevuta`).bind(...mittenti).all();
@@ -969,8 +971,26 @@ async function esporta(richiesta, ambiente, utente) {
       id: utente.id, nome: utente.nome,
     }, dispositivi: quadro.dispositivi,
     partite: (partite.results || []).map((r) => JSON.parse(r.dato)), draft: pacchettiDraft,
-    nomi_mazzi: nomiMazzi.results || [], mazzi_arena: mazziArena,
+    nomi_mazzi: nomiMazzi.results || [], mazzi_arena: mazziArena, research,
   });
+}
+
+// Research prima di tutto il resto: finche' la lineage non e' cancellata del
+// tutto, credenziali e collegamento del dispositivo restano, cosi' il retry
+// e' possibile. Restituisce `null` se c'e' da ripetere.
+async function cancellaResearch(ambiente, mittenti) {
+  let eliminate = 0;
+  for (const mittente of mittenti) {
+    const esito = await eliminaResearchMittente(ambiente, mittente);
+    if (esito.stato !== "deleted") return null;
+    eliminate += esito.eliminate;
+  }
+  return eliminate;
+}
+
+function researchDaRipetere(richiesta, ambiente) {
+  return rispostaAccount(richiesta, ambiente, { errore: "cancellazione_research_in_corso",
+    retryable: true }, 409);
 }
 
 async function esci(richiesta, ambiente, utente) {
@@ -1021,7 +1041,9 @@ async function eliminaAccount(richiesta, ambiente, utente) {
   if (corpo?.conferma !== "ELIMINA") return rispostaAccount(richiesta, ambiente,
     { errore: "conferma richiesta" }, 400);
   const device = await dispositivi(ambiente.DB, utente.id);
-  const eliminati = { partite: 0, draft: 0 };
+  const research = await cancellaResearch(ambiente, device.map((d) => d.mittente));
+  if (research === null) return researchDaRipetere(richiesta, ambiente);
+  const eliminati = { partite: 0, draft: 0, research };
   for (const dispositivo of device) {
     const parziale = await eliminaMittente(ambiente, dispositivo.mittente);
     eliminati.partite += parziale.partite;
@@ -1063,6 +1085,9 @@ async function eliminaSezione(richiesta, ambiente, utente) {
     { eliminato: sezione, righe: 0 });
   const segni = mittenti.map(() => "?").join(", ");
   if (sezione === "partite") {
+    // Le contribution Research sono partite anche loro: la sezione le copre.
+    const research = await cancellaResearch(ambiente, mittenti);
+    if (research === null) return researchDaRipetere(richiesta, ambiente);
     const righe = await ambiente.DB.prepare(
       `SELECT id FROM partite WHERE mittente IN (${segni})`).bind(...mittenti).all();
     const linkDaTogliere = (righe.results || []).map((riga) => ambiente.DRAFT_DB?.prepare(
@@ -1077,7 +1102,7 @@ async function eliminaSezione(richiesta, ambiente, utente) {
       ambiente.DB.prepare(`DELETE FROM contributori WHERE mittente IN (${segni})`).bind(...mittenti),
     ]);
     return rispostaAccount(richiesta, ambiente,
-      { eliminato: "partite", righe: (righe.results || []).length });
+      { eliminato: "partite", righe: (righe.results || []).length, research });
   }
   if (!ambiente.DRAFT_DB) return rispostaAccount(richiesta, ambiente,
     { errore: "archivio Draft non disponibile" }, 503);
