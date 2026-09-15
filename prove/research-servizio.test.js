@@ -266,6 +266,20 @@ test("un D1 con la sola migrazione Research: senza tabelle legacy nessun verific
   assert.deepEqual(stati(esito), ["accepted_new"]);
 });
 
+test("fuori da staging e prova locale una tabella legacy assente chiude il consenso", async () => {
+  // Rilievo della code review: in produzione `contributori` esiste; se manca
+  // (binding sbagliato, database ricreato) il TOFU non puo' aprirsi da solo.
+  const chiavi = JSON.stringify({ lineage: { corrente: 1, versioni: { 1: "ab".repeat(32) } },
+    tombstone: { corrente: 1, versioni: { 1: "cd".repeat(32) } } });
+  const produzione = creaFintoD1(QUI + "../migrazioni/2026-09-14-research-r3.sql");
+  const chiuso = await manda(ambiente(produzione, { RESEARCH_AMBIENTE: undefined, RESEARCH_HMAC_KEYS: chiavi }),
+    "/research/consenso", { mittente: MITTENTE, segreto_cancellazione: SEGRETO, versione_consenso: 1 });
+  assert.notEqual(chiuso.stato, 200, JSON.stringify(chiuso.corpo));
+  assert.equal(produzione.conta("research_lineage"), 0, "nessuna lineage aperta");
+  const staging = creaFintoD1(QUI + "../migrazioni/2026-09-14-research-r3.sql");
+  await consenso(ambiente(staging, { RESEARCH_AMBIENTE: "staging", RESEARCH_HMAC_KEYS: chiavi }));
+});
+
 test("delete: tombstone, dati via, vecchio token morto, stesso id soppresso, id nuovo ammesso", async () => {
   const db = nuovoDb();
   const amb = ambiente(db);

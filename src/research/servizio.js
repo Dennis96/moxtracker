@@ -113,6 +113,10 @@ function soppressa(ctx, tag) {
   [JSON.stringify(tag.map((t) => t.tag))]));
 }
 
+// Gli unici ambienti in cui un D1 senza la tabella legacy `contributori` e'
+// normale: lo staging R3 e la prova locale ricevono solo la migrazione Research.
+const AMBIENTI_SENZA_LEGACY = new Set(["staging", "prova_locale"]);
+
 async function leggiCorrente(ctx, mittente, idPubblico) {
   // Una snapshot effettiva sta nella contribution; le varianti solo in
   // conflitto (compattazione D1). Il summary che ne esce e' lo stesso di prima.
@@ -176,8 +180,11 @@ export async function consenti(richiesta, ambiente, config) {
             "SELECT cancellazione_hash FROM contributori WHERE mittente = ?1", [mittente], db));
         } catch (guasto) {
           // Un database senza la tabella legacy (lo staging R3 riceve solo la
-          // migrazione Research) non ha verificatori da confrontare.
-          if (!/no such table/i.test(String(guasto?.message))) throw guasto;
+          // migrazione Research) non ha verificatori da confrontare. Solo li':
+          // altrove una tabella che manca e' un guasto, e il TOFU resta chiuso.
+          const senzaLegacy = AMBIENTI_SENZA_LEGACY.has(ambiente.RESEARCH_AMBIENTE)
+            && /no such table/i.test(String(guasto?.message));
+          if (!senzaLegacy) throw guasto;
           legacy = null;
         }
         if (legacy && !stessoValore(legacy.cancellazione_hash, impronta)) {

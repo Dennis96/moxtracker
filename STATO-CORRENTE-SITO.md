@@ -46,18 +46,27 @@ Dati solo sintetici. **Non toccati:** D1 `moxtracker`, Worker di produzione,
 report [R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md](passaggi/research/audit/R3-G5C03-STAGING-SERVER-CLAUDE-2026-09-14.md).
 La qualification di misura scade il 16/09/2026: poi lo staging torna chiuso.
 
-**Incidente operativo R3-OP-01 (14/09/2026, ~18:40 UTC → reset 00:00 UTC):**
+**Incidente operativo R3-OP-01 (14/09/2026, dopo le 20:51 UTC → reset 00:00 UTC):**
 i benchmark sullo staging hanno superato le 100.000 righe scritte al giorno
-del **piano D1 gratuito**, che vale per l'account intero. Da quel momento fino
-al reset anche il D1 di produzione `moxtracker` ha rifiutato le scritture
-(«Your account has exceeded D1's free tier daily row write limit»): invii di
-partite e Draft rimasti nelle code dei client, login, sincronizzazioni e ticket
-possibili in errore; letture, sito e download non toccati. L'account e'
-**Workers Free**, non Paid come scritto in un primo momento. Rimedio: budget
-preventivo di righe scritte obbligatorio negli strumenti di staging
-(`--budget-righe`, stima prima della run, arresto prima della richiesta che
-lo supererebbe); dopo il reset solo verifiche in sola lettura, nuove scritture
-staging solo con via esplicito.
+del **piano D1 gratuito**, che vale per l'account intero (250.903 righe nelle
+24 ore sullo staging, da `wrangler d1 info`). Dall'arresto fino al reset anche
+il D1 di produzione `moxtracker` ha rifiutato le scritture («Your account has
+exceeded D1's free tier daily row write limit»): invii di partite e Draft
+rimasti nelle code dei client, login, sincronizzazioni e ticket possibili in
+errore; letture, sito e download non toccati. L'ultima partita scritta e'
+delle 20:51:14 UTC, l'ultimo Draft delle 20:19:03 UTC: l'orario «~18:40»
+scritto in un primo momento era sbagliato. Allora l'account era **Workers
+Free**, non Paid come scritto in un primo momento. Rimedio: budget preventivo
+di righe scritte obbligatorio negli strumenti di staging (`--budget-righe`,
+stima prima della run, arresto prima della richiesta che lo supererebbe).
+
+Verifica del 15/09/2026, 05:06 UTC, in sola lettura: `/salute` risponde
+`vivo`, i due D1 di produzione si leggono, nessuna partita ne' Draft dopo il
+reset (nessun client attivo di notte). La prima scrittura dopo il reset,
+sullo staging, e' passata: il limite dell'account e' tolto. Dal **15/09/2026
+l'account e' Workers Paid** (5 $/mese: 50 M righe scritte al mese incluse,
+1.000 query per invocazione, 10 GB per database); il tetto di righe negli
+strumenti di staging resta obbligatorio.
 
 ## Regola operativa obbligatoria
 

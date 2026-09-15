@@ -142,7 +142,7 @@ try {
 }
 const uscita = { url: BASE, limite_query: LIMITE, misurato: new Date().toISOString(),
   budget_righe: { tetto: TETTO, stima_preventiva: STIMA, consumate: budget.consumate,
-    oltre_stima: budget.oltre_stima, fermata }, risultati };
+    oltre_stima: budget.oltre_stima, fermata, in_volo: budget.prenotate }, risultati };
 if (USCITA) writeFileSync(USCITA, JSON.stringify(uscita, null, 1));
 console.log(`righe scritte: ${budget.consumate} su un tetto di ${TETTO} (stima preventiva ${STIMA})`);
 console.log(fermata ? "capacita': run fermata dal budget" : "capacita': misure concluse");

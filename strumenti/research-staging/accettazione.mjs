@@ -403,7 +403,10 @@ try {
 }
 evidenze.finita = new Date().toISOString();
 evidenze.budget_righe = { tetto: TETTO, stima_preventiva: stimaPreventiva, fasi: FASI,
-  consumate: budget.consumate, oltre_stima: budget.oltre_stima, fermata };
+  consumate: budget.consumate, oltre_stima: budget.oltre_stima, fermata,
+  // Dopo un arresto nella fase delle corse alcune richieste sono ancora in
+  // volo: le loro righe non sono in `consumate`, ma sono prenotate qui.
+  in_volo: budget.prenotate };
 evidenze.verdetti = verdetti;
 if (USCITA) writeFileSync(USCITA, JSON.stringify(evidenze, null, 1));
 const passate = verdetti.filter((v) => v.ok).length;
