@@ -1,7 +1,11 @@
 // La configurazione di produzione di Research, verificabile senza segreti e
 // senza deploy (blocker B4): quale Worker, quale rotta, quale D1, quale
-// modalita' iniziale, quali cap, quali limitatori. Il controllo e' lo stesso
-// che `strumenti/research-produzione/verifica.mjs` stampa prima di un deploy.
+// modalita', quali cap, quali limitatori. Il controllo e' lo stesso che
+// `strumenti/research-produzione/verifica.mjs` stampa prima di un deploy.
+//
+// La modalita' cambia col runbook (off, drain, on) con un commit e un deploy:
+// le prove valgono per tutte e tre, cosi' un ritorno a drain non trova la suite
+// rossa. Quello che resta fisso e' tutto il resto.
 
 import { strict as assert } from "node:assert";
 import { readFileSync } from "node:fs";
@@ -35,15 +39,16 @@ test("il lettore TOML legge il sottoinsieme che usano i nostri file", () => {
   assert.deepEqual(t.routes, [{ pattern: "p", custom_domain: true }]);
 });
 
-test("produzione: Worker, rotta, D1, Research spenta, cap 33/1000 e i due limitatori", () => {
+test("produzione: Worker, rotta, D1, modalita' del runbook, cap 33/1000 e i due limitatori", () => {
   assert.deepEqual(controllaProduzione(PRODUZIONE, STAGING), []);
   const d = descriviDeploy(PRODUZIONE);
   assert.equal(d.worker, "moxtracker");
   assert.deepEqual(d.rotte, ["api.moxtracker.app"]);
   assert.equal(d.d1.DB, "85145457-e78e-41bb-b069-41269321db1c");
-  assert.deepEqual(d.research, {
-    RESEARCH_MODE: "off", RESEARCH_AMBIENTE: "produzione",
-    RESEARCH_DEPLOYMENT: "research-produzione-r3",
+  const { RESEARCH_MODE, RESEARCH_RUNTIME_QUALIFICATION, ...fissi } = d.research;
+  assert.ok(["off", "drain", "on"].includes(RESEARCH_MODE), `modalita' ${RESEARCH_MODE}`);
+  assert.deepEqual(fissi, {
+    RESEARCH_AMBIENTE: "produzione", RESEARCH_DEPLOYMENT: "research-produzione-r3",
     RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST: "33", RESEARCH_MAX_D1_QUERIES_PER_REQUEST: "1000",
   });
   assert.deepEqual(d.limitatori.RESEARCH_RATE_LIMITER_INGRESSO,
@@ -56,8 +61,15 @@ test("produzione: Worker, rotta, D1, Research spenta, cap 33/1000 e i due limita
 
 test("nel file di produzione non ci sono chiavi Research ne' risorse di staging", () => {
   assert.doesNotMatch(TESTO_PRODUZIONE, /RESEARCH_HMAC_KEYS\s*=|RESEARCH_MISURE|02829757|[0-9a-f]{64}/);
-  assert.equal(PRODUZIONE.vars.RESEARCH_RUNTIME_QUALIFICATION, undefined,
-    "la qualification nasce al deploy, non prima");
+});
+
+test("la qualification del file, se c'e', e' quella generata dallo strumento", () => {
+  const testo = PRODUZIONE.vars.RESEARCH_RUNTIME_QUALIFICATION;
+  if (PRODUZIONE.vars.RESEARCH_MODE === "on") assert.ok(testo, "on senza qualification");
+  if (testo === undefined) return;
+  const q = JSON.parse(testo);
+  assert.equal(testo, qualificationProduzione(PRODUZIONE.vars, q.valida_fino, q.id),
+    "la qualification si genera con qualification.mjs, non si scrive a mano");
 });
 
 test("staging e produzione restano separati", () => {
@@ -70,9 +82,11 @@ test("staging e produzione restano separati", () => {
 });
 
 test("dalla configurazione di produzione: off, poi drain, poi on con la qualification generata", () => {
-  const base = { ...PRODUZIONE.vars, RESEARCH_HMAC_KEYS: CHIAVI,
+  const { RESEARCH_MODE: _modo, RESEARCH_RUNTIME_QUALIFICATION: qDelFile, ...variabili } =
+    PRODUZIONE.vars;
+  const base = { ...variabili, RESEARCH_HMAC_KEYS: CHIAVI,
     RESEARCH_RATE_LIMITER_INGRESSO: limitatore, RESEARCH_RATE_LIMITER_CICLO: limitatore };
-  const spenta = configResearch(base);
+  const spenta = configResearch({ ...base, RESEARCH_MODE: "off" });
   assert.deepEqual([spenta.modo, spenta.enabled, spenta.lifecycle], ["off", false, false]);
   const drain = configResearch({ ...base, RESEARCH_MODE: "drain" });
   assert.deepEqual([drain.modo, drain.enabled, drain.lifecycle], ["drain", false, true]);
@@ -82,6 +96,17 @@ test("dalla configurazione di produzione: off, poi drain, poi on con la qualific
     accesa.max_d1_queries_per_request, accesa.qualification.stato], ["on", true, 33, 1000, "valida"]);
   const senzaQ = configResearch({ ...base, RESEARCH_MODE: "on" });
   assert.deepEqual([senzaQ.enabled, senzaQ.motivo], [false, "qualification_assente"]);
+
+  // La qualification del file accende Research fino alla scadenza e poi chiude
+  // l'ingresso da sola, lasciando aperti revoca e cancellazione. L'orologio e'
+  // fissato: la prova non diventa rossa il giorno in cui la qualification scade.
+  if (qDelFile === undefined) return;
+  const scadenza = Date.parse(JSON.parse(qDelFile).valida_fino);
+  const conFile = { ...base, RESEARCH_MODE: "on", RESEARCH_RUNTIME_QUALIFICATION: qDelFile };
+  const prima = configResearch(conFile, scadenza - 1000);
+  assert.deepEqual([prima.enabled, prima.qualification.stato], [true, "valida"]);
+  const dopo = configResearch(conFile, scadenza + 1000);
+  assert.deepEqual([dopo.enabled, dopo.motivo, dopo.lifecycle], [false, "qualification_stale", true]);
 });
 
 test("il controllo pre-deploy rifiuta una produzione sbagliata", () => {
@@ -89,7 +114,12 @@ test("il controllo pre-deploy rifiuta una produzione sbagliata", () => {
     "cap diversi": (c) => { c.vars.RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST = "5"; },
     "chiavi nel file": (c) => { c.vars.RESEARCH_HMAC_KEYS = "{}"; },
     "modalita' non valida": (c) => { c.vars.RESEARCH_MODE = "acceso"; },
-    "on senza qualification": (c) => { c.vars.RESEARCH_MODE = "on"; },
+    "on senza qualification": (c) => {
+      c.vars.RESEARCH_MODE = "on"; delete c.vars.RESEARCH_RUNTIME_QUALIFICATION; },
+    "qualification di un altro deployment": (c) => {
+      c.vars.RESEARCH_MODE = "on";
+      c.vars.RESEARCH_RUNTIME_QUALIFICATION = qualificationProduzione(
+        { ...c.vars, RESEARCH_DEPLOYMENT: "un-altro-deployment" }, "2099-01-01T00:00:00Z"); },
     "limitatore d'ingresso mancante": (c) => {
       c.ratelimits = c.ratelimits.filter((r) => r.name !== "RESEARCH_RATE_LIMITER_INGRESSO"); },
     "limitatore del ciclo mancante": (c) => {

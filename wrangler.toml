@@ -31,11 +31,15 @@ MOX_RELEASE_RECOVERY_DELAY_MS = "1500"
 # senza le route Research, una volta distribuita la 2.11.0. Le chiavi HMAC sono
 # un secret (`RESEARCH_HMAC_KEYS`), mai qui; la qualification di runtime nasce
 # al deploy con `strumenti/research-produzione/qualification.mjs`.
-RESEARCH_MODE = "off"
+RESEARCH_MODE = "on"
 RESEARCH_AMBIENTE = "produzione"
 RESEARCH_DEPLOYMENT = "research-produzione-r3"
 RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST = "33"
 RESEARCH_MAX_D1_QUERIES_PER_REQUEST = "1000"
+# Generata con `qualification.mjs --valida-fino 2026-10-15T00:00:00Z` il
+# 15/09/2026. Va rinnovata prima della scadenza: dopo, l'ingresso si chiude da
+# solo (consenso nuovo e upload) e revoca e cancellazione restano aperte.
+RESEARCH_RUNTIME_QUALIFICATION = '{"versione":1,"id":"q-produzione-2026-09-15","deployment":"research-produzione-r3","max_contributions_per_request":33,"max_d1_queries_per_request":1000,"valida_fino":"2026-10-15T00:00:00Z"}'
 
 # Pulizia giornaliera: allegati dei ticket chiusi dopo 90 giorni, intero
 # ticket dopo 365 giorni. La funzione e' idempotente e lavora a lotti.
