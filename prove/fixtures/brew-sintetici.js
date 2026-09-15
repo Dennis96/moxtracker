@@ -31,7 +31,7 @@ let progressivo = 0;
 
 // Partite sintetiche: ogni partita porta le sue carte, come le salva il Worker.
 export function giocaPartite(db, impronta, lista, { partite, vinte = 0, formato = "Standard",
-  evento = "Ladder", rank = "Gold", giorni = 1, su = 1 } = {}) {
+  evento = "Ladder", rank = "Gold", giorni = 1, su = 1, mittente = "f".repeat(32) } = {}) {
   const ricevuta = new Date(Date.now() - giorni * 86400000).toISOString();
   for (let i = 0; i < partite; i += 1) {
     progressivo += 1;
@@ -40,7 +40,7 @@ export function giocaPartite(db, impronta, lista, { partite, vinte = 0, formato 
       (id, mittente, ricevuta, formato, evento, esito, su_gioco, rank_classe,
        impronta_mazzo, versione, dato)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, '{}')`)
-      .bind(id, "f".repeat(32), ricevuta, formato, evento, i < vinte ? "vinta" : "persa", su,
+      .bind(id, mittente, ricevuta, formato, evento, i < vinte ? "vinta" : "persa", su,
         rank, impronta).esegui();
     for (const [carta, copie] of lista) {
       db.prepare("INSERT INTO carte_mazzo (partita, carta, copie) VALUES (?, ?, ?)")

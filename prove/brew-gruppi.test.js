@@ -256,8 +256,9 @@ test("liste senza carte leggibili restano fuori; un gruppo senza piu' carte non 
   assert.equal((await pianificaAssegnazione(db, "Standard")).riepilogo.firme_non_valide, 1);
   await assegnaBrew(db, "Standard");
   assert.equal(db.tutte("SELECT 1 FROM brew_membro WHERE impronta = ?", G).length, 0);
-  // Le partite di A spariscono, come dopo una richiesta di cancellazione: il
-  // gruppo resta, ma senza carte del rappresentante non accoglie nessuno.
+  // Partite di A tolte senza passare dalla cancellazione dei contributi, che
+  // smonterebbe il gruppo (brew-cancellazione.test.js): il piano comunque non
+  // usa mai un centro di cui non ha le carte.
   db.prepare(`DELETE FROM carte_mazzo WHERE partita IN
     (SELECT id FROM partite WHERE impronta_mazzo = ?)`).bind(A).esegui();
   db.prepare("DELETE FROM partite WHERE impronta_mazzo = ?").bind(A).esegui();
@@ -265,10 +266,14 @@ test("liste senza carte leggibili restano fuori; un gruppo senza piu' carte non 
   giocaPartite(db, F, BASE, { partite: 30 });
   const dopo = await pianificaAssegnazione(db, "Standard");
   assert.equal(dopo.riepilogo.gruppi_orfani, 1);
+  assert.notEqual(dopo.piano.membri.find((m) => m.impronta === F).gruppo_id, prima.gruppi[0].id);
   await applicaPiano(db, dopo);
-  assert.deepEqual(righeBrew(db).gruppi.slice(0, prima.gruppi.length), prima.gruppi);
+  // In coda all'apply la pulizia smonta il gruppo rimasto senza partite; F
+  // sta nel suo gruppo nuovo.
+  assert.equal(db.tutte("SELECT 1 FROM brew_gruppo WHERE id = ?", prima.gruppi[0].id).length, 0);
   const [f] = db.tutte("SELECT gruppo_id FROM brew_membro WHERE impronta = ?", F);
-  assert.notEqual(f.gruppo_id, prima.gruppi[0].id);
+  assert.equal(db.tutte("SELECT rappresentante FROM brew_gruppo WHERE id = ?", f.gruppo_id)[0]
+    .rappresentante, F);
 });
 
 test("il cron assegna solo con BREW_GRUPPI acceso, con un tetto, e tollera le tabelle assenti", async () => {

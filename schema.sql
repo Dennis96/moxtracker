@@ -261,7 +261,9 @@ CREATE INDEX IF NOT EXISTS account_mazzo_account
 --
 -- 1. un gruppo e' una stella: rappresentante e soglia si fissano alla nascita
 --    e non cambiano piu'. Un algoritmo diverso crea gruppi nuovi con un altro
---    nome, non riscrive questi: i trigger rifiutano ogni UPDATE;
+--    nome, non riscrive questi: i trigger rifiutano ogni UPDATE. Il DELETE
+--    resta possibile di proposito: la cancellazione dei contributi toglie i
+--    membri senza piu' partite e smonta il gruppo che perde il rappresentante;
 -- 2. `id` e `variante_id` sono casuali (128 bit) e generati dal server:
 --    nessuno dei due si ricava dall'impronta;
 -- 3. un'impronta appartiene a un solo gruppo per formato e algoritmo: la

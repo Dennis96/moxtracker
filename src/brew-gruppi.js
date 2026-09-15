@@ -168,6 +168,10 @@ export async function applicaPiano(db, pianificato, { ora = () => new Date().toI
     ).bind(formato, ALGORITMO_BREW, membro.impronta, membro.gruppo_id, membro.variante_id,
       membro.distanza, quando));
   }
+  // In coda la stessa pulizia della cancellazione: se un mittente e' stato
+  // cancellato fra la lettura del piano e questo batch, quello che il piano
+  // gli attribuiva sparisce nella stessa transazione invece di restare orfano.
+  comandi.push(...await comandiPuliziaBrew(db));
   await db.batch(comandi);
   return { gruppi_creati: piano.gruppi.length, membri_assegnati: piano.membri.length };
 }
@@ -178,11 +182,49 @@ export async function assegnaBrew(db, formato, opzioni = {}) {
   return { riepilogo: pianificato.riepilogo, ...esito };
 }
 
+// Dopo una cancellazione dei contributi non deve restare niente di Brew senza
+// partite dietro: la pagina privacy promette che i contributi spariscono dai
+// database. La pulizia guarda lo stato vero dopo le DELETE, non la lista del
+// mittente, cosi' un retry la completa anche quando le partite non ci sono
+// gia' piu'. Va nello stesso batch che cancella le partite, prima delle
+// credenziali, e fa tre passi:
+// 1. toglie i membri la cui impronta non ha piu' partite nel loro formato;
+// 2. toglie i membri dei gruppi il cui rappresentante non ha piu' partite;
+// 3. toglie quei gruppi. E' l'unica eccezione alla stabilita' degli id, e la
+//    decide la privacy: i membri superstiti restano liberi, con le loro
+//    partite, e il prossimo giro del cron li raggruppa di nuovo.
+// Qui non si rifa' nessun clustering. Con le tabelle Brew assenti (Worker
+// deployato prima della migrazione) non aggiunge niente, e la cancellazione
+// resta quella di prima.
+const senzaPartite = (formato, impronta) =>
+  `NOT EXISTS (SELECT 1 FROM partite p WHERE p.formato = ${formato} AND p.impronta_mazzo = ${impronta})`;
+
+export async function comandiPuliziaBrew(db) {
+  try {
+    await db.prepare("SELECT 1 FROM brew_membro LIMIT 1").first();
+  } catch (guasto) {
+    if (tabelleBrewAssenti(guasto)) return [];
+    throw guasto;
+  }
+  return [
+    db.prepare(`DELETE FROM brew_membro
+      WHERE ${senzaPartite("brew_membro.formato", "brew_membro.impronta")}`),
+    db.prepare(`DELETE FROM brew_membro WHERE gruppo_id IN (SELECT g.id FROM brew_gruppo g
+      WHERE ${senzaPartite("g.formato", "g.rappresentante")})`),
+    db.prepare(`DELETE FROM brew_gruppo
+      WHERE ${senzaPartite("brew_gruppo.formato", "brew_gruppo.rappresentante")}`),
+  ];
+}
+
 // L'assegnazione dei nuovi membri, fuori dalle GET: gira nel cron solo se
-// `BREW_GRUPPI = "on"` e con un tetto di candidati per giro.
+// `BREW_GRUPPI = "on"` e con un tetto di candidati per giro. Prima ripassa la
+// pulizia: se una cancellazione fosse arrivata da una strada che non la fa, il
+// piano non vede mai un gruppo senza partite.
 export async function assegnaBrewProgrammato(ambiente, { limite = LIMITE_CANDIDATI_CRON } = {}) {
   if (ambiente?.BREW_GRUPPI !== "on" || !ambiente.DB) return null;
   try {
+    const pulizia = await comandiPuliziaBrew(ambiente.DB);
+    if (pulizia.length) await ambiente.DB.batch(pulizia);
     const formati = await ambiente.DB.prepare(
       `SELECT DISTINCT formato FROM partite
        WHERE formato IS NOT NULL AND impronta_mazzo IS NOT NULL ORDER BY formato`

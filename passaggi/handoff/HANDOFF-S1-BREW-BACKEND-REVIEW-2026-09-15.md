@@ -39,6 +39,12 @@ migrazioni remote o l'accensione di `BREW_GRUPPI`.
 4. **k = 4:** giustificato da fixture e da un corpus pubblico piccolo (§5).
 5. **Compatibilita':** campi legacy di `/meta` identici in 12 filtri; build
    del sito identica alla preview (`346ce2023c50e91c`).
+6. **Cancellazione** (delta del 15/09, `src/draft.js`, `src/account.js`,
+   `comandiPuliziaBrew`): nessuno stato Brew deve restare senza partite dopo
+   una cancellazione completata. Il gruppo che perde il rappresentante si
+   smonta; la pulizia sta nello stesso batch delle partite, e le credenziali
+   cadono solo dopo (§8, «Cancellazione»). Esiste un percorso che cancella
+   partite senza passare di qui?
 
 ## Come rifare le verifiche
 
@@ -54,8 +60,9 @@ La migrazione su D1 locale di Wrangler si rifa' solo con `--local
 
 ## Condizioni gia' note
 
-- La documentazione Cloudflare non cita i trigger su D1; su D1 locale
-  funzionano. Da riverificare con la migrazione remota.
+- I trigger fanno parte del motore D1 (la documentazione elenca `PRAGMA
+  recursive_triggers`); su D1 locale funzionano, e l'UPDATE viene rifiutato
+  mentre il DELETE passa. La prova remota resta nel mandato della migrazione.
 - I formati senza catalogo non unificano le stampe diverse; `?id_brew=`
   risponde 409 come `?impronta=`.
 - S2/F1 (il sito che mostra i gruppi) e le famiglie Brew via catalogo restano

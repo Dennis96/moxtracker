@@ -1,6 +1,7 @@
 // Account facoltativi, OAuth e collegamento sicuro delle installazioni Mox.
 
 import { eliminaMittente, sha256 } from "./draft.js";
+import { comandiPuliziaBrew } from "./brew-gruppi.js";
 import { eliminaResearchMittente, esportaResearch } from "./research/account-research.js";
 import { classificaFirma, classificaImpronte, firmaDaCarte,
   nomeCartaArena, stampaCartaArena } from "./archetipi.js";
@@ -1099,6 +1100,9 @@ async function eliminaSezione(richiesta, ambiente, utente) {
       ambiente.DB.prepare(`DELETE FROM carte_avversario WHERE partita IN
         (SELECT id FROM partite WHERE mittente IN (${segni}))`).bind(...mittenti),
       ambiente.DB.prepare(`DELETE FROM partite WHERE mittente IN (${segni})`).bind(...mittenti),
+      // Prima delle credenziali e nello stesso batch: nessun gruppo Brew resta
+      // senza le partite che lo reggevano.
+      ...await comandiPuliziaBrew(ambiente.DB),
       ambiente.DB.prepare(`DELETE FROM contributori WHERE mittente IN (${segni})`).bind(...mittenti),
     ]);
     return rispostaAccount(richiesta, ambiente,

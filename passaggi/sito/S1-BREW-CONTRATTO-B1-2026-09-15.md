@@ -82,8 +82,12 @@ Modulo: `src/brew-clustering.js` (puro, senza database).
   si riscrivono.
 - Un refresh del catalogo che riconosce un membro lo toglie dall'output Brew
   al momento della lettura; la sua appartenenza resta.
-- Se le partite del rappresentante spariscono (cancellazione dei contributi),
-  il gruppo resta ma non accoglie piu' nessuno (`gruppi_orfani` nel report).
+- I trigger congelano gli UPDATE, non i DELETE: la cancellazione dei
+  contributi deve poter togliere i dati (§8, «Cancellazione»).
+- Se il rappresentante perde l'ultima partita per una cancellazione, il
+  gruppo si smonta. Non si sceglie un altro centro sul posto, perche' romperebbe
+  il raggio e la storia del gruppo. Se le sue carte mancano per altre vie, il
+  piano non lo usa come centro (`gruppi_orfani` nel report).
 
 ## 5. k = 4: report e motivazione
 
@@ -161,7 +165,13 @@ modalita'. E' lo stesso comportamento degli archetipi riconosciuti.
   `PRIMARY KEY (formato, algoritmo, impronta)` per il membro,
   `UNIQUE (formato, algoritmo, ordine)` e `UNIQUE (formato, algoritmo,
   rappresentante)` per il gruppo, chiave esterna composta sullo stesso
-  formato e algoritmo, CHECK sul formato degli id, trigger contro gli UPDATE.
+  formato e algoritmo, CHECK sul formato degli id, trigger contro gli UPDATE
+  (il DELETE resta ammesso di proposito).
+- **Stabilita' degli id durante il normale funzionamento; la cancellazione dei
+  dati e' un'eccezione privacy che puo' invalidare un gruppo.** Se una
+  cancellazione toglie l'ultima partita del rappresentante, `bg_` e i `bv_`
+  del gruppo spariscono; i membri superstiti ricevono id nuovi al giro
+  successivo del cron.
 - Il vecchio `variante_id` del percorso `?impronta=` (primi 12 caratteri
   dell'impronta) resta com'era. I nuovi id stanno nei campi nuovi
   (`variante_id` dentro `gruppi_brew` e `?id_brew=`, `variante_brew_id` nel
@@ -213,12 +223,43 @@ Residui accettati e documentati:
 - Due varianti pubbliche nello stesso gruppo con il rappresentante nascosto
   nel filtro dicono che esiste una terza lista vicina a entrambe. Quella lista
   ha 30 partite in totale, quindi e' pubblica nella vista `periodo=totale`.
-- Una lista scesa sotto 30 dopo una cancellazione resta membro, ma esce da
-  ogni risposta come ogni lista sotto soglia.
-- Dopo una cancellazione dei contributi, nelle tabelle Brew resta l'impronta:
-  un hash, senza carte, partite, mittente o record.
+- Una lista scesa sotto 30 partite dopo una cancellazione, ma che ne ha
+  ancora qualcuna, resta membro. Esce da ogni risposta come ogni lista sotto
+  soglia.
 - Le «Altre varianti» degli archetipi riconosciuti restano come prima
   (decisione separata, roadmap).
+
+**Cancellazione dei contributi** (delta del 15/09). La pagina privacy promette
+che «Cancella dal sito partite e Draft» toglie i contributi dai database: dopo
+una cancellazione completata non resta stato Brew senza partite dietro.
+
+- Si toccano i due percorsi che cancellano partite: `eliminaMittente`
+  (`/contributi/elimina` e cancellazione dell'account) e la sezione «partite»
+  dell'account.
+- Nello **stesso batch atomico** delle DELETE delle partite, e prima delle
+  credenziali, tre DELETE basate sullo stato vero dopo la cancellazione:
+  1. i membri la cui `(formato, impronta)` non ha piu' partite;
+  2. le membership dei gruppi il cui rappresentante non ha piu' partite;
+  3. quei gruppi.
+- **Membro cancellato:** sparisce; il gruppo e il suo id restano.
+- **Rappresentante cancellato:** il gruppo si smonta. Le partite dei membri
+  superstiti restano, e il prossimo giro del cron le raggruppa di nuovo con id
+  nuovi. Nella cancellazione non si rifa' nessun clustering.
+- **Impronta condivisa:** finche' un altro mittente ha partite della stessa
+  `(formato, impronta)`, membership e gruppo restano.
+- **Retry:** il batch e' atomico, quindi un guasto annulla tutto, credenziali
+  comprese, e la richiesta si ripete. Se la risposta si perde dopo il commit,
+  le credenziali ci sono ancora e il retry chiude senza doppioni. La pulizia
+  non dipende dalla lista delle partite del mittente: un retry trova e toglie
+  gli orfani anche se le partite erano gia' sparite. Le credenziali cadono
+  solo dopo.
+- Il cron ripassa la stessa pulizia prima di assegnare, e ogni apply (cron o
+  strumento) la ripete in coda al proprio batch. Cosi' una cancellazione che
+  arriva fra la lettura del piano e il batch non lascia orfani: D1 esegue i
+  batch uno alla volta. Con le tabelle Brew assenti la cancellazione resta
+  quella di prima.
+- Dopo la cancellazione, il vecchio `?id_brew=` e la vecchia `?impronta=`
+  rispondono come se non fossero mai esistiti.
 
 ## 9. Contratto API (additivo)
 
@@ -324,10 +365,12 @@ letture le usano solo per i campi nuovi.
 
 ## 11. Condizioni aperte (non bloccanti)
 
-- **Trigger su D1 remoto:** la documentazione non li cita; su D1 locale
-  funzionano. Da verificare nel mandato della migrazione remota. Il codice non
-  fa mai UPDATE, quindi i trigger sono una difesa in piu', non la base della
-  correttezza.
+- **Trigger su D1 remoto:** la pagina ufficiale delle istruzioni SQL di D1
+  elenca `PRAGMA recursive_triggers`, quindi i trigger fanno parte del motore;
+  su D1 locale la migrazione passa, l'UPDATE viene rifiutato e le DELETE di
+  pulizia funzionano. La prova sul database remoto resta nel mandato della
+  migrazione. Il codice non fa mai UPDATE: i trigger sono una difesa in piu',
+  non la base della correttezza.
 - **Nomi delle carte:** vengono da `id_a_nome` del catalogo generato. Una
   carta che il catalogo non nomina resta `#ArenaId`, quindi le sue stampe
   diverse non si unificano: in quel caso il raggruppamento e' piu' prudente,
@@ -342,6 +385,17 @@ letture le usano solo per i campi nuovi.
 - `prove/brew-gruppi.test.js`: 13 prove su schema, vincoli, backfill,
   idempotenza, retry, concorrenza, nuovi membri, catalogo, limite, costo di
   lettura di un giro, cron e strumento.
+- `prove/brew-cancellazione.test.js`: 11 prove sulla cancellazione, compresa
+  una che arriva fra il piano e il batch del cron:
+  - membro;
+  - rappresentante e nuovo raggruppamento;
+  - impronta condivisa;
+  - retry con guasto, commit senza risposta e partite gia' sparite;
+  - `?id_brew=` e `?impronta=` dopo la cancellazione;
+  - sezione «partite» dell'account;
+  - tabelle assenti;
+  - cron;
+  - DELETE ammesso e UPDATE congelato.
 - `prove/brew-meta.test.js`: 12 prove sulle letture pubbliche: compatibilita',
   conteggi in 12 filtri, BO1/BO3, `?id_brew=`, legacy, privacy, nessuna
   scrittura nelle GET, tabelle assenti e frontend attuale.
