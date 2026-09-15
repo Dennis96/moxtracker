@@ -12,8 +12,8 @@ sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 ## S1 Brew backend — 15 settembre 2026 (branch non fuso)
 
 - **Branch:** `claude/s1-brew-backend-2026-09-15` da `main` `75bcac4`;
-  commit `b6c940d` (codice, prove, migrazione e contratto), piu' questo
-  aggiornamento di stato.
+  commit `b6c940d` (codice, prove, migrazione e contratto) e `0bc7816`
+  (delta cancellazione, 16/09), piu' gli aggiornamenti di stato.
 - **Cosa:** gruppi Brew a raggio. La distanza si misura sul main deck per
   nome carta, k = 4, algoritmo `main-multiset-radius-v1`. Identificativi
   opachi persistenti `bg_`/`bv_`. `/meta` aggiunge `gruppi_brew` e
@@ -29,7 +29,13 @@ sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 - **Privacy:** entrano nei gruppi solo liste con 30 partite totali. Un gruppo
   mostra solo le varianti pubbliche nel filtro, e le liste sotto soglia
   restano nel conteggio globale di prima.
-- **Verifiche:** `npm run prove` 394/394, nessuna saltata. `npm run
+- **Cancellazione (delta 16/09):** dopo `Cancella dal sito partite e
+  Draft`, e dopo la sezione «partite» dell'account, non resta stato Brew
+  senza partite. La pulizia sta nello stesso batch delle partite, prima delle
+  credenziali, ed e' ripetibile. Un gruppo che perde il rappresentante si
+  smonta: e' l'eccezione privacy alla stabilita' degli id. I trigger
+  congelano gli UPDATE, non i DELETE.
+- **Verifiche:** `npm run prove` 405/405, nessuna saltata. `npm run
   sito:build` produce `346ce2023c50e91c`, identica alla preview. La
   migrazione e' provata su SQLite e su D1 locale di Wrangler (`--local`,
   cartella temporanea).
