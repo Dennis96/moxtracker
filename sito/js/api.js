@@ -27,11 +27,13 @@ function query({ formato, rank, periodo, modalita }) {
 export function fetchMeta(filters, options) {
   return request(`/meta?${query(filters)}`, options);
 }
-export function fetchArchetipo({ formato, rank, periodo, modalita, id, impronta }, options) {
+// Tre dettagli alternativi: archetipo (`id`), gruppo Brew (`id_brew`) o la
+// vecchia lista per impronta. Mai due insieme.
+export function fetchArchetipo({ formato, rank, periodo, modalita, id, id_brew: idBrew, impronta }, options) {
   const params = new URLSearchParams({ formato });
-  if (id) params.set("id", id);
-  else if (impronta) params.set("impronta", impronta);
-  else throw new Error("Serve id archetipo oppure impronta");
+  const scelti = [["id", id], ["id_brew", idBrew], ["impronta", impronta]].filter(([, valore]) => valore);
+  if (scelti.length !== 1) throw new Error("Serve un solo identificativo: archetipo, gruppo Brew o impronta");
+  params.set(...scelti[0]);
   if (rank) params.set("rank", rank);
   if (periodo) params.set("periodo", periodo);
   if (modalita) params.set("modalita", modalita);

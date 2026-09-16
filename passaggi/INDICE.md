@@ -18,6 +18,10 @@ fonte operativa del sito, inclusi commit, preview, verifiche e confini.
    S1 backend su branch non fuso: distanza, k, identificativi, privacy e API
    per S2; handoff della review in
    [handoff/HANDOFF-S1-BREW-BACKEND-REVIEW-2026-09-15.md](handoff/HANDOFF-S1-BREW-BACKEND-REVIEW-2026-09-15.md).
+6. [S2 frontend dei gruppi Brew](sito/S2-BREW-FRONTEND-2026-09-16.md) — F1 su
+   branch non fuso e non deployato: Meta a una riga per gruppo, dettaglio
+   `id_brew`, fallback legacy e URL canonici; handoff in
+   [handoff/HANDOFF-S2-BREW-FRONTEND-2026-09-16.md](handoff/HANDOFF-S2-BREW-FRONTEND-2026-09-16.md).
 
 ## Storico
 

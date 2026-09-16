@@ -108,8 +108,13 @@ test("archetipo: ordine della specifica e contratto URL invariato", () => {
   assert.match(html, /id="variants-split"/);
   assert.match(html, /id="trend-panel"/);
   const js = leggi("js/archetype.js");
-  for (const p of ["formato", "rank", "periodo", "modalita", "impronta", "id", "variante"]) {
-    assert.match(js, new RegExp(`params\\.get\\("${p}"\\)`), p);
+  // Gli identificativi (id, id_brew, impronta) li legge detailIdentifier in
+  // meta-model.js, che archetype.js usa: il contratto URL resta lo stesso, con
+  // id_brew in piu' (S2).
+  const url = js + leggi("js/meta-model.js");
+  assert.match(js, /detailIdentifier\(params\)/);
+  for (const p of ["formato", "rank", "periodo", "modalita", "impronta", "id", "id_brew", "variante"]) {
+    assert.match(url, new RegExp(`params\\.get\\("${p}"\\)`), p);
   }
   assert.match(js, /export function ripartizioneVarianti\(/);
   assert.match(js, /new URL\("\.\/meta\.html"/);

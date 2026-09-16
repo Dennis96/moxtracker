@@ -395,6 +395,8 @@
   "Vai al dettaglio": "Skip to details",
   "Manca l'identificativo dell'archetipo o del mazzo.": "The archetype or deck identifier is missing.",
   "La variante selezionata non è presente nei dati del filtro corrente.": "The selected variant is not present in the current filtered data.",
+  "L'indirizzo contiene più di un identificativo: aprilo di nuovo dal Meta.": "The address contains more than one identifier: open it again from the Meta.",
+  "Quota nel filtro corrente": "Share in the current filter",
   "Impossibile leggere i dati del meta.": "Unable to read meta data.",
   "Dettaglio non disponibile": "Details unavailable",
   "Dettaglio meta": "Meta details",

@@ -14,10 +14,11 @@ test("dettaglio frontend non legge direttamente variant.carte e non usa fallback
   assert.match(source, /Decklist non pubblicata/);
 });
 
-test("meta explorer non mette l'impronta completa nei tooltip e protegge le core strip", () => {
+test("meta explorer non mostra l'impronta, nemmeno abbreviata, e protegge le core strip", () => {
   const source = leggi("../sito/js/render.js");
   assert.equal(source.includes("mark.title = deck.impronta"), false);
-  assert.match(source, /ID tecnico/);
+  // Dal S2 anche l'«ID tecnico» abbreviato non esce piu' (prima era ammesso).
+  assert.doesNotMatch(source, /ID tecnico|shortFingerprint/);
   assert.match(source, /if \(classified\) \{[\s\S]*?createCoreStrip/);
 });
 

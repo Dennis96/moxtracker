@@ -85,6 +85,9 @@ dell'archetipo come sostituto.
 
 ### F1 — Presentazione dei gruppi Brew
 
+**Implementato il 16/09/2026 sul branch `claude/s2-brew-frontend-2026-09-16`,
+non fuso e non deployato**: vedi [S2-BREW-FRONTEND-2026-09-16.md](S2-BREW-FRONTEND-2026-09-16.md).
+
 Dopo B1, il Meta dovrà mostrare un solo gruppo per Brew simili e, al suo
 interno, le varianti pubblicabili. Il dettaglio dovrà usare l'identificativo
 stabile del gruppo, preservare per quanto possibile i vecchi collegamenti per

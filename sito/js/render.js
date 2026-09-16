@@ -1,5 +1,5 @@
-import { deckLabel, formatDate, formatInteger, formatPercent, sampleSufficient, shortFingerprint, winRateClass } from "./format.js";
-import { classificationSummary, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks, strategyLabel } from "./meta-model.js";
+import { deckLabel, formatDate, formatInteger, formatPercent, sampleSufficient, winRateClass } from "./format.js";
+import { brewGroupDetailUrl, brewGroups, brewGroupSummary, classificationSummary, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { createCoreStrip } from "./card-images.js";
 
 const INGLESE = document.documentElement.lang === "en";
@@ -86,30 +86,40 @@ function sottoSogliaBrew(deck) {
   return liste > 0 ? { liste, partite: Number(deck.brew_sotto_soglia.partite) || 0 } : null;
 }
 
-function testiRestoBrew(sotto, soglia) {
+// Con i gruppi del server le liste sotto soglia restano un solo riepilogo per
+// tutto «Altro (Brew)»: non si dice, e non si deduce, a quale gruppo andranno.
+function testiRestoBrew(sotto, soglia, conGruppi = false) {
   const una = sotto.liste === 1;
   const quante = formatInteger(sotto.liste);
   const limite = formatInteger(Number(soglia) || 30);
   if (INGLESE) {
     return {
       titolo: `${quante} ${una ? "list" : "lists"} below threshold`,
-      nota: una ? `It doesn't have ${limite} matches yet: it appears here on its own once it gets there.`
-        : `None has ${limite} matches yet: each appears here on its own once it gets there.`,
-      breve: una ? `It appears on its own from ${limite} matches.` : `Each appears on its own from ${limite} matches.`,
+      nota: conGruppi
+        ? (una ? `It doesn't have ${limite} matches yet: it isn't attributed to any group.`
+          : `None has ${limite} matches yet: they aren't attributed to any group.`)
+        : (una ? `It doesn't have ${limite} matches yet: it appears here on its own once it gets there.`
+          : `None has ${limite} matches yet: each appears here on its own once it gets there.`),
+      breve: conGruppi ? `Outside the groups until ${limite} matches.`
+        : (una ? `It appears on its own from ${limite} matches.` : `Each appears on its own from ${limite} matches.`),
       riservati: "Data and decklists not published",
     };
   }
   return {
     titolo: `${quante} ${una ? "lista" : "liste"} sotto soglia`,
-    nota: una ? `Non ha ancora ${limite} partite: compare qui da sola quando ci arriva.`
-      : `Nessuna ha ancora ${limite} partite: compaiono qui una per una quando ci arrivano.`,
-    breve: una ? `Compare da sola da ${limite} partite.` : `Compaiono una per una da ${limite} partite.`,
+    nota: conGruppi
+      ? (una ? `Non ha ancora ${limite} partite: non viene attribuita a nessun gruppo.`
+        : `Nessuna ha ancora ${limite} partite: non vengono attribuite ai gruppi.`)
+      : (una ? `Non ha ancora ${limite} partite: compare qui da sola quando ci arriva.`
+        : `Nessuna ha ancora ${limite} partite: compaiono qui una per una quando ci arrivano.`),
+    breve: conGruppi ? `Fuori dai gruppi fino a ${limite} partite.`
+      : (una ? `Compare da sola da ${limite} partite.` : `Compaiono una per una da ${limite} partite.`),
     riservati: "Dati e decklist non pubblicati",
   };
 }
 
-function rigaRestoBrew(sotto, soglia) {
-  const testi = testiRestoBrew(sotto, soglia);
+function rigaRestoBrew(sotto, soglia, conGruppi = false) {
+  const testi = testiRestoBrew(sotto, soglia, conGruppi);
   const tr = el("tr", "brew-child brew-rest");
   const nome = el("td", "brew-child-name");
   nome.append(el("strong", "", testi.titolo), el("small", "", testi.nota));
@@ -119,8 +129,8 @@ function rigaRestoBrew(sotto, soglia) {
   return tr;
 }
 
-function schedaRestoBrew(sotto, soglia) {
-  const testi = testiRestoBrew(sotto, soglia);
+function schedaRestoBrew(sotto, soglia, conGruppi = false) {
+  const testi = testiRestoBrew(sotto, soglia, conGruppi);
   const scheda = el("div", "mobile-brew-child brew-rest");
   const testa = el("div", "mobile-brew-child-head");
   testa.append(el("strong", "", testi.titolo),
@@ -142,15 +152,35 @@ function aggiornaBrew() {
   for (const gruppo of document.querySelectorAll(".brew-children")) gruppo.hidden = !brewAperto;
 }
 
-function bottoneBrew(quante, idGruppo) {
-  const liste = INGLESE
-    ? `${formatInteger(quante)} ${quante === 1 ? "list" : "lists"}`
-    : `${formatInteger(quante)} ${quante === 1 ? "lista" : "liste"}`;
-  const bottone = el("button", "brew-toggle", liste);
+// Testo del pulsante: con le vecchie varianti conta le liste; con i gruppi del
+// server conta i gruppi, e l'etichetta accessibile aggiunge le liste sotto soglia.
+function testiBottoneBrew(gruppi, quanti, sotto) {
+  const sottoSoglia = sotto?.liste || 0;
+  const liste = (n) => (INGLESE
+    ? `${formatInteger(n)} ${n === 1 ? "list" : "lists"}`
+    : `${formatInteger(n)} ${n === 1 ? "lista" : "liste"}`);
+  const altro = (testo) => (INGLESE ? `${testo} in Other (Brew)` : `${testo} di Altro (Brew)`);
+  if (!gruppi) {
+    const testo = liste(quanti + sottoSoglia);
+    return { testo, aria: altro(testo) };
+  }
+  const parteGruppi = quanti ? (INGLESE
+    ? `${formatInteger(quanti)} ${quanti === 1 ? "group" : "groups"}`
+    : `${formatInteger(quanti)} ${quanti === 1 ? "gruppo" : "gruppi"}`) : "";
+  const parteSotto = sottoSoglia
+    ? `${liste(sottoSoglia)} ${INGLESE ? "below threshold" : "sotto soglia"}` : "";
+  return {
+    testo: parteGruppi || liste(sottoSoglia),
+    aria: altro([parteGruppi, parteSotto].filter(Boolean).join(INGLESE ? " and " : " e ")),
+  };
+}
+
+function bottoneBrew({ testo, aria }, idGruppo) {
+  const bottone = el("button", "brew-toggle", testo);
   bottone.type = "button";
   bottone.setAttribute("aria-controls", idGruppo);
   bottone.setAttribute("aria-expanded", String(brewAperto));
-  bottone.setAttribute("aria-label", INGLESE ? `${liste} in Other (Brew)` : `${liste} di Altro (Brew)`);
+  bottone.setAttribute("aria-label", aria);
   const freccia = el("span", "brew-chevron", "⌄");
   freccia.setAttribute("aria-hidden", "true");
   bottone.append(freccia);
@@ -208,6 +238,65 @@ function schedaBrew(variante, indice, apiFilters) {
   return scheda;
 }
 
+// Un gruppo Brew del server (S2): una riga sola, numeri del server e dettaglio
+// per id del gruppo. Le sue varianti stanno nel dettaglio del gruppo, subordinate
+// a lui: nel Meta non compaiono accanto come Brew separati. Nessun indice, id o
+// impronta nel testo.
+function nomeGruppoBrew() {
+  return INGLESE ? "Brew group" : "Gruppo Brew";
+}
+
+function etichettaApriGruppo(gruppo) {
+  const partite = Number(gruppo?.partite) || 0;
+  return INGLESE
+    ? `Open Brew group, ${formatInteger(partite)} ${partite === 1 ? "match" : "matches"}`
+    : `Apri gruppo Brew da ${formatInteger(partite)} ${partite === 1 ? "partita" : "partite"}`;
+}
+
+function rigaGruppoBrew(gruppo, apiFilters, soglia) {
+  const tr = el("tr", "brew-child brew-group");
+  const tdNome = el("td", "brew-child-name");
+  tdNome.append(el("strong", "", nomeGruppoBrew()), el("small", "", brewGroupSummary(gruppo, INGLESE)));
+  const riservato = gruppo?.record_pubblico === false;
+  tr.append(tdNome, metaCell(formatInteger(gruppo.partite)),
+    metaCell(riservato ? "—" : formatInteger(gruppo.vittorie)),
+    metaCell(riservato ? "—" : formatInteger(gruppo.sconfitte)));
+  if (sampleSufficient(gruppo)) {
+    const wr = riservato ? null : formatPercent(gruppo.win_rate);
+    tr.append(metaCell(wr || "—", wr ? winRateClass(gruppo.win_rate) : ""),
+      metaCell(formatPercent(gruppo.quota_meta) || "—"));
+  } else {
+    tr.append(cellaSottoSoglia(gruppo, soglia));
+  }
+  const tdApri = el("td", "open-cell");
+  const url = brewGroupDetailUrl(gruppo, apiFilters);
+  if (url) {
+    const apri = el("a", "text-link", "Apri");
+    apri.href = url;
+    apri.setAttribute("aria-label", etichettaApriGruppo(gruppo));
+    tdApri.append(apri);
+  }
+  tr.append(tdApri);
+  return tr;
+}
+
+function schedaGruppoBrew(gruppo, apiFilters) {
+  const url = brewGroupDetailUrl(gruppo, apiFilters);
+  const scheda = el(url ? "a" : "div", "mobile-brew-child brew-group");
+  if (url) scheda.href = url;
+  const testa = el("div", "mobile-brew-child-head");
+  testa.append(el("strong", "", nomeGruppoBrew()),
+    el("span", "", `${formatInteger(gruppo.partite)} ${partiteBreve(gruppo.partite)}${url ? " ›" : ""}`));
+  const riservato = gruppo?.record_pubblico === false;
+  const sufficiente = sampleSufficient(gruppo);
+  const valori = el("div", "mobile-brew-child-meta");
+  valori.append(el("span", "", "V / S"),
+    el("strong", "", riservato ? "—" : `${formatInteger(gruppo.vittorie)} / ${formatInteger(gruppo.sconfitte)}`),
+    el("strong", "", !sufficiente ? "Sotto soglia" : (riservato ? "—" : (formatPercent(gruppo.win_rate) || "—"))));
+  scheda.append(testa, el("small", "mobile-brew-child-note", brewGroupSummary(gruppo, INGLESE)), valori);
+  return scheda;
+}
+
 function renderDeckIdentity(deck, apiFilters) {
   const url = deckDetailUrl(deck, apiFilters);
   const link = el(url ? "a" : "div", "deck-link");
@@ -215,10 +304,8 @@ function renderDeckIdentity(deck, apiFilters) {
   const classified = deckIsClassified(deck);
   const text = el("span", "deck-copy");
   text.append(el("strong", "deck-name", deckLabel(deck)));
-  if (!classified) {
-    text.append(el("small", "", classificationSummary(deck)));
-    if (deck.impronta) text.append(el("small", "", `ID tecnico ${shortFingerprint(deck.impronta)}`));
-  }
+  // L'impronta non diventa mai testo, nemmeno abbreviata.
+  if (!classified) text.append(el("small", "", classificationSummary(deck)));
   const meta = el("span", "deck-tags");
   if (classified) {
     for (const color of deckColors(deck)) meta.append(el("span", `mini-color mini-${color.toLowerCase()}`, color));
@@ -293,12 +380,14 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
   thead.append(row); table.append(thead);
   let tbody = document.createElement("tbody");
   for (const deck of decks) {
-    const varianti = variantiBrew(deck);
+    // Gruppi del server se il Worker li espone, altrimenti le vecchie varianti.
+    const gruppi = brewGroups(deck);
+    const elementi = gruppi ?? variantiBrew(deck);
     const sotto = sottoSogliaBrew(deck);
-    const liste = varianti.length + (sotto?.liste || 0);
+    const liste = elementi.length + (sotto?.liste || 0);
     const tr = document.createElement("tr");
     const tdDeck = document.createElement("td"); tdDeck.append(renderDeckIdentity(deck, apiFilters));
-    if (liste) tdDeck.append(bottoneBrew(liste, "meta-brew-righe"));
+    if (liste) tdDeck.append(bottoneBrew(testiBottoneBrew(gruppi, elementi.length, sotto), "meta-brew-righe"));
     tr.append(tdDeck);
     const riservato = deck?.record_pubblico === false;
     tr.append(metaCell(formatInteger(deck.partite)), metaCell(riservato ? "—" : formatInteger(deck.vittorie)),
@@ -329,9 +418,13 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
       // Le liste di Altro stanno in un tbody proprio, subito sotto la riga
       // aggregata: e' il contenitore che il pulsante apre e chiude.
       const figli = gruppoBrew("tbody", "meta-brew-righe");
-      varianti.forEach((variante, indice) =>
-        figli.append(rigaBrew(variante, indice, apiFilters, data.soglia_percentuali)));
-      if (sotto) figli.append(rigaRestoBrew(sotto, data.soglia_percentuali));
+      if (gruppi) {
+        for (const gruppo of gruppi) figli.append(rigaGruppoBrew(gruppo, apiFilters, data.soglia_percentuali));
+      } else {
+        elementi.forEach((variante, indice) =>
+          figli.append(rigaBrew(variante, indice, apiFilters, data.soglia_percentuali)));
+      }
+      if (sotto) figli.append(rigaRestoBrew(sotto, data.soglia_percentuali, Boolean(gruppi)));
       table.append(tbody, figli);
       tbody = document.createElement("tbody");
     }
@@ -349,7 +442,6 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
     const head = el("div", "mobile-deck-head");
     const title = el("div");
     title.append(el("strong", "", deckLabel(deck)), el("small", "", classificationSummary(deck)));
-    if (!classified && deck.impronta) title.append(el("small", "", `ID tecnico ${shortFingerprint(deck.impronta)}`));
     head.append(title, el("span", "", `${formatInteger(deck.partite)} ${partiteBreve(deck.partite)}${url ? " ›" : ""}`)); card.append(head);
     if (classified) {
       const core = createCoreStrip(deck.carte_core || []);
@@ -364,23 +456,29 @@ export function renderMeta(data, sort, localFilters = {}, apiFilters = {}) {
         ? [["Win rate", riservato ? (INGLESE ? "Not published" : "Non pubblicato") : formatPercent(deck.win_rate)],
           ["Quota meta", formatPercent(deck.quota_meta)]]
         : [["Win rate e quota meta", "Sotto soglia"]]),
-      [deck.impronta && !classified ? "ID tecnico" : "Modalità", deck.impronta && !classified ? shortFingerprint(deck.impronta) : (deckMode(deck) || "—")],
+      ["Modalità", deckMode(deck) || "—"],
     ];
     for (const [label, value] of values) { const metric = el("div", "mobile-metric"); metric.append(el("span", "", label), el("strong", "", value)); grid.append(metric); }
     card.append(grid);
     if (!sufficiente) card.append(el("p", "mobile-below", testoSottoSoglia(deck, data.soglia_percentuali)));
     // Il pulsante non puo' stare dentro una scheda che e' gia' un link.
-    const varianti = variantiBrew(deck);
+    const gruppi = brewGroups(deck);
+    const elementi = gruppi ?? variantiBrew(deck);
     const sotto = sottoSogliaBrew(deck);
-    const liste = varianti.length + (sotto?.liste || 0);
-    const bottone = liste ? bottoneBrew(liste, "meta-brew-schede") : null;
+    const liste = elementi.length + (sotto?.liste || 0);
+    const bottone = liste
+      ? bottoneBrew(testiBottoneBrew(gruppi, elementi.length, sotto), "meta-brew-schede") : null;
     if (bottone && !url) card.append(bottone);
     mobile.append(card);
     if (bottone && url) mobile.append(bottone);
     if (bottone) {
       const figli = gruppoBrew("div", "meta-brew-schede", "mobile-brew-children");
-      varianti.forEach((variante, indice) => figli.append(schedaBrew(variante, indice, apiFilters)));
-      if (sotto) figli.append(schedaRestoBrew(sotto, data.soglia_percentuali));
+      if (gruppi) {
+        for (const gruppo of gruppi) figli.append(schedaGruppoBrew(gruppo, apiFilters));
+      } else {
+        elementi.forEach((variante, indice) => figli.append(schedaBrew(variante, indice, apiFilters)));
+      }
+      if (sotto) figli.append(schedaRestoBrew(sotto, data.soglia_percentuali, Boolean(gruppi)));
       mobile.append(figli);
     }
   }

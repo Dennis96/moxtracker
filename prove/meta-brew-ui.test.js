@@ -240,14 +240,18 @@ test("cercando l'etichetta di una lista Brew resta visibile la riga Altro", asyn
 test("il dettaglio di una lista non classificata non mostra identificativi tecnici", () => {
   const archetipo = leggi("js/archetype.js");
   assert.doesNotMatch(archetipo, /ID tecnico/);
-  // L'«ID» della variante compare solo per gli archetipi riconosciuti.
-  assert.match(archetipo, /identity\.append\(title, \.\.\.\(recognized \? \[sub\] : \[\]\)\)/);
+  // L'«ID» della variante compare solo per gli archetipi riconosciuti; un
+  // gruppo Brew mostra al suo posto, se pubblicata, la distanza (S2).
+  assert.match(archetipo, /identity\.append\(title, \.\.\.\(recognized \? \[sub\] : \[\]\), \.\.\.\(distanza \? \[nota\] : \[\]\)\)/);
+  assert.match(archetipo, /const recognized = !brewGroup && data\.tipo_dettaglio !== "non_classificato"/);
   assert.match(archetipo, /if \(selection && classified\) tags\.append/);
 });
 
 test("la lista Brew pubblicata offre copia Arena, descrizione e profilo", () => {
   const archetipo = leggi("js/archetype.js");
-  assert.match(archetipo, /preparaCopiaArena\(copia, testoArena\(cards, recognized \? `Variante osservata #\$\{index \+ 1\}` : `Brew #\$\{index \+ 1\}`\)\)/);
+  // Il nome copiato in Arena di un Brew non porta indici instabili (S2).
+  assert.match(archetipo, /preparaCopiaArena\(copia, testoArena\(cards, recognized \? `Variante osservata #\$\{index \+ 1\}` : "Brew MOX"\)\)/);
+  assert.doesNotMatch(archetipo, /`Brew #\$\{index \+ 1\}`/);
   assert.match(archetipo, /Lista effettivamente osservata/);
   assert.match(archetipo, /brew-deck-profile/);
   assert.match(archetipo, /renderProfiloMazzo\(profilo, cards/);

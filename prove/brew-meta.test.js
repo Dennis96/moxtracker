@@ -349,7 +349,10 @@ test("senza le tabelle Brew (prima della migrazione) le letture restano quelle d
   assert.deepEqual([legacy.stato, legacy.corpo.gruppo_brew_id], [200, null]);
 });
 
-test("il frontend attuale disegna il Meta con i gruppi come prima", async () => {
+// Dal S2 il sito usa i gruppi: questa prova, nata in S1 per dire «il frontend
+// di allora non si rompe», verifica ora da capo a fondo il payload vero di S1
+// disegnato dal frontend S2 (solo le attese sono cambiate, non il backend).
+test("il frontend disegna il Meta reale di S1 con una riga per gruppo", async () => {
   const db = scenario();
   await assegnaBrew(db, "Standard");
   const corpo = await meta(db);
@@ -368,8 +371,14 @@ test("il frontend attuale disegna il Meta con i gruppi come prima", async () => 
   render.renderMeta({ ...corpo, mazzi: [altroDi(corpo)] }, { key: "partite", direction: "desc" }, {},
     { formato: "Standard", periodo: "30" });
   const [righe] = documento.querySelectorAll(".brew-children");
-  const impronte = [...righe.querySelectorAll("a")]
-    .map((a) => new URLSearchParams(a.href.split("?")[1]).get("impronta"));
-  assert.deepEqual(impronte, [A, B, C]);
-  assert.equal(documento.body.textContent.includes(D.slice(0, 8)), false);
+  const link = [...righe.querySelectorAll("a")].map((a) => new URLSearchParams(a.href.split("?")[1]));
+  const { gruppo } = identita(db);
+  // A e B (il 56/60) sono un gruppo solo; C e' il suo gruppo; D non c'e'.
+  assert.deepEqual(link.map((p) => p.get("id_brew")), [gruppo.get(A), gruppo.get(C)]);
+  assert.ok(link.every((p) => !p.has("impronta")));
+  assert.equal(righe.querySelectorAll("tr.brew-group").length, 2);
+  assert.equal(righe.querySelectorAll(".brew-rest").length, 1);
+  const testo = documento.body.textContent;
+  for (const vietato of [A, B, C, D].map((x) => x.slice(0, 8))) assert.equal(testo.includes(vietato), false);
+  assert.doesNotMatch(testo, /bg_|bv_|Brew #/);
 });
