@@ -9,6 +9,34 @@ client è `mox-v2-beta2.11.0`, non prerelease, con il solo asset
 `Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli nella sezione
 sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 
+## S2 Brew frontend — 16 settembre 2026 (branch non fuso)
+
+- **Branch:** `claude/s2-brew-frontend-2026-09-16`, creato da `8a3cfe7` (S1
+  `17a3ca0` più la review indipendente); commit `b099e1b` più questo
+  aggiornamento di stato. **Non fuso, non deployato**: `moxtracker.app` e la
+  preview non cambiano, e `main` resta `75bcac4`.
+- **Preflight S1** sull'HEAD esatto: quattro suite Brew 53/53,
+  `npm run prove` 405/405 senza prove saltate, build `346ce2023c50e91c`,
+  strumento Brew ok. La prima condizione della review S1 è chiusa.
+- **Cosa:**
+  - nel Meta, una riga o scheda per gruppo Brew con numeri del server e un
+    solo riepilogo sotto soglia;
+  - link `archetipo.html?…&id_brew=bg_…` con tutti i filtri;
+  - dettaglio `brew_group` con varianti «rappresentativa» e «simile»;
+  - vecchi `?impronta=` portati all'URL canonico con `replaceState`;
+  - fallback identico al Meta di prima quando il Worker non espone i gruppi;
+  - nessuna impronta o id tecnico visibile.
+- **Verifiche:**
+  - `npm run prove`: 424/424, nessuna saltata;
+  - `npm run sito:build`: build `54ae1e62b7792f95`;
+  - nel browser, sull'anteprima locale con banco sintetico: link canonico,
+    reload, «indietro», inglese a 375 px;
+  - screenshot sintetici in `passaggi/sito/mockups/2026-09-16/s2-brew-frontend/`.
+- **Non toccati:** backend S1 (`src/`, schema, migrazioni), Worker, Pages, D1
+  remoto, `mox-core`. **S3 non è iniziato.**
+- **Documenti:** [S2 frontend](passaggi/sito/S2-BREW-FRONTEND-2026-09-16.md) e
+  l'[handoff](passaggi/handoff/HANDOFF-S2-BREW-FRONTEND-2026-09-16.md).
+
 ## S1 Brew backend — 15 settembre 2026 (branch non fuso)
 
 - **Branch:** `claude/s1-brew-backend-2026-09-15` da `main` `75bcac4`;
