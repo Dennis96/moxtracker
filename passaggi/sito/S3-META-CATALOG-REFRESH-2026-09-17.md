@@ -1,27 +1,28 @@
 # S3 — META-CATALOG-REFRESH — 17 settembre 2026
 
-**Stato:** `S3-A COMPLETATO · S3-B PENDENTE`  
-**Stato decisioni:** `PROPOSED_FOR_REVIEW`
+**Stato:** `COMPLETATO PER REVIEW`  
+**Decisioni:** `PROPOSED_FOR_REVIEW`  
+**Esito tecnico:** `PASS WITH CONDITIONS`  
+**Condizione residua:** gate dinamico suite/generazione da rieseguire in un checkout completo
 
-Questo documento registra soltanto il checkpoint tecnico S3-A: validazione del corpus privato, clustering S1 e diagnostica del classificatore corrente. Non contiene decisioni A/B/C/D e non anticipa la ricerca sulle fonti Meta.
+S3 ha completato la prima run controllata Standard senza promuovere automaticamente alcun Brew. Il risultato decisionale e' intenzionalmente conservativo: i tre gruppi reali osservati hanno identita' meccaniche coerenti, ma l'evidenza esterna consentita non supporta B/C/D con il livello richiesto dal mandato. Il catalogo resta quindi invariato.
 
-## 1. Baseline e branch
+## 1. Baseline e HEAD finali del checkpoint
 
 ### mox-core
 
 - repository: `Dennis96/mox-core`
-- baseline/HEAD S3 al checkpoint: `c8079dc40c1325c1314d9f283226ab3be10db21d`
+- baseline: `c8079dc40c1325c1314d9f283226ab3be10db21d`
 - branch: `chatgpt/s3-meta-catalog-refresh-2026-09-17`
-- `meta/standard.json`: **non modificato**
+- HEAD dopo S3-C: `20f3a09a6560884f0ac95bd7c93fe90163104960`
+- delta dalla baseline: un solo decision log pubblico S3
 
 ### moxtracker
 
 - repository: `Dennis96/moxtracker`
 - base S3/S2: `d7437da62e7351dcd9d99260c3d3685452dab496`
-- HEAD remoto iniziale di S3-A: `6064a63c17f325601cff2482047a235e2deee026`
 - branch: `chatgpt/s3-meta-catalog-refresh-2026-09-17`
-
-Il commit `6064a63c17f325601cff2482047a235e2deee026` contiene gia' il collector S3 e la relativa documentazione/test; S3-A non ha ripetuto la raccolta.
+- HEAD prima dell'handoff finale: `d4f364198198d310d1a7047020b853d7644b1e3b`
 
 ## 2. Parametri congelati
 
@@ -32,139 +33,161 @@ Il commit `6064a63c17f325601cff2482047a235e2deee026` contiene gia' il collector 
 - clustering: `main-multiset-radius-v1`
 - k: `4`
 - classificatore: lista `0.90`, margine `0.03`; core `0.60`, almeno 5 carte, margine `0.20`
-- nessuna modifica a soglie, algoritmo o contratto S1/S2
+- nessuna modifica a soglie, algoritmo o contratti S1/S2
 
-## 3. Integrita' del corpus privato
+## 3. Corpus reale autorizzato
 
-Sono stati verificati i tre artefatti privati prodotti dal collector:
+Il collector pubblico S3 ha prodotto tre artefatti privati, successivamente validati in S3-A:
 
 - manifest JSON;
 - report candidati JSON;
 - report candidati Markdown.
 
-Esito:
+Lo snapshot canonico della run e' quello validato con corpus SHA-256:
 
-- parametri manifest/report coerenti;
-- SHA-256 canonico della risposta Meta coerente col manifest;
-- SHA-256 canonici di tutti i quattro dettagli coerenti col manifest;
-- SHA-256 canonico del corpus coerente col manifest;
-- quattro decklist pubblicabili complete da 60 carte;
-- Markdown riproducibile deterministicamente dal report JSON e dal manifest.
+`afe964cee29bfcf27795698f97436b6b797dece77d363ab6fd0b3933e1015b87`
 
-Gli SHA e gli identificativi reali restano negli artefatti privati e non vengono versionati nel repository pubblico.
+Esito S3-A:
 
-## 4. Corpus e clustering S1 k=4
+- 4 varianti Brew pubblicabili;
+- 149 partite aggregate;
+- 3 gruppi dopo clustering S1 k=4;
+- distribuzione: 81/2 varianti, 37/1, 31/1;
+- gruppo 81 = varianti 47 + 34 a distanza canonica 4;
+- nessuna anomalia sostanziale del corpus/clustering;
+- validatore mirato S3-A: **17/17 PASS**.
 
-La coda S3 contiene:
+Esisteva nel Project/Library anche uno snapshot precedente raccolto nello stesso giorno, non usato per le decisioni finali. La run canonica e' quella identificata dall'hash sopra.
 
-- **4 varianti Brew pubblicabili**;
-- **149 partite aggregate**;
-- **3 gruppi candidati** dopo clustering S1 k=4.
+Gli artefatti privati, fingerprint e decklist complete non sono stati committati.
 
-Distribuzione aggregata sicura:
+## 4. Preflight fonti S3-B0
 
-| Partite gruppo | Varianti pubbliche |
-| ---: | ---: |
-| 81 | 2 |
-| 37 | 1 |
-| 31 | 1 |
+Esito conservativo:
 
-Il gruppo da 81 partite e' formato dalle varianti da 47 e 34 partite, a distanza S1 esattamente `4` dal rappresentante. Le altre due varianti restano singleton. Le altre distanze fra rappresentanti/varianti sono superiori a k e non producono fusioni.
+- `magic.wizards.com`: `CONSENTITA CON LIMITI` — consultazione puntuale di pagine pubbliche, niente crawling/scraping/data mining automatizzato;
+- `mtgaassistant.net`: `NON UTILIZZABILE` nel runner corrente;
+- `aetherhub.com`: `NON UTILIZZABILE` nel runner corrente;
+- `mtgdecks.net`: `NON UTILIZZABILE` nel runner corrente.
 
-Il payload Meta contiene inoltre 6 Brew sotto soglia per 49 partite: non entrano nella coda S3, come previsto dal contratto.
+Nessun workaround, mirror o bypass e' stato usato.
 
-## 5. Diagnostica del classificatore corrente
+## 5. Decisioni candidate
 
-Tutte le quattro varianti della coda risultano non classificate dal catalogo corrente. La diagnostica dei tre rappresentanti di gruppo e' la seguente.
+| Candidato | Dati aggregati | Nucleo sicuro | Decisione proposta | Modifica catalogo |
+|---|---:|---|---|---|
+| C001 | 81 partite / 2 varianti | Red-white Dwarves + Equipment | `A — EVIDENZA_INSUFFICIENTE` | Nessuna |
+| C002 | 37 partite / 1 variante | Orzhov sacrifice/death/recursion | `A — EVIDENZA_INSUFFICIENTE` | Nessuna |
+| C003 | 31 partite / 1 variante | Orzhov sacrifice/death/recursion, payoff morte piu' densi | `A — EVIDENZA_INSUFFICIENTE` | Nessuna |
 
-### Gruppo 81 partite / 2 varianti
+Conteggi:
 
-- primo riferimento nell'ordinamento diagnostico: **Boros Prowess**;
-- core: `1/8 = 12,5%`;
-- somiglianza lista di quel riferimento: circa `3,8%`;
-- massima somiglianza lista fra i riferimenti riportati: circa `7,7%` (**Boros Aggro**);
-- classificazione corrente: `null` / Brew.
+- A — `EVIDENZA_INSUFFICIENTE`: **3**;
+- A — `VERO_BREW`: **0**;
+- B — `CATALOGO_VECCHIO`: **0**;
+- C — `VARIANTE_NOTA`: **0**;
+- D — `NUOVO_ARCHETIPO`: **0**.
 
-### Gruppo 37 partite / 1 variante
+### C001
 
-- riferimento piu' vicino: **Boros Aggro**;
-- core: `1/8 = 12,5%`;
-- somiglianza lista: circa `7,7%`;
-- classificazione corrente: `null` / Brew.
+Wizards attesta l'identita' ufficiale `Red-White Dwarves` e le sinergie Nani/Equipment del set Hobbit. Le evidenze disponibili sono pero' soprattutto design/Limited/regole/Brawl, non una presenza Standard ripetuta sufficiente al gate D. I Boros MOX esistenti sono tecnicamente molto distanti.
 
-### Gruppo 31 partite / 1 variante
+### C002
 
-- riferimento piu' vicino: **Orzhov Auras**;
-- core: `2/8 = 25,0%`;
-- somiglianza lista: circa `17,0%`;
-- secondo segnale vicino: **Orzhov Skeletons**, core `2/8 = 25,0%`, lista circa `12,7%`;
-- classificazione corrente: `null` / Brew.
+Wizards conferma la coerenza di un piano a creature economiche con sacrificio, death triggers, `Raise the Past`, `Sephiroth, Fabled SOLDIER`, `Vengeful Bloodwitch` e recruit. Non emergono tuttavia risultati Standard ufficiali ripetuti o naming attestato sufficienti a B/C/D.
 
-### Motivo tecnico
+### C003
 
-I candidati restano Brew per un motivo tecnico netto, non per il margine fra due archetipi:
+C003 rafforza lo stesso asse generale con ulteriori payoff di morte come `Arnyn, Deathbloom Botanist` e `Syr Vondam, Sunstar Exemplar`. E' strategicamente affine a C002 ma non e' una quasi-copia S1 e S3 non introduce famiglie: `Varianti ora, famiglie dopo` resta invariato. Anche qui manca evidenza Standard sufficiente a B/C/D.
 
-- nessun riferimento raggiunge la soglia lista `0.90`;
-- nessun core raggiunge `0.60`;
-- i migliori core contengono soltanto 1 o 2 carte su 8, quindi restano anche sotto il minimo di 5 carte.
+L'assenza di evidenza sufficiente non viene trasformata in `VERO_BREW`.
 
-Questa diagnosi **non** stabilisce se il catalogo sia vecchio, se si tratti di variante nota, nuovo archetipo o vero Brew. Tale decisione richiede S3-B e le fonti esterne consentite.
+## 6. Decision log canonico S3
 
-## 6. Anomalie
+In `mox-core`:
 
-Nessuna anomalia del corpus o del clustering S1 e' emersa.
+`passaggi/meta/S3-META-CATALOG-DECISION-LOG-2026-09-17.md`
 
-Nota tecnica: l'ordinamento dei `riferimenti_catalogo_vicini` del collector privilegia prima il punteggio core e poi la somiglianza lista. Per questo il primo riferimento mostrato non e' necessariamente quello con la massima somiglianza dell'intera lista. Il comportamento e' coerente con il tool corrente e non altera la classificazione.
+Il log consolida le tre decisioni e congela il gate catalogo:
 
-## 7. Test mirati S3-A
+- nessun nuovo archetipo;
+- nessuna nuova lista di riferimento;
+- nessun cambio nome;
+- nessun cambio soglia/core/algoritmo;
+- `meta/standard.json` invariato.
 
-Validatore locale sugli artefatti privati: **17/17 PASS**.
+## 7. Gate statico S3-D
 
-Copertura del checkpoint:
+### Catalogo curato
 
-- parametri manifest/report;
-- hash Meta, quattro dettagli e corpus;
-- conteggi e soglia di pubblicazione;
-- completezza 60 carte delle quattro liste;
-- riproduzione esatta del clustering `main-multiset-radius-v1`, k=4;
-- classificazione `null` dei rappresentanti;
-- verifica che lista/core/minimo carte restino sotto le soglie correnti;
-- riproducibilita' del report Markdown.
+`mox-core/meta/standard.json` sul branch S3 conserva il blob baseline:
 
-Non e' stata eseguita ricerca web Meta e non sono stati modificati codice, soglie o catalogo; non e' quindi necessaria una regressione applicativa piu ampia per questo checkpoint documentale.
+`259bbeba19bb4b4af9515604bf3e60e715fb6387`
 
-## 8. Privacy e modifiche
+### Catalogo generato
 
-Restano fuori Git:
+`moxtracker/src/catalogo-archetipi-generato.js` conserva il blob baseline:
 
-- fingerprint reali;
-- decklist reali;
-- manifest privato;
-- report candidati JSON/Markdown privati;
-- mapping tecnico dei gruppi.
+`5f47548824671347c0697f8d924964c38ae23ef5`
 
-Nessun dato candidato privato e' stato committato.
+### Diff
 
-## 9. S3-B
+`mox-core` e' ahead di un solo commit documentale rispetto alla baseline.
 
-Il prossimo checkpoint deve partire dagli artefatti privati gia' validati, senza rifare il collector salvo cambio del corpus.
+Il delta S3 tracker rispetto a S2 contiene esclusivamente:
 
-S3-B deve:
+- collector pubblico read-only S3;
+- test sintetico del collector;
+- report/handoff S3;
+- preflight fonti;
+- decisioni C001/C002/C003;
+- gate tecnico.
 
-1. eseguire il preflight robots/termini delle sole fonti whitelist previste dal mandato;
-2. consultare soltanto i canali consentiti;
-3. confrontare ciascuno dei 3 gruppi con evidenze Meta aggiornate al cutoff;
-4. motivare una proposta conservativa A/B/C/D per ciascun gruppo;
-5. produrre un decision log pubblico privo di fingerprint/decklist/dati utente.
+Nessuna modifica a classificatore, clustering S1, catalogo generato, schema/D1 o frontend S1/S2.
 
-S3-B non deve usare volume o win rate come prova di classificazione. Le modifiche a `mox-core/meta/standard.json`, la rigenerazione e il diff prima/dopo restano una fase successiva alla decisione supportata da fonti.
+Esito: **STATIC GATE PASS**.
 
-## 10. Operazioni non eseguite
+## 8. Gate dinamico pendente
 
-- merge: **NO**
-- deploy: **NO**
-- D1 remoto: **NO**
-- produzione: **NO**
-- ricerca fonti Meta: **NO**
-- decisioni A/B/C/D: **NO**
-- modifica `mox-core/meta/standard.json`: **NO**
+Il runner ChatGPT dispone di Node/npm/Python ma non riesce a risolvere `github.com` via DNS, quindi non puo' creare un checkout completo dei repository. Non vengono dichiarati verdi test non eseguiti e non vengono riutilizzati risultati storici come test S3-D.
+
+Prima di `PASS CANDIDATE` vanno rieseguiti in un checkout completo almeno:
+
+```text
+node --test prove/s3-candidati-pubblici.test.js
+node --test prove/brew-clustering.test.js prove/brew-gruppi.test.js prove/brew-meta.test.js prove/brew-cancellazione.test.js
+npm run prove
+npm run sito:build
+npm run genera-archetipi -- --mox <path-mox-core>
+```
+
+La generazione deve essere ripetuta a input immutato e risultare deterministica. Poiche' `standard.json` non cambia, il catalogo generato atteso deve restare equivalente alla baseline.
+
+Per `mox-core` vanno eseguite le suite Meta/classificatore/formati realmente presenti nel checkout e la suite canonica completa prevista dal repository.
+
+Gli HEAD S3 non espongono status/check CI remoti; l'assenza di status non e' considerata PASS o FAIL.
+
+## 9. Brew residui e naming
+
+Dopo la decisione S3, tutti i 3 gruppi pubblici candidati restano correttamente Brew perche' nessuna modifica catalogo e' supportata.
+
+Il problema UX segnalato dall'utente resta quindi reale: piu' gruppi possono essere mostrati contemporaneamente con il nome neutro `Gruppo Brew`.
+
+S3 non introduce naming automatico da carte, fingerprint, ID tecnici o `Brew #N`. C001 possiede un descrittore Wizards correlato (`Red-White Dwarves`), ma non viene promosso a nome Standard MOX. C002/C003 mostrano una possibile relazione di famiglia, che resta esplicitamente fuori scope.
+
+## 10. Esito
+
+### `PASS WITH CONDITIONS`
+
+La parte decisionale e il gate statico S3 sono completi e coerenti. La sola condizione residua e' l'esecuzione del gate dinamico in un ambiente con checkout completo.
+
+Non e' ancora `PASS CANDIDATE` e non esiste autorizzazione al merge.
+
+Operazioni vietate rispettate:
+
+- merge: **NO**;
+- deploy: **NO**;
+- D1 remoto: **NO**;
+- produzione: **NO**;
+- dati candidato privati committati: **NO**;
+- modifica catalogo: **NO**.
