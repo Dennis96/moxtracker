@@ -278,6 +278,23 @@ Documenti finali:
 
 Non rifare discovery generale. Partire dagli HEAD indicati e rieseguire soltanto il gate dinamico e la review indipendente.
 
+### Nota Windows / PowerShell — usare `npm.cmd`
+
+Sulla workstation Windows del progetto l'Execution Policy di PowerShell blocca lo shim `C:\Program Files\nodejs\npm.ps1` con `PSSecurityException` ("l'esecuzione di script e' disabilitata"). Non modificare l'Execution Policy per aggirare il problema.
+
+Da PowerShell usare sempre **`npm.cmd`** al posto di `npm` per tutti i comandi npm. In alternativa e' valido `cmd /c npm ...`, ma `npm.cmd` e' il default operativo preferito. I comandi `node ...` e `git ...` non richiedono questo workaround.
+
+Esempi:
+
+```text
+npm.cmd ci
+npm.cmd run prove
+npm.cmd run sito:build
+npm.cmd run genera-archetipi -- --mox <path-mox-core>
+```
+
+Questa regola vale anche per i successivi prompt/checkpoint eseguiti in PowerShell sulla stessa workstation.
+
 ### moxtracker
 
 Eseguire almeno:
@@ -285,9 +302,9 @@ Eseguire almeno:
 ```text
 node --test prove/s3-candidati-pubblici.test.js
 node --test prove/brew-clustering.test.js prove/brew-gruppi.test.js prove/brew-meta.test.js prove/brew-cancellazione.test.js
-npm run prove
-npm run sito:build
-npm run genera-archetipi -- --mox <path-mox-core>
+npm.cmd run prove
+npm.cmd run sito:build
+npm.cmd run genera-archetipi -- --mox <path-mox-core>
 ```
 
 Ripetere la generazione a input immutato e confrontare byte/hash. Con `standard.json` invariato, il catalogo generato atteso deve restare equivalente alla baseline.
@@ -296,7 +313,7 @@ Ripetere la generazione a input immutato e confrontare byte/hash. Con `standard.
 
 Individuare nel checkout i test canonici Meta/classificatore/formati realmente presenti ed eseguire quelli pertinenti piu' la suite completa canonica del repository.
 
-Non inventare comandi sulla base di documenti storici: verificare i runner reali nel checkout.
+Non inventare comandi sulla base di documenti storici: verificare i runner reali nel checkout. Se i runner npm vengono invocati da PowerShell, usare `npm.cmd` anche qui.
 
 ## 15. Review indipendente
 
