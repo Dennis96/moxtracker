@@ -1,287 +1,170 @@
 # S3 — META-CATALOG-REFRESH — 17 settembre 2026
 
-**Stato review:** `PROPOSED_FOR_REVIEW`  
-**Esito tecnico della run:** `FAIL / BLOCKER — INPUT CANDIDATI REALI NON DISPONIBILE`
+**Stato:** `S3-A COMPLETATO · S3-B PENDENTE`  
+**Stato decisioni:** `PROPOSED_FOR_REVIEW`
 
-Questa run si e' fermata alla stop condition dati prevista dal mandato, prima
-di qualsiasi modifica a `mox-core/meta/standard.json`. Il blocco non dimostra
-che non esistano Brew Standard pubblici: dimostra soltanto che, in questa
-sessione, non e' stato possibile ottenere il corpus reale autorizzato necessario
-a prendere decisioni S3.
+Questo documento registra soltanto il checkpoint tecnico S3-A: validazione del corpus privato, clustering S1 e diagnostica del classificatore corrente. Non contiene decisioni A/B/C/D e non anticipa la ricerca sulle fonti Meta.
 
-## 1. Baseline verificate live
+## 1. Baseline e branch
 
 ### mox-core
 
 - repository: `Dennis96/mox-core`
-- `main`: `c8079dc40c1325c1314d9f283226ab3be10db21d`
-- branch S3: `chatgpt/s3-meta-catalog-refresh-2026-09-17`
-- base branch S3: lo stesso SHA di `main`
-- `meta/standard.json`: Git blob `259bbeba19bb4b4af9515604bf3e60e715fb6387`
-- intestazione catalogo: formato `Standard`, `aggiornato = 2026-08-17`
-- la nota canonica dichiara 26 liste di riferimento: 17 BO1 e 9 BO3.
+- baseline/HEAD S3 al checkpoint: `c8079dc40c1325c1314d9f283226ab3be10db21d`
+- branch: `chatgpt/s3-meta-catalog-refresh-2026-09-17`
+- `meta/standard.json`: **non modificato**
 
 ### moxtracker
 
 - repository: `Dennis96/moxtracker`
-- `main`: `75bcac460b13e0556a48d8ccb44dde431e3241fd`
-- base S3: `claude/s2-brew-frontend-2026-09-16`
-- HEAD base S3: `d7437da62e7351dcd9d99260c3d3685452dab496`
-- branch S3: `chatgpt/s3-meta-catalog-refresh-2026-09-17`
-- `src/catalogo-archetipi-generato.js`: Git blob
-  `5f47548824671347c0697f8d924964c38ae23ef5`
+- base S3/S2: `d7437da62e7351dcd9d99260c3d3685452dab496`
+- HEAD remoto iniziale di S3-A: `6064a63c17f325601cff2482047a235e2deee026`
+- branch: `chatgpt/s3-meta-catalog-refresh-2026-09-17`
 
-Catena S1/S2 verificata:
-
-- `17a3ca0 -> 8a3cfe7`: solo report di review indipendente S1;
-- `8a3cfe7 -> d7437da`: solo frontend/test/documentazione S2;
-- nessuna sorpresa nel backend S1 lungo questo delta.
+Il commit `6064a63c17f325601cff2482047a235e2deee026` contiene gia' il collector S3 e la relativa documentazione/test; S3-A non ha ripetuto la raccolta.
 
 ## 2. Parametri congelati
 
 - formato: `Standard`
+- periodo: `totale`
 - cutoff fonti: `2026-09-17`
-- soglia decklist: quella pubblica vigente, 30 partite
+- soglia pubblicazione vigente: 30 partite
 - clustering: `main-multiset-radius-v1`
 - k: `4`
-- stato decisioni: `PROPOSED_FOR_REVIEW`
-- frequenza: run manuale una tantum
-- nessuna modifica a soglie/classificatore/contratto S1/S2
+- classificatore: lista `0.90`, margine `0.03`; core `0.60`, almeno 5 carte, margine `0.20`
+- nessuna modifica a soglie, algoritmo o contratto S1/S2
 
-## 3. Baseline catalogo e strumenti
+## 3. Integrita' del corpus privato
 
-Il classificatore server usa:
+Sono stati verificati i tre artefatti privati prodotti dal collector:
 
-- variante quasi identica: somiglianza lista `>= 0.90`, con margine `0.03`;
-- archetipo da core: `core_soglia = 0.60`, almeno 5 carte, margine `0.20`.
-
-Il generatore canonico e' `strumenti/genera_catalogo_archetipi.py` e produce
-`src/catalogo-archetipi-generato.js` a partire da `mox-core/meta/standard.json`
-piu' il database carte locale di MTG Arena.
-
-La rigenerazione baseline **non e' stata eseguita** in questa sessione: il
-runner disponibile non possiede il checkout locale completo con il database
-carte Arena richiesto dal generatore. Non viene quindi dichiarata una prova di
-determinismo che non e' stata realmente eseguita.
-
-## 4. Canale candidati e stop condition
-
-Ordine provato:
-
-1. **API pubblica read-only MOX** prevista dal mandato:
-   `GET /meta?formato=Standard&periodo=totale`, seguita soltanto dai dettagli
-   legacy delle impronte gia' pubblicate.
-2. **Export autorizzato locale/Project/Library**: ricerca mirata di export Brew,
-   manifest S3 e corpus sanitizzati.
+- manifest JSON;
+- report candidati JSON;
+- report candidati Markdown.
 
 Esito:
 
-- il runtime web di questa sessione non consente di aprire direttamente
-  `api.moxtracker.app` se l'URL non proviene da un risultato web indicizzato;
-  il dominio/API non e' indicizzato dal motore usabile qui;
-- nessun export candidato sanitizzato e autorizzato e' risultato disponibile
-  nei file della conversazione/Project/Library;
-- i dati reali S1 del 15/09 documentano un caso storico reale, ma non includono
-  qui un corpus S3 completo e congelato riutilizzabile al cutoff 17/09;
-- nessun D1 remoto, endpoint admin, enumerazione sotto soglia o workaround e'
-  stato tentato.
+- parametri manifest/report coerenti;
+- SHA-256 canonico della risposta Meta coerente col manifest;
+- SHA-256 canonici di tutti i quattro dettagli coerenti col manifest;
+- SHA-256 canonico del corpus coerente col manifest;
+- quattro decklist pubblicabili complete da 60 carte;
+- Markdown riproducibile deterministicamente dal report JSON e dal manifest.
 
-Conseguenza: **stop tecnico prima di modificare il catalogo**, come richiesto.
+Gli SHA e gli identificativi reali restano negli artefatti privati e non vengono versionati nel repository pubblico.
 
-## 5. Tool locale preparato
+## 4. Corpus e clustering S1 k=4
 
-Aggiunto:
+La coda S3 contiene:
 
-`strumenti/s3_candidati_pubblici.mjs`
+- **4 varianti Brew pubblicabili**;
+- **149 partite aggregate**;
+- **3 gruppi candidati** dopo clustering S1 k=4.
 
-Scopo:
+Distribuzione aggregata sicura:
 
-1. esegue solo GET pubbliche su `api.moxtracker.app`;
-2. legge solo le impronte gia' presenti in `varianti_brew` e con almeno 30
-   partite;
-3. richiede il dettaglio pubblico solo per quelle impronte;
-4. costruisce le firme con `firmaMain()` del modulo S1;
-5. raggruppa con `pianificaGruppi()` del modulo S1 e k=4, senza duplicare o
-   approssimare l'algoritmo;
-6. esegue la diagnostica del classificatore corrente;
-7. congela SHA-256 delle risposte pubbliche;
-8. salva manifest e report reali fuori dal repository;
-9. rifiuta esplicitamente una `--output-dir` interna al repository;
-10. non assegna automaticamente A/B/C/D: lascia la decisione alla fase fonti.
+| Partite gruppo | Varianti pubbliche |
+| ---: | ---: |
+| 81 | 2 |
+| 37 | 1 |
+| 31 | 1 |
 
-Comando previsto, da un ambiente che possa raggiungere l'API pubblica:
+Il gruppo da 81 partite e' formato dalle varianti da 47 e 34 partite, a distanza S1 esattamente `4` dal rappresentante. Le altre due varianti restano singleton. Le altre distanze fra rappresentanti/varianti sono superiori a k e non producono fusioni.
 
-```powershell
-node strumenti/s3_candidati_pubblici.mjs
-```
+Il payload Meta contiene inoltre 6 Brew sotto soglia per 49 partite: non entrano nella coda S3, come previsto dal contratto.
 
-Output privato di default nella directory temporanea del sistema:
+## 5. Diagnostica del classificatore corrente
 
-- `S3-MANIFEST-PRIVATO-2026-09-17.json`
-- `S3-CANDIDATI-PRIVATO-2026-09-17.json`
-- `S3-CANDIDATI-PRIVATO-2026-09-17.md`
+Tutte le quattro varianti della coda risultano non classificate dal catalogo corrente. La diagnostica dei tre rappresentanti di gruppo e' la seguente.
 
-Questi file **non devono essere aggiunti a Git**.
+### Gruppo 81 partite / 2 varianti
 
-## 6. Schema esatto del report candidato privato
+- primo riferimento nell'ordinamento diagnostico: **Boros Prowess**;
+- core: `1/8 = 12,5%`;
+- somiglianza lista di quel riferimento: circa `3,8%`;
+- massima somiglianza lista fra i riferimenti riportati: circa `7,7%` (**Boros Aggro**);
+- classificazione corrente: `null` / Brew.
 
-Per ogni gruppo S1:
+### Gruppo 37 partite / 1 variante
 
-```json
-{
-  "candidato_id": "C001",
-  "gruppo_temporaneo": "bg_<id solo temporaneo>",
-  "partite_aggregate": 0,
-  "varianti_pubbliche": 0,
-  "colori_osservati": null,
-  "rappresentante": {
-    "impronta": "<privata/non versionata>",
-    "partite": 0,
-    "main_deck": [
-      { "arena_id": 0, "copie": 0, "nome": "..." }
-    ],
-    "riferimenti_catalogo_vicini": [
-      {
-        "id": "...",
-        "archetipo_id": "...",
-        "nome": "...",
-        "somiglianza_lista": 0.0,
-        "core_punteggio": 0.0,
-        "core_carte": 0,
-        "core_totale": 0
-      }
-    ],
-    "classificazione_corrente": null
-  },
-  "membri": [
-    {
-      "impronta": "<privata/non versionata>",
-      "partite": 0,
-      "distanza_rappresentante": 0
-    }
-  ],
-  "motivo_tecnico_corrente": "NON_CLASSIFICATO_DAL_CATALOGO_CORRENTE",
-  "classe_s3": null,
-  "decisione_s3": "DA_REVISIONARE_CON_FONTI"
-}
-```
+- riferimento piu' vicino: **Boros Aggro**;
+- core: `1/8 = 12,5%`;
+- somiglianza lista: circa `7,7%`;
+- classificazione corrente: `null` / Brew.
 
-Il manifest privato conserva le risposte pubbliche necessarie alla
-ripetibilita' e gli SHA-256 di meta, dettagli e corpus.
+### Gruppo 31 partite / 1 variante
 
-## 7. Fonti esterne
+- riferimento piu' vicino: **Orzhov Auras**;
+- core: `2/8 = 25,0%`;
+- somiglianza lista: circa `17,0%`;
+- secondo segnale vicino: **Orzhov Skeletons**, core `2/8 = 25,0%`, lista circa `12,7%`;
+- classificazione corrente: `null` / Brew.
 
-Nessuna delle fonti whitelist e' stata usata come evidenza decisionale in
-questa run:
+### Motivo tecnico
 
-- `magic.wizards.com`: non consultata;
-- `mtgaassistant.net`: non consultata;
-- `aetherhub.com`: non consultata;
-- `mtgdecks.net`: non consultata.
+I candidati restano Brew per un motivo tecnico netto, non per il margine fra due archetipi:
 
-Motivo: la stop condition candidati scatta **prima** della ricerca per
-candidato. Fare ricerca meta senza candidati avrebbe invertito il processo
-canonico e rischiato di trasformare S3 in un refresh generale non richiesto.
+- nessun riferimento raggiunge la soglia lista `0.90`;
+- nessun core raggiunge `0.60`;
+- i migliori core contengono soltanto 1 o 2 carte su 8, quindi restano anche sotto il minimo di 5 carte.
 
-Di conseguenza non esiste alcuna decisione A/B/C/D da supportare con fonti.
+Questa diagnosi **non** stabilisce se il catalogo sia vecchio, se si tratti di variante nota, nuovo archetipo o vero Brew. Tale decisione richiede S3-B e le fonti esterne consentite.
 
-## 8. Decisioni e modifiche catalogo
+## 6. Anomalie
 
-Candidati reali esaminati: **0 per mancanza input**, non "0 candidati esistenti".
+Nessuna anomalia del corpus o del clustering S1 e' emersa.
 
-Conteggi decisioni:
+Nota tecnica: l'ordinamento dei `riferimenti_catalogo_vicini` del collector privilegia prima il punteggio core e poi la somiglianza lista. Per questo il primo riferimento mostrato non e' necessariamente quello con la massima somiglianza dell'intera lista. Il comportamento e' coerente con il tool corrente e non altera la classificazione.
 
-- A — vero Brew: 0
-- B — catalogo vecchio: 0
-- C — variante nota: 0
-- D — nuovo archetipo: 0
+## 7. Test mirati S3-A
 
-`mox-core/meta/standard.json`: **nessuna modifica**.
+Validatore locale sugli artefatti privati: **17/17 PASS**.
 
-`moxtracker/src/catalogo-archetipi-generato.js`: **nessuna rigenerazione e
-nessuna modifica**.
+Copertura del checkpoint:
 
-Non esiste quindi un diff classificazioni prima/dopo da interpretare. Il Git
-blob del catalogo generato resta quello della baseline perche' il file non e'
-stato toccato, non perche' sia stata eseguita una rigenerazione deterministica.
+- parametri manifest/report;
+- hash Meta, quattro dettagli e corpus;
+- conteggi e soglia di pubblicazione;
+- completezza 60 carte delle quattro liste;
+- riproduzione esatta del clustering `main-multiset-radius-v1`, k=4;
+- classificazione `null` dei rappresentanti;
+- verifica che lista/core/minimo carte restino sotto le soglie correnti;
+- riproducibilita' del report Markdown.
 
-## 9. Parita' client/server
+Non e' stata eseguita ricerca web Meta e non sono stati modificati codice, soglie o catalogo; non e' quindi necessaria una regressione applicativa piu ampia per questo checkpoint documentale.
 
-Caratterizzata la catena tecnica:
+## 8. Privacy e modifiche
 
-- sorgente curata: `mox-core/meta/standard.json`;
-- generatore server: `strumenti/genera_catalogo_archetipi.py`;
-- classificatore server: `src/archetipi.js`;
-- clustering candidato: `src/brew-clustering.js`.
+Restano fuori Git:
 
-La parita' su candidati reali **non e' stata eseguita**, perche' il manifest
-reale manca. Non viene dichiarato PASS.
+- fingerprint reali;
+- decklist reali;
+- manifest privato;
+- report candidati JSON/Markdown privati;
+- mapping tecnico dei gruppi.
 
-## 10. Brew residui e naming
+Nessun dato candidato privato e' stato committato.
 
-Non misurati:
+## 9. S3-B
 
-- gruppi Brew Standard residui;
-- gruppi assorbibili dal refresh;
-- contemporanea presenza di piu' veri Brew.
+Il prossimo checkpoint deve partire dagli artefatti privati gia' validati, senza rifare il collector salvo cambio del corpus.
 
-Nessun naming automatico e' stato introdotto. `Gruppo Brew` resta invariato.
+S3-B deve:
 
-## 11. Test eseguiti in questa sessione
+1. eseguire il preflight robots/termini delle sole fonti whitelist previste dal mandato;
+2. consultare soltanto i canali consentiti;
+3. confrontare ciascuno dei 3 gruppi con evidenze Meta aggiornate al cutoff;
+4. motivare una proposta conservativa A/B/C/D per ciascun gruppo;
+5. produrre un decision log pubblico privo di fingerprint/decklist/dati utente.
 
-Eseguiti sul nuovo codice preparato localmente prima del commit:
+S3-B non deve usare volume o win rate come prova di classificazione. Le modifiche a `mox-core/meta/standard.json`, la rigenerazione e il diff prima/dopo restano una fase successiva alla decisione supportata da fonti.
 
-```text
-node --check strumenti/s3_candidati_pubblici.mjs   -> PASS sintassi
-node --check prove/s3-candidati-pubblici.test.js  -> PASS sintassi
-```
+## 10. Operazioni non eseguite
 
-Non eseguiti, quindi non dichiarati verdi:
-
-- `npm run prove`;
-- `npm run sito:build`;
-- suite completa `mox-core`;
-- rigenerazione doppia del catalogo;
-- test del collector contro l'API reale.
-
-Il limite e' del runner corrente: non dispone di un checkout locale eseguibile
-completo dei due repository e del DB carte Arena. I risultati storici S1/S2
-non vengono riutilizzati come se fossero test di questa run.
-
-## 12. File pubblici S3
-
-Modifiche previste solo in `moxtracker`:
-
-- `strumenti/s3_candidati_pubblici.mjs`
-- `prove/s3-candidati-pubblici.test.js`
-- `passaggi/sito/S3-META-CATALOG-REFRESH-2026-09-17.md`
-- `passaggi/handoff/HANDOFF-S3-META-CATALOG-REFRESH-2026-09-17.md`
-
-Nessun artefatto candidato reale e nessuna impronta reale sono versionati.
-
-## 13. Ripresa corretta
-
-Per sbloccare S3 basta **uno** dei due input autorizzati:
-
-1. eseguire il collector da un ambiente che raggiunga l'API pubblica e fornire
-   i tre artefatti privati alla sessione di lavoro; oppure
-2. fornire un export sanitizzato equivalente, read-only, con manifest/hash.
-
-Da quel punto si riparte dalla Fase 2/3: candidati -> fonti whitelist ->
-decisioni A/B/C/D -> eventuale `standard.json` -> rigenerazione -> diff ->
-parita' -> suite -> self-review.
-
-Non serve rifare baseline, discovery S1/S2 o ricerca generale se branch e
-baseline non cambiano.
-
-## 14. Vincoli rispettati
-
-- nessun merge;
-- nessun deploy Worker/Pages;
-- nessun D1 remoto;
-- nessuna query admin;
-- nessuna modifica produzione;
-- nessun nuovo endpoint;
-- nessun cambio di k/soglie/algoritmo;
-- nessun dato candidato privato committato;
-- nessuna fixture usata come prova di un archetipo reale.
+- merge: **NO**
+- deploy: **NO**
+- D1 remoto: **NO**
+- produzione: **NO**
+- ricerca fonti Meta: **NO**
+- decisioni A/B/C/D: **NO**
+- modifica `mox-core/meta/standard.json`: **NO**
