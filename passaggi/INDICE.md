@@ -12,7 +12,8 @@ Questo indice serve soltanto a trovare i documenti attivi e a distinguere le fon
 4. [`MOX-LAUNCH-GATE-CANONICO-2026-09-17.md`](sito/MOX-LAUNCH-GATE-CANONICO-2026-09-17.md) — gate unico da chiudere prima della promozione ampia di MOX.
 5. [`MOX-PROJECT-MOX-GOAL-PUBBLICI-2026-09-17.md`](sito/MOX-PROJECT-MOX-GOAL-PUBBLICI-2026-09-17.md) — obiettivi pubblici e gerarchia della sezione “Il progetto MOX / Project MOX”.
 6. [`MOX-LAUNCH-BLOCCO-RESEARCH-2.11-PRIVACY-RELEASE-NOTES-2026-09-17.md`](sito/MOX-LAUNCH-BLOCCO-RESEARCH-2.11-PRIVACY-RELEASE-NOTES-2026-09-17.md) — allineamento necessario tra sito, Research 2.11.0, Privacy, “Cosa invia MOX”, Download e note di versione.
-7. [`META-CATALOG-REFRESH-ROADMAP-2026-09-13.md`](sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md) — roadmap tecnica del catalogo Meta; lo stato effettivo dei task successivi resta nei relativi branch/report.
+7. [`MOX-LAUNCH-BLOCCO-SEO-SOCIAL-INDEXING-2026-09-17.md`](sito/MOX-LAUNCH-BLOCCO-SEO-SOCIAL-INDEXING-2026-09-17.md) — canonical, hreflang, sitemap, Open Graph/Twitter e separazione indicizzazione produzione/preview; il branch di implementazione non equivale a deploy.
+8. [`META-CATALOG-REFRESH-ROADMAP-2026-09-13.md`](sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md) — roadmap tecnica del catalogo Meta; lo stato effettivo dei task successivi resta nei relativi branch/report.
 
 ## Research — stato corrente e storico
 
@@ -24,7 +25,7 @@ La vecchia [`R3-PREP-SCHEMA-STORAGE.md`](research/proposte/R3-PREP-SCHEMA-STORAG
 
 I documenti `passaggi/sito/` datati 13–14 settembre su redesign, mockup e prossimi sviluppi restano utili come specifiche o storia del redesign. Per decidere cosa è realmente live oggi, usare sempre `STATO-CORRENTE-SITO.md`.
 
-I tre documenti launch del 17/09 sopra elencati sono specifiche di preparazione: **non attestano da soli che il launch gate sia PASS e non autorizzano deploy o pubblicazione**.
+I documenti launch del 17/09 sopra elencati sono specifiche o implementazioni su branch di preparazione: **non attestano da soli che il launch gate sia PASS e non autorizzano deploy o pubblicazione**.
 
 ## Storico
 
