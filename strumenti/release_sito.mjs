@@ -9,6 +9,7 @@ const CONFIG = JSON.parse(readFileSync(join(RADICE, "release-sito.config.json"),
 const CONFERMA_PRODUZIONE = "PUBBLICA-SITO-PRODUZIONE";
 const WRANGLER_CLI = fileURLToPath(
   new URL("../node_modules/wrangler/bin/wrangler.js", import.meta.url));
+const CARTELLA_BUILD = join(RADICE, ".dist", "sito");
 
 function argomento(nome, predefinito = null) {
   const prefisso = `--${nome}=`;
@@ -23,6 +24,29 @@ function git(...argomenti) {
 function esegui(comando, argomenti) {
   const esito = spawnSync(comando, argomenti, { cwd: RADICE, encoding: "utf8", stdio: "inherit" });
   if (esito.status !== 0) throw new Error(`gate fallito: ${comando} ${argomenti.join(" ")}`);
+}
+
+function preparaIndicizzazione(ambiente) {
+  if (ambiente !== "preview") return;
+  const headersFile = join(CARTELLA_BUILD, "_headers");
+  let headers = readFileSync(headersFile, "utf8");
+  if (!headers.includes("X-Robots-Tag: noindex")) {
+    headers = headers.replace(
+      /^\/\*\r?\n/m,
+      "/*\n  X-Robots-Tag: noindex, nofollow, noarchive\n",
+    );
+  }
+  writeFileSync(headersFile, headers);
+  writeFileSync(join(CARTELLA_BUILD, "robots.txt"), "User-agent: *\nDisallow: /\n");
+}
+
+function hashDeployment(manifesto) {
+  const risultati = {};
+  for (const nome of Object.keys(manifesto.file)) {
+    const corpo = readFileSync(join(CARTELLA_BUILD, nome));
+    risultati[nome] = createHash("sha256").update(corpo).digest("hex");
+  }
+  return Object.fromEntries(Object.entries(risultati).sort(([a], [b]) => a.localeCompare(b)));
 }
 
 async function smokeTest(base) {
@@ -44,6 +68,28 @@ async function smokeTest(base) {
     risultati.push({ percorso, stato: ultimo.status });
   }
   return risultati;
+}
+
+async function verificaIndicizzazione(base, ambiente) {
+  const home = await fetch(new URL("/", base), { redirect: "follow" });
+  const robotsResponse = await fetch(new URL("/robots.txt", base), { redirect: "follow" });
+  if (!home.ok || !robotsResponse.ok) {
+    throw new Error("verifica indicizzazione fallita: home o robots.txt non raggiungibile");
+  }
+  const xRobots = home.headers.get("x-robots-tag") || "";
+  const robots = await robotsResponse.text();
+  if (ambiente === "preview") {
+    if (!/\bnoindex\b/i.test(xRobots) || !/^Disallow:\s*\/\s*$/im.test(robots)) {
+      throw new Error("preview non protetta da noindex + robots Disallow");
+    }
+    return { modalita: "noindex", x_robots_tag: xRobots, robots: "disallow-all" };
+  }
+  if (/\bnoindex\b/i.test(xRobots) ||
+      !/^Allow:\s*\/\s*$/im.test(robots) ||
+      !/^Sitemap:\s*https:\/\/moxtracker\.app\/sitemap\.xml\s*$/im.test(robots)) {
+    throw new Error("produzione non configurata come indicizzabile");
+  }
+  return { modalita: "index", x_robots_tag: xRobots || null, robots: "allow+sitemap" };
 }
 
 const ambiente = argomento("environment", "preview");
@@ -68,7 +114,7 @@ if (upstream !== commit) {
 
 esegui(process.execPath, ["--test", "prove/*.test.js"]);
 esegui(process.execPath, ["strumenti/build_sito.mjs"]);
-const manifesto = JSON.parse(readFileSync(join(RADICE, ".dist", "sito", "build-manifest.json"), "utf8"));
+const manifesto = JSON.parse(readFileSync(join(CARTELLA_BUILD, "build-manifest.json"), "utf8"));
 if (manifesto.commit_git !== commit) throw new Error("manifesto e commit Git non coincidono");
 
 const ramoPages = ambiente === "production"
@@ -90,6 +136,7 @@ let proveVisive = null;
 if (!deploy) {
   console.log(JSON.stringify({ modalita: "piano", ambiente, ramo_sorgente: ramo,
     ramo_pages: ramoPages, commit, build_id: manifesto.build_id,
+    indicizzazione: ambiente === "preview" ? "noindex" : "index",
     comando: ["npx", ...comando] }, null, 2));
   process.exit(0);
 }
@@ -102,8 +149,9 @@ if (ambiente === "production") {
   if (!recordPreview) throw new Error("la produzione richiede --preview-record=<file>");
   const preview = JSON.parse(readFileSync(recordPreview, "utf8"));
   if (preview.ambiente !== "preview" || preview.commit !== commit ||
-      preview.build_id !== manifesto.build_id || !Array.isArray(preview.smoke_test) ||
-      preview.smoke_test.length < 6 || preview.smoke_test.some((riga) => riga.stato !== 200)) {
+      preview.build_id !== manifesto.build_id || preview.indicizzazione?.modalita !== "noindex" ||
+      !Array.isArray(preview.smoke_test) || preview.smoke_test.length < 6 ||
+      preview.smoke_test.some((riga) => riga.stato !== 200)) {
     throw new Error("il record preview non corrisponde esattamente alla build corrente");
   }
   proveVisive = ["desktop-screenshot", "mobile-screenshot"].map((nome) => {
@@ -117,6 +165,9 @@ if (ambiente === "production") {
   });
 }
 
+preparaIndicizzazione(ambiente);
+const hashFileDeployment = hashDeployment(manifesto);
+
 const uscita = execFileSync(process.execPath, [WRANGLER_CLI, ...comando.slice(1)],
   { cwd: RADICE, encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
 process.stdout.write(uscita);
@@ -125,7 +176,7 @@ if (!url) throw new Error("deploy riuscito ma URL non riconosciuto: record non s
 const deploymentId = new URL(url).hostname.split(".", 1)[0];
 const record = {
   versione: 1, ambiente, deployment_id: deploymentId, url,
-  commit, build_id: manifesto.build_id, hash_file: manifesto.file,
+  commit, build_id: manifesto.build_id, hash_file: hashFileDeployment,
   prove_visive: proveVisive,
 };
 const cartellaRecord = join(RADICE, ".release");
@@ -134,9 +185,11 @@ const fileRecord = join(cartellaRecord,
   `${ambiente}-${commit.slice(0, 12)}-${deploymentId}.json`);
 try {
   record.smoke_test = await smokeTest(url);
+  record.indicizzazione = await verificaIndicizzazione(url, ambiente);
   record.esito = "verificato";
 } catch (errore) {
   record.smoke_test = [];
+  record.indicizzazione = null;
   record.esito = "smoke-fallito";
   record.errore = String(errore?.message || errore);
 }
