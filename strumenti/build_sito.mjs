@@ -8,7 +8,7 @@ const RADICE = fileURLToPath(new URL("..", import.meta.url));
 const SORGENTE = join(RADICE, "sito");
 const USCITA = join(RADICE, ".dist", "sito");
 const ORIGINE_PUBBLICA = "https://moxtracker.app";
-const IMMAGINE_SOCIAL = `${ORIGINE_PUBBLICA}/assets/home/client-home.webp`;
+const IMMAGINE_SOCIAL = `${ORIGINE_PUBBLICA}/assets/social/mox-social-card.png`;
 const PAGINE_PUBBLICHE = new Set([
   "index.html", "meta.html", "draft.html", "download.html", "archetipo.html", "account.html",
   "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html",

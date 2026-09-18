@@ -90,7 +90,8 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
   assert.match(homeIt, /hreflang="en" href="https:\/\/moxtracker\.app\/en\/"/);
   assert.match(homeIt, /hreflang="x-default" href="https:\/\/moxtracker\.app\/"/);
   assert.match(homeIt, /property="og:title"/);
-  assert.match(homeIt, /property="og:image" content="https:\/\/moxtracker\.app\/assets\/home\/client-home\.webp"/);
+  assert.match(homeIt, /property="og:image" content="https:\/\/moxtracker\.app\/assets\/social\/mox-social-card\.png"/);
+  assert.match(homeIt, /name="twitter:image" content="https:\/\/moxtracker\.app\/assets\/social\/mox-social-card\.png"/);
   assert.match(homeIt, /name="twitter:card" content="summary_large_image"/);
 
   const homeEn = readFileSync(join(BUILD, "en", "index.html"), "utf8");
