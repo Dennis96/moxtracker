@@ -9,6 +9,33 @@ client è `mox-v2-beta2.11.0`, non prerelease, con il solo asset
 `Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli nella sezione
 sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 
+## Candidato pre-release consolidato — 19 settembre 2026 (branch non fuso)
+
+- **Branch:** `codex/pre-release-consolidation-2026-09-19`, creato dall'HEAD
+  S3 verificato `f9e4f5f`, con merge semantico del launch
+  `f646057`. `launch-prep` era gia' antenato; il branch temporaneo S3 `b2-temp`
+  non e' stato integrato.
+- **Review S3 indipendente:** `PASS WITH CONDITIONS`, senza blocker. Soglia
+  30, `k=4`, `main-multiset-radius-v1`, esclusione del sideboard, privacy e
+  separazione catalogo/telemetria restano invariati. C001/C002/C003 restano
+  `A — EVIDENZA_INSUFFICIENTE` dopo il refresh Standard.
+- **Catalogo:** `src/catalogo-archetipi-generato.js` rigenerato dal catalogo
+  canonico di `mox-core`: 27 liste, 25.762 ID Arena; due run hanno prodotto
+  lo stesso SHA-256 `1dcb283254c9155e9960c4f280e36963f6f819afd5d61b638acd921cbae1e935`.
+- **Sito:** preservati SEO, canonical/hreflang, sitemap, social card 1200x630,
+  crop Home, produzione indicizzabile e preview `noindex`. Privacy separa i
+  consensi Partite, Draft e Research, espone `privacy@moxtracker.app` e
+  descrive revoca/cancellazione fail-closed. Download e note versione
+  rappresentano correttamente MOX 2.11.0 e Research opt-in senza promettere
+  analisi ancora in roadmap.
+- **Verifiche:** installazione pulita con `npm ci`; `npm run prove` 428/428,
+  nessuna prova saltata; target Privacy/Account/Research/build 34/34; target
+  dettaglio/lettura 24/24. Due build consecutive: 93 file, ID
+  `185cb0e6bb7908a0`.
+- **Non eseguiti:** nessun merge in `main`, deploy Pages/Worker, D1 remoto,
+  migrazione, release o cancellazione branch. Sito, API, database e release
+  pubblica restano quelli descritti sopra.
+
 ## S2 Brew frontend — 16 settembre 2026 (branch non fuso)
 
 - **Branch:** `claude/s2-brew-frontend-2026-09-16`, creato da `8a3cfe7` (S1

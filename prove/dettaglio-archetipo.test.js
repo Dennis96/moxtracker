@@ -10,6 +10,7 @@ const SCHEMA = QUI + "../schema.sql";
 const IMPRONTA_RICONOSCIUTA = "4".repeat(64);
 const IMPRONTA_SCONOSCIUTA = "e".repeat(64);
 const CARTA_FIXTURE = 51307; // Ethereal Armor: nome e Arena ID non devono filtrare sotto soglia.
+const RICEVUTA_RECENTE = new Date(Date.now() - 86_400_000).toISOString();
 
 function inserisciPartite(db, {
   impronta, partite, contributori, carte = [], prefisso = "m",
@@ -21,7 +22,7 @@ function inserisciPartite(db, {
       (id, mittente, ricevuta, formato, esito, su_gioco, rank_classe,
        impronta_mazzo, versione, dato)
       VALUES (?, ?, ?, 'Standard', 'vinta', 1, 'Gold', ?, 1, '{}')`)
-      .bind(id, mittente, "2026-08-19T10:00:00Z", impronta).esegui();
+      .bind(id, mittente, RICEVUTA_RECENTE, impronta).esegui();
     if (i === 0) {
       for (const [carta, copie] of carte) {
         db.prepare("INSERT INTO carte_mazzo (partita, carta, copie) VALUES (?, ?, ?)")

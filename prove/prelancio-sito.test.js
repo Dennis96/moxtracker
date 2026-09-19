@@ -97,17 +97,31 @@ test("homepage presenta Mox come da specifica, con schermate reali e pagine di t
   assert.match(home, /cosa-invia-mox\.html/);
   assert.match(home, /note-versione\.html/);
   assert.match(home, /download\.html/);
-  // MOX Research compare una sola volta, fra le parti in sviluppo: senza data,
-  // senza link e senza alcuna funzione dichiarata disponibile.
+  // Research distingue la partecipazione già disponibile dai risultati futuri.
   const sviluppo = home.match(/<ul class="dev-list">([\s\S]*?)<\/ul>/)?.[1] || "";
-  assert.match(sviluppo, /MOX Research/);
+  assert.match(sviluppo, /Disponibile in beta · Partecipazione a MOX Research/);
+  assert.match(sviluppo, /In sviluppo · Analisi e suggerimenti MOX Research/);
+  assert.match(sviluppo, /spenta di default/);
   assert.doesNotMatch(sviluppo, /<a\s|\b20\d\d\b/);
-  assert.equal((home.match(/MOX Research/g) || []).length, 1,
-    "Research resta soltanto nella lista In sviluppo");
   assert.match(leggi("download.html"), /data-github-release/);
   assert.match(leggi("js/download.js"), /releaseGitHubLatest/);
   assert.match(leggi("cosa-invia-mox.html"), /Player\.log/);
   assert.match(leggi("note-versione.html"), /Tutte le note di versione/);
+});
+
+test("Research 2.11, privacy e note di versione sono launch-ready", () => {
+  const privacy = leggi("privacy.html");
+  const trasparenza = leggi("cosa-invia-mox.html");
+  const note = leggi("note-versione.html");
+  assert.match(privacy, /Aggiornata il 19 settembre 2026/);
+  assert.match(privacy, /privacy@moxtracker\.app/);
+  assert.match(privacy, /Research è facoltativa e separata/);
+  assert.match(privacy, /servizio Research non è pronto o qualificato/);
+  assert.doesNotMatch(privacy, /Prima del lancio ufficiale verrà aggiunto/);
+  assert.match(trasparenza, /Se partecipi a Research/);
+  assert.match(note, /15 settembre 2026/);
+  assert.match(note, /2\.11\.0/);
+  assert.match(note, /Arriva MOX Research/);
 });
 
 test("il reset del Meta ripristina anche periodo, modalita e rank", () => {
