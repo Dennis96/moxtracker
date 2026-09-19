@@ -83,9 +83,33 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
       `${pagina}: testo italiano residuo nella pagina inglese`);
   }
   assert.match(headers, /\/en\/\n  Cache-Control: no-store/);
+
+  const homeIt = readFileSync(join(BUILD, "index.html"), "utf8");
+  assert.match(homeIt, /<link rel="canonical" href="https:\/\/moxtracker\.app\/">/);
+  assert.match(homeIt, /hreflang="it" href="https:\/\/moxtracker\.app\/"/);
+  assert.match(homeIt, /hreflang="en" href="https:\/\/moxtracker\.app\/en\/"/);
+  assert.match(homeIt, /hreflang="x-default" href="https:\/\/moxtracker\.app\/"/);
+  assert.match(homeIt, /property="og:title"/);
+  assert.match(homeIt, /property="og:image" content="https:\/\/moxtracker\.app\/assets\/social\/mox-social-card\.png"/);
+  assert.match(homeIt, /name="twitter:image" content="https:\/\/moxtracker\.app\/assets\/social\/mox-social-card\.png"/);
+  assert.match(homeIt, /name="twitter:card" content="summary_large_image"/);
+
+  const homeEn = readFileSync(join(BUILD, "en", "index.html"), "utf8");
+  assert.match(homeEn, /<link rel="canonical" href="https:\/\/moxtracker\.app\/en\/">/);
+  assert.match(homeEn, /property="og:locale" content="en_US"/);
+
+  const sitemap = readFileSync(join(BUILD, "sitemap.xml"), "utf8");
+  assert.match(sitemap, /<loc>https:\/\/moxtracker\.app\/<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/moxtracker\.app\/en\/<\/loc>/);
+  assert.match(sitemap, /hreflang="x-default"/);
+  assert.equal(manifesto.file["sitemap.xml"] !== undefined, true);
+
+  const robots = readFileSync(join(BUILD, "robots.txt"), "utf8");
+  assert.match(robots, /^Allow:\s*\/\s*$/m);
+  assert.match(robots, /^Sitemap:\s*https:\/\/moxtracker\.app\/sitemap\.xml\s*$/m);
 });
 
-test("il gate release richiede tree pulita, preview equivalente e conferma produzione", () => {
+test("il gate release richiede tree pulita, preview equivalente, noindex e conferma produzione", () => {
   const script = readFileSync(join(RADICE, "strumenti", "release_sito.mjs"), "utf8");
   const configurazione = JSON.parse(readFileSync(
     join(RADICE, "release-sito.config.json"), "utf8"));
@@ -95,6 +119,10 @@ test("il gate release richiede tree pulita, preview equivalente e conferma produ
   assert.match(script, /preview-record/);
   assert.match(script, /--commit-hash=/);
   assert.match(script, /smokeTest/);
+  assert.match(script, /verificaIndicizzazione/);
+  assert.match(script, /X-Robots-Tag: noindex, nofollow, noarchive/);
+  assert.match(script, /Disallow: \//);
+  assert.match(script, /preview\.indicizzazione\?\.modalita !== "noindex"/);
   assert.match(script, /node_modules\/wrangler\/bin\/wrangler\.js/);
   assert.match(script, /CONFIG\.preview_branch/);
   assert.equal(configurazione.preview_branch, "preview");
