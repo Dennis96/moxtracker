@@ -29,9 +29,10 @@ sotto.
 
 ### B1 — Raggruppare i Brew simili in varianti
 
-**Implementato il 15/09/2026 sul branch `claude/s1-brew-backend-2026-09-15`,
-non fuso e non deployato**: vedi il
-[contratto B1](S1-BREW-CONTRATTO-B1-2026-09-15.md). Le famiglie di Brew con lo
+**Implementato il 15/09/2026 e fuso in `main` il 20/09/2026; non deployato**:
+vedi il [contratto B1](S1-BREW-CONTRATTO-B1-2026-09-15.md). Il cron Brew resta
+spento finche' `BREW_GRUPPI` non vale `"on"`, e le tabelle non esistono sul D1
+remoto: migrazione e deploy sono mandati separati. Le famiglie di Brew con lo
 stesso nucleo restano al refresh del catalogo, per decisione dell'utente.
 
 Oggi ogni impronta esatta viene esposta come un Brew distinto. Nel campione
@@ -85,8 +86,8 @@ dell'archetipo come sostituto.
 
 ### F1 — Presentazione dei gruppi Brew
 
-**Implementato il 16/09/2026 sul branch `claude/s2-brew-frontend-2026-09-16`,
-non fuso e non deployato**: vedi [S2-BREW-FRONTEND-2026-09-16.md](S2-BREW-FRONTEND-2026-09-16.md).
+**Implementato il 16/09/2026 e fuso in `main` il 20/09/2026; non deployato**:
+vedi [S2-BREW-FRONTEND-2026-09-16.md](S2-BREW-FRONTEND-2026-09-16.md).
 
 Dopo B1, il Meta dovrà mostrare un solo gruppo per Brew simili e, al suo
 interno, le varianti pubblicabili. Il dettaglio dovrà usare l'identificativo
@@ -120,3 +121,7 @@ evita una navigazione aggiuntiva che non offre informazioni ulteriori.
 
 Roadmap collegata per l'aggiornamento del catalogo:
 [META-CATALOG-REFRESH-ROADMAP-2026-09-13.md](META-CATALOG-REFRESH-ROADMAP-2026-09-13.md).
+
+Le decisioni di sequenza, il launch pack S10 e il confronto con le altre realta'
+— che venivano dal piano esterno del 15/09/2026 e non erano sotto Git — sono in
+[DECISIONI-LAUNCH-CONSERVATE-2026-09-15.md](DECISIONI-LAUNCH-CONSERVATE-2026-09-15.md).
