@@ -222,7 +222,8 @@ export async function comandiPuliziaBrew(db) {
   try {
     await db.prepare("SELECT 1 FROM brew_nome LIMIT 1").first();
     comandi.push(db.prepare(
-      "DELETE FROM brew_nome WHERE gruppo_id NOT IN (SELECT id FROM brew_gruppo)"));
+      `DELETE FROM brew_nome WHERE NOT EXISTS
+        (SELECT 1 FROM brew_gruppo g WHERE g.id = brew_nome.gruppo_id)`));
   } catch (guasto) {
     if (!tabelleBrewAssenti(guasto)) throw guasto;
   }

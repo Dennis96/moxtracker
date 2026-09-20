@@ -348,7 +348,6 @@ function renderObservedDecklistInline(article, variant, index, { recognized = fa
   const copia = document.createElement("button"); copia.type = "button";
   copia.className = "button button-primary button-small"; copia.textContent = "Copia per Arena";
   // Il nome del mazzo copiato in Arena non porta ne' indici ne' identificativi.
-  // Il nome del mazzo copiato in Arena non porta ne' indici ne' identificativi.
   // Per un gruppo Brew vale il nome pubblico, che e' gia' corto e senza
   // caratteri strani; senza nome resta il fallback sicuro di sempre.
   const nomeCopia = recognized

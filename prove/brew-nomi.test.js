@@ -7,7 +7,7 @@
 // gruppo che archetipo non e'.
 
 import { strict as assert } from "node:assert";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { creaFintoD1 } from "./finto-d1.js";
@@ -18,7 +18,7 @@ import { leggiArchetipo } from "../src/dettaglio-archetipo.js";
 import { leggiMeta } from "../src/lettura.js";
 import { brewGroupName, filterMetaDecks } from "../sito/js/meta-model.js";
 import {
-  CONFERMA, comandiSql, esegui, pianificaNomi, validaNome,
+  CONFERMA, WRANGLER, comandiSql, esegui, pianificaNomi, validaNome,
 } from "../strumenti/brew_nomi.mjs";
 import {
   AURE_RICONOSCIUTE, BASE, BASE_56, BASE_59, STESSO_COLORE, giocaPartite,
@@ -438,6 +438,16 @@ test("elenco, dry-run e applicazione: si scrive solo con la conferma esplicita",
   assert.equal(eseguiti.length, 2);
   assert.deepEqual(eseguiti[0][1], { database: "moxtracker", remoto: true });
   assert.equal(JSON.parse(righe.at(-1)).scritti, 2);
+});
+
+test("l'esecutore vero avvia il .js di Wrangler, non un .cmd", () => {
+  // Su Windows `npx` e' un `.cmd`, e dalla 20 Node rifiuta di avviarlo senza
+  // shell (EINVAL): una applicazione dei nomi fallirebbe sempre. Con la shell
+  // ci passerebbe invece del testo scelto a mano, che cmd.exe interpreta.
+  assert.ok(existsSync(fileURLToPath(WRANGLER)), "il .js di Wrangler sta dove lo cerchiamo");
+  const sorgente = readFileSync(QUI + "../strumenti/brew_nomi.mjs", "utf8");
+  assert.match(sorgente, /spawnSync\(process\.execPath, \[fileURLToPath\(WRANGLER\)/);
+  assert.doesNotMatch(sorgente, /shell: true/);
 });
 
 test("una mappa sbagliata esce con 1 e non scrive niente", async () => {

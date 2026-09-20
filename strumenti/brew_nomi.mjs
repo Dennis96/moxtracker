@@ -172,12 +172,20 @@ export function comandiSql(operazioni, formato, { ora = () => new Date().toISOSt
 }
 
 // L'esecutore vero: Wrangler sul D1. Le prove ne passano uno finto.
+//
+// Si avvia il suo `.js` con questo stesso Node, non `npx`: su Windows `npx` e'
+// un `.cmd`, e dalla 20 Node rifiuta di avviare un `.cmd` senza shell (EINVAL).
+// Passare da una shell sarebbe peggio: un nome contiene caratteri che cmd.exe
+// interpreta, e qui dentro passa proprio del testo scelto a mano.
+export const WRANGLER = new URL("../node_modules/wrangler/bin/wrangler.js", import.meta.url);
+
 async function wrangler(sql, { database, remoto }) {
   const { spawnSync } = await import("node:child_process");
-  const argomenti = ["wrangler", "d1", "execute", database, remoto ? "--remote" : "--local",
-    "--json", "--command", sql];
-  const esito = spawnSync(process.platform === "win32" ? "npx.cmd" : "npx", argomenti,
-    { encoding: "utf8", shell: false });
+  const { fileURLToPath } = await import("node:url");
+  const esito = spawnSync(process.execPath, [fileURLToPath(WRANGLER), "d1", "execute", database,
+    remoto ? "--remote" : "--local", "--json", "--command", sql],
+  { encoding: "utf8", shell: false });
+  if (esito.error) throw new Error(`wrangler: ${esito.error.message}`);
   if (esito.status !== 0) throw new Error(`wrangler: ${esito.stderr || esito.stdout}`);
   return esito.stdout;
 }
