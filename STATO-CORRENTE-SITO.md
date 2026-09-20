@@ -1,15 +1,33 @@
 # Stato corrente — sito Mox
 
-Aggiornato il 15 settembre 2026: `moxtracker.app` pubblica ancora il frontend
-stabile pre-redesign (`f897a943`, build `61a708af281eea70`), **non
-ridistribuito**; la preview pubblica `main` `b2b3732` (redesign e correzioni
-frontend di Codex); `api.moxtracker.app` usa il Worker R3 con **Research
-accesa**; il D1 `moxtracker` ha lo schema R3. La GitHub Release Latest del
-client è `mox-v2-beta2.11.0`, non prerelease, con il solo asset
-`Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli nella sezione
-sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
+Aggiornato il 20 settembre 2026. **Distinzione che regge tutto questo
+documento: il codice è su `main`, il sito pubblico no.**
 
-## Candidato pre-release consolidato — 19 settembre 2026 (branch non fuso)
+**Codice.** `main` è `c5b4b8a712507ec69142d0a05ecfc1a96958dd3f`, il merge del
+candidato pre-release `47b5645a`: S1 Brew backend, S2 Brew frontend, S3,
+launch/SEO/social e Privacy/Research 2.11 sono tutti su `main` dal 20/09/2026.
+
+**Servizi pubblici, invariati dal 15/09.** `moxtracker.app` pubblica ancora il
+frontend stabile pre-redesign (`f897a943`, build `61a708af281eea70`), **non
+ridistribuito**; la preview pubblica `b2b3732` (redesign e correzioni frontend
+di Codex); `api.moxtracker.app` usa il Worker R3 con **Research accesa**; il D1
+`moxtracker` ha lo schema R3. **Niente di quello che è entrato in `main` il
+20/09 è online**, e `BREW_GRUPPI` non è impostato in nessun `wrangler*.toml`:
+il cron Brew è spento in produzione e le tabelle Brew non esistono sul D1
+remoto (il codice le tollera assenti). Deploy, migrazione e `BREW_GRUPPI = "on"`
+restano mandati separati.
+
+La GitHub Release Latest del client è `mox-v2-beta2.11.0`, non prerelease, con
+il solo asset `Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli
+nella sezione sotto e nel
+[runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
+
+> **Come leggere le sezioni datate qui sotto.** Sono un diario: ognuna descrive
+> lo stato al giorno in cui è stata scritta. Quelle marcate «fuso in `main` il
+> 20/09/2026» erano su branch quando sono state scritte e ora non lo sono più;
+> il «non deployato» che contengono resta invece vero.
+
+## Candidato pre-release consolidato — 19 settembre 2026 (fuso in `main` il 20/09/2026)
 
 - **Branch:** `codex/pre-release-consolidation-2026-09-19`, creato dall'HEAD
   S3 verificato `f9e4f5f`, con merge semantico del launch
@@ -32,16 +50,18 @@ sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
   nessuna prova saltata; target Privacy/Account/Research/build 34/34; target
   dettaglio/lettura 24/24. Due build consecutive: 93 file, ID
   `185cb0e6bb7908a0`.
-- **Non eseguiti:** nessun merge in `main`, deploy Pages/Worker, D1 remoto,
-  migrazione, release o cancellazione branch. Sito, API, database e release
-  pubblica restano quelli descritti sopra.
+- **Non eseguiti al 19/09:** nessun merge in `main`, deploy Pages/Worker, D1
+  remoto, migrazione, release o cancellazione branch. **Aggiornamento 20/09:**
+  il merge in `main` e la cancellazione dei rami integrati sono stati fatti;
+  deploy, D1 remoto, migrazione e release **restano non eseguiti**, e sito,
+  API, database e release pubblica sono quelli descritti in testa.
 
-## S2 Brew frontend — 16 settembre 2026 (branch non fuso)
+## S2 Brew frontend — 16 settembre 2026 (fuso in `main` il 20/09/2026, non deployato)
 
 - **Branch:** `claude/s2-brew-frontend-2026-09-16`, creato da `8a3cfe7` (S1
   `17a3ca0` più la review indipendente); commit `b099e1b` più questo
-  aggiornamento di stato. **Non fuso, non deployato**: `moxtracker.app` e la
-  preview non cambiano, e `main` resta `75bcac4`.
+  aggiornamento di stato. Allora **non fuso**; dal 20/09/2026 e' in `main`.
+  **Non deployato**: `moxtracker.app` e la preview non cambiano.
 - **Preflight S1** sull'HEAD esatto: quattro suite Brew 53/53,
   `npm run prove` 405/405 senza prove saltate, build `346ce2023c50e91c`,
   strumento Brew ok. La prima condizione della review S1 è chiusa.
@@ -64,7 +84,7 @@ sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 - **Documenti:** [S2 frontend](passaggi/sito/S2-BREW-FRONTEND-2026-09-16.md) e
   l'[handoff](passaggi/handoff/HANDOFF-S2-BREW-FRONTEND-2026-09-16.md).
 
-## S1 Brew backend — 15 settembre 2026 (branch non fuso)
+## S1 Brew backend — 15 settembre 2026 (fuso in `main` il 20/09/2026, non deployato)
 
 - **Branch:** `claude/s1-brew-backend-2026-09-15` da `main` `75bcac4`;
   commit `b6c940d` (codice, prove, migrazione e contratto) e `0bc7816`
@@ -98,9 +118,10 @@ sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
   `sito/**`.
 - **Documenti:** il [contratto B1 e i report](passaggi/sito/S1-BREW-CONTRATTO-B1-2026-09-15.md)
   e l'[handoff della review](passaggi/handoff/HANDOFF-S1-BREW-BACKEND-REVIEW-2026-09-15.md).
-- **Prossimi passi**, ognuno con il suo mandato: review indipendente, merge,
-  migrazione remota con verifica dei trigger, deploy del Worker,
-  `BREW_GRUPPI = "on"`, poi S2/F1 sul sito.
+- **Prossimi passi**, ognuno con il suo mandato. Fatti: review indipendente
+  (20/09, PASS), merge in `main` (20/09), S2/F1 sul sito (16/09, in `main`).
+  Restano: migrazione remota con verifica dei trigger, deploy del Worker,
+  `BREW_GRUPPI = "on"`.
 
 ## R3 in produzione e preview — 15 settembre 2026
 
@@ -150,7 +171,7 @@ né implementata. Nessun file `src/**` o `sito/**`, schema, migration,
 configurazione Pages/Worker, deploy o dato operativo è stato modificato. Le
 condizioni obbligatorie restano interne al futuro task R3 sul runtime reale.
 
-## Research R3 locale — 14 settembre 2026 (branch non fuso)
+## Research R3 locale — 14 settembre 2026 (fuso in `main`, poi in produzione dal 15/09)
 
 Sul branch `claude/r3-research-implementation-server-2026-09-14` il Worker ha
 le route Research separate (`/research/partite`, `/research/consenso`,
@@ -196,7 +217,8 @@ l'account e' Workers Paid** (5 $/mese: 50 M righe scritte al mese incluse,
 strumenti di staging resta obbligatorio.
 
 **Remediation dei blocker R3 (15/09/2026, branch
-`claude/r3-final-blockers-remediation-2026-09-15`, non fuso, non deployato).**
+`claude/r3-final-blockers-remediation-2026-09-15`, poi fuso; il ramo non
+esiste piu' dopo l'housekeeping del 20/09).**
 Research ha tre modalità (`RESEARCH_MODE` off/drain/on); `wrangler.toml` di
 produzione parte da `off`, con cap 33/1000, deployment
 `research-produzione-r3` e due limitatori Research (ingresso 29021, ciclo di

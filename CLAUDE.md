@@ -14,9 +14,12 @@ Regole permanenti:
 - **Il repository è pubblico.** Niente dati privati: log, nomi e identificativi
   di account, dump del database, materiale di `..\Non pubblicare`.
 - **Produzione, Worker, migrazioni D1 e segreti sono passaggi separati** e
-  richiedono l'autorizzazione esplicita dell'utente; il sito passa sempre da
-  preview. Un hook chiede conferma prima di ogni push, deploy o scrittura
-  remota.
+  richiedono l'autorizzazione esplicita del macro-task; il sito passa sempre da
+  preview. Dal 20/09/2026 nessun hook chiede più conferma per push, deploy o
+  scritture remote: un hook **nega** le sole operazioni distruttive (force push
+  o push diretto su un branch protetto, cancellazioni remote), e per il resto
+  vale il mandato — se non le autorizza esplicitamente, Claude si ferma e
+  presenta operazione, target, test e rollback.
 - **Staging e produzione condividono le quote D1 dell'account**: un benchmark
   su staging può fermare la produzione. Ogni prova che scrive righe ha un
   tetto.
