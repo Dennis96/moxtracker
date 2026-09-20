@@ -250,7 +250,10 @@ test("il dettaglio di una lista non classificata non mostra identificativi tecni
 test("la lista Brew pubblicata offre copia Arena, descrizione e profilo", () => {
   const archetipo = leggi("js/archetype.js");
   // Il nome copiato in Arena di un Brew non porta indici instabili (S2).
-  assert.match(archetipo, /preparaCopiaArena\(copia, testoArena\(cards, recognized \? `Variante osservata #\$\{index \+ 1\}` : "Brew MOX"\)\)/);
+  // Il nome pubblico del gruppo se c'e', il fallback sicuro di sempre se manca.
+  assert.ok(archetipo.includes("? `Variante osservata #${index + 1}`"));
+  assert.ok(archetipo.includes(': (brewGroup && nomeBrew && nomeBrew !== "Brew" ? nomeBrew : "Brew MOX");'));
+  assert.ok(archetipo.includes("preparaCopiaArena(copia, testoArena(cards, nomeCopia));"));
   assert.doesNotMatch(archetipo, /`Brew #\$\{index \+ 1\}`/);
   assert.match(archetipo, /Lista effettivamente osservata/);
   assert.match(archetipo, /brew-deck-profile/);

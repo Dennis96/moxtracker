@@ -133,7 +133,7 @@ test("A. una riga per gruppo: due varianti dello stesso gruppo non diventano due
   assert.equal(schede.querySelectorAll(".brew-group").length, 2);
   // Numeri del server, compreso il win rate che non torna con V/S.
   const celle = gruppiRighe[0].querySelectorAll("td").map((td) => td.textContent);
-  assert.equal(celle[0], "Gruppo Brew2 varianti pubblicate");
+  assert.equal(celle[0], "Brew2 varianti pubblicate", "senza nome pubblico il titolo e' «Brew»");
   assert.deepEqual(celle.slice(1, 5), ["79", "47", "32", "12,34%"]);
   assert.match(schede.querySelector(".brew-group").textContent, /12,34%/);
   nessunIdentificativoVisibile(documento, ["a", "b", "c"].map(imp));
@@ -153,7 +153,7 @@ test("A. link del gruppo: id_brew con tutti i filtri, nessuna impronta", async (
     assert.equal(p.has("impronta"), false);
     assert.equal(p.has("id"), false);
   }
-  assert.equal(link[0].getAttribute("aria-label"), "Apri gruppo Brew da 79 partite");
+  assert.equal(link[0].getAttribute("aria-label"), "Apri Brew da 79 partite");
   const schedeLink = schede.querySelectorAll("a.mobile-brew-child");
   assert.deepEqual(schedeLink.map((a) => parametri(a.href).get("id_brew")), [G1, G2]);
 });
@@ -261,8 +261,8 @@ test("inglese e singolare: testi nella lingua della pagina, «1 group», «1 pub
   assert.equal(bottone.textContent.replace("⌄", ""), "1 group");
   assert.equal(bottone.getAttribute("aria-label"), "1 group and 1 list below threshold in Other (Brew)");
   const [riga] = righe.querySelectorAll("tr.brew-group");
-  assert.match(riga.textContent, /^Brew group1 published variant/);
-  assert.equal(riga.querySelector("a").getAttribute("aria-label"), "Open Brew group, 31 matches");
+  assert.match(riga.textContent, /^Brew1 published variant/);
+  assert.equal(riga.querySelector("a").getAttribute("aria-label"), "Open Brew, 31 matches");
   assert.match(righe.querySelector(".brew-rest").textContent, /1 list below threshold/);
   assert.match(righe.querySelector(".brew-rest").textContent, /isn't attributed to any group/);
   assert.equal(schede.querySelector(".brew-group").querySelector(".mobile-brew-child-head")
