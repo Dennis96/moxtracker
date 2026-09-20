@@ -24,6 +24,14 @@ RESEND_FROM = "Mox Support <noreply@moxtracker.app>"
 # Ponte temporaneo: i client fino alla 2.9.21 ricevono il manifesto dopo che
 # la loro GUI ha iniziato mainloop. La 2.9.22 corregge il difetto nel client.
 MOX_RELEASE_RECOVERY_DELAY_MS = "1500"
+# Gruppi Brew (S1). Con "on" il cron raggruppa le liste non classificate che
+# hanno gia' 30 partite nel formato; con qualunque altro valore, o senza la
+# variabile, il cron non tocca niente e le letture restano quelle di prima.
+# Acceso in produzione il 20/09/2026, dopo la migrazione remota delle tabelle
+# Brew e dopo un deploy del Worker a flag spento che non ha mostrato
+# regressioni. Per spegnerlo si toglie la riga e si ripubblica: i gruppi gia'
+# creati restano dove sono e continuano a leggersi.
+BREW_GRUPPI = "on"
 # Research R3. `RESEARCH_MODE` e' off (niente Research), drain (il rollback:
 # niente consensi nuovi ne' upload, revoca e cancellazione aperte) oppure on.
 # Si parte da off; il runbook `passaggi/research/RUNBOOK-R3-PRODUZIONE.md` dice
