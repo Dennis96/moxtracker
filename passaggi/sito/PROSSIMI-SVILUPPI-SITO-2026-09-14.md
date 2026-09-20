@@ -29,6 +29,11 @@ sotto.
 
 ### B1 — Raggruppare i Brew simili in varianti
 
+**Implementato il 15/09/2026 sul branch `claude/s1-brew-backend-2026-09-15`,
+non fuso e non deployato**: vedi il
+[contratto B1](S1-BREW-CONTRATTO-B1-2026-09-15.md). Le famiglie di Brew con lo
+stesso nucleo restano al refresh del catalogo, per decisione dell'utente.
+
 Oggi ogni impronta esatta viene esposta come un Brew distinto. Nel campione
 pubblico del collaudo, Brew #2 e Brew #3 hanno 34 partite ciascuno, condividono
 56 copie su 60 e differiscono per quattro sostituzioni, ma risultano due liste
@@ -79,6 +84,9 @@ dell'archetipo come sostituto.
 ## Prossimi sviluppi frontend
 
 ### F1 — Presentazione dei gruppi Brew
+
+**Implementato il 16/09/2026 sul branch `claude/s2-brew-frontend-2026-09-16`,
+non fuso e non deployato**: vedi [S2-BREW-FRONTEND-2026-09-16.md](S2-BREW-FRONTEND-2026-09-16.md).
 
 Dopo B1, il Meta dovrà mostrare un solo gruppo per Brew simili e, al suo
 interno, le varianti pubblicabili. Il dettaglio dovrà usare l'identificativo

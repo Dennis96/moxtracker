@@ -2,6 +2,7 @@
 // privato; D1 conserva soltanto indici e fatti aggregabili.
 
 import { eliminaResearchMittente } from "./research/account-research.js";
+import { comandiPuliziaBrew } from "./brew-gruppi.js";
 
 export const VERSIONI_DRAFT_ACCETTATE = [1];
 
@@ -688,6 +689,9 @@ export async function eliminaMittente(ambiente, mittente) {
     ambiente.DB.prepare("DELETE FROM carte_mazzo WHERE partita IN (SELECT id FROM partite WHERE mittente = ?)").bind(mittente),
     ambiente.DB.prepare("DELETE FROM carte_avversario WHERE partita IN (SELECT id FROM partite WHERE mittente = ?)").bind(mittente),
     ambiente.DB.prepare("DELETE FROM partite WHERE mittente = ?").bind(mittente),
+    // Nello stesso batch: nessun gruppo Brew resta senza le partite che lo
+    // reggevano (vedi comandiPuliziaBrew).
+    ...await comandiPuliziaBrew(ambiente.DB),
   ]);
   // Le credenziali si tolgono per ultime: un guasto intermedio resta
   // ripetibile con lo stesso segreto, invece di lasciare dati irraggiungibili.

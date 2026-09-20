@@ -1,4 +1,6 @@
 import { aggregaMeta, catalogoPronto, infoCatalogo } from "./archetipi.js";
+import { ALGORITMO_BREW, SOGLIA_DISTANZA_BREW } from "./brew-clustering.js";
+import { leggiMembriPubblicabili } from "./brew-gruppi.js";
 
 export const SOGLIA_META = 30;
 export const SOGLIA_SCONTRI = 100;
@@ -144,11 +146,17 @@ export async function leggiMeta(db, indirizzo) {
     );
   }
 
+  // I gruppi Brew si leggono, non si calcolano: la GET non scrive mai. Servono
+  // solo se nel filtro c'e' almeno un Brew.
+  const membri = mazzi.some((mazzo) => !mazzo.archetipo_id)
+    ? await leggiMembriPubblicabili(db, filtro, SOGLIA_META)
+    : null;
+
   // L'impronta serve al collegamento tecnico con il dettaglio, ma non e' un
   // nome da mostrare al visitatore. La classificazione resta del motore: qui
   // cambiamo soltanto il testo pubblico dei casi che il motore non riconosce.
   mazzi = raggruppaBrew(mazzi.map((mazzo) => mazzettoPubblico(mazzo)),
-    testa.partite_totali, SOGLIA_META);
+    testa.partite_totali, SOGLIA_META, membri);
 
   return {
     stato: 200,
@@ -200,7 +208,72 @@ function varianteBrew(mazzo, indice, totale, soglia) {
   };
 }
 
-export function raggruppaBrew(mazzi, totale, soglia) {
+// Brew v2 (S1): i gruppi di liste quasi uguali, in parallelo ai campi di
+// sempre, che restano identici finche' il sito non passa ai gruppi (S2).
+//
+// Entrano soltanto le liste che nel filtro arrivano alla soglia, cioe' le
+// stesse di `varianti_brew`: partite e record di un gruppo sono la somma delle
+// sue varianti pubbliche, quindi non dicono niente che le varianti non dicano
+// gia'. Le liste sotto soglia restano nel solo conteggio globale
+// `brew_sotto_soglia`, mai attribuite a un gruppo. La distanza dal
+// rappresentante esce solo quando anche il rappresentante e' pubblico nella
+// stessa risposta. Una lista pubblica non ancora assegnata (il cron non e'
+// passato) resta un gruppo a se', senza identificativi.
+function gruppiBrew(ordinate, membri, totale, soglia) {
+  const gruppi = new Map();
+  for (const mazzo of ordinate) {
+    const partite = Number(mazzo.partite || 0);
+    if (partite < soglia) continue;
+    const vittorie = Number(mazzo.vittorie || 0);
+    const membro = membri?.get(mazzo.impronta) || null;
+    const chiave = membro ? membro.gruppo_id : `attesa:${mazzo.impronta}`;
+    if (!gruppi.has(chiave)) {
+      gruppi.set(chiave, {
+        id: membro?.gruppo_id || null,
+        soglia_distanza: membro ? membro.soglia_distanza : SOGLIA_DISTANZA_BREW,
+        varianti: [],
+      });
+    }
+    gruppi.get(chiave).varianti.push({
+      variante_id: membro?.variante_id || null,
+      impronta: mazzo.impronta || null,
+      partite, vittorie, sconfitte: partite - vittorie,
+      dati_sufficienti: true,
+      win_rate: percentuale(vittorie, partite),
+      quota_meta: percentuale(partite, totale),
+      decklist_pubblicabile: true,
+      rappresentante: Boolean(membro) && membro.rappresentante === mazzo.impronta,
+      distanza: membro ? membro.distanza : null,
+    });
+  }
+  const fuori = [...gruppi.values()].map((gruppo) => {
+    const conCentro = gruppo.varianti.some((variante) => variante.rappresentante);
+    const varianti = gruppo.varianti.map(({ distanza, ...variante }) => ({
+      ...variante, distanza_rappresentante: conCentro ? distanza : null,
+    }));
+    const partite = varianti.reduce((somma, variante) => somma + variante.partite, 0);
+    const vittorie = varianti.reduce((somma, variante) => somma + variante.vittorie, 0);
+    return {
+      tipo_dettaglio: "brew_group",
+      gruppo_brew_id: gruppo.id,
+      in_attesa_di_raggruppamento: gruppo.id === null,
+      algoritmo: ALGORITMO_BREW,
+      soglia_distanza: gruppo.soglia_distanza,
+      partite, vittorie, sconfitte: partite - vittorie,
+      record_pubblico: true,
+      dati_sufficienti: partite >= soglia,
+      win_rate: percentuale(vittorie, partite),
+      quota_meta: percentuale(partite, totale),
+      varianti_brew: varianti,
+    };
+  });
+  return fuori.sort((a, b) => b.partite - a.partite || b.vittorie - a.vittorie ||
+    confrontaTesto(a.gruppo_brew_id || a.varianti_brew[0].impronta,
+      b.gruppo_brew_id || b.varianti_brew[0].impronta))
+    .map((gruppo, indice) => ({ etichetta: `Brew #${indice + 1}`, ...gruppo }));
+}
+
+export function raggruppaBrew(mazzi, totale, soglia, membri = null) {
   const riconosciuti = mazzi.filter((mazzo) => mazzo.archetipo_id);
   const brew = mazzi.filter((mazzo) => !mazzo.archetipo_id);
   if (!brew.length) return riconosciuti;
@@ -239,6 +312,12 @@ export function raggruppaBrew(mazzi, totale, soglia) {
     brew_sotto_soglia: {
       liste: sottoSoglia.length,
       partite: sottoSoglia.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0),
+    },
+    gruppi_brew: gruppiBrew(ordinate, membri, totale, soglia),
+    raggruppamento_brew: {
+      algoritmo: ALGORITMO_BREW,
+      soglia_distanza: SOGLIA_DISTANZA_BREW,
+      disponibile: membri instanceof Map,
     },
   });
   return riconosciuti.sort((a, b) => b.partite - a.partite ||

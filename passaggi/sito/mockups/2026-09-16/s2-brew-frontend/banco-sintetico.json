@@ -1,0 +1,141 @@
+{
+  "/meta": {
+    "partite_totali": 271,
+    "aggiornato": "2026-09-16T08:00:00Z",
+    "partite_senza_rank": 0,
+    "filtri": { "formato": "Standard", "rank": null, "periodo": "30", "modalita": null },
+    "soglia_percentuali": 30,
+    "raggruppamento": "archetipo_con_fallback_impronta",
+    "mazzi": [
+      {
+        "nome": "Altro (Brew)", "archetipo": "Altro (Brew)", "archetipo_id": null, "tipo_dettaglio": "altro",
+        "strategia": null, "colori": [], "modalita": null, "classificazione": null, "livelli_classificazione": [],
+        "impronta": null, "impronte_raggruppate": 8, "varianti_rilevate": 8, "partite": 151,
+        "record_pubblico": false, "dati_sufficienti": true, "win_rate": null, "quota_meta": 55.72,
+        "varianti_brew": [
+          { "etichetta": "Brew #1", "impronta": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "partite": 45, "vittorie": 27, "sconfitte": 18, "dati_sufficienti": true, "win_rate": 60, "quota_meta": 16.61 },
+          { "etichetta": "Brew #2", "impronta": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "partite": 34, "vittorie": 20, "sconfitte": 14, "dati_sufficienti": true, "win_rate": 58.82, "quota_meta": 12.55 },
+          { "etichetta": "Brew #3", "impronta": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "partite": 31, "vittorie": 15, "sconfitte": 16, "dati_sufficienti": true, "win_rate": 48.39, "quota_meta": 11.44 }
+        ],
+        "brew_sotto_soglia": { "liste": 5, "partite": 41 },
+        "gruppi_brew": [
+          {
+            "etichetta": "Brew #1", "tipo_dettaglio": "brew_group", "gruppo_brew_id": "bg_5a1c0e9d3b7f42a6c8e1d0f9b2a4c6e8",
+            "in_attesa_di_raggruppamento": false, "algoritmo": "main-multiset-radius-v1", "soglia_distanza": 4,
+            "partite": 79, "vittorie": 47, "sconfitte": 32, "record_pubblico": true, "dati_sufficienti": true,
+            "win_rate": 59.49, "quota_meta": 29.15,
+            "varianti_brew": [
+              { "variante_id": "bv_1f2e3d4c5b6a79880a1b2c3d4e5f6071", "impronta": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "partite": 45, "vittorie": 27, "sconfitte": 18, "dati_sufficienti": true, "win_rate": 60, "quota_meta": 16.61, "decklist_pubblicabile": true, "rappresentante": true, "distanza_rappresentante": 0 },
+              { "variante_id": "bv_7a6b5c4d3e2f10987a6b5c4d3e2f1098", "impronta": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "partite": 34, "vittorie": 20, "sconfitte": 14, "dati_sufficienti": true, "win_rate": 58.82, "quota_meta": 12.55, "decklist_pubblicabile": true, "rappresentante": false, "distanza_rappresentante": 4 }
+            ]
+          },
+          {
+            "etichetta": "Brew #2", "tipo_dettaglio": "brew_group", "gruppo_brew_id": "bg_9e3d7c1b5a0f48e2d6c4b8a1f3e5d7c9",
+            "in_attesa_di_raggruppamento": false, "algoritmo": "main-multiset-radius-v1", "soglia_distanza": 4,
+            "partite": 31, "vittorie": 15, "sconfitte": 16, "record_pubblico": true, "dati_sufficienti": true,
+            "win_rate": 48.39, "quota_meta": 11.44,
+            "varianti_brew": [
+              { "variante_id": "bv_0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f", "impronta": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "partite": 31, "vittorie": 15, "sconfitte": 16, "dati_sufficienti": true, "win_rate": 48.39, "quota_meta": 11.44, "decklist_pubblicabile": true, "rappresentante": true, "distanza_rappresentante": 0 }
+            ]
+          }
+        ],
+        "raggruppamento_brew": { "algoritmo": "main-multiset-radius-v1", "soglia_distanza": 4, "disponibile": true }
+      },
+      {
+        "nome": "Mono White Auras", "archetipo": "Mono White Auras", "archetipo_id": "aure-mono-bianco",
+        "strategia": "aggro", "colori": ["W"], "carte_core": [], "modalita": null, "classificazione": "catalogo_mox_meta",
+        "livelli_classificazione": ["archetipo"], "impronta": null, "impronte_raggruppate": 3, "varianti_rilevate": 3,
+        "partite": 120, "vittorie": 66, "sconfitte": 54, "dati_sufficienti": true, "win_rate": 55, "quota_meta": 44.28
+      }
+    ]
+  },
+  "/gioco-risposta": {
+    "partite_totali": 271, "aggiornato": "2026-09-16T08:00:00Z", "partite_senza_rank": 0,
+    "partite_con_iniziativa_nota": 250,
+    "filtri": { "formato": "Standard", "rank": null, "periodo": "30", "modalita": null },
+    "soglia_percentuali": 30,
+    "al_gioco": { "partite": 130, "dati_sufficienti": true },
+    "alla_risposta": { "partite": 120, "dati_sufficienti": true }
+  },
+  "/scontri": {
+    "partite_totali": 271, "aggiornato": "2026-09-16T08:00:00Z", "partite_senza_rank": 0,
+    "filtri": { "formato": "Standard", "rank": null, "periodo": "30", "modalita": null },
+    "soglia_coppia": 100, "disponibile": false, "scontri": [],
+    "motivo": "Dati sintetici per gli screenshot S2: la matrice dei matchup non fa parte di questo lavoro."
+  },
+  "/archetipo": {
+    "tipo_dettaglio": "brew_group", "gruppo_brew_id": "bg_5a1c0e9d3b7f42a6c8e1d0f9b2a4c6e8",
+    "algoritmo": "main-multiset-radius-v1", "soglia_distanza": 4,
+    "archetipo_id": null, "nome": "Mazzo non classificato", "archetipo": "Mazzo non classificato",
+    "archetipo_catalogo": null, "strategia": null, "colori": [],
+    "filtri": { "formato": "Standard", "rank": null, "periodo": "30", "modalita": null },
+    "soglia_percentuali": 30, "partite": 79, "vittorie": 47, "sconfitte": 32, "record_pubblico": true,
+    "dati_sufficienti": true, "win_rate": 59.49, "quota_meta": 29.15, "varianti_osservate": 2,
+    "livelli_classificazione": [],
+    "varianti": [
+      {
+        "origine": "osservazione_mox", "variante_id": "bv_1f2e3d4c5b6a79880a1b2c3d4e5f6071",
+        "impronta": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "livello_classificazione": "non_classificato",
+        "partite": 45, "vittorie": 27, "sconfitte": 18, "dati_sufficienti": true, "win_rate": 60, "quota_meta": 16.61,
+        "decklist_pubblicabile": true, "lista_riferimento_id": null, "lista_riferimento_nome": null,
+        "rappresentante": true, "distanza_rappresentante": 0,
+        "carte": [
+          { "arena_id": 51307, "copie": 4, "nome": "ethereal armor" },
+          { "arena_id": 91549, "copie": 4, "nome": "feather of flight" },
+          { "arena_id": 92069, "copie": 2, "nome": "fear of surveillance" },
+          { "arena_id": 92081, "copie": 4, "nome": "optimistic scavenger" },
+          { "arena_id": 97823, "copie": 4, "nome": "origin of spider-man" },
+          { "arena_id": 7193, "copie": 20, "nome": "plains" },
+          { "arena_id": 96608, "copie": 2, "nome": "seam rip" },
+          { "arena_id": 92089, "copie": 4, "nome": "shardmage's rescue" },
+          { "arena_id": 92090, "copie": 4, "nome": "sheltered by ghosts" },
+          { "arena_id": 97964, "copie": 4, "nome": "skyward spider" },
+          { "arena_id": 86713, "copie": 4, "nome": "slumbering keepguard" },
+          { "arena_id": 86715, "copie": 4, "nome": "spellbook vendor" }
+        ]
+      },
+      {
+        "origine": "osservazione_mox", "variante_id": "bv_7a6b5c4d3e2f10987a6b5c4d3e2f1098",
+        "impronta": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "livello_classificazione": "non_classificato",
+        "partite": 34, "vittorie": 20, "sconfitte": 14, "dati_sufficienti": true, "win_rate": 58.82, "quota_meta": 12.55,
+        "decklist_pubblicabile": true, "lista_riferimento_id": null, "lista_riferimento_nome": null,
+        "rappresentante": false, "distanza_rappresentante": 4,
+        "carte": [
+          { "arena_id": 51307, "copie": 4, "nome": "ethereal armor" },
+          { "arena_id": 92069, "copie": 4, "nome": "fear of surveillance" },
+          { "arena_id": 92081, "copie": 4, "nome": "optimistic scavenger" },
+          { "arena_id": 97823, "copie": 4, "nome": "origin of spider-man" },
+          { "arena_id": 7193, "copie": 20, "nome": "plains" },
+          { "arena_id": 96608, "copie": 4, "nome": "seam rip" },
+          { "arena_id": 92089, "copie": 4, "nome": "shardmage's rescue" },
+          { "arena_id": 92090, "copie": 4, "nome": "sheltered by ghosts" },
+          { "arena_id": 97964, "copie": 4, "nome": "skyward spider" },
+          { "arena_id": 86713, "copie": 4, "nome": "slumbering keepguard" },
+          { "arena_id": 86715, "copie": 4, "nome": "spellbook vendor" }
+        ]
+      }
+    ],
+    "altre_varianti": null, "liste_riferimento": [],
+    "nota_varianti": "Dati sintetici per gli screenshot S2."
+  },
+  "/archetipo?formato=Standard&impronta=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb&periodo=30": {
+    "tipo_dettaglio": "non_classificato", "archetipo_id": null, "nome": "Mazzo non classificato",
+    "archetipo": "Mazzo non classificato", "archetipo_catalogo": null, "strategia": null, "colori": [],
+    "filtri": { "formato": "Standard", "rank": null, "periodo": "30", "modalita": null },
+    "soglia_percentuali": 30, "partite": 34, "vittorie": 20, "sconfitte": 14, "dati_sufficienti": true,
+    "win_rate": 58.82, "quota_meta": 12.55, "varianti_osservate": 1, "livelli_classificazione": [],
+    "varianti": [
+      {
+        "origine": "osservazione_mox", "variante_id": "bbbbbbbbbbbb",
+        "impronta": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "livello_classificazione": "non_classificato",
+        "partite": 34, "vittorie": 20, "sconfitte": 14, "dati_sufficienti": true, "win_rate": 58.82, "quota_meta": 12.55,
+        "decklist_pubblicabile": true, "lista_riferimento_id": null, "lista_riferimento_nome": null,
+        "carte": [ { "arena_id": 7193, "copie": 20, "nome": "plains" } ]
+      }
+    ],
+    "altre_varianti": null, "liste_riferimento": [],
+    "nota_varianti": "Dati sintetici per gli screenshot S2.",
+    "gruppo_brew_id": "bg_5a1c0e9d3b7f42a6c8e1d0f9b2a4c6e8",
+    "variante_brew_id": "bv_7a6b5c4d3e2f10987a6b5c4d3e2f1098"
+  }
+}

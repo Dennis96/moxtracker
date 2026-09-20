@@ -9,7 +9,7 @@ const SCHEMA = QUI + "../schema.sql";
 
 function aggiungi(db, {
   id, impronta="a".repeat(64), formato="Standard", esito="vinta",
-  su=1, rank="Gold", ricevuta="2026-08-18T21:00:00Z", evento="Ladder"
+  su=1, rank="Gold", ricevuta=new Date(Date.now() - 86400000).toISOString(), evento="Ladder"
 }) {
   db.prepare(`INSERT INTO partite
     (id, mittente, ricevuta, formato, evento, esito, su_gioco, rank_classe,

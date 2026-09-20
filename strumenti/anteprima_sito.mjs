@@ -9,8 +9,9 @@ const PORTA = Number(process.env.MOX_SITO_PORTA || 8790);
 const API = String(process.env.MOX_API_ORIGIN || "https://api.moxtracker.app").replace(/\/$/, "");
 // Banco sintetico facoltativo per verificare in locale Il mio MOX o una
 // risposta del Meta che l'API pubblicata non ha ancora: risponde soltanto alle
-// route elencate nel file JSON (dati inventati, fuori dalla build; la query
-// non conta); tutto il resto continua ad andare all'API.
+// route elencate nel file JSON (dati inventati, fuori dalla build). Di norma
+// la query non conta, salvo le chiavi scritte con la query; tutto il resto
+// continua ad andare all'API.
 const BANCO = process.env.MOX_BANCO_SINTETICO
   ? JSON.parse(await readFile(resolve(process.env.MOX_BANCO_SINTETICO), "utf8"))
   : null;
@@ -37,8 +38,15 @@ function rispondi(res, stato, corpo, tipo = "text/plain; charset=utf-8") {
 
 async function inoltraApi(url, res) {
   const percorso = url.pathname.slice(4) || "/salute";
-  if (BANCO && Object.prototype.hasOwnProperty.call(BANCO, percorso)) {
-    rispondi(res, 200, JSON.stringify(BANCO[percorso]), "application/json; charset=utf-8");
+  // Una chiave con la query, scritta come la costruisce il sito, vince su
+  // quella del solo percorso: serve a provare in locale il passaggio da un
+  // vecchio link per impronta al gruppo Brew canonico.
+  const conQuery = percorso + url.search;
+  const chiave = !BANCO ? null
+    : Object.prototype.hasOwnProperty.call(BANCO, conQuery) ? conQuery
+      : Object.prototype.hasOwnProperty.call(BANCO, percorso) ? percorso : null;
+  if (chiave) {
+    rispondi(res, 200, JSON.stringify(BANCO[chiave]), "application/json; charset=utf-8");
     return;
   }
   try {

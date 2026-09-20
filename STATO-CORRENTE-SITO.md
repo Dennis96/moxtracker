@@ -9,6 +9,99 @@ client è `mox-v2-beta2.11.0`, non prerelease, con il solo asset
 `Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli nella sezione
 sotto e nel [runbook R3](passaggi/research/RUNBOOK-R3-PRODUZIONE.md).
 
+## Candidato pre-release consolidato — 19 settembre 2026 (branch non fuso)
+
+- **Branch:** `codex/pre-release-consolidation-2026-09-19`, creato dall'HEAD
+  S3 verificato `f9e4f5f`, con merge semantico del launch
+  `f646057`. `launch-prep` era gia' antenato; il branch temporaneo S3 `b2-temp`
+  non e' stato integrato.
+- **Review S3 indipendente:** `PASS WITH CONDITIONS`, senza blocker. Soglia
+  30, `k=4`, `main-multiset-radius-v1`, esclusione del sideboard, privacy e
+  separazione catalogo/telemetria restano invariati. C001/C002/C003 restano
+  `A — EVIDENZA_INSUFFICIENTE` dopo il refresh Standard.
+- **Catalogo:** `src/catalogo-archetipi-generato.js` rigenerato dal catalogo
+  canonico di `mox-core`: 27 liste, 25.762 ID Arena; due run hanno prodotto
+  lo stesso SHA-256 `1dcb283254c9155e9960c4f280e36963f6f819afd5d61b638acd921cbae1e935`.
+- **Sito:** preservati SEO, canonical/hreflang, sitemap, social card 1200x630,
+  crop Home, produzione indicizzabile e preview `noindex`. Privacy separa i
+  consensi Partite, Draft e Research, espone `privacy@moxtracker.app` e
+  descrive revoca/cancellazione fail-closed. Download e note versione
+  rappresentano correttamente MOX 2.11.0 e Research opt-in senza promettere
+  analisi ancora in roadmap.
+- **Verifiche:** installazione pulita con `npm ci`; `npm run prove` 428/428,
+  nessuna prova saltata; target Privacy/Account/Research/build 34/34; target
+  dettaglio/lettura 24/24. Due build consecutive: 93 file, ID
+  `185cb0e6bb7908a0`.
+- **Non eseguiti:** nessun merge in `main`, deploy Pages/Worker, D1 remoto,
+  migrazione, release o cancellazione branch. Sito, API, database e release
+  pubblica restano quelli descritti sopra.
+
+## S2 Brew frontend — 16 settembre 2026 (branch non fuso)
+
+- **Branch:** `claude/s2-brew-frontend-2026-09-16`, creato da `8a3cfe7` (S1
+  `17a3ca0` più la review indipendente); commit `b099e1b` più questo
+  aggiornamento di stato. **Non fuso, non deployato**: `moxtracker.app` e la
+  preview non cambiano, e `main` resta `75bcac4`.
+- **Preflight S1** sull'HEAD esatto: quattro suite Brew 53/53,
+  `npm run prove` 405/405 senza prove saltate, build `346ce2023c50e91c`,
+  strumento Brew ok. La prima condizione della review S1 è chiusa.
+- **Cosa:**
+  - nel Meta, una riga o scheda per gruppo Brew con numeri del server e un
+    solo riepilogo sotto soglia;
+  - link `archetipo.html?…&id_brew=bg_…` con tutti i filtri;
+  - dettaglio `brew_group` con varianti «rappresentativa» e «simile»;
+  - vecchi `?impronta=` portati all'URL canonico con `replaceState`;
+  - fallback identico al Meta di prima quando il Worker non espone i gruppi;
+  - nessuna impronta o id tecnico visibile.
+- **Verifiche:**
+  - `npm run prove`: 424/424, nessuna saltata;
+  - `npm run sito:build`: build `54ae1e62b7792f95`;
+  - nel browser, sull'anteprima locale con banco sintetico: link canonico,
+    reload, «indietro», inglese a 375 px;
+  - screenshot sintetici in `passaggi/sito/mockups/2026-09-16/s2-brew-frontend/`.
+- **Non toccati:** backend S1 (`src/`, schema, migrazioni), Worker, Pages, D1
+  remoto, `mox-core`. **S3 non è iniziato.**
+- **Documenti:** [S2 frontend](passaggi/sito/S2-BREW-FRONTEND-2026-09-16.md) e
+  l'[handoff](passaggi/handoff/HANDOFF-S2-BREW-FRONTEND-2026-09-16.md).
+
+## S1 Brew backend — 15 settembre 2026 (branch non fuso)
+
+- **Branch:** `claude/s1-brew-backend-2026-09-15` da `main` `75bcac4`;
+  commit `b6c940d` (codice, prove, migrazione e contratto) e `0bc7816`
+  (delta cancellazione, 16/09), piu' gli aggiornamenti di stato.
+- **Cosa:** gruppi Brew a raggio. La distanza si misura sul main deck per
+  nome carta, k = 4, algoritmo `main-multiset-radius-v1`. Identificativi
+  opachi persistenti `bg_`/`bv_`. `/meta` aggiunge `gruppi_brew` e
+  `raggruppamento_brew`, e i campi legacy restano identici. Nuovo
+  `/archetipo?id_brew=`; il percorso `?impronta=` dice a quale gruppo
+  appartiene la lista.
+- **Persistenza:** migrazione additiva
+  `migrazioni/2026-09-15-brew-gruppi.sql`; strumento locale
+  `strumenti/brew_gruppi.mjs` (analisi, report k=3/4/5, apply); cron spento
+  finche' `BREW_GRUPPI` non vale `"on"`.
+- **Decisione dell'utente:** in S1 solo le quasi-copie. Le famiglie con lo
+  stesso nucleo passano dal refresh curato del catalogo.
+- **Privacy:** entrano nei gruppi solo liste con 30 partite totali. Un gruppo
+  mostra solo le varianti pubbliche nel filtro, e le liste sotto soglia
+  restano nel conteggio globale di prima.
+- **Cancellazione (delta 16/09):** dopo `Cancella dal sito partite e
+  Draft`, e dopo la sezione «partite» dell'account, non resta stato Brew
+  senza partite. La pulizia sta nello stesso batch delle partite, prima delle
+  credenziali, ed e' ripetibile. Un gruppo che perde il rappresentante si
+  smonta: e' l'eccezione privacy alla stabilita' degli id. I trigger
+  congelano gli UPDATE, non i DELETE.
+- **Verifiche:** `npm run prove` 405/405, nessuna saltata. `npm run
+  sito:build` produce `346ce2023c50e91c`, identica alla preview. La
+  migrazione e' provata su SQLite e su D1 locale di Wrangler (`--local`,
+  cartella temporanea).
+- **Non toccati:** `main`, Worker, Pages, D1 remoto, `mox-core`, Research,
+  `sito/**`.
+- **Documenti:** il [contratto B1 e i report](passaggi/sito/S1-BREW-CONTRATTO-B1-2026-09-15.md)
+  e l'[handoff della review](passaggi/handoff/HANDOFF-S1-BREW-BACKEND-REVIEW-2026-09-15.md).
+- **Prossimi passi**, ognuno con il suo mandato: review indipendente, merge,
+  migrazione remota con verifica dei trigger, deploy del Worker,
+  `BREW_GRUPPI = "on"`, poi S2/F1 sul sito.
+
 ## R3 in produzione e preview — 15 settembre 2026
 
 - **Merge:** `main` `12fb5c4` → `b2b3732` (fast-forward del branch approvato
