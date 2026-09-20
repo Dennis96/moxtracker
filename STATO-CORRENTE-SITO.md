@@ -3,19 +3,22 @@
 Aggiornato il 20 settembre 2026. **Distinzione che regge tutto questo
 documento: il codice è su `main`, il sito pubblico no.**
 
-**Codice.** `main` è `c5b4b8a712507ec69142d0a05ecfc1a96958dd3f`, il merge del
-candidato pre-release `47b5645a`: S1 Brew backend, S2 Brew frontend, S3,
-launch/SEO/social e Privacy/Research 2.11 sono tutti su `main` dal 20/09/2026.
+**Codice.** `main` è `5072dafb4a809aa8177bec9672a2cbbdc1611522`: sopra il
+candidato pre-release ci sono i nomi pubblici dei gruppi Brew (PR #4) e
+l'accensione di `BREW_GRUPPI` (PR #5).
 
-**Servizi pubblici, invariati dal 15/09.** `moxtracker.app` pubblica ancora il
-frontend stabile pre-redesign (`f897a943`, build `61a708af281eea70`), **non
-ridistribuito**; la preview pubblica `b2b3732` (redesign e correzioni frontend
-di Codex); `api.moxtracker.app` usa il Worker R3 con **Research accesa**; il D1
-`moxtracker` ha lo schema R3. **Niente di quello che è entrato in `main` il
-20/09 è online**, e `BREW_GRUPPI` non è impostato in nessun `wrangler*.toml`:
-il cron Brew è spento in produzione e le tabelle Brew non esistono sul D1
-remoto (il codice le tollera assenti). Deploy, migrazione e `BREW_GRUPPI = "on"`
-restano mandati separati.
+**Backend Brew: in produzione dal 20/09 sera.** `api.moxtracker.app` usa il
+Worker `a04d93f9`, che porta i nomi Brew e ha `BREW_GRUPPI = "on"`; il D1
+`moxtracker` ha le tabelle `brew_gruppo`, `brew_membro` e `brew_nome`, e il
+primo backfill ha creato **3 gruppi con 4 varianti pubbliche**, tutti e tre
+**nominati**. Research resta accesa e invariata.
+
+**Il sito ufficiale no.** `moxtracker.app` pubblica ancora il frontend stabile
+pre-redesign (`f897a943`, build `61a708af281eea70`), **non ridistribuito**, ed
+è compatibile col Worker nuovo. La preview pubblica ora il `main` corrente
+(`5072daf`, build `6a36644a19c64de9`, deployment `917c6fea`). Il deploy Pages
+di produzione resta un mandato separato, e il suo gate è la QA manuale
+completa.
 
 La GitHub Release Latest del client è `mox-v2-beta2.11.0`, non prerelease, con
 il solo asset `Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli
@@ -27,7 +30,78 @@ nella sezione sotto e nel
 > 20/09/2026» erano su branch quando sono state scritte e ora non lo sono più;
 > il «non deployato» che contengono resta invece vero.
 
-## Nomi pubblici dei gruppi Brew — 20 settembre 2026 (non deployato)
+## Brew in produzione e nuova preview — 20 settembre 2026
+
+Il mandato che ha portato S1/S2/S3 dal solo `main` a uno stato verificabile
+end-to-end: `D1 Brew -> Worker Brew -> nomi pubblici -> frontend -> preview`.
+
+- **`main`:** da `881e886` a `5072daf`, con due PR fuse con merge commit —
+  [#4](https://github.com/Dennis96/moxtracker/pull/4) (nomi pubblici,
+  `2a62fb2`) e [#5](https://github.com/Dennis96/moxtracker/pull/5)
+  (`BREW_GRUPPI = "on"`, `5072daf`).
+- **D1 remoto.** Bookmark di ripristino prima di toccare niente:
+  `0000045e-00000000-000050ec-fd401cdb2cf147489fdd587a02eecb83`. Applicate in
+  ordine `migrazioni/2026-09-15-brew-gruppi.sql` e
+  `migrazioni/2026-09-20-brew-nome-pubblico.sql`. Le tabelle passano da 32 a
+  35; `partite` resta a 679 righe e `carte_mazzo` a 13.580, identiche alla
+  baseline. Il trigger di immutabilità è stato provato sul database vero: un
+  `UPDATE` su `brew_gruppo` torna «brew_gruppo congelato».
+- **Worker, in due passi.** Prima `1caff306` dal `main` `2a62fb2` con il flag
+  ancora spento: `/salute` identica byte per byte, `/meta` sul periodo totale
+  con le stesse 360 partite e gli stessi mazzi, privacy Brew invariata
+  (impronta e `id_brew` inventati 404), smoke del sito pubblico tutto OK. Poi
+  `a04d93f9` con `BREW_GRUPPI = "on"`. **Rollback:** `wrangler rollback
+  1caff306-6a3e-4e1b-bcb0-35a89c61969c` (flag spento) oppure `d4c12c58` (il
+  Worker del 15/09). Il deploy porta in produzione anche il catalogo
+  archetipi rigenerato il 19/09: sul periodo totale classifica esattamente
+  come quello di agosto.
+- **Backfill.** Eseguito col cron vero, non con un endpoint nuovo:
+  `wrangler dev --remote --test-scheduled` e una richiesta a
+  `/__scheduled`, che gira lo stesso `scheduled()` del Worker sui binding
+  remoti. Primo giro: **3 gruppi, 4 membri**, `k = 4`. Secondo giro: nessun
+  doppione, stesse righe e stesso `creato` — idempotente.
+- **Nomi pubblici assegnati**, dalla sola decklist rappresentativa che l'API
+  già pubblica:
+
+  | Gruppo | Nome | Perché |
+  |---|---|---|
+  | `bg_d143b62…` | **Boros Dwarves** | Plains/Mountain e Sacred Foundry; otto carte di nani (Dáin's Company ×4, Dwarven Mauler ×4, Kíli, Dwalin, Thorin) con equipaggiamenti |
+  | `bg_6e73e93…` | **Orzhov Sacrifice** | manabase Orzhov economica; Infestation Sage ×4, Forsaken Miner, Bartolomé del Presidio, Raise the Past ×3, Vengeful Bloodwitch ×4 |
+  | `bg_f5a4def…` | **Orzhov Sacrifice (Syr Vondam)** | stessa famiglia della riga sopra, ma manabase premium e Syr Vondam più Arnyn, che l'altra lista non ha |
+
+  Nessuno dei tre coincide con un archetipo del catalogo: lo strumento
+  rifiuta la coincidenza. I nomi sono **etichette editoriali**: clustering,
+  `k = 4`, soglia 30 e classificatore restano quelli di prima.
+- **Preview.** `npm run sito:release -- --environment=preview --deploy` dal
+  `main` `5072daf`: build `6a36644a19c64de9`, 93 file, deployment `917c6fea`
+  (<https://917c6fea.moxtracker.pages.dev>, alias
+  <https://preview.moxtracker.pages.dev>), record
+  `preview-5072dafb4a80-917c6fea.json`, prove del gate 448/448, smoke 14/14.
+  `X-Robots-Tag: noindex, nofollow, noarchive` su tutte le pagine,
+  `robots.txt` con `Disallow: /`, canonical e hreflang verso la produzione e
+  mai verso la preview, sitemap con i soli URL di produzione, social card
+  1200×630.
+- **QA Brew mirata, sulla preview.** Nel Meta i tre gruppi si presentano col
+  nome — «Boros Dwarves», «Orzhov Sacrifice», «Orzhov Sacrifice (Syr
+  Vondam)» — e non più come «Gruppo Brew»; le 6 liste sotto soglia restano un
+  riepilogo unico senza V/S né percentuali. Dettaglio: titolo col nome, badge
+  «Archetipo non ancora confermato» e «Liste simili raggruppate», due
+  varianti con distanza, decklist pubblicate, copia per Arena che scrive
+  `Name Boros Dwarves`. `aria-label` «Apri Boros Dwarves da 81 partite».
+  Nessun `bg_`, `bv_` o impronta nel testo o negli attributi: gli id restano
+  solo nell'URL canonico. Reload diretto su `?id_brew=` e ritorno al Meta
+  funzionano. In inglese i nomi sono gli stessi e non compare «Brew group». A
+  375 px nessun overflow (`scrollWidth` 375), e anche il nome più lungo sta
+  nella scheda.
+- **Non fatto, di proposito:** nessun deploy Pages di produzione, nessuna
+  release client, nessun bump di versione, nessuna modifica a `mox-core` o a
+  Research.
+- **Limite noto, non causato da questo lavoro:** la `og:image` della preview
+  punta a `moxtracker.app/assets/social/mox-social-card.png`, che oggi dà 403
+  perché quell'asset esiste solo nel redesign. Si risolve da sé quando la
+  produzione verrà ridistribuita; sulla preview il file c'è ed è 1200×630.
+
+## Nomi pubblici dei gruppi Brew — 20 settembre 2026 (il codice)
 
 - **Branch:** `claude/brew-production-preview-2026-09-20`, da `main`
   `881e886`. Commit `38098ca` (migrazione, API, sito, strumento, prove) e
