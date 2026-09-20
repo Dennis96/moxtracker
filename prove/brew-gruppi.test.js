@@ -24,6 +24,7 @@ const QUI = fileURLToPath(new URL(".", import.meta.url));
 const SCHEMA = QUI + "../schema.sql";
 const TESTO_SCHEMA = readFileSync(SCHEMA, "utf8");
 const MIGRAZIONE = readFileSync(QUI + "../migrazioni/2026-09-15-brew-gruppi.sql", "utf8");
+const MIGRAZIONE_NOMI = readFileSync(QUI + "../migrazioni/2026-09-20-brew-nome-pubblico.sql", "utf8");
 const [A, B, C, D, E, F, G, H] = ["a", "b", "c", "d", "e", "f", "1", "2"].map((x) => x.repeat(64));
 
 // A (45) e B (34) sono il caso 56/60; C (31) un falso amico dello stesso
@@ -56,20 +57,22 @@ function forma(sqlite) {
     WHERE name LIKE 'brew_%' ORDER BY name`).all().map((riga) => ({ ...riga }));
 }
 
-test("schema.sql contiene la migrazione Brew, additiva e ripetibile", () => {
-  assert.ok(TESTO_SCHEMA.includes(MIGRAZIONE + "\n-- Research R3"));
+test("schema.sql contiene le migrazioni Brew, additive e ripetibili", () => {
+  // Le due migrazioni stanno in schema.sql nell'ordine in cui si applicano:
+  // prima i gruppi (S1), poi i nomi pubblici, che hanno una chiave esterna
+  // verso i gruppi.
+  assert.ok(TESTO_SCHEMA.includes(MIGRAZIONE + "\n" + MIGRAZIONE_NOMI + "\n-- Research R3"));
   const bootstrap = new DatabaseSync(":memory:");
   bootstrap.exec(TESTO_SCHEMA);
   const migrato = new DatabaseSync(":memory:");
-  migrato.exec(TESTO_SCHEMA.replace(MIGRAZIONE + "\n", ""));
+  migrato.exec(TESTO_SCHEMA.replace(MIGRAZIONE + "\n" + MIGRAZIONE_NOMI + "\n", ""));
   assert.equal(forma(migrato).length, 0, "prima di S1 non ci sono oggetti Brew");
   const prima = migrato.prepare("SELECT name, sql FROM sqlite_master").all().map((r) => ({ ...r }));
-  migrato.exec(MIGRAZIONE);
-  migrato.exec(MIGRAZIONE);
+  for (const passo of [MIGRAZIONE, MIGRAZIONE_NOMI, MIGRAZIONE, MIGRAZIONE_NOMI]) migrato.exec(passo);
   assert.deepEqual(forma(migrato), forma(bootstrap));
   assert.deepEqual(forma(bootstrap).map((r) => `${r.type}:${r.name}`), [
     "table:brew_gruppo", "trigger:brew_gruppo_congelato", "table:brew_membro",
-    "trigger:brew_membro_congelato", "index:brew_membro_gruppo",
+    "trigger:brew_membro_congelato", "index:brew_membro_gruppo", "table:brew_nome",
   ]);
   // Additiva: tutto cio' che c'era resta identico.
   const dopo = new Map(migrato.prepare("SELECT name, sql FROM sqlite_master").all()

@@ -206,7 +206,7 @@ export async function comandiPuliziaBrew(db) {
     if (tabelleBrewAssenti(guasto)) return [];
     throw guasto;
   }
-  return [
+  const comandi = [
     db.prepare(`DELETE FROM brew_membro
       WHERE ${senzaPartite("brew_membro.formato", "brew_membro.impronta")}`),
     db.prepare(`DELETE FROM brew_membro WHERE gruppo_id IN (SELECT g.id FROM brew_gruppo g
@@ -214,6 +214,20 @@ export async function comandiPuliziaBrew(db) {
     db.prepare(`DELETE FROM brew_gruppo
       WHERE ${senzaPartite("brew_gruppo.formato", "brew_gruppo.rappresentante")}`),
   ];
+  // Il nome pubblico segue il gruppo. La chiave esterna lo cancella gia' a
+  // cascata, ma questa riga vale anche dove le chiavi esterne non fossero
+  // applicate: un nome senza gruppo resterebbe visibile a un gruppo nuovo che
+  // riusasse l'id, e gli id non si riusano proprio per non farlo succedere.
+  // Va in coda, dopo che i gruppi sono spariti.
+  try {
+    await db.prepare("SELECT 1 FROM brew_nome LIMIT 1").first();
+    comandi.push(db.prepare(
+      `DELETE FROM brew_nome WHERE NOT EXISTS
+        (SELECT 1 FROM brew_gruppo g WHERE g.id = brew_nome.gruppo_id)`));
+  } catch (guasto) {
+    if (!tabelleBrewAssenti(guasto)) throw guasto;
+  }
+  return comandi;
 }
 
 // L'assegnazione dei nuovi membri, fuori dalle GET: gira nel cron solo se
@@ -303,6 +317,34 @@ export async function leggiMembro(db, formato, impronta) {
       `SELECT gruppo_id, variante_id FROM brew_membro
        WHERE formato = ? AND algoritmo = ? AND impronta = ?`
     ).bind(formato, ALGORITMO_BREW, impronta).first();
+  } catch (guasto) {
+    if (tabelleBrewAssenti(guasto)) return null;
+    throw guasto;
+  }
+}
+
+// I nomi pubblici dei gruppi: un'etichetta editoriale, niente di piu'. Non
+// entrano nel clustering e non cambiano niente di quello che il gruppo e';
+// servono soltanto perche' il sito non debba chiamarli tutti «Gruppo Brew».
+// null = tabelle assenti, e il sito torna al suo fallback.
+export async function leggiNomiPubblici(db, formato) {
+  try {
+    const esito = await db.prepare(
+      `SELECT gruppo_id, nome FROM brew_nome WHERE formato = ? AND algoritmo = ?`
+    ).bind(formato, ALGORITMO_BREW).all();
+    return new Map((esito.results || []).map((riga) => [String(riga.gruppo_id), String(riga.nome)]));
+  } catch (guasto) {
+    if (tabelleBrewAssenti(guasto)) return null;
+    throw guasto;
+  }
+}
+
+export async function leggiNomePubblico(db, id, formato) {
+  try {
+    const riga = await db.prepare(
+      `SELECT nome FROM brew_nome WHERE gruppo_id = ? AND formato = ? AND algoritmo = ?`
+    ).bind(id, formato, ALGORITMO_BREW).first();
+    return riga ? String(riga.nome) : null;
   } catch (guasto) {
     if (tabelleBrewAssenti(guasto)) return null;
     throw guasto;

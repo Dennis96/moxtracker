@@ -1,7 +1,7 @@
 import { DEFAULT_FORMAT, nomeRank } from "./config.js";
 import { fetchArchetipo } from "./api.js";
 import { deckLabel, formatInteger, formatPercent, sampleSufficient } from "./format.js";
-import { brewVariantDistance, brewVariantLabel, canonicalBrewUrl, classificationSummary, deckColors, deckIsClassified, deckMode, deckStrategy, detailIdentifier, ID_GRUPPO_BREW, observedDecklistCards, strategyLabel, validVariantId } from "./meta-model.js";
+import { brewGroupName, brewVariantDistance, brewVariantLabel, canonicalBrewUrl, classificationSummary, deckColors, deckIsClassified, deckMode, deckStrategy, detailIdentifier, ID_GRUPPO_BREW, observedDecklistCards, strategyLabel, validVariantId } from "./meta-model.js";
 import { createCardListItem, parseReferenceLine } from "./card-images.js";
 import { renderProfiloMazzo } from "./deck-profile.js";
 import { traduciDocumento } from "./translate.js";
@@ -145,7 +145,9 @@ function variantMetaShare(variant) {
 
 function renderDeck(deck, params, selection) {
   const brewGroup = deck?.tipo_dettaglio === "brew_group";
-  const parentTitle = brewGroup ? (INGLESE ? "Brew group" : "Gruppo Brew") : deckLabel(deck);
+  // Il titolo di un gruppo Brew e' il suo nome pubblico, non «Gruppo Brew»:
+  // il badge «Archetipo non ancora confermato» resta li' sotto a dire cos'e'.
+  const parentTitle = brewGroup ? brewGroupName(deck) : deckLabel(deck);
   const classified = deckIsClassified(deck);
   const variant = selection?.variant || null;
   const stats = variant || deck;
@@ -322,7 +324,7 @@ function aggiornaVarianteNellUrl(variant, aperta) {
   history.replaceState(null, "", url);
 }
 
-function renderObservedDecklistInline(article, variant, index, { recognized = false, brewGroup = false, selected = false } = {}) {
+function renderObservedDecklistInline(article, variant, index, { recognized = false, brewGroup = false, nomeBrew = "", selected = false } = {}) {
   const cards = observedDecklistCards(variant);
   if (variant.decklist_pubblicabile !== true) {
     article.append(protectedDecklistBlock());
@@ -346,7 +348,12 @@ function renderObservedDecklistInline(article, variant, index, { recognized = fa
   const copia = document.createElement("button"); copia.type = "button";
   copia.className = "button button-primary button-small"; copia.textContent = "Copia per Arena";
   // Il nome del mazzo copiato in Arena non porta ne' indici ne' identificativi.
-  preparaCopiaArena(copia, testoArena(cards, recognized ? `Variante osservata #${index + 1}` : "Brew MOX"));
+  // Per un gruppo Brew vale il nome pubblico, che e' gia' corto e senza
+  // caratteri strani; senza nome resta il fallback sicuro di sempre.
+  const nomeCopia = recognized
+    ? `Variante osservata #${index + 1}`
+    : (brewGroup && nomeBrew && nomeBrew !== "Brew" ? nomeBrew : "Brew MOX");
+  preparaCopiaArena(copia, testoArena(cards, nomeCopia));
   introduzione.append(descrizione, copia);
   const list = document.createElement("ul"); list.className = "decklist-cards";
   for (const card of cards) list.append(cardLine(card));
@@ -440,6 +447,7 @@ function renderVariants(data, selection = null) {
     renderObservedDecklistInline(article, variant, index, {
       recognized,
       brewGroup,
+      nomeBrew: brewGroup ? brewGroupName(data) : "",
       selected: selection?.index === index,
     });
     host.append(article);

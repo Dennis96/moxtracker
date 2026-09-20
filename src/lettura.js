@@ -1,6 +1,6 @@
 import { aggregaMeta, catalogoPronto, infoCatalogo } from "./archetipi.js";
 import { ALGORITMO_BREW, SOGLIA_DISTANZA_BREW } from "./brew-clustering.js";
-import { leggiMembriPubblicabili } from "./brew-gruppi.js";
+import { leggiMembriPubblicabili, leggiNomiPubblici } from "./brew-gruppi.js";
 
 export const SOGLIA_META = 30;
 export const SOGLIA_SCONTRI = 100;
@@ -151,12 +151,15 @@ export async function leggiMeta(db, indirizzo) {
   const membri = mazzi.some((mazzo) => !mazzo.archetipo_id)
     ? await leggiMembriPubblicabili(db, filtro, SOGLIA_META)
     : null;
+  // I nomi pubblici dei gruppi, quando qualcuno gliene ha dato uno: etichette
+  // editoriali, additive, che non toccano ne' i gruppi ne' i numeri.
+  const nomi = membri instanceof Map ? await leggiNomiPubblici(db, filtro.formato) : null;
 
   // L'impronta serve al collegamento tecnico con il dettaglio, ma non e' un
   // nome da mostrare al visitatore. La classificazione resta del motore: qui
   // cambiamo soltanto il testo pubblico dei casi che il motore non riconosce.
   mazzi = raggruppaBrew(mazzi.map((mazzo) => mazzettoPubblico(mazzo)),
-    testa.partite_totali, SOGLIA_META, membri);
+    testa.partite_totali, SOGLIA_META, membri, nomi);
 
   return {
     stato: 200,
@@ -219,7 +222,7 @@ function varianteBrew(mazzo, indice, totale, soglia) {
 // rappresentante esce solo quando anche il rappresentante e' pubblico nella
 // stessa risposta. Una lista pubblica non ancora assegnata (il cron non e'
 // passato) resta un gruppo a se', senza identificativi.
-function gruppiBrew(ordinate, membri, totale, soglia) {
+function gruppiBrew(ordinate, membri, totale, soglia, nomi) {
   const gruppi = new Map();
   for (const mazzo of ordinate) {
     const partite = Number(mazzo.partite || 0);
@@ -256,6 +259,8 @@ function gruppiBrew(ordinate, membri, totale, soglia) {
     return {
       tipo_dettaglio: "brew_group",
       gruppo_brew_id: gruppo.id,
+      // Additivo: quando manca resta `null` e il sito usa il suo fallback.
+      nome_pubblico: (gruppo.id && nomi?.get(gruppo.id)) || null,
       in_attesa_di_raggruppamento: gruppo.id === null,
       algoritmo: ALGORITMO_BREW,
       soglia_distanza: gruppo.soglia_distanza,
@@ -273,7 +278,7 @@ function gruppiBrew(ordinate, membri, totale, soglia) {
     .map((gruppo, indice) => ({ etichetta: `Brew #${indice + 1}`, ...gruppo }));
 }
 
-export function raggruppaBrew(mazzi, totale, soglia, membri = null) {
+export function raggruppaBrew(mazzi, totale, soglia, membri = null, nomi = null) {
   const riconosciuti = mazzi.filter((mazzo) => mazzo.archetipo_id);
   const brew = mazzi.filter((mazzo) => !mazzo.archetipo_id);
   if (!brew.length) return riconosciuti;
@@ -313,7 +318,7 @@ export function raggruppaBrew(mazzi, totale, soglia, membri = null) {
       liste: sottoSoglia.length,
       partite: sottoSoglia.reduce((somma, mazzo) => somma + Number(mazzo.partite || 0), 0),
     },
-    gruppi_brew: gruppiBrew(ordinate, membri, totale, soglia),
+    gruppi_brew: gruppiBrew(ordinate, membri, totale, soglia, nomi),
     raggruppamento_brew: {
       algoritmo: ALGORITMO_BREW,
       soglia_distanza: SOGLIA_DISTANZA_BREW,

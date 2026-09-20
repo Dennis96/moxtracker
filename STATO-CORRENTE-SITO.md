@@ -27,6 +27,42 @@ nella sezione sotto e nel
 > 20/09/2026» erano su branch quando sono state scritte e ora non lo sono più;
 > il «non deployato» che contengono resta invece vero.
 
+## Nomi pubblici dei gruppi Brew — 20 settembre 2026 (non deployato)
+
+- **Branch:** `claude/brew-production-preview-2026-09-20`, da `main`
+  `881e886`. Commit `38098ca` (migrazione, API, sito, strumento, prove) e
+  `bc358a3` (correzioni del code-review).
+- **Problema:** dopo S2 ogni gruppo Brew si presentava come «Gruppo Brew». Era
+  un fallback neutro, non la UX del lancio: due gruppi diversi avevano lo
+  stesso titolo e la ricerca non poteva trovarli.
+- **Cosa:** un nome pubblico per gruppo, **curato a mano**, in una tabella
+  sidecar `brew_nome` (migrazione additiva
+  `migrazioni/2026-09-20-brew-nome-pubblico.sql`). Sidecar e non colonna di
+  `brew_gruppo` perche' quella tabella e' congelata da un trigger che rifiuta
+  ogni UPDATE: un nome si corregge, un rappresentante no, e quel trigger non
+  si indebolisce per comodita' di redazione. Il nome e' **solo un'etichetta**:
+  non tocca clustering, `k=4`, soglia 30, classificatore, `mox-core/meta`, e
+  non promuove il gruppo ad archetipo.
+- **API additiva:** `nome_pubblico` su ogni `gruppi_brew[]` di `/meta` e sul
+  dettaglio `/archetipo?id_brew=`. Senza nome vale `null`; tolto il campo
+  nuovo, il payload e' identico a prima.
+- **Sito:** il titolo e' il nome pubblico nel Meta (riga e scheda), nel
+  dettaglio, nell'`aria-label` e nella ricerca. Senza nome resta `Brew`,
+  uguale in italiano e in inglese; `Gruppo Brew` non e' piu' un titolo
+  pubblico. La copia per Arena usa il nome, o il fallback `Brew MOX`.
+- **Strumento:** `strumenti/brew_nomi.mjs` — elenco dei soli gruppi pubblici
+  letti **dall'API pubblica** (mai dal database, quindi mai sotto soglia),
+  dry-run e applicazione con conferma `APPLICA-NOMI-BREW` sulla sola tabella
+  dei nomi. Nessun endpoint amministrativo.
+- **Cancellazione:** il nome segue il gruppo che si smonta per privacy, per
+  chiave esterna a cascata e, in piu', con una DELETE esplicita nella pulizia
+  Brew, che vale anche dove le FK non fossero applicate.
+- **Verifiche:** `npm run prove` 448/448, nessuna saltata. Due build
+  consecutive `6a36644a19c64de9`, 93 file. Code-review: tre difetti trovati e
+  corretti, il piu' grave un esecutore Wrangler che su Windows non sarebbe mai
+  partito.
+- **Non toccati:** `mox-core`, Research, Account, Draft, clustering S1.
+
 ## Candidato pre-release consolidato — 19 settembre 2026 (fuso in `main` il 20/09/2026)
 
 - **Branch:** `codex/pre-release-consolidation-2026-09-19`, creato dall'HEAD

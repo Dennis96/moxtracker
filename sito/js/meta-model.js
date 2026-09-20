@@ -83,6 +83,9 @@ export function filterMetaDecks(decks, filters = {}) {
         deck?.impronta,
         // Cercando «Brew #3» deve restare visibile la riga Altro che la contiene.
         ...(Array.isArray(deck?.varianti_brew) ? deck.varianti_brew.map((variante) => variante?.etichetta) : []),
+        // E lo stesso vale per il nome pubblico dei gruppi che stanno dentro
+        // la riga Altro: si cerca «Boros Equipment», non l'id del gruppo.
+        ...(Array.isArray(deck?.gruppi_brew) ? deck.gruppi_brew.map((gruppo) => gruppo?.nome_pubblico) : []),
       ].filter(Boolean).join(" ").toLocaleLowerCase("it");
       if (!haystack.includes(search)) return false;
     }
@@ -144,6 +147,17 @@ export function brewGroupDetailUrl(gruppo, apiFilters = {}) {
     }
   }
   return null;
+}
+
+// Il nome pubblico di un gruppo Brew. E' soltanto un'etichetta editoriale
+// scelta a mano sulla decklist rappresentativa: non promuove il gruppo ad
+// archetipo, che resta «non ancora confermato» nel suo badge. Senza nome il
+// titolo e' «Brew», identico in italiano e in inglese; «Gruppo Brew» non si
+// usa piu' come titolo, perche' non dice niente di quel mazzo.
+export const LUNGHEZZA_MASSIMA_NOME_BREW = 60;
+export function brewGroupName(gruppo) {
+  const nome = String(gruppo?.nome_pubblico ?? "").trim();
+  return nome && nome.length <= LUNGHEZZA_MASSIMA_NOME_BREW ? nome : "Brew";
 }
 
 export function brewGroupSummary(gruppo, inglese = false) {

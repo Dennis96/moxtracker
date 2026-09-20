@@ -2,7 +2,7 @@ import { CATALOGO_ARCHETIPI } from "./catalogo-archetipi-generato.js";
 import { catalogoPronto, classificaImpronte } from "./archetipi.js";
 import { decklistPubblicabile } from "./privacy-pubblica.js";
 import { ALGORITMO_BREW } from "./brew-clustering.js";
-import { leggiGruppo, leggiMembro } from "./brew-gruppi.js";
+import { leggiGruppo, leggiMembro, leggiNomePubblico } from "./brew-gruppi.js";
 
 const SOGLIA_PERCENTUALI = 30;
 const IMPRONTA = /^[0-9a-f]{64}$/i;
@@ -279,6 +279,7 @@ export async function leggiArchetipo(db, indirizzo) {
 async function leggiGruppoBrew(db, p) {
   const gruppo = await leggiGruppo(db, p.gruppo, p.formato);
   if (!gruppo) return nonTrovato();
+  const nomePubblico = await leggiNomePubblico(db, gruppo.id, p.formato);
   const { totaleMeta, tutte, righeCarte } = await leggiRighe(db, p);
   const classificazioni = classificaImpronte(righeCarte, p.formato);
   // Una lista che un catalogo nuovo riconosce esce dal gruppo senza che la
@@ -314,6 +315,10 @@ async function leggiGruppoBrew(db, p) {
     corpo: {
       tipo_dettaglio: "brew_group",
       gruppo_brew_id: gruppo.id,
+      // Etichetta editoriale: il titolo che il sito mostra al posto di un
+      // generico «Gruppo Brew». `nome` e `archetipo` restano quelli di prima,
+      // perche' il gruppo non e' diventato un archetipo.
+      nome_pubblico: nomePubblico,
       algoritmo: ALGORITMO_BREW,
       soglia_distanza: gruppo.soglia_distanza,
       archetipo_id: null,

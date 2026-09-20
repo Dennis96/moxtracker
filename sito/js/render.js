@@ -1,5 +1,5 @@
 import { deckLabel, formatDate, formatInteger, formatPercent, sampleSufficient, winRateClass } from "./format.js";
-import { brewGroupDetailUrl, brewGroups, brewGroupSummary, classificationSummary, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks, strategyLabel } from "./meta-model.js";
+import { brewGroupDetailUrl, brewGroupName, brewGroups, brewGroupSummary, classificationSummary, deckColors, deckDetailUrl, deckIsClassified, deckMode, deckStrategy, filterMetaDecks, strategyLabel } from "./meta-model.js";
 import { createCoreStrip } from "./card-images.js";
 
 const INGLESE = document.documentElement.lang === "en";
@@ -242,21 +242,18 @@ function schedaBrew(variante, indice, apiFilters) {
 // per id del gruppo. Le sue varianti stanno nel dettaglio del gruppo, subordinate
 // a lui: nel Meta non compaiono accanto come Brew separati. Nessun indice, id o
 // impronta nel testo.
-function nomeGruppoBrew() {
-  return INGLESE ? "Brew group" : "Gruppo Brew";
-}
-
 function etichettaApriGruppo(gruppo) {
   const partite = Number(gruppo?.partite) || 0;
+  const nome = brewGroupName(gruppo);
   return INGLESE
-    ? `Open Brew group, ${formatInteger(partite)} ${partite === 1 ? "match" : "matches"}`
-    : `Apri gruppo Brew da ${formatInteger(partite)} ${partite === 1 ? "partita" : "partite"}`;
+    ? `Open ${nome}, ${formatInteger(partite)} ${partite === 1 ? "match" : "matches"}`
+    : `Apri ${nome} da ${formatInteger(partite)} ${partite === 1 ? "partita" : "partite"}`;
 }
 
 function rigaGruppoBrew(gruppo, apiFilters, soglia) {
   const tr = el("tr", "brew-child brew-group");
   const tdNome = el("td", "brew-child-name");
-  tdNome.append(el("strong", "", nomeGruppoBrew()), el("small", "", brewGroupSummary(gruppo, INGLESE)));
+  tdNome.append(el("strong", "", brewGroupName(gruppo)), el("small", "", brewGroupSummary(gruppo, INGLESE)));
   const riservato = gruppo?.record_pubblico === false;
   tr.append(tdNome, metaCell(formatInteger(gruppo.partite)),
     metaCell(riservato ? "—" : formatInteger(gruppo.vittorie)),
@@ -285,7 +282,7 @@ function schedaGruppoBrew(gruppo, apiFilters) {
   const scheda = el(url ? "a" : "div", "mobile-brew-child brew-group");
   if (url) scheda.href = url;
   const testa = el("div", "mobile-brew-child-head");
-  testa.append(el("strong", "", nomeGruppoBrew()),
+  testa.append(el("strong", "", brewGroupName(gruppo)),
     el("span", "", `${formatInteger(gruppo.partite)} ${partiteBreve(gruppo.partite)}${url ? " ›" : ""}`));
   const riservato = gruppo?.record_pubblico === false;
   const sufficiente = sampleSufficient(gruppo);
