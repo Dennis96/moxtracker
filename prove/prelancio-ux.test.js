@@ -43,6 +43,9 @@ test("le tre card del Download hanno la stessa struttura e la stessa altezza", (
   assert.match(leggi("css/redesign.css"), /\.panel \+ \.panel \{ margin-top: 24px; \}/,
     "se la regola generica cambia, questa correzione va rivista");
   assert.match(leggi("css/redesign.css"), /\.download-steps > \.panel \+ \.panel \{ margin-top: 0; \}/);
+  // I figli restano larghi quanto la card, come nel layout a blocchi di prima:
+  // `align-items: flex-start` li restringerebbe al contenuto.
+  assert.doesNotMatch(articolo, /align-items: flex-start/);
   // A schermo stretto tornano una sotto l'altra da sole.
   assert.match(css, /\.download-steps \{ grid-template-columns: 1fr; \}/);
 });
@@ -61,6 +64,27 @@ test("il nome pubblico di una release e' sempre «MOX Beta x.y.z»", () => {
   assert.equal(nomeReleasePubblico(""), null);
   assert.equal(nomeReleasePubblico(null), null);
   assert.equal(nomeReleasePubblico(undefined), null);
+});
+
+test("senza un numero riconoscibile le pagine non restano sul messaggio di attesa", () => {
+  // Il difetto da evitare: `nomeReleasePubblico` torna null e il testo iniziale
+  // «Controllo la release Windows corrente...» resta a schermo per sempre.
+  const note = leggi("js/release-note.js");
+  assert.match(note, /host\.textContent = nome/);
+  assert.match(note, /La release Windows più recente è quella collegata qui sotto\./);
+  assert.doesNotMatch(note, /if \(nome\) host\.textContent/);
+  const download = leggi("js/download.js");
+  assert.match(download, /if \(!nome\) \{/);
+  const en = JSON.parse(leggi("i18n/en.json"));
+  assert.ok(en["La release Windows più recente è quella collegata qui sotto."]);
+});
+
+test("la nota dei Draft senza risultati sta su una riga sua", () => {
+  // `.personal-grid` e' una griglia a tre colonne: una nota senza regola
+  // propria prenderebbe una colonna e si leggerebbe come una card vuota.
+  assert.match(leggi("css/account-support.css"),
+    /\.personal-grid > \.detail-note \{ grid-column: 1 \/ -1; margin: 0; \}/);
+  assert.ok(leggi("js/account.js").includes('nodo("p", "detail-note",'));
 });
 
 test("nessuna pagina mostra il tag tecnico di GitHub", () => {

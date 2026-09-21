@@ -14,7 +14,13 @@ try {
     // Il campo `versione` del manifesto resta quello che l'updater legge; qui
     // si mostra soltanto il nome pubblico ricavato dal numero.
     const nome = nomeReleasePubblico(release.versione);
-    if (nome) host.textContent = `${prefisso}: ${nome}.${release.note ? ` ${release.note}` : ""}`;
+    // Senza un numero riconoscibile non si mostra il campo grezzo, ma nemmeno
+    // si lascia a schermo «Controllo la release corrente...» per sempre.
+    host.textContent = nome
+      ? `${prefisso}: ${nome}.${release.note ? ` ${release.note}` : ""}`
+      : (document.documentElement.lang === "en"
+        ? "The latest Windows release is the one linked below."
+        : "La release Windows più recente è quella collegata qui sotto.");
   }
 } catch {
   // La pagina conserva il link diretto all'installer: il riepilogo testuale

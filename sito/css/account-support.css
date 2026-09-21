@@ -99,6 +99,10 @@
 .personal-deck-numbers strong { font-size: .95rem; }
 .row-chevron { color: #c762ff; font-size: 1.5rem; justify-self: end; }
 .personal-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+/* Una nota dentro la griglia delle card prenderebbe una colonna e si
+   leggerebbe come una card vuota: sta su una riga sua, larga quanto il
+   blocco. */
+.personal-grid > .detail-note { grid-column: 1 / -1; margin: 0; }
 .limited-card { display: grid; gap: 7px; min-width: 0; min-height: 150px; padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--text); text-align: left; cursor: pointer; }
 .limited-card:hover { background: var(--surface-3); border-color: var(--line-strong); }
 .limited-card strong { font-size: 1rem; }
