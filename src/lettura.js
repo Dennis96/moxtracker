@@ -3,7 +3,13 @@ import { ALGORITMO_BREW, SOGLIA_DISTANZA_BREW } from "./brew-clustering.js";
 import { leggiMembriPubblicabili, leggiNomiPubblici } from "./brew-gruppi.js";
 
 export const SOGLIA_META = 30;
-export const SOGLIA_SCONTRI = 100;
+// Matchup fra archetipi: 30 partite per coppia sono il minimo per pubblicare
+// un valore, e vanno sempre mostrate accanto al valore stesso. 100 non e' piu'
+// un cancello: e' l'etichetta di un campione piu' solido. Con 100 come minimo,
+// in una beta appena partita la matrice resterebbe vuota quasi sempre, e una
+// matrice vuota non protegge nessuno: nasconde soltanto il poco che si sa.
+export const SOGLIA_SCONTRI = 30;
+export const SOGLIA_SCONTRI_SOLIDA = 100;
 
 function percentuale(parte, totale) {
   if (!totale) return null;
@@ -378,6 +384,7 @@ export async function leggiScontri(db, indirizzo) {
       filtri: { formato: filtro.formato, rank: filtro.rank,
         periodo: filtro.periodo, modalita: filtro.modalita },
       soglia_coppia: SOGLIA_SCONTRI,
+      soglia_coppia_solida: SOGLIA_SCONTRI_SOLIDA,
       disponibile: false,
       scontri: [],
       motivo: "Il database conosce l'impronta del mazzo Mox ma non ancora l'archetipo del mazzo avversario; la matrice non viene dedotta dalle sole carte rivelate.",

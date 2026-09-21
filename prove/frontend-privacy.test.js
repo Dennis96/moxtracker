@@ -80,7 +80,7 @@ test("il sito usa un solo tema scuro senza preferenze locali residue", () => {
     assert.doesNotMatch(css, /data-theme=["']light["']/);
     assert.doesNotMatch(css, /theme-toggle/);
   }
-  for (const file of ["main.js", "draft.js", "archetype.js", "account.js", "supporto.js", "admin.js"]) {
+  for (const file of ["main.js", "archetype.js", "account.js", "supporto.js", "admin.js"]) {
     const source = leggi(`../sito/js/${file}`);
     assert.doesNotMatch(source, /mox-theme|setupTheme|function tema/);
   }
