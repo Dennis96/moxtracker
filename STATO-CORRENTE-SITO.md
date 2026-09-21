@@ -1,11 +1,11 @@
 # Stato corrente — sito Mox
 
-Aggiornato il 20 settembre 2026. **Distinzione che regge tutto questo
+Aggiornato il 21 settembre 2026. **Distinzione che regge tutto questo
 documento: il codice è su `main`, il sito pubblico no.**
 
-**Codice.** `main` è `5072dafb4a809aa8177bec9672a2cbbdc1611522`: sopra il
-candidato pre-release ci sono i nomi pubblici dei gruppi Brew (PR #4) e
-l'accensione di `BREW_GRUPPI` (PR #5).
+**Codice.** `main` è `3a5dc569d4acb217e7afad823d229aea5fd26061`: sopra il
+candidato pre-release ci sono i nomi pubblici dei gruppi Brew (PR #4),
+l'accensione di `BREW_GRUPPI` (PR #5) e il cleanup UX pre-launch (PR #7).
 
 **Backend Brew: in produzione dal 20/09 sera.** `api.moxtracker.app` usa il
 Worker `a04d93f9`, che porta i nomi Brew e ha `BREW_GRUPPI = "on"`; il D1
@@ -16,9 +16,14 @@ primo backfill ha creato **3 gruppi con 4 varianti pubbliche**, tutti e tre
 **Il sito ufficiale no.** `moxtracker.app` pubblica ancora il frontend stabile
 pre-redesign (`f897a943`, build `61a708af281eea70`), **non ridistribuito**, ed
 è compatibile col Worker nuovo. La preview pubblica ora il `main` corrente
-(`5072daf`, build `6a36644a19c64de9`, deployment `917c6fea`). Il deploy Pages
+(`3a5dc56`, build `aa78fe9692ee3348`, deployment `ac1cc5f3`). Il deploy Pages
 di produzione resta un mandato separato, e il suo gate è la QA manuale
 completa.
+
+**Attenzione al Worker.** `SOGLIA_SCONTRI` è passata da 100 a 30 su `main`, ma
+il Worker in produzione è ancora `a04d93f9`, che porta il vecchio 100. Il
+campo non è usato da niente di visibile (`/scontri` risponde `disponibile:
+false`), quindi non c'è fretta: si allinea al prossimo deploy del Worker.
 
 La GitHub Release Latest del client è `mox-v2-beta2.11.0`, non prerelease, con
 il solo asset `Mox-v2-beta2.11.0-con-python.zip`; la 2.10.0 resta. Dettagli
@@ -29,6 +34,75 @@ nella sezione sotto e nel
 > lo stato al giorno in cui è stata scritta. Quelle marcate «fuso in `main` il
 > 20/09/2026» erano su branch quando sono state scritte e ora non lo sono più;
 > il «non deployato» che contengono resta invece vero.
+
+## Cleanup UX pre-launch — 21 settembre 2026
+
+Sei correzioni nate dalla QA manuale, sul solo frontend tranne una soglia del
+contratto API. **Branch:** `claude/pre-launch-ux-cleanup-2026-09-21`,
+[PR #7](https://github.com/Dennis96/moxtracker/pull/7) → `3a5dc56`.
+
+- **Le tre card del Download** erano alte 256/232/232 a 1440px. Due difetti
+  insieme: `min-height: 210px` non uniformava niente, e `.panel + .panel` — la
+  regola che distanzia i pannelli **impilati** — spingeva la seconda e la terza
+  24px più in basso. Ora la griglia è `stretch`, le card sono colonne flex e il
+  margine è azzerato fra le colonne, come già si fa per `.detail-grid`.
+  Misurate sulla preview: **232/232/232** in italiano, 207/207/207 in inglese,
+  stesso inizio e stessa fine. A 375px si impilano da sole.
+- **Nome pubblico della release.** Il sito mostrava il tag tecnico
+  `mox-v2-beta2.11.0` e il campo del manifesto «2 beta 2.11.0». Ora
+  `nomeReleasePubblico()` tiene solo il numero e scrive `MOX Beta 2.11.0`.
+  Nessun tag GitHub rinominato, nessun asset toccato, updater intatto: cambia
+  soltanto la presentazione.
+- **Pagina Draft.** Tolti filtri, contatori, «Espansioni ed eventi» e «Colori e
+  carte»: promettevano una vista dati che non esiste. Restano il prodotto e il
+  metodo, e arriva **«Il futuro del Draft»** — filtri, carte, rendimento col
+  campione accanto, definizioni in chiaro — con scritto che non ha una data. La
+  pagina non chiede più le statistiche: `sito/js/draft.js` e
+  `fetchStatisticheDraft` spariscono, l'endpoint `/draft/statistiche` del
+  Worker resta dov'è.
+- **Account senza «Contro gli archetipi».** Aggregava tutti i mazzi insieme e
+  il riquadro stesso doveva dichiarare che non sapeva separarli. Il server
+  continua a calcolarlo: torna quando la catena sarà intera (mazzo scelto →
+  archetipo avversario → campione → matchup).
+- **Account Draft senza doppioni.** Nel tab restano le sole tracce vere; le
+  card «Partite Limited senza traccia» non compaiono più accanto ai Draft,
+  perché erano spesso lo stesso evento visto due volte. I risultati escono solo
+  dai collegamenti esatti, e quando mancano lo si dice.
+- **Matchup: 30 pubblicabile, 100 solido.** `SOGLIA_SCONTRI` passa a 30 e nasce
+  `SOGLIA_SCONTRI_SOLIDA = 100`, esposta come `soglia_coppia_solida`. Con 100
+  come minimo la matrice resterebbe vuota per tutta la beta. Dal sito sparisce
+  il badge «100+ per coppia».
+
+**Audit del collegamento Draft (Fase A): nessuna modifica a `mox-core`.** Il
+server ha già il meccanismo esatto — `collegaPartiteDraft` cerca
+`draft WHERE impronta_arena = partita.draft` e scrive `draft_link` — e
+`pacchetto()` accetta `draft=`. Ma `pacchetti_da_archivio()` non lo passa mai,
+**e soprattutto** la classe `Partita`, costruita dal log, non contiene nessun
+`draftId`: il parser legge `InternalEventName`, cioè il nome dell'evento, non
+l'identificativo di sessione del draft. Senza quell'id il collegamento
+deterministico non è disponibile al momento della partita, e costruirlo
+vorrebbe dire capire se e dove Arena lo scrive negli eventi di match ed
+estendere il parser: una decisione architetturale nuova, che il mandato mette
+in STOP. Nessuna euristica, nessuna modifica retroattiva.
+
+**Follow-up da aprire in `mox-core`**, quando si riprenderà il tema: verificare
+sul log reale se gli eventi di match Limited espongono un `draftId`; se sì,
+estrarlo in `Partita` e passarlo a `pacchetto(..., draft=impronta_draft(id))`.
+È una modifica runtime da 2.11.1, non di questo lavoro.
+
+- **Verifiche:** `npm run prove` **461/461**, nessuna saltata, con il nuovo
+  `prove/prelancio-ux.test.js` (12 prove). Due build consecutive
+  `aa78fe9692ee3348`, 92 file (uno in meno: `draft.js` rimosso). Code-review
+  prima del merge: tre difetti trovati e corretti — una pagina che sarebbe
+  rimasta sul messaggio di caricamento, una nota che si incolonnava come card
+  vuota, e uno `align-items` che restringeva i figli delle card.
+- **QA sulla preview**, desktop 1440 e mobile 375, IT ed EN: card uniformi,
+  `MOX Beta 2.11.0` al posto del tag, Draft senza dati e con il futuro
+  tradotto, Account senza il blocco archetipi e con le cinque schede intatte,
+  Meta con «In sviluppo» e «30+ matchup». Nessun overflow orizzontale. In
+  console restano i soli 401 dell'Account non autenticato, che sono il gate
+  previsto.
+- **Non toccati:** D1, Worker, `mox-core`, Research, produzione Pages.
 
 ## Brew in produzione e nuova preview — 20 settembre 2026
 
