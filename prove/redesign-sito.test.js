@@ -41,7 +41,7 @@ test("ogni pagina ha la testata del redesign, la CTA di download e i link Meta n
   for (const pagina of PAGINE) {
     const html = leggi(pagina);
     assert.match(html, /href="\.\/css\/redesign\.css"/, pagina);
-    assert.match(html, /class="nav-download" href="\.\/download\.html">Scarica MOX</, pagina);
+    assert.match(html, /class="nav-download" data-download href="#download">Scarica MOX</, pagina);
     assert.doesNotMatch(html, /index\.html#meta/, `${pagina}: link Meta vecchio`);
     // In meta.html #meta è il proprio contenuto (skip link), altrove sarebbe il vecchio Meta.
     if (pagina !== "meta.html") assert.doesNotMatch(html, /href="#meta"/, `${pagina}: link Meta vecchio`);
@@ -90,14 +90,14 @@ test("la Home segue la specifica e scarica la release Latest", () => {
   const home = leggi("index.html");
   assert.match(home, /<h1[^>]*>Tracker, Assistente al Draft, mazzi e statistiche per MTG Arena\.<\/h1>/);
   assert.match(home, /Windows · Beta pubblica · Download da GitHub/);
-  assert.equal((home.match(/data-download href="#download">Scarica MOX</g) || []).length, 2);
-  assert.match(home, /js\/home\.js/);
+  assert.equal((home.match(/data-download href="#download">Scarica MOX</g) || []).length, 3);
+  assert.doesNotMatch(home, /js\/home\.js/);
   for (const sezione of ["Cosa fa MOX", "MOX sul web", "In sviluppo", "Pianificato"]) assert.match(home, new RegExp(sezione));
   for (const momento of ["Durante la partita", "Durante il Draft", "Dopo il Draft", "Dopo le partite"]) {
     assert.match(home, new RegExp(`>${momento}<`));
   }
   assert.doesNotMatch(home, /Tauri|Proposta di pagina|Gioca meglio|research-teaser/);
-  assert.match(leggi("js/home.js"), /preparaDownloadLatest\(\)/);
+  assert.match(leggi("js/site-shell.js"), /preparaDownloadLatest\(\)/);
 });
 
 test("archetipo: ordine della specifica e contratto URL invariato", () => {

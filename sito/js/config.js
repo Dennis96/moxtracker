@@ -1,4 +1,5 @@
-const LOCALE = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+const LOCALE = typeof window !== "undefined" &&
+  ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
 // L'anteprima locale usa il proxy in sola lettura di `npm run sito-locale`.
 // In produzione il browser parla direttamente con l'API pubblica.
 export const API_BASE = LOCALE ? `${window.location.origin}/api` : "https://api.moxtracker.app";

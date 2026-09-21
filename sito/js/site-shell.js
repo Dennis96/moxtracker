@@ -1,7 +1,12 @@
 import { linkLinguaAlternativa } from "./language-link.js";
+import { preparaDownloadLatest } from "./download.js";
 
 const pagina = document.body.dataset.page || "";
 const inglese = document.documentElement.lang === "en";
+
+// Tutte le pagine passano di qui: ogni CTA [data-download], navbar compresa,
+// risolve una volta sola l'unico ZIP della GitHub Release Latest.
+preparaDownloadLatest();
 
 const percorsi = {
   home: "./index.html",

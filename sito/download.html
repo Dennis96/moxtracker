@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07080d">
-  <meta name="description" content="Scarica Mox per Windows e scopri come iniziare in modo sicuro.">
-  <title>Scarica Mox per Windows — MOX Arena Assistant</title>
+  <meta name="description" content="Scarica MOX per Windows e impara a usarlo con MTG Arena: partita, Draft, mazzi, consensi e account facoltativo.">
+  <title>Scarica e inizia — MOX Arena Assistant</title>
   <link rel="icon" href="./assets/mox.ico">
   <link rel="stylesheet" href="./css/site.css">
   <link rel="stylesheet" href="./css/redesign.css">
@@ -13,31 +13,95 @@
   <script type="module" src="./js/download-page.js"></script>
 </head>
 <body data-page="download">
-  <a class="skip-link" href="#download-guide">Vai alle istruzioni di download</a>
+  <a class="skip-link" href="#download-guide">Vai alla guida Scarica e inizia</a>
   <header class="site-header"><nav class="nav" aria-label="Navigazione principale">
     <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
     <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
-    <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div><a class="nav-download" href="./download.html">Scarica MOX</a>
+    <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div><a class="nav-download" data-download href="#download">Scarica MOX</a>
   </nav></header>
-  <aside class="beta-banner" aria-label="Stato del servizio"><strong>Beta pubblica</strong><span>Scarichi sempre lo ZIP della release Windows più recente pubblicata su GitHub.</span></aside>
+  <aside class="beta-banner" aria-label="Stato del servizio"><strong>Beta pubblica</strong><span>Windows · MTG Arena · Account non obbligatorio</span></aside>
+
   <main id="download-guide" class="download-content">
     <section class="download-hero panel" aria-labelledby="download-title">
       <div>
         <span class="eyebrow">MOX per Windows</span>
-        <h1 id="download-title">Tracker, Draft e statistiche per MTG Arena</h1>
-        <p>Mox funziona sul tuo PC: registra risultati, mazzi e Draft. La condivisione di dati anonimi per il Meta resta una scelta separata, revocabile dalle impostazioni.</p>
+        <h1 id="download-title">Scarica e inizia con MOX</h1>
+        <p>Un assistente in beta pubblica per MTG Arena: contatore in partita, supporto al Draft, mazzi e statistiche. Puoi iniziare senza creare un account.</p>
         <p class="download-release" data-github-release aria-live="polite">Controllo la release più recente…</p>
         <a class="cta" data-download href="#download"><span aria-hidden="true">⇩</span> Scarica MOX per Windows</a>
       </div>
-      <img src="./assets/branding/mox-marchio.webp" alt="">
+      <img src="./assets/branding/mox-marchio.webp" alt="Mascotte ufficiale MOX: procione con cappuccio viola e gemma">
     </section>
-    <section class="download-steps" aria-label="Come iniziare">
-      <article class="panel"><span>1</span><h2>Scarica lo ZIP</h2><p>Il pulsante controlla GitHub Latest al clic, senza fissare una versione nel sito.</p></article>
-      <article class="panel"><span>2</span><h2>Estrai e avvia Mox</h2><p>Conserva i tuoi dati personali sul PC. Non servono password o un account per iniziare.</p></article>
-      <article class="panel"><span>3</span><h2>Scegli i consensi</h2><p>Puoi contribuire al Meta, al Draft e a MOX Research solo se attivi i rispettivi consensi in Mox. Research è facoltativa e spenta di default.</p></article>
+
+    <section class="download-section" aria-labelledby="start-title">
+      <header class="download-section-head"><span class="eyebrow">Primi passi</span><h2 id="start-title">Inizia in pochi minuti</h2></header>
+      <div class="download-steps">
+        <article class="panel"><span>1</span><h3>Scarica ed estrai</h3><p>Scarica <code>MOX-x.y.z.zip</code> ed estrai tutto in una cartella normale. Non avviare l'EXE direttamente dentro lo ZIP.</p></article>
+        <article class="panel"><span>2</span><h3>Avvia MOX</h3><p>Apri <code>Mox.exe</code>, poi apri MTG Arena. MOX rileva Arena e i dati che il gioco rende disponibili.</p></article>
+        <article class="panel"><span>3</span><h3>Scegli cosa condividere</h3><p>Partite/Meta, Draft e Research hanno controlli separati nelle Opzioni. Research è facoltativa e spenta di default.</p></article>
+      </div>
     </section>
-    <section class="panel download-help"><h2>Prima di iniziare</h2><p>Consulta le <a href="./note-versione.html">note di versione</a>, scopri <a href="./cosa-invia-mox.html">cosa invia Mox</a> e usa il <a href="./supporto.html">supporto</a> se qualcosa non funziona.</p></section>
+
+    <section class="download-section" aria-labelledby="tools-title">
+      <header class="download-section-head"><span class="eyebrow">Dentro l'app</span><h2 id="tools-title">I tre strumenti</h2></header>
+      <div class="download-tools">
+        <article class="download-tool panel">
+          <div class="download-tool-copy"><img class="download-tool-icon" src="./assets/home/icon-contatore.png" alt=""><h3>Contatore in partita</h3><p>Avvialo insieme ad Arena: conta carte e terre rimaste e mostra le probabilità ricavate da ciò che la partita ha reso osservabile. Non vede informazioni nascoste e non decide la giocata al posto tuo.</p></div>
+          <img class="download-tool-shot" src="./assets/home/preview-contatore.webp" alt="Contatore in partita di MOX con carte e probabilità">
+        </article>
+        <article class="download-tool panel">
+          <div class="download-tool-copy"><img class="download-tool-icon" src="./assets/home/icon-draft.png" alt=""><h3>Assistente al Draft</h3><p>Aprilo prima di entrare nel Draft. Ordina la busta, mostra valutazioni e contesto e, alla fine, propone una base di mazzo dal pool scelto.</p></div>
+          <img class="download-tool-shot" src="./assets/home/preview-draft.webp" alt="Assistente al Draft di MOX con carte ordinate e valutazioni">
+        </article>
+        <article class="download-tool panel">
+          <div class="download-tool-copy"><img class="download-tool-icon" src="./assets/home/icon-mazzi.png" alt=""><h3>I tuoi mazzi</h3><p>Ritrova i mazzi di Arena, confrontali con la collezione e consulta le statistiche locali delle partite salvate. Puoi copiare un mazzo o salvarlo su file per condividerlo.</p></div>
+          <img class="download-tool-shot" src="./assets/home/preview-mazzi.webp" alt="Elenco dei mazzi di Arena in MOX con dati della collezione">
+        </article>
+      </div>
+    </section>
+
+    <section class="download-section download-howto" aria-label="Guide pratiche">
+      <article class="panel download-guide-card">
+        <h2>Durante una partita</h2>
+        <ol><li>Apri MOX.</li><li>Apri MTG Arena.</li><li>Avvia <strong>Contatore in partita</strong>.</li><li>Entra in partita.</li><li>Lascia che MOX aggiorni il pannello mentre giochi.</li><li>Al termine, statistiche e contributi dipendono dai consensi che hai scelto.</li></ol>
+      </article>
+      <article class="panel download-guide-card">
+        <h2>Durante un Draft</h2>
+        <ol><li>Apri MOX prima del Draft.</li><li>Avvia <strong>Assistente al Draft</strong>.</li><li>Entra nell'evento.</li><li>MOX segue le buste e le scelte che Arena espone.</li><li>Usa ranking e contesto come supporto alla tua decisione.</li><li>A fine Draft consulta la proposta di mazzo.</li></ol>
+        <p class="download-note">MOX aiuta a valutare le opzioni: non garantisce il risultato del Draft o delle partite.</p>
+      </article>
+    </section>
+
+    <section class="panel download-wide" aria-labelledby="stats-title">
+      <div><span class="eyebrow">Dopo il gioco</span><h2 id="stats-title">Mazzi e statistiche</h2><p>Apri <strong>I tuoi mazzi di Arena</strong>, scegli un mazzo e controlla partite, vittorie, sconfitte e le altre metriche disponibili. Il confronto con la collezione ti mostra cosa possiedi; da qui puoi anche copiare il mazzo o salvarlo su file.</p></div>
+      <img src="./assets/home/story-statistiche.webp" alt="Statistiche locali di un mazzo in MOX">
+    </section>
+
+    <section class="download-section download-info-grid" aria-label="Privacy e account">
+      <article class="panel download-info-card">
+        <span class="eyebrow">Sotto il tuo controllo</span><h2>Consensi e privacy</h2>
+        <p>MOX funziona anche senza account. I contributi Partite/Meta, Draft e Research hanno controlli separati: puoi modificarli o revocarli dalle Opzioni. Research parte soltanto dopo un consenso esplicito.</p>
+        <p><a href="./cosa-invia-mox.html">Vedi cosa invia MOX</a> · <a href="./privacy.html">Leggi la privacy</a></p>
+      </article>
+      <article class="panel download-info-card">
+        <span class="eyebrow">Solo se ti serve</span><h2>Account facoltativo</h2>
+        <p>L'account non serve per usare il client. Se vuoi vedere sul sito personale mazzi, partite, Draft e dispositivi collegati, accedi con Google o Discord, genera un codice nella sezione Account e inseriscilo in <strong>MOX → Opzioni → Collega il tuo account</strong>. Il codice monouso scade dopo 10 minuti.</p>
+        <p><a href="./account.html">Apri Il mio MOX</a></p>
+      </article>
+    </section>
+
+    <section class="download-section download-support-grid" aria-label="Problemi iniziali e assistenza">
+      <article class="panel download-info-card">
+        <span class="eyebrow">Avvio sicuro</span><h2>Se Windows blocca MOX</h2>
+        <p>Se <code>Mox.exe</code> parte, usa quello. Se Windows impedisce l'avvio dell'EXE, nel pacchetto apri una volta <code>INSTALLA-MOX.bat</code>; al termine avvia MOX con <code>MOX.bat</code>. Non disabilitare Windows Defender o altre protezioni. Se il problema resta, contatta il Supporto.</p>
+      </article>
+      <article class="panel download-info-card">
+        <span class="eyebrow">Collegamenti utili</span><h2>Serve aiuto?</h2>
+        <nav class="download-help-links" aria-label="Aiuto per iniziare"><a href="./supporto.html">Supporto</a><a href="./note-versione.html">Note di versione</a><a href="./cosa-invia-mox.html">Cosa invia MOX</a><a href="./privacy.html">Privacy</a></nav>
+      </article>
+    </section>
   </main>
+
   <footer class="site-footer">
     <div class="footer-row">
       <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>

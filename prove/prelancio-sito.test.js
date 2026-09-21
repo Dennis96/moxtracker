@@ -12,11 +12,13 @@ test("pre-lancio scarica lo ZIP della release GitHub più recente", () => {
   const resolver = leggi("js/download.js");
   const home = leggi("index.html");
   assert.match(configurazione, /DOWNLOAD_URL = "#download"/);
-  assert.equal((home.match(/data-download href="#download"/g) || []).length, 2);
+  assert.equal((home.match(/data-download href="#download"/g) || []).length, 3);
   assert.match(leggi("note-versione.html"), /data-download href="#download"/);
   assert.match(configurazione, /api\.github\.com\/repos\/Dennis96\/moxtracker\/releases\/latest/);
   assert.match(resolver, /\.zip\$\/i/);
   assert.match(resolver, /browser_download_url/);
+  assert.match(resolver, /zip\.length === 1/);
+  assert.match(leggi("js/site-shell.js"), /preparaDownloadLatest\(\)/);
   assert.match(configurazione, /RELEASE_MANIFEST_URL/);
   assert.doesNotMatch(configurazione, /releases\/download\/mox-v/);
   assert.doesNotMatch(configurazione, /github\.com\/Dennis96\/moxtracker\/releases\/latest/,
