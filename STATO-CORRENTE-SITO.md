@@ -85,10 +85,20 @@ vorrebbe dire capire se e dove Arena lo scrive negli eventi di match ed
 estendere il parser: una decisione architetturale nuova, che il mandato mette
 in STOP. Nessuna euristica, nessuna modifica retroattiva.
 
-**Follow-up da aprire in `mox-core`**, quando si riprenderà il tema: verificare
-sul log reale se gli eventi di match Limited espongono un `draftId`; se sì,
-estrarlo in `Partita` e passarlo a `pacchetto(..., draft=impronta_draft(id))`.
-È una modifica runtime da 2.11.1, non di questo lavoro.
+**Verificato lo stesso giorno, e la risposta è no.** Sul corpus locale delle
+registrazioni: **111 archivi contengono sia un `draftId` vero sia almeno un
+match, e in 0 su 111 quell'id ricompare negli eventi di match** — cercato come
+sottostringa nell'intero JSON degli oggetti di match, quindi anche sotto
+qualunque altro nome di chiave. L'unica chiave affine presente nei match è
+`eventId`, che però non identifica un draft: in un `Player.log` un solo valore
+copriva 16 match e 4 `InternalEventName` diversi.
+
+Quindi non manca il codice, manca il dato: Arena non scrive l'identificativo
+del draft nelle partite, e non c'è niente da estrarre. Registrato come **A116**
+in `mox-core/ARRETRATI.md` (PR #5, `11dea577`), aperto e non risolvibile dal log
+com'è oggi. Si riapre solo se Arena comincia a scrivere quell'id negli eventi di
+match, o se si trova un canale diverso e altrettanto esatto. Niente euristiche:
+orario, evento, set o mazzo unirebbero draft diversi dello stesso evento.
 
 - **Verifiche:** `npm run prove` **461/461**, nessuna saltata, con il nuovo
   `prove/prelancio-ux.test.js` (12 prove). Due build consecutive
