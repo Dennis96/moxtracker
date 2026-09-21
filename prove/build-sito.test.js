@@ -73,7 +73,7 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
   assert.match(readFileSync(join(BUILD, "en", "download.html"), "utf8"),
     /Checking the latest release…/);
   assert.match(readFileSync(join(BUILD, "en", "draft.html"), "utf8"),
-    /<title>Draft assistant and Limited data — MOX Arena Assistant<\/title>/);
+    /<title>Draft Assistant — MOX Arena Assistant<\/title>/);
   assert.match(readFileSync(join(BUILD, "en", "account.html"), "utf8"),
     /<title>My MOX — MOX Arena Assistant<\/title>/);
   for (const pagina of ["privacy.html", "supporto.html", "cosa-invia-mox.html", "note-versione.html"]) {

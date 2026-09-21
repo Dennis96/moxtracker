@@ -1,5 +1,6 @@
 import { RELEASE_MANIFEST_URL } from "./config.js";
 import { preparaDownloadLatest } from "./download.js";
+import { nomeReleasePubblico } from "./format.js";
 
 preparaDownloadLatest();
 
@@ -10,7 +11,16 @@ try {
   const host = document.querySelector("[data-release-current]");
   if (host) {
     const prefisso = document.documentElement.lang === "en" ? "Current Windows release" : "Release Windows corrente";
-    host.textContent = `${prefisso}: ${release.versione}.${release.note ? ` ${release.note}` : ""}`;
+    // Il campo `versione` del manifesto resta quello che l'updater legge; qui
+    // si mostra soltanto il nome pubblico ricavato dal numero.
+    const nome = nomeReleasePubblico(release.versione);
+    // Senza un numero riconoscibile non si mostra il campo grezzo, ma nemmeno
+    // si lascia a schermo «Controllo la release corrente...» per sempre.
+    host.textContent = nome
+      ? `${prefisso}: ${nome}.${release.note ? ` ${release.note}` : ""}`
+      : (document.documentElement.lang === "en"
+        ? "The latest Windows release is the one linked below."
+        : "La release Windows più recente è quella collegata qui sotto.");
   }
 } catch {
   // La pagina conserva il link diretto all'installer: il riepilogo testuale

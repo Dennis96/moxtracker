@@ -28,12 +28,11 @@ function testiStatici(html) {
 test("le viste rese dopo il caricamento richiamano la traduzione inglese", () => {
   const traduci = leggi("js/translate.js");
   const main = leggi("js/main.js");
-  const draft = leggi("js/draft.js");
   const dettaglio = leggi("js/archetype.js");
   const supporto = leggi("js/supporto.js");
   const inglese = leggi("i18n/en.json");
   assert.match(traduci, /export function traduciDocumento/);
-  for (const source of [main, draft, dettaglio]) {
+  for (const source of [main, dettaglio]) {
     assert.match(source, /import \{ traduciDocumento \} from "\.\/translate\.js"/);
     assert.match(source, /traduciDocumento\(\)/);
   }

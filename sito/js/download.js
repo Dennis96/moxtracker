@@ -1,4 +1,5 @@
 import { DOWNLOAD_URL, GITHUB_LATEST_RELEASE_API } from "./config.js";
+import { nomeReleasePubblico } from "./format.js";
 
 let releaseLatestPromise = null;
 
@@ -37,10 +38,18 @@ export async function mostraReleaseGitHubLatest(root = document) {
     const release = await releaseGitHubLatest();
     const asset = zipPiuRecente(release);
     if (!asset) throw new Error("ZIP non disponibile");
-    const versione = String(release.tag_name || release.name || "").trim();
-    host.textContent = document.documentElement.lang === "en"
-      ? `Latest release: ${versione || asset.name}`
-      : `Release più recente: ${versione || asset.name}`;
+    // Il tag tecnico non si mostra mai: se non se ne ricava un numero di
+    // versione, si dice soltanto che lo ZIP piu' recente verra' scelto al
+    // download, come nel ramo di errore qui sotto.
+    const nome = nomeReleasePubblico(release.tag_name || release.name);
+    const inglese = document.documentElement.lang === "en";
+    if (!nome) {
+      host.textContent = inglese
+        ? "The latest Windows ZIP will be selected when you download."
+        : "Lo ZIP Windows più recente verrà scelto quando avvii il download.";
+      return;
+    }
+    host.textContent = inglese ? `Latest release: ${nome}` : `Release più recente: ${nome}`;
   } catch {
     host.textContent = document.documentElement.lang === "en"
       ? "The latest Windows ZIP will be selected when you download."

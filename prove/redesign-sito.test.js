@@ -129,13 +129,14 @@ test("profilo della lista con etichette per esteso", () => {
   assert.doesNotMatch(js, /"Colori del mazzo"/);
 });
 
-test("Draft: prima il prodotto, poi i dati, poi il metodo", () => {
+test("Draft: prima il prodotto, poi il metodo, poi il futuro", () => {
   const html = leggi("draft.html");
   const i = (testo) => html.indexOf(testo);
-  assert.match(html, /<h1[^>]*>Assistente al Draft e dati Limited<\/h1>/);
-  assert.ok(i(">Nel programma<") > 0 && i(">Nel programma<") < i(">Dati Limited sul sito<"));
-  assert.ok(i(">Dati Limited sul sito<") < i(">Il metodo<"));
+  assert.match(html, /<h1[^>]*>Assistente al Draft<\/h1>/);
+  assert.ok(i(">Nel programma<") > 0 && i(">Nel programma<") < i(">Il metodo<"));
   assert.ok(i(">Il metodo<") < i(">Le garanzie del metodo<"));
+  assert.ok(i(">Le garanzie del metodo<") < i(">Il futuro del Draft<"),
+    "il futuro si racconta dopo aver detto come funziona oggi");
   assert.doesNotMatch(html, /Next Gen/);
 });
 
@@ -144,7 +145,7 @@ test("Il mio MOX: cinque schede accessibili e nessuna funzione persa", () => {
   const schede = [...html.matchAll(/role="tab"[^>]*aria-controls="scheda-([a-z]+)"/g)].map((m) => m[1]);
   assert.deepEqual(schede, ["panoramica", "mazzi", "partite", "draft", "account"]);
   for (const id of ["account-loading", "account-login", "account-dashboard", "account-name", "total-matches",
-    "recent-form", "last-send", "decks", "rank-chart", "opponent-stats", "draft-sessions", "matches",
+    "recent-form", "last-send", "decks", "rank-chart", "draft-sessions", "matches",
     "matches-section", "filter-deck", "create-link", "devices", "tickets", "admin-link", "logout",
     "delete-account", "detail-dialog", "overview-decks", "overview-matches"]) {
     assert.match(html, new RegExp(`id="${id}"`), id);
@@ -192,7 +193,9 @@ test("i testi composti dal JavaScript nascono già nella lingua della pagina", (
   assert.doesNotMatch(archetipo, /altre\.innerHTML/);
   assert.match(archetipo, /Observed variant #/);
   assert.match(archetipo, /aggregated \$\{partite === 1/);
-  assert.match(leggi("js/account.js"), /Open match \$\{id\}/);
+  // «Apri partita» viveva nel dialogo delle sessioni senza traccia, che non
+  // esiste piu'. Il resto dei testi dinamici nasce ancora nella lingua giusta.
+  assert.match(leggi("js/account.js"), /INGLESE \? "Last observed hand"/);
   // La query di meta.html segue i filtri scelti: ricaricando si ritrovano quelli.
   assert.match(leggi("js/main.js"), /history\.replaceState/);
 });

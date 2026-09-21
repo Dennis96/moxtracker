@@ -419,29 +419,12 @@ function renderRank() {
   contenitore.append(svg, tooltip);
 }
 
-function renderAvversari() {
-  const contenitore = $("opponent-stats");
-  const riepilogo = $("opponent-summary");
-  const dati = stato.statistiche.avversari || {};
-  const gruppi = dati.riconosciuti || [];
-  contenitore.replaceChildren();
-  riepilogo.textContent = `${gruppi.length} riconosciuti · ${dati.non_riconosciuti || 0} non classificabili`;
-  for (const gruppo of gruppi) {
-    const voce = nodo("div", "opponent-stat-row");
-    const copia = nodo("span", "opponent-stat-copy");
-    copia.append(nodo("strong", "", gruppo.nome),
-      nodo("small", "", [gruppo.strategia, ...(gruppo.colori || [])].filter(Boolean).join(" · ")));
-    const numeriRiga = nodo("span", "opponent-stat-numbers");
-    numeriRiga.append(nodo("strong", "", `${gruppo.vittorie} / ${gruppo.sconfitte}`),
-      nodo("small", "", `${gruppo.partite} partite · ${percentuale(gruppo.win_rate)}`));
-    voce.append(copia, numeriRiga);
-    contenitore.append(voce);
-  }
-  if (!gruppi.length) contenitore.append(nodo("p", "detail-note",
-    "Nessun archetipo avversario è riconoscibile con sufficiente certezza dalle sole carte rivelate."));
-  if (dati.non_riconosciuti) contenitore.append(nodo("p", "detail-note",
-    `${dati.non_riconosciuti} partite restano fuori dalle statistiche: il log non mostrava abbastanza carte avversarie per una classificazione affidabile.`));
-}
+// Il confronto con gli archetipi avversari non si disegna piu' nell'Account.
+// Aggregava tutti i mazzi dell'utente insieme, e il riquadro stesso doveva
+// dichiarare che non sapeva filtrarli per mazzo: un numero che non risponde
+// alla domanda per cui lo si guarda. Il server continua a calcolarlo. Torna
+// quando la catena sara' intera: mazzo scelto -> archetipo avversario ->
+// campione -> matchup.
 
 function creaRigaMazzo(mazzo) {
   const bottone = nodo("button", "personal-deck-row");
@@ -596,26 +579,21 @@ function apriMazzo(mazzo) {
 function renderDraft() {
   const contenitore = $("draft-sessions");
   contenitore.replaceChildren();
-  const tutti = ordinaVociDraft(stato.statistiche.sessioni_limited, stato.dashboard.draft);
+  // Soltanto le tracce Draft vere. I raggruppamenti cronologici delle partite
+  // Limited senza traccia non sono Draft: elencarli accanto faceva sembrare
+  // due eventi distinti quello che spesso e' lo stesso, una volta con le
+  // scelte e una volta con il record.
+  const tutti = ordinaVociDraft([], stato.dashboard.draft);
+  let qualcunaSenzaRisultati = false;
   for (const voce of tutti.slice(0, stato.limiteDraft)) {
-    if (voce.tipo === "sessione") {
-      const sessione = voce.valore;
-    const bottone = nodo("button", "limited-card");
-    bottone.type = "button";
-    bottone.append(nodo("span", "eyebrow", "Partite Limited senza traccia"),
-      nodo("strong", "", sessione.nome),
-      nodo("span", "limited-record limited-match-record", INGLESE
-        ? `${sessione.vittorie} wins · ${sessione.sconfitte} losses`
-        : `${sessione.vittorie} vittorie · ${sessione.sconfitte} sconfitte`),
-      nodo("small", "", `${sessione.partite} partite · ${dataOra(sessione.finita)}`));
-    bottone.addEventListener("click", () => apriSessione(sessione));
-    contenitore.append(bottone);
-      continue;
-    }
     const draft = voce.valore;
     const bottone = nodo("button", "limited-card trace-card");
     bottone.type = "button";
     const partite = Number(draft.partite || 0);
+    // Il record esce solo dai collegamenti esatti fra partita e traccia. Se
+    // non ce ne sono, si mostra il lavoro fatto - le scelte - e non un
+    // risultato ricostruito a occhio.
+    if (!partite) qualcunaSenzaRisultati = true;
     const risultato = partite
       ? `${Number(draft.vittorie || 0)}–${Number(draft.sconfitte || 0)}`
       : `${draft.pick} pick`;
@@ -628,30 +606,12 @@ function renderDraft() {
   }
   if (!contenitore.childNodes.length) contenitore.append(
     riga("Nessun Draft collegato", "I prossimi eventi compariranno qui."));
+  else if (qualcunaSenzaRisultati) contenitore.append(nodo("p", "detail-note",
+    "I risultati compaiono quando MOX può collegare con certezza le partite alla traccia Draft."));
   $("tab-count-draft").textContent = numeri.format(tutti.length);
   aggiornaControlliElenco("draft", tutti.length, stato.limiteDraft);
 }
 
-function apriSessione(sessione) {
-  const elenco = nodo("div", "session-match-list");
-  for (const id of sessione.partite_id) {
-    const b = nodo("button", "service-button", INGLESE ? `Open match ${id}` : `Apri partita ${id}`);
-    b.type = "button";
-    b.addEventListener("click", () => apriPartita(id));
-    elenco.append(b);
-  }
-  const nota = nodo("p", "detail-note",
-    "Queste partite non hanno un collegamento Draft salvato. Il totale è un raggruppamento cronologico dei vecchi log, non il risultato di un singolo Draft.");
-  mostraDialogo("Partite Limited senza traccia", sessione.nome, [
-    metriche([["Record", `${sessione.vittorie}–${sessione.sconfitte}`],
-      ["Partite", sessione.partite], ["Win rate", percentuale(sessione.win_rate)],
-      ["Dal", dataOra(sessione.iniziata)], ["Al", dataOra(sessione.finita)]]),
-    nota,
-    sessione.decklist?.length ? listaCarte("Decklist del Draft", sessione.decklist)
-      : nodo("p", "detail-warning", "La decklist del Draft non è presente nei log ricevuti."),
-    elenco,
-  ]);
-}
 
 async function apriDraft(id) {
   mostraDialogo("Traccia Draft", "Caricamento…",
@@ -842,7 +802,7 @@ function impostaDisabilitatiControlli(tipo, disabilitato) {
 
 async function gestisciControlloElenco(tipo, azione) {
   if (tipo === "draft") {
-    const tutti = (stato.statistiche?.sessioni_limited?.length || 0) + (stato.dashboard?.draft?.length || 0);
+    const tutti = stato.dashboard?.draft?.length || 0;
     stato.limiteDraft = azione === "espandi" ? Math.min(tutti, stato.limiteDraft + PASSO_DRAFT) : PASSO_DRAFT;
     renderDraft();
     if (azione === "riduci") $("draft-sessions").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -963,7 +923,6 @@ async function carica() {
     renderMazzi();
     renderPanoramicaMazzi();
     renderRank();
-    renderAvversari();
     renderDraft();
     popolaFiltri();
     await caricaPartite(false);

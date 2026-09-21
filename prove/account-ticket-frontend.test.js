@@ -24,7 +24,11 @@ test("account espone OAuth, dispositivi, statistiche e dettagli privati", () => 
   assert.match(html, /Le mie partite/);
   assert.match(html, /Draft e risultati/);
   assert.match(html, /Andamento del rank/);
-  assert.match(html, /Contro gli archetipi/);
+  // «Contro gli archetipi» e' stato tolto dal launch candidate: aggregava
+  // tutti i mazzi insieme e il riquadro stesso doveva dire che non sapeva
+  // separarli. Il server continua a calcolarlo.
+  assert.doesNotMatch(html, /Contro gli archetipi/);
+  assert.doesNotMatch(html, /id="opponent-stats"|id="opponent-summary"/);
   assert.match(html, /id="detail-dialog"/);
   assert.match(html, /card-images\.css\?v=/);
   assert.match(html, /account-support\.css\?v=/);
@@ -34,7 +38,9 @@ test("account espone OAuth, dispositivi, statistiche e dettagli privati", () => 
   assert.match(js, /\/account\/matches/);
   assert.match(js, /\/account\/drafts/);
   assert.match(js, /\/account\/decks\/\$\{mazzo\.impronta\}\/name/);
-  assert.match(js, /Decklist del Draft/);
+  // La decklist della sessione senza traccia e' sparita con la card che la
+  // apriva; il pool di una traccia vera resta.
+  assert.match(js, /Pool finale/);
   assert.match(js, /La decklist completa è mostrata una sola volta/);
   assert.match(js, /createCardThumbnail/);
   assert.match(js, /Carte avversarie rivelate/);
@@ -75,8 +81,13 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /Riepilogo Mox/);
   assert.match(js, /ordinaVociDraft/);
   assert.match(js, /raggruppaCartePool/);
-  assert.match(js, /Partite Limited senza traccia/);
-  assert.match(css, /\.limited-match-record/);
+  // Nel tab Draft restano le sole tracce vere: i raggruppamenti cronologici
+  // delle partite Limited senza traccia non sono Draft e non si mostrano
+  // accanto a quelli, perche' spesso sono lo stesso evento visto due volte.
+  assert.doesNotMatch(js, /Partite Limited senza traccia/);
+  assert.doesNotMatch(js, /sessioni_limited/);
+  assert.doesNotMatch(css, /\.limited-match-record/);
+  assert.match(js, /I risultati compaiono quando MOX pu/);
   assert.match(js, /pick-by-pick resta fuori dalla prima beta/);
   assert.match(traduzioniDinamiche, /Mox ha registrato/);
   assert.match(js, /renderProfiloMazzo/);
@@ -106,7 +117,7 @@ test("account espone tooltip rank accessibile e fallback mazzo senza hash", () =
   assert.match(css, /\.rank-tooltip/);
   assert.match(js, /Mazzo \$\{formato\} senza nome/);
   assert.doesNotMatch(js, /\$\{String\(mazzo\?\.impronta/);
-  assert.match(html, /non permettono ancora di filtrarlo per singolo mazzo/);
+  assert.doesNotMatch(html, /non permettono ancora di filtrarlo per singolo mazzo/);
 });
 
 test("supporto mantiene il modulo e aggiunge FAQ native", () => {

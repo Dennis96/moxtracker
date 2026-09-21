@@ -51,3 +51,15 @@ export function winRateClass(value) {
   if (n >= 50) return "positive";
   return "negative";
 }
+
+// Il nome pubblico di una release: «MOX Beta 2.11.0».
+//
+// I canali tecnici usano forme diverse per la stessa cosa - il tag GitHub
+// `mox-v2-beta2.11.0`, il campo `versione` del manifesto «2 beta 2.11.0» - e
+// nessuna delle due si mostra a chi legge. Qui si tiene soltanto il numero e
+// si ricostruisce sempre la stessa etichetta. Il tag resta quello che e': non
+// si rinomina niente su GitHub e l'updater continua a leggere il suo campo.
+export function nomeReleasePubblico(valore) {
+  const numero = String(valore ?? "").match(/\d+\.\d+(?:\.\d+)?/);
+  return numero ? `MOX Beta ${numero[0]}` : null;
+}
