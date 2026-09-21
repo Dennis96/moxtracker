@@ -1,8 +1,5 @@
 import { RELEASE_MANIFEST_URL } from "./config.js";
-import { preparaDownloadLatest } from "./download.js";
 import { nomeReleasePubblico } from "./format.js";
-
-preparaDownloadLatest();
 
 try {
   const risposta = await fetch(RELEASE_MANIFEST_URL, { headers: { accept: "application/json" } });

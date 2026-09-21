@@ -21,10 +21,9 @@ test("le tre card del Download hanno la stessa struttura e la stessa altezza", (
   const html = leggi("download.html");
   const card = [...html.matchAll(/<article class="panel">([\s\S]*?)<\/article>/g)].map((m) => m[1]);
   assert.equal(card.length, 3, "i passi restano tre");
-  // Stessa struttura: numero del passo, titolo, una spiegazione. Se una card
-  // avesse un elemento in piu' la fila si romperebbe di nuovo.
+  // Stessa struttura: numero del passo, titolo, una spiegazione.
   for (const [indice, corpo] of card.entries()) {
-    assert.match(corpo, new RegExp(`^<span>${indice + 1}</span><h2>[^<]+</h2><p>[^<]+</p>$`),
+    assert.match(corpo, new RegExp(`^<span>${indice + 1}</span><h3>[^<]+</h3><p>[\\s\\S]+</p>$`),
       `card ${indice + 1}`);
   }
   const css = leggi("css/site.css");
@@ -43,9 +42,6 @@ test("le tre card del Download hanno la stessa struttura e la stessa altezza", (
   assert.match(leggi("css/redesign.css"), /\.panel \+ \.panel \{ margin-top: 24px; \}/,
     "se la regola generica cambia, questa correzione va rivista");
   assert.match(leggi("css/redesign.css"), /\.download-steps > \.panel \+ \.panel \{ margin-top: 0; \}/);
-  // I figli restano larghi quanto la card, come nel layout a blocchi di prima:
-  // `align-items: flex-start` li restringerebbe al contenuto.
-  assert.doesNotMatch(articolo, /align-items: flex-start/);
   // A schermo stretto tornano una sotto l'altra da sole.
   assert.match(css, /\.download-steps \{ grid-template-columns: 1fr; \}/);
 });

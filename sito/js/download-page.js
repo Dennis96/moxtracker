@@ -1,4 +1,3 @@
-import { mostraReleaseGitHubLatest, preparaDownloadLatest } from "./download.js";
+import { mostraReleaseGitHubLatest } from "./download.js";
 
-preparaDownloadLatest();
 mostraReleaseGitHubLatest();

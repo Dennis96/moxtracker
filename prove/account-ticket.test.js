@@ -1183,12 +1183,12 @@ test("il rank si puo' chiedere a piu' classi insieme", async () => {
   }), env);
 
   const tutte = await (await worker.fetch(new Request(
-    "https://api.moxtracker.app/meta?formato=Standard"), env)).json();
+    "https://api.moxtracker.app/meta?formato=Standard&periodo=totale"), env)).json();
   assert.equal(tutte.partite_totali, 5);
   assert.equal(tutte.partite_senza_rank, 0, "senza filtro non si parla di esclusi");
 
   const due = await (await worker.fetch(new Request(
-    "https://api.moxtracker.app/meta?formato=Standard&rank=Gold,Platinum"), env)).json();
+    "https://api.moxtracker.app/meta?formato=Standard&periodo=totale&rank=Gold,Platinum"), env)).json();
   assert.equal(due.partite_totali, 2);
   assert.equal(due.filtri.rank, "Gold,Platinum");
 
@@ -1197,11 +1197,11 @@ test("il rank si puo' chiedere a piu' classi insieme", async () => {
   assert.equal(due.partite_senza_rank, 1);
 
   const soloBronze = await (await worker.fetch(new Request(
-    "https://api.moxtracker.app/meta?formato=Standard&rank=Bronze"), env)).json();
+    "https://api.moxtracker.app/meta?formato=Standard&periodo=totale&rank=Bronze"), env)).json();
   assert.equal(soloBronze.partite_totali, 1, "il livello senza classe e' Bronze");
 
   const sola = await (await worker.fetch(new Request(
-    "https://api.moxtracker.app/meta?formato=Standard&rank=Mythic"), env)).json();
+    "https://api.moxtracker.app/meta?formato=Standard&periodo=totale&rank=Mythic"), env)).json();
   assert.equal(sola.partite_totali, 1);
 
   const sbagliato = await worker.fetch(new Request(

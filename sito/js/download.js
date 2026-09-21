@@ -2,10 +2,12 @@ import { DOWNLOAD_URL, GITHUB_LATEST_RELEASE_API } from "./config.js";
 import { nomeReleasePubblico } from "./format.js";
 
 let releaseLatestPromise = null;
+const linkDownloadInizializzati = new WeakSet();
 
-function zipPiuRecente(release) {
+export function zipUnicoDellaRelease(release) {
   const assets = Array.isArray(release?.assets) ? release.assets : [];
-  return assets.find(asset => /\.zip$/i.test(String(asset?.name || "")) && asset?.browser_download_url) || null;
+  const zip = assets.filter(asset => /\.zip$/i.test(String(asset?.name || "")) && asset?.browser_download_url);
+  return zip.length === 1 ? zip[0] : null;
 }
 
 export function releaseGitHubLatest() {
@@ -26,8 +28,8 @@ export function releaseGitHubLatest() {
 }
 
 async function indirizzoZipLatest() {
-  const asset = zipPiuRecente(await releaseGitHubLatest());
-  if (!asset) throw new Error("Nessun archivio ZIP nella release più recente");
+  const asset = zipUnicoDellaRelease(await releaseGitHubLatest());
+  if (!asset) throw new Error("La release più recente non contiene un unico archivio ZIP");
   return asset.browser_download_url;
 }
 
@@ -36,8 +38,8 @@ export async function mostraReleaseGitHubLatest(root = document) {
   if (!host) return;
   try {
     const release = await releaseGitHubLatest();
-    const asset = zipPiuRecente(release);
-    if (!asset) throw new Error("ZIP non disponibile");
+    const asset = zipUnicoDellaRelease(release);
+    if (!asset) throw new Error("ZIP unico non disponibile");
     // Il tag tecnico non si mostra mai: se non se ne ricava un numero di
     // versione, si dice soltanto che lo ZIP piu' recente verra' scelto al
     // download, come nel ramo di errore qui sotto.
@@ -59,6 +61,8 @@ export async function mostraReleaseGitHubLatest(root = document) {
 
 export function preparaDownloadLatest(root = document) {
   for (const link of root.querySelectorAll("[data-download]")) {
+    if (linkDownloadInizializzati.has(link)) continue;
+    linkDownloadInizializzati.add(link);
     // Il click passa sempre dal resolver e va direttamente all'asset ZIP
     // dell'ultima release: non usiamo la pagina GitHub delle release come
     // surrogato di un download.
