@@ -2,7 +2,7 @@
 
 Data: 22 settembre 2026  
 Perimetro: sito MoxTracker e verifica documentale del client MOX.  
-Stato del candidato: **READY FOR PREVIEW; NOT READY FOR PRODUCTION**.
+Stato del candidato: **QA PREVIEW PASS; READY FOR INDEPENDENT REVIEW; NOT READY FOR PRODUCTION**.
 
 ## Baseline e A114
 
@@ -47,16 +47,30 @@ Non è emersa un'incompatibilità evidente con la Fan Content Policy. Questo è 
 ## Gate tecnici
 
 - `node --test prove/*.test.js`: 466/466 PASS, nessuna prova saltata.
-- build riproducibile: verificata dal test dedicato con due build consecutive equivalenti.
+- build riproducibile: due build consecutive equivalenti, build ID `f589606577d1bcb9` (91 file).
 - `git diff --check`: PASS.
 - disclaimer, guida, traduzioni, privacy e blocco produzione hanno regressioni dedicate.
 
-## Gate ancora aperti
+## Merge, preview e QA finale
 
-1. Pubblicare una nuova preview dall'esatto `main` fuso e ripetere QA desktop/mobile IT/EN, reduced motion, tastiera, console/rete e download Latest.
-2. Inserire l'identità esatta del titolare e ripetere test/preview.
+- Candidato sito unito con PR moxtracker #11; merge commit `5e20d2bc34d0a9d33153652626365056667e38de`.
+- Preview pubblicata dall'esatto `main`: `https://2ee186f7.moxtracker.pages.dev` (alias `https://preview.moxtracker.pages.dev`).
+- Record di release verificato: smoke HTTP 200 sulle rotte previste, `X-Robots-Tag: noindex, nofollow, noarchive` e `robots.txt` disallow-all.
+- QA IT/EN completata su Home, Download/guida, Meta, Draft, Account, Supporto, Privacy, Note di versione e un dettaglio Brew pubblico.
+- Viewport mobili 375×812 e 390×844: nessun overflow orizzontale; indice e navigazione corretti.
+- Tastiera e focus: skip link, brand, menu, download e indice raggiungibili; menu mobile azionabile con Invio e stato ARIA aggiornato.
+- Download Latest: il pulsante ha prodotto un evento di download reale; release mostrata `MOX Beta 2.11.0`.
+- Console/rete e immagini: nessun errore sulle pagine verificate. Le immagini vuote di Meta sono placeholder lazy intenzionali, non richieste fallite.
+- Account: sull'alias preview autorizzato API e login sono caricati senza errori. L'URL immutabile non è nella allowlist CORS e restituisce il previsto `Failed to fetch`; per i flussi API va usato l'alias.
+
+Limiti della QA: su questa postazione era disponibile soltanto il browser integrato. Chrome, Edge e Firefox non erano disponibili; 375×812 e 390×844 sono viewport emulate, non telefoni fisici. Il contratto CSS `prefers-reduced-motion` è coperto da test/static audit, ma il browser integrato non espone l'emulazione live della preferenza.
+
+## Gate ancora aperti / blocker reali
+
+1. Inserire l'identità esatta del titolare e ripetere test/preview. Il gate automatico impedisce la produzione finché il segnaposto resta nel sorgente.
+2. Completare almeno uno spot check su telefono fisico; se il gate pretende la matrice completa, ripetere inoltre su Chrome, Edge e Firefox e verificare live reduced motion.
 3. Attendere la review indipendente e il release gate del client finale, probabilmente MOX Beta 2.11.1.
-4. Il deploy Pages production è esplicitamente escluso dal mandato corrente.
+4. Il deploy Pages production è esplicitamente escluso dal mandato corrente e non è stato eseguito.
 
 ## Rollback
 
