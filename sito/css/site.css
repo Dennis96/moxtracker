@@ -241,6 +241,7 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 .privacy-section p { margin: 8px 0; }
 .privacy-section ul { margin: 8px 0 0; padding-left: 20px; }
 .privacy-section a { color: #c87cff; }
+.legal-warning { padding: 12px 14px; border-left: 3px solid var(--warning); background: rgba(243,191,98,.08); }
 .privacy-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }
 .privacy-meta span { padding: 6px 9px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: .72rem; }
 
@@ -251,6 +252,11 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 .download-hero .download-release { color: #d28bff; font-size: .86rem; }
 .download-hero img { width: 100%; max-width: 340px; justify-self: end; filter: drop-shadow(0 0 34px rgba(142,48,255,.35)); }
 .download-section { margin-top: clamp(56px, 8vw, 96px); }
+.anchor-section { scroll-margin-top: 96px; }
+.download-toc { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 20px; padding: 18px 20px; }
+.download-toc strong { flex: 1 0 100%; }
+.download-toc a { padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: #d28bff; font-size: .86rem; text-decoration: none; }
+.download-toc a:hover, .download-toc a:focus-visible { border-color: var(--lilac); background: rgba(124,44,255,.12); }
 .download-section-head { margin-bottom: 24px; }
 .download-section-head h2 { margin: 6px 0 0; font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.1; }
 .download-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
@@ -267,6 +273,12 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 .download-tool p, .download-wide p, .download-info-card p { margin: 0; color: var(--muted); line-height: 1.65; }
 .download-tool-shot { display: block; width: 100%; height: auto; border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
 .download-howto, .download-info-grid, .download-support-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.download-options-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.download-options-grid > .panel { margin-top: 0; padding: clamp(22px, 4vw, 34px); }
+.download-options-grid h3 { margin: 0 0 12px; font-size: 1.25rem; }
+.download-options-grid p, .download-options-grid li { color: var(--muted); line-height: 1.65; }
+.download-options-grid p { margin: 0; }
+.download-options-grid ul { margin: 0; padding-left: 1.25rem; }
 .download-howto > .panel + .panel, .download-info-grid > .panel + .panel, .download-support-grid > .panel + .panel { margin-top: 0; }
 .download-guide-card, .download-info-card { padding: clamp(22px, 4vw, 34px); }
 .download-guide-card h2, .download-info-card h2 { margin: 0 0 14px; font-size: clamp(1.45rem, 3vw, 2rem); }
@@ -337,7 +349,7 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
   .method-grid, .summary-grid { grid-template-columns: 1fr; }
   .public-stats, .product-shots { grid-template-columns: 1fr; }
   .download-steps { grid-template-columns: 1fr; }
-  .download-howto, .download-info-grid, .download-support-grid { grid-template-columns: 1fr; }
+  .download-howto, .download-info-grid, .download-support-grid, .download-options-grid { grid-template-columns: 1fr; }
   .download-help-links { grid-template-columns: 1fr; }
   .method-card { min-height: 92px; }
   .final-cta { flex-direction: column; text-align: center; gap: 14px; }

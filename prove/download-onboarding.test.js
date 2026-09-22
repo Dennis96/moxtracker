@@ -48,8 +48,14 @@ test("download.html e' la guida completa Scarica e inizia", () => {
   for (const sezione of [
     "Inizia in pochi minuti", "I tre strumenti", "Durante una partita",
     "Durante un Draft", "Mazzi e statistiche", "Consensi e privacy",
-    "Account facoltativo", "Se Windows blocca MOX", "Serve aiuto?",
+    "Account facoltativo", "Se Windows blocca MOX", "Serve aiuto?", "Collezione",
+    "I tuoi mazzi", "Sviluppo mazzo", "Opzioni", "Mazzi nell'account", "Research",
   ]) assert.match(html, new RegExp(sezione), sezione);
+
+  for (const ancora of ["primi-passi", "strumenti", "collezione", "tuoi-mazzi",
+    "sviluppo-mazzo", "opzioni", "account-sito", "privacy-guide", "problemi-supporto"]) {
+    assert.match(html, new RegExp(`(?:id|href)="?#${ancora}|id="${ancora}"`), ancora);
+  }
 
   for (const asset of [
     "assets/home/preview-contatore.webp", "assets/home/preview-draft.webp",
@@ -73,12 +79,12 @@ test("la guida e' bilingue, responsive e non espone il vecchio filename", () => 
     "Scarica e inizia con MOX", "Inizia in pochi minuti", "I tre strumenti",
     "Durante una partita", "Durante un Draft", "Mazzi e statistiche",
     "Consensi e privacy", "Account facoltativo", "Se Windows blocca MOX",
-    "Serve aiuto?",
+    "Serve aiuto?", "Collezione", "Sviluppo mazzo", "Opzioni", "Problemi e supporto",
   ]) assert.ok(dizionario[chiave], `manca EN: ${chiave}`);
 
   const css = leggi("css/site.css");
   assert.match(css, /@media \(max-width: 720px\)[\s\S]*?\.download-steps \{ grid-template-columns: 1fr; \}/);
-  assert.match(css, /\.download-howto, \.download-info-grid, \.download-support-grid \{ grid-template-columns: 1fr; \}/);
+  assert.match(css, /\.download-howto, \.download-info-grid, \.download-support-grid, \.download-options-grid \{ grid-template-columns: 1fr; \}/);
   const pubblico = readdirSync(SITO, { recursive: true })
     .filter((voce) => String(voce).match(/\.(?:html|js|css|json)$/))
     .map((voce) => readFileSync(join(SITO, voce), "utf8")).join("\n");

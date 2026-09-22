@@ -123,6 +123,8 @@ test("il gate release richiede tree pulita, preview equivalente, noindex e confe
   assert.match(script, /X-Robots-Tag: noindex, nofollow, noarchive/);
   assert.match(script, /Disallow: \//);
   assert.match(script, /preview\.indicizzazione\?\.modalita !== "noindex"/);
+  assert.match(script, /verificaDatiLegaliProduzione/);
+  assert.match(script, /data-legal-todo/);
   assert.match(script, /node_modules\/wrangler\/bin\/wrangler\.js/);
   assert.match(script, /CONFIG\.preview_branch/);
   assert.equal(configurazione.preview_branch, "preview");

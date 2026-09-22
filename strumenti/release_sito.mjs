@@ -49,6 +49,14 @@ function hashDeployment(manifesto) {
   return Object.fromEntries(Object.entries(risultati).sort(([a], [b]) => a.localeCompare(b)));
 }
 
+function verificaDatiLegaliProduzione() {
+  const privacy = readFileSync(join(CARTELLA_BUILD, "privacy.html"), "utf8");
+  if (privacy.includes("data-legal-todo") ||
+      privacy.includes("[NOME/COGNOME O DENOMINAZIONE DA FORNIRE]")) {
+    throw new Error("produzione bloccata: identità del titolare privacy non completata");
+  }
+}
+
 async function smokeTest(base) {
   const percorsi = ["/", "/draft", "/account", "/supporto", "/privacy", "/en/"];
   const risultati = [];
@@ -142,6 +150,7 @@ if (!deploy) {
 }
 
 if (ambiente === "production") {
+  verificaDatiLegaliProduzione();
   if (argomento("conferma") !== CONFERMA_PRODUZIONE) {
     throw new Error(`la produzione richiede --conferma=${CONFERMA_PRODUZIONE}`);
   }

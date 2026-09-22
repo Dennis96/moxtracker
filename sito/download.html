@@ -33,7 +33,12 @@
       <img src="./assets/branding/mox-marchio.webp" alt="Mascotte ufficiale MOX: procione con cappuccio viola e gemma">
     </section>
 
-    <section class="download-section" aria-labelledby="start-title">
+    <nav class="download-toc panel" aria-label="Indice della guida">
+      <strong>In questa guida</strong>
+      <a href="#primi-passi">Primi passi</a><a href="#strumenti">I tre strumenti</a><a href="#collezione">Collezione</a><a href="#tuoi-mazzi">I tuoi mazzi</a><a href="#sviluppo-mazzo">Sviluppo mazzo</a><a href="#opzioni">Opzioni</a><a href="#account-sito">Account e sito</a><a href="#privacy-guide">Privacy</a><a href="#problemi-supporto">Problemi e supporto</a>
+    </nav>
+
+    <section id="primi-passi" class="download-section anchor-section" aria-labelledby="start-title">
       <header class="download-section-head"><span class="eyebrow">Primi passi</span><h2 id="start-title">Inizia in pochi minuti</h2></header>
       <div class="download-steps">
         <article class="panel"><span>1</span><h3>Scarica ed estrai</h3><p>Scarica <code>MOX-x.y.z.zip</code> ed estrai tutto in una cartella normale. Non avviare l'EXE direttamente dentro lo ZIP.</p></article>
@@ -42,7 +47,7 @@
       </div>
     </section>
 
-    <section class="download-section" aria-labelledby="tools-title">
+    <section id="strumenti" class="download-section anchor-section" aria-labelledby="tools-title">
       <header class="download-section-head"><span class="eyebrow">Dentro l'app</span><h2 id="tools-title">I tre strumenti</h2></header>
       <div class="download-tools">
         <article class="download-tool panel">
@@ -57,6 +62,65 @@
           <div class="download-tool-copy"><img class="download-tool-icon" src="./assets/home/icon-mazzi.png" alt=""><h3>I tuoi mazzi</h3><p>Ritrova i mazzi di Arena, confrontali con la collezione e consulta le statistiche locali delle partite salvate. Puoi copiare un mazzo o salvarlo su file per condividerlo.</p></div>
           <img class="download-tool-shot" src="./assets/home/preview-mazzi.webp" alt="Elenco dei mazzi di Arena in MOX con dati della collezione">
         </article>
+      </div>
+    </section>
+
+    <section id="collezione" class="download-section anchor-section" aria-labelledby="collection-title">
+      <header class="download-section-head"><span class="eyebrow">La tua raccolta locale</span><h2 id="collection-title">Collezione</h2></header>
+      <div class="download-info-grid">
+        <article class="panel download-info-card">
+          <h3>Aggiorna e apri il file</h3>
+          <p>Nella dashboard, la scheda <strong>Collezione</strong> offre <strong>Aggiorna</strong> e <strong>Mostra file</strong>. Apri Arena, accedi e attendi la schermata principale prima di aggiornare: MOX legge i dati disponibili in <code>Player.log</code> e nel database carte di Arena, poi salva <code>collezione.json</code> sul tuo PC.</p>
+          <p>L'estrazione manuale in <strong>Opzioni → Diagnostica</strong> usa gli stessi dati ma mostra dettagli tecnici in una finestra, utili se l'aggiornamento dalla dashboard non riesce.</p>
+        </article>
+        <article class="panel download-info-card">
+          <h3>Cosa si aggiorna e dove serve</h3>
+          <p>Carte possedute, wildcard, oro e gemme riflettono l'ultimo inventario scritto da Arena nel log. Dopo acquisti o craft, torna alla schermata principale di Arena e aggiorna di nuovo: i valori non sono letti in tempo reale.</p>
+          <p>La collezione alimenta il costo di un mazzo, il confronto in <strong>I tuoi mazzi</strong> e <strong>Sviluppo mazzo</strong> e, quando disponibile, il contesto collezione dell'Assistente al Draft.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="tuoi-mazzi" class="download-section anchor-section" aria-labelledby="decks-title">
+      <header class="download-section-head"><span class="eyebrow">Archivio locale</span><h2 id="decks-title">I tuoi mazzi</h2></header>
+      <div class="download-info-grid">
+        <article class="panel download-info-card">
+          <h3>Scegli, consulta e condividi</h3>
+          <p>Seleziona un mazzo per vedere lista, statistiche locali e confronto con la collezione. Puoi usare <strong>Copia negli appunti</strong>, <strong>Sviluppa una copia</strong>, <strong>Salva come…</strong>, <strong>Immagine da condividere</strong> o <strong>Salva tutti</strong>.</p>
+          <p>Le versioni registrate e i progetti archiviati restano consultabili dagli appositi controlli. Una copia di sviluppo non modifica il mazzo originale in Arena.</p>
+        </article>
+        <article class="panel download-info-card">
+          <h3>Primo caricamento e cache</h3>
+          <p>La finestra appare subito. Se la cache carte è fredda, un processo in background può impiegare un po' a completare nomi e dettagli: l'indicatore mostra l'avanzamento X/Y e la finestra resta utilizzabile. I caricamenti successivi sono normalmente più rapidi.</p>
+          <p>Se un mazzo non compare, apri Arena, attendi che i mazzi siano stati caricati e riprova; poi aggiorna la collezione se il confronto possedute/mancanti è vecchio.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="sviluppo-mazzo" class="download-section anchor-section" aria-labelledby="project-title">
+      <header class="download-section-head"><span class="eyebrow">Progetti separati da Arena</span><h2 id="project-title">Sviluppo mazzo</h2></header>
+      <div class="download-info-grid">
+        <article class="panel download-info-card">
+          <h3>Crea e gestisci un progetto</h3>
+          <p>Usa <strong>Nuovo da lista</strong> oppure <strong>Sviluppa una copia</strong> da un mazzo Arena. Nel progetto puoi rinominare, duplicare, archiviare o ripristinare; l'eliminazione è disponibile dopo l'archiviazione. <strong>Lista Arena</strong> e <strong>Copia per Arena</strong> preparano la lista per il gioco, mentre <strong>Aggiorna collezione</strong> e <strong>Mostra file collezione</strong> riallineano il confronto locale.</p>
+        </article>
+        <article class="panel download-info-card">
+          <h3>Carte e costo · Controlli</h3>
+          <p><strong>Carte e costo</strong> separa main deck, sideboard, comandante e companion quando presenti e mostra copie possedute, mancanti e fabbisogno di wildcard per rarità.</p>
+          <p><strong>Controlli</strong> segnala problemi di struttura e compatibilità con i formati supportati. È un aiuto basato sui dati disponibili: prima di spendere wildcard verifica sempre la lista direttamente in Arena.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="opzioni" class="download-section anchor-section" aria-labelledby="options-title">
+      <header class="download-section-head"><span class="eyebrow">Tutti i controlli visibili</span><h2 id="options-title">Opzioni</h2></header>
+      <div class="download-options-grid">
+        <article class="panel download-option-card"><h3>Aspetto e lingua</h3><ul><li>lingua dell'interfaccia;</li><li>tema chiaro o scuro;</li><li>dimensione finestra piccola, normale o grande;</li><li>pausa o ripresa dello sfondo animato.</li></ul></article>
+        <article class="panel download-option-card"><h3>Altri strumenti</h3><ul><li><strong>Quanto costa un mazzo</strong>: confronta una lista con la collezione locale;</li><li><strong>Traduci una lista</strong>: converte i nomi delle carte nella lingua corrente di Arena per l'importazione.</li></ul></article>
+        <article class="panel download-option-card"><h3>Diagnostica</h3><ul><li>estrazione manuale della collezione;</li><li>inclusione facoltativa del log Arena nel pacchetto diagnostico;</li><li>creazione del pacchetto diagnostico;</li><li>avvio in modalità sicura;</li><li>controllo aggiornamenti;</li><li>eliminazione dei soli backup creati dall'aggiornamento.</li></ul></article>
+        <article class="panel download-option-card"><h3>Partite e Draft</h3><ul><li>invio Partite/Meta acceso o spento e vista degli invii;</li><li>contributi Draft anonimi separati;</li><li>anteprima di ciò che il Draft invia;</li><li>cancellazione dal sito di partite e Draft;</li><li>collegamento facoltativo dell'account.</li></ul></article>
+        <article class="panel download-option-card"><h3>Mazzi nell'account</h3><p>È un consenso distinto dagli invii anonimi. Se lo abiliti, MOX sincronizza subito i mazzi nell'area privata dell'account, nomi compresi; il pulsante di aggiornamento ripete la sincronizzazione. Servono Arena avviata, dati mazzi nel log, database carte disponibile e account collegato.</p></article>
+        <article class="panel download-option-card"><h3>Research</h3><p>Parte solo con l'attivazione esplicita. Puoi vedere il payload previsto, ritirare il consenso e chiedere la cancellazione. Lo stato mostra elementi in coda e richieste pendenti; se la rete o il servizio non confermano subito, MOX conserva la richiesta e ritenta automaticamente.</p></article>
       </div>
     </section>
 
@@ -77,8 +141,8 @@
       <img src="./assets/home/story-statistiche.webp" alt="Statistiche locali di un mazzo in MOX">
     </section>
 
-    <section class="download-section download-info-grid" aria-label="Privacy e account">
-      <article class="panel download-info-card">
+    <section id="account-sito" class="download-section download-info-grid anchor-section" aria-label="Privacy e account">
+      <article id="privacy-guide" class="panel download-info-card anchor-section">
         <span class="eyebrow">Sotto il tuo controllo</span><h2>Consensi e privacy</h2>
         <p>MOX funziona anche senza account. I contributi Partite/Meta, Draft e Research hanno controlli separati: puoi modificarli o revocarli dalle Opzioni. Research parte soltanto dopo un consenso esplicito.</p>
         <p><a href="./cosa-invia-mox.html">Vedi cosa invia MOX</a> · <a href="./privacy.html">Leggi la privacy</a></p>
@@ -90,7 +154,7 @@
       </article>
     </section>
 
-    <section class="download-section download-support-grid" aria-label="Problemi iniziali e assistenza">
+    <section id="problemi-supporto" class="download-section download-support-grid anchor-section" aria-label="Problemi iniziali e assistenza">
       <article class="panel download-info-card">
         <span class="eyebrow">Avvio sicuro</span><h2>Se Windows blocca MOX</h2>
         <p>Se <code>Mox.exe</code> parte, usa quello. Se Windows impedisce l'avvio dell'EXE, nel pacchetto apri una volta <code>INSTALLA-MOX.bat</code>; al termine avvia MOX con <code>MOX.bat</code>. Non disabilitare Windows Defender o altre protezioni. Se il problema resta, contatta il Supporto.</p>
@@ -108,6 +172,7 @@
       <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></nav>
       <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia Mox</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
     </div>
+    <p class="fan-content-disclaimer">MOX è un contenuto amatoriale non ufficiale consentito dalle <a href="https://company.wizards.com/en/legal/fancontentpolicy" rel="noopener noreferrer">Linee guida sui contenuti amatoriali</a>. Non è approvato né autorizzato da Wizards. Parte dei materiali utilizzati è proprietà di Wizards of the Coast. © Wizards of the Coast LLC.</p>
   </footer>
 </body>
 </html>
