@@ -54,7 +54,7 @@ Non è emersa un'incompatibilità evidente con la Fan Content Policy. Questo è 
 ## Merge, preview e QA finale
 
 - Candidato sito unito con PR moxtracker #11; merge commit `5e20d2bc34d0a9d33153652626365056667e38de`.
-- Preview pubblicata dall'esatto `main`: `https://2ee186f7.moxtracker.pages.dev` (alias `https://preview.moxtracker.pages.dev`).
+- Preview pubblicata dall'esatto `main` sull'alias stabile `https://preview.moxtracker.pages.dev`; ogni deploy immutabile è registrato nel relativo record `.release/preview-*.json` locale.
 - Record di release verificato: smoke HTTP 200 sulle rotte previste, `X-Robots-Tag: noindex, nofollow, noarchive` e `robots.txt` disallow-all.
 - QA IT/EN completata su Home, Download/guida, Meta, Draft, Account, Supporto, Privacy, Note di versione e un dettaglio Brew pubblico.
 - Viewport mobili 375×812 e 390×844: nessun overflow orizzontale; indice e navigazione corretti.
