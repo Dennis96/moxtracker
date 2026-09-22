@@ -93,6 +93,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .site-footer nav a { color: var(--muted); font-size: 15px; font-weight: 600; }
 .footer-service { margin-left: auto; }
 .footer-service a { font-size: 14px; font-weight: 400 !important; }
+.fan-content-disclaimer { width: var(--shell); margin: -12px auto 0; padding: 0 0 28px; color: var(--muted-2); font-size: 12px; line-height: 1.55; }
+.fan-content-disclaimer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Pulsanti e link */
 

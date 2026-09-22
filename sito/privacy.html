@@ -31,11 +31,28 @@
         <span class="eyebrow">Trasparenza prima dei numeri</span>
         <h1 id="privacy-title">Privacy e dati</h1>
         <p>MOX raccoglie contributi soltanto dopo un consenso esplicito. Il sito pubblica statistiche aggregate e, da 30 partite della stessa variante, può mostrare la decklist osservata; non pubblica mai la cronologia o l’identità di un singolo giocatore.</p>
-        <div class="privacy-meta"><span>Aggiornata il 19 settembre 2026</span><span>Beta pubblica</span><span>Account facoltativi</span></div>
+        <div class="privacy-meta"><span>Aggiornata il 22 settembre 2026</span><span>Beta pubblica</span><span>Account facoltativi</span></div>
       </div>
     </section>
 
     <section class="privacy-content" aria-label="Informativa privacy MOX">
+      <article class="panel privacy-section">
+        <h2>Titolare del trattamento</h2>
+        <p>Il titolare del trattamento è <strong data-legal-todo="controller">[NOME/COGNOME O DENOMINAZIONE DA FORNIRE]</strong>. Per richieste riservate o relative ai dati personali: <a href="mailto:privacy@moxtracker.app">privacy@moxtracker.app</a>.</p>
+        <p class="legal-warning"><strong>Dato legale da completare prima della pubblicazione in produzione:</strong> l'identità del titolare non è stata ancora fornita. Questa anteprima non sostituisce l'informativa definitiva.</p>
+      </article>
+
+      <article class="panel privacy-section">
+        <h2>Finalità e basi giuridiche</h2>
+        <ul>
+          <li><strong>Contributi Partite/Meta, Draft e Research, sincronizzazione dei mazzi e notifiche email facoltative:</strong> consenso dell'interessato (art. 6, par. 1, lett. a GDPR), separato per ciascun flusso e revocabile in ogni momento.</li>
+          <li><strong>Account facoltativo, collegamento delle installazioni, dashboard privata e ticket di supporto:</strong> esecuzione del servizio richiesto dall'utente o misure precontrattuali (art. 6, par. 1, lett. b GDPR).</li>
+          <li><strong>Sicurezza del servizio, prevenzione di abusi, integrità e diagnostica tecnica minima:</strong> legittimo interesse del titolare a proteggere MOX e i suoi utenti (art. 6, par. 1, lett. f GDPR), bilanciato con la minimizzazione dei dati.</li>
+        </ul>
+        <p>Fornire dati per account e ticket è facoltativo, ma senza i dati strettamente necessari non è possibile erogare quella funzione. I contributi anonimi, la sincronizzazione dei mazzi, Research, gli allegati diagnostici e le notifiche email restano facoltativi e non sono necessari per usare le funzioni locali di MOX.</p>
+        <p>MOX non adotta decisioni esclusivamente automatizzate che producano effetti giuridici o analogamente significativi e non esegue profilazione pubblicitaria.</p>
+      </article>
+
       <article class="panel privacy-section">
         <h2>Quali dati invia MOX</h2>
         <p>Partite, Draft e Research hanno consensi separati, tutti spenti alla prima installazione. Attivarne uno non attiva gli altri e non invia retroattivamente ciò che è stato registrato mentre era spento.</p>
@@ -84,7 +101,7 @@
 
       <article class="panel privacy-section">
         <h2>Dove, per quanto tempo e quando pubblichiamo</h2>
-        <p>Cloudflare ospita l'API e i database D1. Le tracce Draft complete sono in un bucket R2 privato e non sono raggiungibili dal sito; vengono eliminate automaticamente dopo 730 giorni. Gli allegati dei ticket chiusi vengono eliminati dopo 90 giorni e l'intero ticket chiuso dopo 365 giorni. Gli indici e le partite restano finché sono necessari al progetto o finché l'utente non richiede la cancellazione tramite MOX.</p>
+        <p>Cloudflare ospita l'API e i database D1. Le tracce Draft complete sono in un bucket R2 privato e non sono raggiungibili dal sito; vengono eliminate automaticamente dopo 730 giorni. Gli allegati dei ticket chiusi vengono eliminati dopo 90 giorni e l'intero ticket chiuso dopo 365 giorni. Le sessioni account durano al massimo 30 giorni; stati OAuth e codici monouso di collegamento scadono dopo 10 minuti. I dati dell'account restano fino alla sua eliminazione. Gli indici e le partite restano finché sono necessari al progetto o finché l'utente non richiede la cancellazione tramite MOX.</p>
         <p>Le statistiche pubbliche restano soggette a soglie minime. Una percentuale Draft richiede almeno 100 pick e un risultato di gioco almeno 30 match collegati; il meta non mostra percentuali sotto 30 partite.</p>
         <p>Una decklist osservata precisa viene pubblicata quando la stessa variante raggiunge almeno 30 partite, anche se il campione proviene da una sola installazione. In quel caso la lista di carte diventa pubblica, ma il sito non pubblica l'identità dell'installazione, il mittente o la cronologia del giocatore e non collega pubblicamente la lista a una persona.</p>
         <p>Le liste di riferimento di mox-meta sono invece un catalogo pubblico curato separatamente: non sono ricostruzioni delle decklist osservate dagli utenti MOX.</p>
@@ -104,9 +121,28 @@
       </article>
 
       <article class="panel privacy-section">
+        <h2>Destinatari, fornitori e trasferimenti</h2>
+        <p>I dati possono essere trattati, nei limiti necessari al servizio, dai fornitori tecnici indicati di seguito e dalle persone autorizzate a gestire il supporto. Non vendiamo dati personali.</p>
+        <ul>
+          <li><strong>Cloudflare</strong>: Pages, Workers, database D1, archivi R2 e Turnstile; infrastruttura, sicurezza e protezione antiabuso.</li>
+          <li><strong>Google e Discord</strong>: provider OAuth scelti dall'utente per l'accesso; MOX richiede un identificativo, nome visualizzato e avatar, non l'email.</li>
+          <li><strong>Resend</strong>: invio delle notifiche email del ticket, soltanto se richieste.</li>
+          <li><strong>Scryfall</strong>: API e immagini carte richieste direttamente dal browser nelle pagine abilitate.</li>
+          <li><strong>GitHub</strong>: distribuzione delle release e consultazione dei download; le pagine pubbliche del repository sono esterne a MOX.</li>
+        </ul>
+        <p>Alcuni fornitori possono trattare dati fuori dallo Spazio economico europeo. Quando applicabile, il trasferimento si basa su una decisione di adeguatezza, sul Data Privacy Framework UE-USA per i soggetti aderenti o sulle clausole contrattuali standard della Commissione europea e relative misure supplementari. Informazioni o copie delle garanzie applicabili possono essere richieste al contatto privacy.</p>
+      </article>
+
+      <article class="panel privacy-section">
+        <h2>Diritti dell'interessato</h2>
+        <p>Nei casi previsti dal GDPR puoi chiedere accesso, rettifica, cancellazione, limitazione del trattamento, portabilità dei dati e opposizione; puoi inoltre revocare in ogni momento un consenso senza pregiudicare la liceità del trattamento precedente alla revoca.</p>
+        <p>Puoi esercitare i diritti scrivendo a <a href="mailto:privacy@moxtracker.app">privacy@moxtracker.app</a>. Hai anche il diritto di proporre reclamo al <a href="https://www.garanteprivacy.it/" rel="noopener noreferrer">Garante per la protezione dei dati personali</a> o all'autorità di controllo competente nel tuo Stato membro.</p>
+      </article>
+
+      <article class="panel privacy-section">
         <h2>Contatti e modifiche</h2>
         <p>Durante la beta, domande e richieste non riservate possono essere aperte nel <a href="https://github.com/Dennis96/moxtracker/issues" rel="noopener noreferrer">repository GitHub di MoxTracker</a>. Non pubblicare mai segreti di cancellazione, log completi o dati personali in una issue pubblica.</p>
-        <p>Per richieste riservate o relative ai dati personali scrivi a <a href="mailto:privacy@moxtracker.app">privacy@moxtracker.app</a>. Ogni modifica sostanziale a raccolta, login o abbonamenti richiederà l'aggiornamento di questa pagina.</p>
+        <p>Per richieste riservate o relative ai dati personali scrivi a <a href="mailto:privacy@moxtracker.app">privacy@moxtracker.app</a>. Ogni modifica sostanziale a raccolta, login, finalità o fornitori richiederà l'aggiornamento di questa pagina e, quando necessario, una nuova richiesta di consenso.</p>
       </article>
     </section>
   </main>
@@ -117,6 +153,7 @@
       <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></nav>
       <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia Mox</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
     </div>
+    <p class="fan-content-disclaimer">MOX è un contenuto amatoriale non ufficiale consentito dalle <a href="https://company.wizards.com/en/legal/fancontentpolicy" rel="noopener noreferrer">Linee guida sui contenuti amatoriali</a>. Non è approvato né autorizzato da Wizards. Parte dei materiali utilizzati è proprietà di Wizards of the Coast. © Wizards of the Coast LLC.</p>
   </footer>
 </body>
 </html>

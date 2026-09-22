@@ -1,5 +1,11 @@
 # Stato corrente — sito Mox
 
+## Candidato legale/guida — 22 settembre 2026
+
+È pronto per una nuova preview il candidato che completa guida IT/EN, informativa privacy, disclaimer Wizards e gate tecnico di produzione. Test: **466/466 PASS**, build riproducibile e `git diff --check` pulito. Audit e limiti sono registrati in [MOX-PRELAUNCH-LEGAL-GUIDA-IP-QA-2026-09-22.md](passaggi/sito/MOX-PRELAUNCH-LEGAL-GUIDA-IP-QA-2026-09-22.md).
+
+La produzione resta **bloccata** per due ragioni esplicite: manca l'identità esatta del titolare del trattamento e il client finale deve ancora superare review indipendente/release gate. Il release script rifiuta la produzione finché il segnaposto legale è presente. Nessun deploy Pages production, Worker, D1, versione client o feature flag è autorizzato da questo stato.
+
 Aggiornato il 21 settembre 2026. **Distinzione che regge tutto questo
 documento: il codice è su `main`, il sito pubblico no.**
 

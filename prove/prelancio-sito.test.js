@@ -115,8 +115,13 @@ test("Research 2.11, privacy e note di versione sono launch-ready", () => {
   const privacy = leggi("privacy.html");
   const trasparenza = leggi("cosa-invia-mox.html");
   const note = leggi("note-versione.html");
-  assert.match(privacy, /Aggiornata il 19 settembre 2026/);
+  assert.match(privacy, /Aggiornata il 22 settembre 2026/);
   assert.match(privacy, /privacy@moxtracker\.app/);
+  assert.match(privacy, /data-legal-todo="controller"/);
+  assert.match(privacy, /art\. 6, par\. 1, lett\. a GDPR/);
+  assert.match(privacy, /Diritti dell'interessato/);
+  assert.match(privacy, /Garante per la protezione dei dati personali/);
+  assert.match(privacy, /clausole contrattuali standard/);
   assert.match(privacy, /Research è facoltativa e separata/);
   assert.match(privacy, /servizio Research non è pronto o qualificato/);
   assert.doesNotMatch(privacy, /Prima del lancio ufficiale verrà aggiunto/);
@@ -124,6 +129,19 @@ test("Research 2.11, privacy e note di versione sono launch-ready", () => {
   assert.match(note, /15 settembre 2026/);
   assert.match(note, /2\.11\.0/);
   assert.match(note, /Arriva MOX Research/);
+});
+
+test("tutte le pagine pubbliche espongono il disclaimer Wizards", () => {
+  const disclaimer = /MOX è un contenuto amatoriale non ufficiale consentito dalle/;
+  for (const pagina of ["index.html", "meta.html", "draft.html", "download.html", "archetipo.html",
+    "account.html", "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html"]) {
+    const html = leggi(pagina);
+    assert.match(html, disclaimer, pagina);
+    assert.match(html, /company\.wizards\.com\/en\/legal\/fancontentpolicy/, pagina);
+  }
+  const dizionario = JSON.parse(leggi("i18n/en.json"));
+  assert.equal(dizionario["MOX è un contenuto amatoriale non ufficiale consentito dalle"],
+    "MOX is unofficial Fan Content permitted under the");
 });
 
 test("il reset del Meta ripristina anche periodo, modalita e rank", () => {
