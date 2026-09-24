@@ -1,10 +1,20 @@
 # Stato corrente — sito Mox
 
-## Candidato finale MOX 2.11.1 — 24 settembre 2026
+## QA preview 2.11.1 — 24 settembre 2026
+
+La correzione visiva del sito è su `moxtracker/main` `e8664743d0f058d6c6053f67bfd8bf1ea6deaef8` ([PR #15](https://github.com/Dennis96/moxtracker/pull/15)). La build è `e0c23e049cba2646`; il deploy Pages preview `bf5b7510` è disponibile su `https://preview.moxtracker.pages.dev` e protegge l'indicizzazione con `noindex` e `robots.txt` di blocco. Il gate ha eseguito **466/466 test PASS** e lo smoke delle sei route previste ha risposto 200.
+
+QA visiva: 11 pagine italiane a desktop e mobile, 10 pagine inglesi su mobile, senza overflow. La Home non taglia più l'anteprima Draft su mobile; fra le card «Primi passi» e la guida successiva ci sono 20 px a 1440 e 390 px; il menu mobile si apre. La privacy pubblica **Dennis Santinelli**. Le Note di versione inglesi hanno etichette e date tradotte. Il testo «Ultima release pubblicata» viene dalla Latest Release GitHub: mostra correttamente **MOX Beta 2.11.0** finché la 2.11.1 non viene pubblicata; il download risolve sempre l'unico ZIP della stessa release. Dopo la pubblicazione della 2.11.1 occorre verificare nome, URL, risposta 200 e SHA sulla preview.
+
+Il client 2.11.1 resta certificato al commit `ad8e0632211f8f225d36fa0ddb72fd90139af08d` ed è pronto per la promozione. Il controllo umano su telefono fisico del sito è ancora **in attesa**. Stable client, GitHub Release e Pages production sono autorizzati dal macro-task solo dopo quel PASS e i gate collegati; non sono stati eseguiti. Nessun deploy Worker o migrazione D1.
+
+Le sezioni sotto registrano stati precedenti.
+
+## Candidato finale MOX 2.11.1 — 24 settembre 2026 (storico)
 
 La review indipendente del client è PASS. Il lavoro sul sito parte da `moxtracker/main` `97bff4d15651c6a7a1cd2122b49d8b5ac3d9ffad` e allinea guida, note di versione, informativa e traduzioni al client 2.11.1 certificato (`ad8e0632211f8f225d36fa0ddb72fd90139af08d`). Il titolare dell'informativa è **Dennis Santinelli**, nella forma fornita dal titolare; nessun indirizzo personale è stato aggiunto.
 
-La guida distingue i cinque passi del primo avvio, le quattro scelte di condivisione, le quattro schede delle Opzioni, i registri dettagliati e le risorse sconosciute da zero. La sincronizzazione privata dei mazzi richiede un consenso distinto dal collegamento dell'account. I test mirati sono 24/24 PASS; la suite completa del candidato è **466/466 PASS**. La QA locale ha verificato IT/EN, menu mobile e assenza di overflow nelle pagine principali a 375 e 390 px. Restano da completare commit/PR/merge, build finali riproducibili, preview remota, controllo su telefono fisico, stable e Pages production. Le sezioni datate sotto descrivono stati precedenti.
+La guida distingue i cinque passi del primo avvio, le quattro scelte di condivisione, le quattro schede delle Opzioni, i registri dettagliati e le risorse sconosciute da zero. La sincronizzazione privata dei mazzi richiede un consenso distinto dal collegamento dell'account. I test mirati del candidato iniziale furono 24/24 PASS; la suite completa fu **466/466 PASS**. La QA locale verificò IT/EN, menu mobile e assenza di overflow nelle pagine principali a 375 e 390 px. Il commit, la PR e la preview di questa fase sono stati poi completati; lo stato operativo più recente è sopra.
 
 ## Candidato legale/guida — 22 settembre 2026
 
