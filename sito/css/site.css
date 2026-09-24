@@ -241,7 +241,6 @@ tbody tr:hover { background: rgba(143,55,255,.045); }
 .privacy-section p { margin: 8px 0; }
 .privacy-section ul { margin: 8px 0 0; padding-left: 20px; }
 .privacy-section a { color: #c87cff; }
-.legal-warning { padding: 12px 14px; border-left: 3px solid var(--warning); background: rgba(243,191,98,.08); }
 .privacy-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }
 .privacy-meta span { padding: 6px 9px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: .72rem; }
 
