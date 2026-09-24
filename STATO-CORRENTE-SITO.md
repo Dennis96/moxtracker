@@ -1,5 +1,11 @@
 # Stato corrente — sito Mox
 
+## Candidato finale MOX 2.11.1 — 24 settembre 2026
+
+La review indipendente del client è PASS. Il lavoro sul sito parte da `moxtracker/main` `97bff4d15651c6a7a1cd2122b49d8b5ac3d9ffad` e allinea guida, note di versione, informativa e traduzioni al client 2.11.1 certificato (`ad8e0632211f8f225d36fa0ddb72fd90139af08d`). Il titolare dell'informativa è **Dennis Santinelli**, nella forma fornita dal titolare; nessun indirizzo personale è stato aggiunto.
+
+La guida distingue i cinque passi del primo avvio, le quattro scelte di condivisione, le quattro schede delle Opzioni, i registri dettagliati e le risorse sconosciute da zero. La sincronizzazione privata dei mazzi richiede un consenso distinto dal collegamento dell'account. I test mirati sono 24/24 PASS; la suite completa del candidato è **466/466 PASS**. La QA locale ha verificato IT/EN, menu mobile e assenza di overflow nelle pagine principali a 375 e 390 px. Restano da completare commit/PR/merge, build finali riproducibili, preview remota, controllo su telefono fisico, stable e Pages production. Le sezioni datate sotto descrivono stati precedenti.
+
 ## Candidato legale/guida — 22 settembre 2026
 
 Il candidato che completa guida IT/EN, informativa privacy, disclaimer Wizards e gate tecnico di produzione è stato unito in `main` con PR #11 (`5e20d2b`) e pubblicato sull'alias preview stabile `https://preview.moxtracker.pages.dev`. Stato: **QA PREVIEW PASS; READY FOR INDEPENDENT REVIEW; NOT READY FOR PRODUCTION**. Test: **466/466 PASS**, build riproducibile `f589606577d1bcb9` e `git diff --check` pulito. Audit, QA e limiti sono registrati in [MOX-PRELAUNCH-LEGAL-GUIDA-IP-QA-2026-09-22.md](passaggi/sito/MOX-PRELAUNCH-LEGAL-GUIDA-IP-QA-2026-09-22.md).

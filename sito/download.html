@@ -43,8 +43,13 @@
       <div class="download-steps">
         <article class="panel"><span>1</span><h3>Scarica ed estrai</h3><p>Scarica <code>MOX-x.y.z.zip</code> ed estrai tutto in una cartella normale. Non avviare l'EXE direttamente dentro lo ZIP.</p></article>
         <article class="panel"><span>2</span><h3>Avvia MOX</h3><p>Apri <code>Mox.exe</code>, poi apri MTG Arena. MOX rileva Arena e i dati che il gioco rende disponibili.</p></article>
-        <article class="panel"><span>3</span><h3>Scegli cosa condividere</h3><p>Partite/Meta, Draft e Research hanno controlli separati nelle Opzioni. Research è facoltativa e spenta di default.</p></article>
+        <article class="panel"><span>3</span><h3>Completa il primo avvio</h3><p>MOX ti guida in cinque passi. Puoi lasciare spenti tutti gli invii e usare comunque le funzioni locali.</p></article>
       </div>
+      <article class="panel download-guide-card">
+        <h3>I cinque passi nel programma</h3>
+        <ol><li>Scegli lingua, tema e dimensione delle finestre.</li><li>Controlla i Detailed Logs di Arena; puoi continuare anche se Arena è chiuso o i registri non sono disponibili.</li><li>Decidi separatamente per Partite/Meta, Draft e Research. Research si attiva solo dopo la conferma nell'informativa.</li><li>Decidi se collegare l'Account MOX e, separatamente, se attivare «Mazzi nel tuo account». Collegare l'account da solo non sincronizza i mazzi.</li><li>Controlla il riepilogo e termina. Se interrompi il percorso, nessun consenso viene confermato.</li></ol>
+        <p class="download-note">Se usavi già MOX, le scelte esistenti restano valide e il percorso iniziale non ricompare.</p>
+      </article>
     </section>
 
     <section id="strumenti" class="download-section anchor-section" aria-labelledby="tools-title">
@@ -72,10 +77,12 @@
           <h3>Aggiorna e apri il file</h3>
           <p>Nella dashboard, la scheda <strong>Collezione</strong> offre <strong>Aggiorna</strong> e <strong>Mostra file</strong>. Apri Arena, accedi e attendi la schermata principale prima di aggiornare: MOX legge i dati disponibili in <code>Player.log</code> e nel database carte di Arena, poi salva <code>collezione.json</code> sul tuo PC.</p>
           <p>L'estrazione manuale in <strong>Opzioni → Diagnostica</strong> usa gli stessi dati ma mostra dettagli tecnici in una finestra, utili se l'aggiornamento dalla dashboard non riesce.</p>
+          <p>MOX può avviarsi e usare le funzioni locali anche senza Detailed Logs. Per seguire i Draft e conoscere wildcard, oro e gemme serve però che Arena scriva i registri dettagliati e l'inventario <code>InventoryInfo</code>. In Arena apri Opzioni → Account, attiva «Detailed Logs (Plugin Support)» e riavvia Arena quando richiesto.</p>
         </article>
         <article class="panel download-info-card">
           <h3>Cosa si aggiorna e dove serve</h3>
           <p>Carte possedute, wildcard, oro e gemme riflettono l'ultimo inventario scritto da Arena nel log. Dopo acquisti o craft, torna alla schermata principale di Arena e aggiorna di nuovo: i valori non sono letti in tempo reale.</p>
+          <p>Se l'inventario non è disponibile, le risorse appaiono come sconosciute, non come zero. Se <code>InventoryInfo</code> è presente ma omette una risorsa, Arena ne indica uno zero reale. Premi <strong>Ricontrolla</strong> dopo aver abilitato i registri o fatto arrivare un nuovo inventario.</p>
           <p>La collezione alimenta il costo di un mazzo, il confronto in <strong>I tuoi mazzi</strong> e <strong>Sviluppo mazzo</strong> e, quando disponibile, il contesto collezione dell'Assistente al Draft.</p>
         </article>
       </div>
@@ -115,12 +122,10 @@
     <section id="opzioni" class="download-section anchor-section" aria-labelledby="options-title">
       <header class="download-section-head"><span class="eyebrow">Tutti i controlli visibili</span><h2 id="options-title">Opzioni</h2></header>
       <div class="download-options-grid">
-        <article class="panel download-option-card"><h3>Aspetto e lingua</h3><ul><li>lingua dell'interfaccia;</li><li>tema chiaro o scuro;</li><li>dimensione finestra piccola, normale o grande;</li><li>pausa o ripresa dello sfondo animato.</li></ul></article>
-        <article class="panel download-option-card"><h3>Altri strumenti</h3><ul><li><strong>Quanto costa un mazzo</strong>: confronta una lista con la collezione locale;</li><li><strong>Traduci una lista</strong>: converte i nomi delle carte nella lingua corrente di Arena per l'importazione.</li></ul></article>
-        <article class="panel download-option-card"><h3>Diagnostica</h3><ul><li>estrazione manuale della collezione;</li><li>inclusione facoltativa del log Arena nel pacchetto diagnostico;</li><li>creazione del pacchetto diagnostico;</li><li>avvio in modalità sicura;</li><li>controllo aggiornamenti;</li><li>eliminazione dei soli backup creati dall'aggiornamento.</li></ul></article>
-        <article class="panel download-option-card"><h3>Partite e Draft</h3><ul><li>invio Partite/Meta acceso o spento e vista degli invii;</li><li>contributi Draft anonimi separati;</li><li>anteprima di ciò che il Draft invia;</li><li>cancellazione dal sito di partite e Draft;</li><li>collegamento facoltativo dell'account.</li></ul></article>
-        <article class="panel download-option-card"><h3>Mazzi nell'account</h3><p>È un consenso distinto dagli invii anonimi. Se lo abiliti, MOX sincronizza subito i mazzi nell'area privata dell'account, nomi compresi; il pulsante di aggiornamento ripete la sincronizzazione. Servono Arena avviata, dati mazzi nel log, database carte disponibile e account collegato.</p></article>
-        <article class="panel download-option-card"><h3>Research</h3><p>Parte solo con l'attivazione esplicita. Puoi vedere il payload previsto, ritirare il consenso e chiedere la cancellazione. Lo stato mostra elementi in coda e richieste pendenti; se la rete o il servizio non confermano subito, MOX conserva la richiesta e ritenta automaticamente.</p></article>
+        <article class="panel download-option-card"><h3>Aspetto</h3><p>Scegli lingua, tema chiaro o scuro, dimensione delle finestre e sfondo animato.</p></article>
+        <article class="panel download-option-card"><h3>Dati e privacy</h3><p>Partite/Meta, Draft, Research e «Mazzi nel tuo account» sono quattro scelte indipendenti. Qui controlli lo stato degli invii, colleghi facoltativamente l'Account MOX e puoi chiedere la cancellazione di Partite e Draft.</p><p>Research ha un'informativa integrata, una conferma breve per aderire e comandi separati per revoca e cancellazione. Se la rete non conferma subito, MOX conserva la richiesta e la ritenta.</p></article>
+        <article class="panel download-option-card"><h3>Strumenti</h3><p><strong>Quanto costa un mazzo</strong> confronta una lista con la collezione locale; <strong>Traduci una lista</strong> prepara i nomi delle carte per Arena.</p></article>
+        <article class="panel download-option-card"><h3>Diagnostica</h3><p>Qui trovi estrazione manuale della collezione, pacchetto diagnostico, modalità provvisoria, aggiornamenti e backup.</p><p><strong>Vedi i dati inviati al sito (JSON)</strong> mostra il formato tecnico di Partita, Draft e Research. Aprire la finestra non è un consenso e non invia dati. Il log Arena entra nel pacchetto diagnostico solo se lo selezioni separatamente.</p></article>
       </div>
     </section>
 
@@ -144,12 +149,13 @@
     <section id="account-sito" class="download-section download-info-grid anchor-section" aria-label="Privacy e account">
       <article id="privacy-guide" class="panel download-info-card anchor-section">
         <span class="eyebrow">Sotto il tuo controllo</span><h2>Consensi e privacy</h2>
-        <p>MOX funziona anche senza account. I contributi Partite/Meta, Draft e Research hanno controlli separati: puoi modificarli o revocarli dalle Opzioni. Research parte soltanto dopo un consenso esplicito.</p>
+        <p>MOX funziona anche senza account. Partite/Meta, Draft, Research e «Mazzi nel tuo account» sono scelte separate nelle Opzioni. Research parte soltanto dopo la conferma nell'informativa. Collegare un account non attiva la sincronizzazione dei mazzi.</p>
         <p><a href="./cosa-invia-mox.html">Vedi cosa invia MOX</a> · <a href="./privacy.html">Leggi la privacy</a></p>
       </article>
       <article class="panel download-info-card">
         <span class="eyebrow">Solo se ti serve</span><h2>Account facoltativo</h2>
         <p>L'account non serve per usare il client. Se vuoi vedere sul sito personale mazzi, partite, Draft e dispositivi collegati, accedi con Google o Discord, genera un codice nella sezione Account e inseriscilo in <strong>MOX → Opzioni → Collega il tuo account</strong>. Il codice monouso scade dopo 10 minuti.</p>
+        <p>Per sincronizzare i mazzi nell'area privata devi attivare separatamente «Mazzi nel tuo account» in <strong>Opzioni → Dati e privacy</strong>. Il nome dei mazzi viene incluso nella sincronizzazione privata e non entra nel Meta pubblico.</p>
         <p><a href="./account.html">Apri Il mio MOX</a></p>
       </article>
     </section>

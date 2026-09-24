@@ -49,7 +49,8 @@ test("download.html e' la guida completa Scarica e inizia", () => {
     "Inizia in pochi minuti", "I tre strumenti", "Durante una partita",
     "Durante un Draft", "Mazzi e statistiche", "Consensi e privacy",
     "Account facoltativo", "Se Windows blocca MOX", "Serve aiuto?", "Collezione",
-    "I tuoi mazzi", "Sviluppo mazzo", "Opzioni", "Mazzi nell'account", "Research",
+    "I tuoi mazzi", "Sviluppo mazzo", "Opzioni", "Mazzi nel tuo account", "Research",
+    "I cinque passi nel programma", "Dati e privacy", "Diagnostica",
   ]) assert.match(html, new RegExp(sezione), sezione);
 
   for (const ancora of ["primi-passi", "strumenti", "collezione", "tuoi-mazzi",

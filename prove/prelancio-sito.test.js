@@ -111,13 +111,14 @@ test("homepage presenta Mox come da specifica, con schermate reali e pagine di t
   assert.match(leggi("note-versione.html"), /Tutte le note di versione/);
 });
 
-test("Research 2.11, privacy e note di versione sono launch-ready", () => {
+test("privacy e note 2.11.1 sono complete", () => {
   const privacy = leggi("privacy.html");
   const trasparenza = leggi("cosa-invia-mox.html");
   const note = leggi("note-versione.html");
-  assert.match(privacy, /Aggiornata il 22 settembre 2026/);
+  assert.match(privacy, /Aggiornata il 24 settembre 2026/);
   assert.match(privacy, /privacy@moxtracker\.app/);
-  assert.match(privacy, /data-legal-todo="controller"/);
+  assert.match(privacy, /Il titolare del trattamento è <strong>Dennis Santinelli<\/strong>/);
+  assert.doesNotMatch(privacy, /data-legal-todo|legal-warning|NOME\/COGNOME/);
   assert.match(privacy, /art\. 6, par\. 1, lett\. a GDPR/);
   assert.match(privacy, /Diritti dell'interessato/);
   assert.match(privacy, /Garante per la protezione dei dati personali/);
@@ -129,6 +130,8 @@ test("Research 2.11, privacy e note di versione sono launch-ready", () => {
   assert.match(note, /15 settembre 2026/);
   assert.match(note, /2\.11\.0/);
   assert.match(note, /Arriva MOX Research/);
+  assert.match(note, /24 settembre 2026/);
+  assert.match(note, /2\.11\.1/);
 });
 
 test("tutte le pagine pubbliche espongono il disclaimer Wizards", () => {
