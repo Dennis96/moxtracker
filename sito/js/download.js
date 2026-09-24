@@ -51,7 +51,9 @@ export async function mostraReleaseGitHubLatest(root = document) {
         : "Lo ZIP Windows più recente verrà scelto quando avvii il download.";
       return;
     }
-    host.textContent = inglese ? `Latest release: ${nome}` : `Release più recente: ${nome}`;
+    host.textContent = inglese
+      ? `Latest published release: ${nome}`
+      : `Ultima release pubblicata: ${nome}`;
   } catch {
     host.textContent = document.documentElement.lang === "en"
       ? "The latest Windows ZIP will be selected when you download."

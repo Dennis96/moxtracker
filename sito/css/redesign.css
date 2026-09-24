@@ -761,7 +761,7 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
   .previews { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .shot { margin-left: 0; }
   .shot-stage .shot-inset { right: -6px; bottom: -20px; width: 32%; }
-  .web-side .web-shot img { aspect-ratio: 16 / 10; }
+  .web-side .web-shot img { aspect-ratio: 16 / 7.6; }
   .explorer-controls,
   .draft-filters,
   .where,
