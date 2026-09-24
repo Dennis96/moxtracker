@@ -7,14 +7,14 @@ try {
   if (!risposta.ok || release?.disponibile !== true) throw new Error("release non disponibile");
   const host = document.querySelector("[data-release-current]");
   if (host) {
-    const prefisso = document.documentElement.lang === "en" ? "Current Windows release" : "Release Windows corrente";
+    const prefisso = document.documentElement.lang === "en" ? "Latest published Windows release" : "Ultima release Windows pubblicata";
     // Il campo `versione` del manifesto resta quello che l'updater legge; qui
     // si mostra soltanto il nome pubblico ricavato dal numero.
     const nome = nomeReleasePubblico(release.versione);
     // Senza un numero riconoscibile non si mostra il campo grezzo, ma nemmeno
-    // si lascia a schermo «Controllo la release corrente...» per sempre.
+    // si lascia a schermo «Controllo la release pubblicata...» per sempre.
     host.textContent = nome
-      ? `${prefisso}: ${nome}.${release.note ? ` ${release.note}` : ""}`
+      ? `${prefisso}: ${nome}`
       : (document.documentElement.lang === "en"
         ? "The latest Windows release is the one linked below."
         : "La release Windows più recente è quella collegata qui sotto.");
