@@ -297,6 +297,10 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .preview-name { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; font-size: 15px; font-weight: 600; line-height: 1.25; }
 .preview-name img { flex: none; width: 22px; height: auto; border-radius: 4px; }
 
+@media (max-width: 1300px) {
+  .previews { margin-top: 0; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .client { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
   .preview { animation: rise .65s cubic-bezier(.2, .7, .2, 1) both; }
@@ -561,7 +565,8 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
    della prima, e la fila nasceva storta. Fra le colonne distanzia il `gap`. */
 .detail-grid > .panel + .panel,
 .detail-side > .panel + .panel,
-.download-steps > .panel + .panel { margin-top: 0; }
+.download-steps > .panel + .panel,
+.download-options-grid > .panel + .panel { margin-top: 0; }
 .detail-side { display: grid; gap: 24px; }
 .detail-section { min-height: 0; }
 .deck-profile { margin-top: 0; }
@@ -698,7 +703,6 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
   .home-hero-grid { grid-template-columns: minmax(0, 1fr); row-gap: 48px; }
   .home-hero-copy { max-width: 40rem; }
   .client { justify-self: start; width: min(100%, 720px); }
-  .previews { margin-top: 0; }
   .moment { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-bottom: 88px; }
   .shot { margin-left: 40px; }
   .web-grid,
