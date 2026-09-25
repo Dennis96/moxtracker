@@ -2,5 +2,6 @@
   "project_name": "moxtracker",
   "source_branch": "main",
   "preview_branch": "preview",
-  "production_branch": "main"
+  "production_branch": "main",
+  "production_url": "https://moxtracker.app"
 }

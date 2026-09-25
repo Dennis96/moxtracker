@@ -100,6 +100,31 @@ async function verificaIndicizzazione(base, ambiente) {
   return { modalita: "index", x_robots_tag: xRobots || null, robots: "allow+sitemap" };
 }
 
+async function verificaContenutoProduzione(urlDeployment, hashAtteso) {
+  const urlPubblico = CONFIG.production_url;
+  if (!urlPubblico || new URL(urlPubblico).protocol !== "https:") {
+    throw new Error("URL pubblico production non configurato");
+  }
+  const impronta = async (url) => {
+    const risposta = await fetch(new URL("/", url), { cache: "no-store" });
+    if (!risposta.ok) throw new Error(`home non raggiungibile: ${url}`);
+    return createHash("sha256").update(Buffer.from(await risposta.arrayBuffer())).digest("hex");
+  };
+  const hashDeployment = await impronta(urlDeployment);
+  if (hashDeployment !== hashAtteso) {
+    throw new Error("il deployment non coincide con la build approvata");
+  }
+  for (let tentativo = 0; tentativo < 6; tentativo += 1) {
+    try {
+      if (await impronta(urlPubblico) === hashAtteso) {
+        return { url_pubblico: urlPubblico, home_sha256: hashAtteso };
+      }
+    } catch { /* Il dominio può impiegare qualche secondo ad aggiornarsi. */ }
+    await new Promise((risolvi) => setTimeout(risolvi, 1_000));
+  }
+  throw new Error("il dominio production non espone ancora la build approvata");
+}
+
 const ambiente = argomento("environment", "preview");
 const deploy = process.argv.includes("--deploy");
 if (!["preview", "production"].includes(ambiente)) {
@@ -193,8 +218,13 @@ mkdirSync(cartellaRecord, { recursive: true });
 const fileRecord = join(cartellaRecord,
   `${ambiente}-${commit.slice(0, 12)}-${deploymentId}.json`);
 try {
-  record.smoke_test = await smokeTest(url);
-  record.indicizzazione = await verificaIndicizzazione(url, ambiente);
+  if (ambiente === "production") {
+    record.contenuto = await verificaContenutoProduzione(url, hashFileDeployment["index.html"]);
+    record.url_pubblico = record.contenuto.url_pubblico;
+  }
+  const urlVerifica = record.url_pubblico || url;
+  record.smoke_test = await smokeTest(urlVerifica);
+  record.indicizzazione = await verificaIndicizzazione(urlVerifica, ambiente);
   record.esito = "verificato";
 } catch (errore) {
   record.smoke_test = [];
