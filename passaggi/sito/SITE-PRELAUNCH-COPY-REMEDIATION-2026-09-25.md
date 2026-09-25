@@ -26,13 +26,18 @@
 
 Il 25 settembre il comando remoto `wrangler r2 bucket lifecycle list moxtracker-draft-raw` ha confermato `conservazione-24-mesi`, attiva su tutti i prefissi, con scadenza degli oggetti dopo 730 giorni. L'eliminazione esplicita degli oggetti indicizzati usa lo stesso limite e il timestamp server dell'indice; non introduce una durata diversa. Eventuali oggetti orfani preesistenti sono coperti dal lifecycle e individuabili anche dal controllo amministrativo `riconciliaStorageDraft` già presente.
 
+## Criterio editoriale della review visiva
+
+Semplificare senza infantilizzare: testi comprensibili a chi non è tecnico, con tono adulto, naturale e professionale. Nella Privacy usare direttamente i termini giuridici necessari; spiegazioni didascaliche come «la legge chiama questo ruolo» sono state rimosse. La sezione sul titolare ora nomina direttamente Dennis Santinelli e il contatto privacy.
+
 ## Verifiche
 
 - Prima del delta: test mirati copy e frontend PASS; una suite completa con due aspettative editoriali ormai stale, poi corrette e verificate in modo mirato.
 - Delta retention: test mirati su 729, 730 e oltre 730 giorni, timestamp server, figli, Meta/Brew, Draft/R2, idempotenza, guasti recuperabili e isolamento Research/account/ticket PASS.
 - Gate finale del candidato: `npm run prove` **una sola volta**, 472/472 PASS; `git diff --check` PASS; due `npm run sito:build` con build ID identico `3b42223a764f591a` (91 file).
+- Revisione del testo sul titolare richiesta al checkpoint visivo: 15/15 test mirati PASS, `npm run prove` eseguito una volta sul candidato rivisto con 472/472 PASS, `git diff --check` PASS, due build identiche `ec9deebd57ad991e` (91 file). Worker e schema invariati rispetto alla prima preview.
 - QA locale della build: 1440/390/360 px, IT/EN, Privacy, Draft, Il mio MOX logged-out, Meta, Cosa invia MOX e Download; nessun overflow orizzontale, immagine rotta o warning/error di console. Il dettaglio archetipo senza ID mostra correttamente lo stato non disponibile; va verificato con un ID pubblico sulla preview reale.
-- Preview remota, noindex e alias stabile: ancora da verificare dopo il deploy.
+- Prima preview reale del candidato `93b6c8b29c15602fc9bdfc6868975e784368867c`: alias `https://preview.moxtracker.pages.dev`, deployment immutabile `e97bdfc8`; noindex, robots, canonical delle pagine pubbliche, IT/EN, asset, console e layout 1440/390/360 verificati. Il feedback umano successivo ha chiesto una correzione del tono nella sezione «Chi gestisce i tuoi dati».
 
 ## Checkpoint corrente
 
