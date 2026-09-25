@@ -1,6 +1,49 @@
 # Stato corrente — sito Mox
 
-## Rifinitura preview 2.11.1 — 25 settembre 2026
+## MOX PUBLIC BETA 2.11.1 — production, 25 settembre 2026
+
+Il controllo su telefono fisico della preview è **PASS**, confermato
+dall'utente. Il client certificato resta al `FINAL_RELEASE_HEAD`
+`ad8e0632211f8f225d36fa0ddb72fd90139af08d`. Il manifesto firmato del
+canary è stato promosso senza modifiche sul canale stable; versione, firma,
+dimensione e SHA dell'installer remoto coincidono. Il collaudo updater
+**stable remoto** da 2.11.0 a 2.11.1 ha verificato download, installazione,
+backup, primo avvio e assenza di loop.
+
+[GitHub Release MOX Beta 2.11.1](https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.1)
+è Latest, non prerelease, con il solo ZIP `MOX-2.11.1.zip` (111.118.384 byte,
+SHA-256 `d58a079b37cd8b50a99a73745334ee61aba09122da653c769f17deb7b872c44d`).
+Lo ZIP riscaricato ha lo stesso hash. Download e Note di versione, in preview
+e production, mostrano automaticamente **MOX Beta 2.11.1** dalla Latest.
+
+Il sito pubblicato viene da `moxtracker/main`
+`733fd0bf1fe816ecd7ba8a99dbade3454558732c`, build
+`93860f0e9ad4e0e5`. Preview Pages `2716e783`, record locale
+`.release/preview-733fd0bf1fe8-2716e783.json`: 466/466 test PASS,
+smoke 6/6, `noindex` e `robots.txt` di blocco. Pages production `9abb4ade`,
+record locale `.release/production-733fd0bf1fe8-9abb4ade.json`:
+466/466 test PASS, smoke 6/6 sul dominio pubblico, `robots.txt` con Allow e
+sitemap, nessun `noindex` su `moxtracker.app`. I 91 file di preview e
+production coincidono, tranne `_headers` e `robots.txt` come previsto;
+Home SHA-256 `8d802f233e529ddbf76c7f367b8fa91f5e0fc0cb6a79bafa4e0ae3de935eb718`
+identico su build, deployment e dominio pubblico. Smoke aggiuntivo del sito,
+API e Latest GitHub: 14/14 controlli PASS. Privacy, canonical, hreflang,
+social card, sitemap e disclaimer Wizards verificati.
+
+La prima esecuzione del gate Pages sul deployment `02cb2309` aveva dato un
+falso rosso: l'URL immutabile Cloudflare espone `noindex` anche quando
+`moxtracker.app` è indicizzabile. [PR #20](https://github.com/Dennis96/moxtracker/pull/20)
+ha corretto il gate per controllare il dominio pubblico e l'identità dei
+byte; preview e production sono stati ripetuti con esito verde. Il codice
+statico del sito non è cambiato fra la QA visiva approvata e il deploy finale.
+L'Account privato è volutamente fuori dalla sitemap. Screenshot delle 11
+pagine desktop/mobile e dei tre fix visivi restano nell'indice QA locale
+`.release/screenshots/visual-qa-final/INDICE.md`. Nessun deploy Worker,
+migrazione D1 o cambio di feature flag in questo lancio.
+
+Le sezioni seguenti documentano fasi precedenti e sono storiche.
+
+## Rifinitura preview 2.11.1 — 25 settembre 2026 (storico)
 
 I tre rilievi visivi dell'utente sono stati corretti nel codice sito integrato in `moxtracker/main` `75bc80576190bb6f5152faafb0fb4e17ed02c827` ([PR #17](https://github.com/Dennis96/moxtracker/pull/17), [PR #18](https://github.com/Dennis96/moxtracker/pull/18)). La pagina Privacy dice chiaramente che **MOX è un progetto di Dennis Santinelli**, spiega in parole semplici il suo ruolo sui dati personali e conserva la qualifica giuridica «titolare del trattamento», anche nella traduzione inglese. Le quattro card Opzioni partono e finiscono alla stessa altezza. Nella Home a circa mezza finestra la nota GitHub resta sopra le anteprime.
 
