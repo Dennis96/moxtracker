@@ -74,11 +74,11 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.match(js, /Nessuna differenza di carte/);
   assert.match(js, /Versioni con lo stesso nome/);
   assert.match(js, /giorni senza nuovi invii/);
-  assert.match(js, /Stato consensi non ancora sincronizzato da Mox/);
+  assert.match(js, /Stato consensi non ancora sincronizzato da MOX/);
   assert.match(js, /consenso_partite/);
   assert.match(js, /consenso_draft/);
   assert.match(js, /Record collegato/);
-  assert.match(js, /Riepilogo Mox/);
+  assert.match(js, /Riepilogo MOX/);
   assert.match(js, /ordinaVociDraft/);
   assert.match(js, /raggruppaCartePool/);
   // Nel tab Draft restano le sole tracce vere: i raggruppamenti cronologici
@@ -89,7 +89,7 @@ test("account separa mazzi correnti e storico, mostra invii, versioni ed export 
   assert.doesNotMatch(css, /\.limited-match-record/);
   assert.match(js, /I risultati compaiono quando MOX pu/);
   assert.match(js, /pick-by-pick resta fuori dalla prima beta/);
-  assert.match(traduzioniDinamiche, /Mox ha registrato/);
+  assert.match(traduzioniDinamiche, /MOX ha registrato/);
   assert.match(js, /renderProfiloMazzo/);
   assert.match(js, /immagineCondivisibileMazzo/);
   assert.match(js, /Genera anteprima da condividere/);

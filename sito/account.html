@@ -18,7 +18,7 @@
     <nav class="nav" aria-label="Navigazione principale">
       <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
       <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
-      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Il mio MOX</a><a data-route="support" href="./supporto.html">Supporto</a></div>
       <a class="nav-download" data-download href="#download">Scarica MOX</a>
     </nav>
   </header>
@@ -27,22 +27,23 @@
     <header class="page-head">
       <div>
         <h1>Il mio MOX</h1>
-        <p class="lede">Tutti i mazzi, le partite e i Draft associati ai tuoi dispositivi. Questi dati sono visibili soltanto nel tuo account.</p>
+        <p class="lede">Accedi per ritrovare statistiche personali, mazzi sincronizzati e attività dei tuoi dispositivi. L'account è facoltativo: MOX funziona anche senza.</p>
       </div>
     </header>
 
     <section id="account-loading" class="panel service-card"><p>Carico la tua cronologia…</p></section>
 
     <section id="account-login" class="panel service-card hidden">
-      <h2>Accedi</h2><p>MOX non gestisce password. Usa un account Google o Discord; il contributo anonimo continua a funzionare anche senza login.</p>
+      <h2>Accedi a Il mio MOX</h2><p>Qui trovi le partite e i Draft condivisi, le statistiche personali e i mazzi che scegli di sincronizzare. Usa Google o Discord: MOX non gestisce password. Collegare l'account non attiva gli invii.</p>
       <div class="service-actions"><a id="login-google" class="service-button primary">Continua con Google</a><a id="login-discord" class="service-button">Continua con Discord</a></div>
+      <p class="service-message">Puoi continuare a usare MOX sul PC senza accedere. I mazzi compaiono qui solo se attivi «Mazzi nel tuo account» nelle Opzioni.</p>
       <p id="login-message" class="service-message"></p>
     </section>
 
     <section id="account-dashboard" class="account-dashboard hidden">
       <div class="account-heading">
         <div><h2 id="account-name">Account</h2><p id="provider-status" class="service-message"></p><p id="devices-count" class="service-message"></p></div>
-        <div class="account-sync"><span><strong>Ultimo invio ricevuto:</strong> <span id="last-send">nessun invio</span></span><span><strong>Consensi:</strong> lo stato corrente compare per ciascun dispositivo; si modifica sempre nelle Opzioni di Mox.</span></div>
+        <div class="account-sync"><span><strong>Ultimo invio ricevuto:</strong> <span id="last-send">nessun invio</span></span><span><strong>Consensi:</strong> lo stato corrente compare per ciascun dispositivo; si modifica sempre nelle Opzioni di MOX.</span></div>
       </div>
 
       <div class="tabs" role="tablist" aria-label="Sezioni del tuo MOX">
@@ -112,7 +113,7 @@
 
       <section id="scheda-account" class="tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-account" hidden>
         <div class="service-grid account-services">
-          <article class="panel service-card"><h2>Collega Mox</h2><p>Genera un codice monouso, poi inseriscilo nelle Opzioni di Mox. Scade dopo 10 minuti.</p><button id="create-link" class="service-button primary" type="button">Genera codice</button><div id="link-code" class="service-code" aria-live="polite"></div><p id="link-message" class="service-message"></p></article>
+          <article class="panel service-card"><h2>Collega MOX</h2><p>Genera un codice monouso, poi inseriscilo nelle Opzioni di MOX. Scade dopo 10 minuti.</p><button id="create-link" class="service-button primary" type="button">Genera codice</button><div id="link-code" class="service-code" aria-live="polite"></div><p id="link-message" class="service-message"></p></article>
           <article class="panel service-card"><h2>Dispositivi</h2><div id="devices" class="service-list"></div></article>
           <article class="panel service-card"><h2>Ticket</h2><div id="tickets" class="service-list"></div><div class="service-actions"><a id="ticket-link" class="service-button" href="./supporto.html">Apri un ticket</a><a id="admin-link" class="service-button hidden" href="/admin.html">Amministra ticket</a></div></article>
           <article class="panel service-card"><h2>Accessi</h2><p id="account-accesses"></p><div class="service-actions"><a id="link-google" class="service-button hidden">Collega Google</a><a id="link-discord" class="service-button hidden">Collega Discord</a><button id="logout" class="service-button" type="button">Esci</button></div></article>
@@ -134,8 +135,8 @@
   <footer class="site-footer">
     <div class="footer-row">
       <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-      <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></nav>
-      <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia Mox</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
+      <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Il mio MOX</a><a href="./supporto.html">Supporto</a></nav>
+      <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia MOX</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
     </div>
     <p class="fan-content-disclaimer">MOX è un contenuto amatoriale non ufficiale consentito dalle <a href="https://company.wizards.com/en/legal/fancontentpolicy" rel="noopener noreferrer">Linee guida sui contenuti amatoriali</a>. Non è approvato né autorizzato da Wizards. Parte dei materiali utilizzati è proprietà di Wizards of the Coast. © Wizards of the Coast LLC.</p>
   </footer>

@@ -97,7 +97,7 @@ test("navigazione primaria e menu mobile sono uniformi in tutte le pagine", () =
     assert.match(nav, />Home</);
     assert.match(nav, />Meta</);
     assert.match(nav, />Draft</);
-    assert.match(nav, />Account</);
+    assert.match(nav, />Il mio MOX</);
     assert.match(nav, />Supporto</);
     assert.match(html, /js\/site-shell\.js/);
     assert.doesNotMatch(html, /theme-toggle|css\/ui-fixes\.css/);

@@ -9,10 +9,13 @@ async function request(path, { signal } = {}) {
   let data = null;
   try { data = await response.json(); } catch { /* handled below */ }
   if (!response.ok) {
-    const message = data?.errore || `Errore API (${response.status})`;
+    const message = data?.errore || (document.documentElement.lang === "en"
+      ? `Service unavailable (${response.status})`
+      : `Servizio non disponibile (${response.status})`);
     throw new Error(message);
   }
-  if (!data || typeof data !== "object") throw new Error("Risposta API non leggibile");
+  if (!data || typeof data !== "object") throw new Error(document.documentElement.lang === "en"
+    ? "Unreadable service response" : "Risposta del servizio non leggibile");
   return data;
 }
 
