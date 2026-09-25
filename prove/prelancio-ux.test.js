@@ -41,7 +41,8 @@ test("le tre card del Download hanno la stessa struttura e la stessa altezza", (
   // spingeva in basso la seconda e la terza card di 24px.
   assert.match(leggi("css/redesign.css"), /\.panel \+ \.panel \{ margin-top: 24px; \}/,
     "se la regola generica cambia, questa correzione va rivista");
-  assert.match(leggi("css/redesign.css"), /\.download-steps > \.panel \+ \.panel \{ margin-top: 0; \}/);
+  assert.match(leggi("css/redesign.css"),
+    /\.download-steps > \.panel \+ \.panel,\s*\.download-options-grid > \.panel \+ \.panel \{ margin-top: 0; \}/);
   // A schermo stretto tornano una sotto l'altra da sole.
   assert.match(css, /\.download-steps \{ grid-template-columns: 1fr; \}/);
 });
