@@ -24,7 +24,7 @@
 2. **Conservazione:** `src/retention.js` usa solo `partite.ricevuta` e `draft.ricevuto`, con cutoff UTC stretto `< now - 730 giorni`; il record esattamente sulla soglia resta fino al giro successivo. Il cron elimina figli e righe Partite nello stesso batch D1, poi pulisce Brew con l'helper canonico. Per Draft elimina prima gli oggetti R2 censiti dall'indice e poi figli e righe D1 in batch atomico. Un errore R2 lascia l'indice intatto; un errore D1 dopo R2 è recuperabile al giro successivo. Gli aggregati pubblici si ricalcolano dalle righe rimaste.
 3. **Altre categorie:** la pulizia non tocca Research, account, ticket o record tecnici dei contributori. Nessuna migrazione D1.
 
-La configurazione remota del lifecycle R2 è documentata come attiva a 730 giorni nel passaggio storico `STEP7-DRAFT-DATI-ONLINE.md`, ma non è stata riverificata il 25 settembre: Wrangler non dispone di un token nella sessione e la dashboard richiede nuovo accesso. L'eliminazione esplicita degli oggetti indicizzati usa lo stesso limite di 730 giorni e rende la retention indipendente da quella verifica. Eventuali oggetti orfani preesistenti richiedono il controllo amministrativo `riconciliaStorageDraft` già presente.
+Il 25 settembre il comando remoto `wrangler r2 bucket lifecycle list moxtracker-draft-raw` ha confermato `conservazione-24-mesi`, attiva su tutti i prefissi, con scadenza degli oggetti dopo 730 giorni. L'eliminazione esplicita degli oggetti indicizzati usa lo stesso limite e il timestamp server dell'indice; non introduce una durata diversa. Eventuali oggetti orfani preesistenti sono coperti dal lifecycle e individuabili anche dal controllo amministrativo `riconciliaStorageDraft` già presente.
 
 ## Verifiche
 
