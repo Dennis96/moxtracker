@@ -1,6 +1,14 @@
 # Stato corrente — sito Mox
 
-## QA preview 2.11.1 — 24 settembre 2026
+## Rifinitura preview 2.11.1 — 25 settembre 2026
+
+I tre rilievi visivi dell'utente sono stati corretti nel codice sito integrato in `moxtracker/main` `75bc80576190bb6f5152faafb0fb4e17ed02c827` ([PR #17](https://github.com/Dennis96/moxtracker/pull/17), [PR #18](https://github.com/Dennis96/moxtracker/pull/18)). La pagina Privacy dice chiaramente che **MOX è un progetto di Dennis Santinelli**, spiega in parole semplici il suo ruolo sui dati personali e conserva la qualifica giuridica «titolare del trattamento», anche nella traduzione inglese. Le quattro card Opzioni partono e finiscono alla stessa altezza. Nella Home a circa mezza finestra la nota GitHub resta sopra le anteprime.
+
+Build `93860f0e9ad4e0e5`; deploy Pages preview `2c8b6ea6` su `https://preview.moxtracker.pages.dev`; record `.release/preview-75bc80576190-2c8b6ea6.json`. Gate **466/466 PASS**, smoke 6/6 HTTP 200, preview `noindex` e `robots.txt` di blocco; l'alias pubblico esponeva il manifesto di quel commit e quella build. QA browser a 1.220 px: 45 px tra nota GitHub e anteprime; differenza dei bordi delle card Opzioni 0 px. Controllate le griglie delle 11 pagine italiane a 390, 900, 1.220 e 1.440 px, senza altri disallineamenti tra card affiancate o overflow. Privacy IT/EN verificata sull'alias. Screenshot in `.release/screenshots/preview-2111-home-halfwidth-fixed.png`, `preview-2111-options-aligned-1220.png` e `preview-2111-privacy-clear-1220.png` nel checkout locale.
+
+Il client 2.11.1 resta certificato e pronto; il **PASS su telefono fisico del sito è ancora atteso** prima di stable, GitHub Release e Pages production. Nessun deploy Worker o migrazione D1. Le sezioni seguenti sono storiche.
+
+## QA preview 2.11.1 — 24 settembre 2026 (storico)
 
 La correzione visiva del sito è su `moxtracker/main` `e8664743d0f058d6c6053f67bfd8bf1ea6deaef8` ([PR #15](https://github.com/Dennis96/moxtracker/pull/15)). La build è `e0c23e049cba2646`; il deploy Pages preview `bf5b7510` è disponibile su `https://preview.moxtracker.pages.dev` e protegge l'indicizzazione con `noindex` e `robots.txt` di blocco. Il gate ha eseguito **466/466 test PASS** e lo smoke delle sei route previste ha risposto 200.
 
