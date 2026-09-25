@@ -41,6 +41,8 @@ Semplificare senza infantilizzare: testi comprensibili a chi non è tecnico, con
 - QA della preview precedente: 1440/390/360 px, IT/EN, Privacy, Draft, Il mio MOX logged-out, Meta, Cosa invia MOX e Download; nessun overflow orizzontale, immagine rotta o warning/error di console. Il dettaglio archetipo con un ID pubblico valido resta nel QA della preview finale.
 - Prima preview reale del candidato `93b6c8b29c15602fc9bdfc6868975e784368867c`: alias `https://preview.moxtracker.pages.dev`, deployment immutabile `e97bdfc8`; noindex, robots, canonical delle pagine pubbliche, IT/EN, asset, console e layout 1440/390/360 verificati. Il feedback umano successivo ha chiesto una correzione del tono nella sezione «Chi gestisce i tuoi dati».
 
-## Checkpoint corrente
+## Esito finale
 
-Il candidato finale richiede suite completa una volta, due build riproducibili, commit, push e deploy sull'alias preview senza merge in `main` e senza deploy Pages/Worker production. Dopo il QA della preview il lavoro si ferma per il PASS visivo umano. Il Worker production sarà necessario dopo il PASS per attivare la retention Research runtime; rollback previsto al precedente Worker mantenendo schema D1 invariato. Il limite operativo di 75 scadenze Research per cron richiede osservare l'eventuale backlog in produzione.
+Il PASS visivo umano è arrivato. I tre micro-fix finali di Privacy, account e Supporto sono nel candidato `214eb4d6639fbe7070768efaf3587479615e9491`; PR #22 mergiata su `main` `1e117acaa5405bbc12702d9ed5b3b9b8c2821a08`. Pages e Worker production sono stati distribuiti. Lo smoke finale è PASS dopo che l'utente ha eliminato una voce CDN obsoleta della social image. Il limite operativo di 75 scadenze Research per cron resta da osservare durante la beta in caso di arretrato.
+
+Stato canonico, deployment ID, test e rollback: [PRE-LAUNCH-CLOSEOUT-2026-09-25.md](./PRE-LAUNCH-CLOSEOUT-2026-09-25.md). La fase successiva è `LAUNCH & EARLY BETA OPERATIONS`, senza pubblicazione automatica di post esterni.
