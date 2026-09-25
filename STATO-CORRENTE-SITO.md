@@ -1,5 +1,17 @@
 # Stato corrente — sito Mox
 
+## MOX Beta 2.11.2 e Worker matchup — production, 25 settembre 2026
+
+La release [MOX Beta 2.11.2](https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.2) è Latest, non prerelease. Il sito pubblico esistente mostra automaticamente **MOX Beta 2.11.2** nella pagina Download; nessun deploy Pages è stato necessario. Il client proviene dal `FINAL_RELEASE_HEAD` `20d2d0728435bd40601d87b7dfe2d4810404d043` di `mox-core`. Lo ZIP pubblico riscaricato coincide con lo SHA-256 locale `800ef639ab985b4c4527142957b63b062024c1c080a84190f5596cb7bbda55ec`. Gate release 7/7 PASS, updater isolato, canary e stable 2.11.1→2.11.2 PASS.
+
+**Worker production:** da versione `15e4aa81-00b4-4f8b-828b-ea97057506ab` (ultimo deploy di sorgente `a04d93f9-3b3b-4156-8605-890bab78311a`, seguito solo da cambi dei secret della release) a `4cbb6c88-9c3a-4b8f-ba3e-dc6848bde671`, dal sorgente `moxtracker/main` `eeb4e6eab9ea9ccef5c9cef467a08f65637a3a05`. Il diff runtime rispetto al sorgente del deploy precedente (`a2ea494`) è solo `src/lettura.js`: `SOGLIA_SCONTRI` 100→30, `SOGLIA_SCONTRI_SOLIDA=100` e campo di risposta `soglia_coppia_solida`. Nessun cambio a schema, binding, route, Research mode o feature flag. Il confronto delle versioni Cloudflare conferma binding e impostazioni identici, inclusi `RESEARCH_MODE=on` e `BREW_GRUPPI=on`. Nessuna migrazione D1.
+
+Pre-deploy: 146/146 test mirati Worker/API PASS; `/scontri` production 200 con soglia 100 e matrice indisponibile. Post-deploy: `/salute`, `/meta`, `/gioco-risposta`, `/scontri`, `/draft/statistiche`, dettaglio Brew e manifesto stable 2.11.2 rispondono 200; `/account/me` senza sessione risponde 401; Research resta `on` con qualification valida. `/scontri` espone `soglia_coppia=30`, `soglia_coppia_solida=100`, `disponibile=false`, `scontri=[]`. Non essendoci ancora l'archetipo del mazzo avversario, il Worker non pubblica una matrice: i confini 29/30/99/100 sono quelli dichiarati dalla policy, ma non verificabili su coppie reali finché il dato manca. Il primo probe del manifesto senza parametri ha dato 400 atteso; con `piattaforma=win-x64&canale=stable` ha dato 200. Nessun 5xx nei percorsi verificati.
+
+Rollback pronto e **non usato**: dalla directory `moxtracker`, `npx wrangler rollback 15e4aa81-00b4-4f8b-828b-ea97057506ab --name moxtracker --yes -m "Rollback matchup 30/100"`. La versione precedente include già i secret della 2.11.2 e non richiede migrazione inversa.
+
+Le sezioni seguenti sono storiche.
+
 ## MOX PUBLIC BETA 2.11.1 — production, 25 settembre 2026
 
 Il controllo su telefono fisico della preview è **PASS**, confermato
