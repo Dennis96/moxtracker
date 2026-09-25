@@ -29,7 +29,7 @@ test("il sito presenta la soglia matchup 30/100 e dichiara i limiti privacy", ()
   assert.match(privacy, /una sola installazione/);
   assert.match(privacy, /pseudonimizzati/);
   assert.match(privacy, /730 giorni/);
-  assert.match(privacy, /massimo di 730 giorni dalla ricezione sul server/);
+  assert.match(privacy, /soglia di scadenza[^<]*730 giorni dalla ricezione sul server/);
   assert.match(privacy, /l'account Arena, l'identificatore dell'installazione o la cronologia personale/);
   assert.doesNotMatch(privacy, /non hanno oggi un termine massimo di conservazione/);
 });
@@ -57,7 +57,14 @@ test("P1: nomi Draft, 17Lands e retention Research sono coerenti in IT/EN", () =
   assert.match(pagine, /Assistente al Draft/);
   assert.match(pagine, /17Lands/);
   assert.match(pagine, /Al gioco \/ alla risposta/);
-  assert.match(leggi("privacy.html"), /Research sono conservati per un massimo di 730 giorni dalla prima ricezione sul server/);
-  assert.match(en["I contributi Partite/Meta e Draft sono conservati per un massimo di 730 giorni dalla ricezione sul server. I contributi Research sono conservati per un massimo di 730 giorni dalla prima ricezione sul server. Puoi interrompere gli invii; per Research, la revoca del consenso e la cancellazione dei dati restano azioni separate."], /first receipt by the server/);
+  assert.match(leggi("privacy.html"), /per Research è di 730 giorni dalla prima ricezione/);
+  assert.match(leggi("privacy.html"), /il completamento può richiedere più cicli/);
+  assert.doesNotMatch(leggi("privacy.html"), /massimo di 730 giorni/);
+  assert.ok(Object.values(en).some((value) => value.includes("completion may take more than one maintenance run")));
+  assert.ok(Object.values(en).some((value) => value.includes("become due for deletion 730 days") && value.includes("completion may require more than one run")));
+  assert.match(leggi("account.html"), /Controllo l'accesso…/);
+  assert.equal(en["Controllo l'accesso…"], "Checking your sign-in…");
+  assert.match(leggi("supporto.html"), /proponi una nuova funzione/);
+  assert.match(en["Segnala un bug, un problema nei dati o proponi una nuova funzione. Se non accedi riceverai un link segreto: conservalo, perché è l’unico modo per rileggere il ticket."], /suggest a new feature/);
   assert.doesNotMatch(leggi("note-versione.html"), /Build del sito riproducibile|protezione CORS/);
 });
