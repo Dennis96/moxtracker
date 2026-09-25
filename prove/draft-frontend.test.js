@@ -22,7 +22,7 @@ test("la pagina Draft racconta il prodotto e il metodo, senza dati Limited", () 
   // Quello che la pagina deve continuare a dire.
   assert.match(html, /Consenso separato/);
   assert.match(html, /nessuna modifica avviene automaticamente/);
-  assert.match(html, /solo aggregati pubblici/);
+  assert.match(html, /solo statistiche aggregate/);
   assert.match(html, /Le garanzie del metodo/);
 });
 

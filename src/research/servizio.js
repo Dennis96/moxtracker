@@ -120,7 +120,7 @@ async function lineageDelMittente(chiavi, riga, mittente) {
   return stessoValore(await lineageTag(chiavi, riga.lineage_key_version, mittente), riga.lineage_tag);
 }
 
-async function tagSoppressione(chiavi, lineage, idPubblico) {
+export async function tagSoppressione(chiavi, lineage, idPubblico) {
   const fuori = [];
   for (const versione of versioni(chiavi.tombstone)) {
     fuori.push({ tag: await deletedContributionTag(chiavi, versione, lineage, idPubblico),

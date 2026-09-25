@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07080d">
-  <meta name="description" content="Come MOX ti assiste durante il Draft su MTG Arena: ordine delle buste, mazzo a fine draft e il metodo con cui i consigli vengono verificati.">
+  <meta name="description" content="Come MOX ti assiste durante il Draft su MTG Arena: ordine delle buste, mazzo a fine Draft e il metodo con cui i consigli vengono verificati.">
   <title>Assistente al Draft — MOX Arena Assistant</title>
   <link rel="icon" href="./assets/mox.ico">
   <link rel="stylesheet" href="./css/site.css?v=20260823-1">
@@ -18,29 +18,29 @@
     <nav class="nav" aria-label="Navigazione principale">
       <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
       <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
-      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Account</a><a data-route="support" href="./supporto.html">Supporto</a></div>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Il mio MOX</a><a data-route="support" href="./supporto.html">Supporto</a></div>
       <a class="nav-download" data-download href="#download">Scarica MOX</a>
     </nav>
   </header>
 
   <aside class="beta-banner" aria-label="Stato del servizio">
-    <strong>Metodo Draft in beta</strong><span>Stiamo raccogliendo i primi contributi anonimi per verificare l'algoritmo: nessuna modifica avviene automaticamente.</span>
+    <strong>Draft in beta</strong><span>MOX ti aiuta a scegliere le carte e a costruire il mazzo; la decisione resta tua.</span>
   </aside>
 
   <main class="page draft-main">
     <header class="page-head draft-head">
       <div>
         <h1>Assistente al Draft</h1>
-        <p class="lede">MOX ti accompagna una busta alla volta e a fine draft propone il mazzo da montare. Tutto sul tuo PC: qui trovi come funziona e con quale metodo i consigli vengono verificati.</p>
+        <p class="lede">MOX ti accompagna durante i pick: ordina le carte della busta, mette in evidenza una scelta e segnala alternative vicine. A fine Draft propone una base di mazzo dal tuo pool, direttamente sul PC.</p>
         <div class="actions">
           <a class="button button-primary" data-download href="#download">Scarica MOX</a>
-          <a class="button button-ghost" href="#metodo-title">Come funziona il metodo</a>
+          <a class="button button-ghost" href="#prog-title">Scopri il Draft Assistant</a>
         </div>
         <p class="fineprint">Windows · Beta pubblica · Download da GitHub</p>
       </div>
       <figure class="draft-head-shot">
-        <img src="./assets/home/preview-draft.webp" width="768" height="549" alt="La finestra Assistente al draft: la busta in ordine con la percentuale di vittoria di ogni carta e un giudizio; le due scelte suggerite in evidenza.">
-        <figcaption class="real-note">Schermata reale dell'Assistente al draft, prima scelta del pacchetto.</figcaption>
+        <img src="./assets/home/preview-draft.webp" width="768" height="549" alt="La finestra Assistente al Draft: la busta in ordine con la percentuale di vittoria di ogni carta e un giudizio; le due scelte suggerite in evidenza.">
+        <figcaption class="real-note">Schermata reale dell'Assistente al Draft, prima scelta del pacchetto.</figcaption>
       </figure>
     </header>
 
@@ -51,15 +51,15 @@
       </div>
       <div class="feature-pair">
         <article class="feature">
-          <img src="./assets/home/story-draft.webp" width="1442" height="940" alt="Un draft su Arena con la finestra dell'Assistente al draft a destra: la busta in ordine, le due scelte suggerite in evidenza.">
+          <img src="./assets/home/story-draft.webp" width="1442" height="940" alt="Un Draft su Arena con la finestra dell'Assistente al Draft a destra: la busta in ordine, le due scelte suggerite in evidenza.">
           <p class="real-note">Schermata reale. A sinistra la busta in Arena, a destra la stessa busta ordinata da MOX.</p>
           <h3>Durante il Draft</h3>
-          <p>A ogni busta MOX mette in ordine le carte, con la percentuale di vittoria dai dati 17lands e un giudizio in chiaro: carta forte, buona nei tuoi colori, riempimento. Tiene una scelta principale e dice quando esistono alternative equivalenti.</p>
+          <p>A ogni busta MOX mette in ordine le carte, con la percentuale di vittoria dai dati 17Lands e un giudizio in chiaro: carta forte, buona nei tuoi colori, riempimento. Tiene una scelta principale e dice quando esistono alternative equivalenti.</p>
         </article>
         <article class="feature">
           <img src="./assets/home/story-mazzo-draft.webp" width="835" height="860" alt="Draft finito: MOX propone un mazzo nero e rosso di 40 carte, con due alternative e la scelta del numero di terre.">
-          <p class="real-note">Schermata reale. Il mazzo proposto a fine draft.</p>
-          <h3>A draft finito</h3>
+          <p class="real-note">Schermata reale. Il mazzo proposto a fine Draft.</p>
+          <h3>A fine Draft</h3>
           <p>Propone il mazzo da montare con le carte del tuo pool: i colori principali, tre combinazioni a confronto e quante terre mettere, da 16 a 18.</p>
         </article>
       </div>
@@ -68,27 +68,27 @@
     <section aria-labelledby="metodo-title">
       <div class="part-head">
         <h2 id="metodo-title">Il metodo</h2>
-        <p>Il sito serve a rendere verificabile il metodo. Le scelte restano tue; Mox non cambia regole da solo.</p>
+        <p>Le scelte restano tue. Qui spieghiamo come MOX valuta i consigli e quali dati può usare; nessuna modifica avviene automaticamente.</p>
       </div>
       <ol class="steps">
-        <li><h3>Draft con Mox</h3><p>Il consiglio viene calcolato localmente mentre giochi.</p></li>
-        <li><h3>Consenso separato</h3><p>Solo chi lo attiva invia un resoconto anonimo del Draft.</p></li>
+        <li><h3>Draft con MOX</h3><p>Il consiglio viene calcolato localmente mentre giochi.</p></li>
+        <li><h3>Consenso separato</h3><p>Solo chi lo attiva condivide i dati del Draft, senza il proprio nome o account Arena. Un identificatore tecnico casuale permette di cancellarli.</p></li>
         <li><h3>Campioni separati</h3><p>Set, evento e periodo restano separati per non mescolare segnali diversi.</p></li>
         <li><h3>Aggiornamento verificato</h3><p>Una regola cambia soltanto se le prove mostrano un miglioramento stabile.</p></li>
       </ol>
       <div class="where">
         <p><strong>Sul tuo PC:</strong> consigli e statistiche personali.</p>
-        <p><strong>Sul sito:</strong> solo aggregati pubblici; le tracce anonime complete restano in un archivio privato.</p>
+        <p><strong>Sul sito:</strong> solo statistiche aggregate; le tracce complete restano in un archivio privato.</p>
       </div>
 
       <section class="panel draft-method" aria-labelledby="draft-method-title">
         <div class="panel-inner">
           <div class="panel-head"><h2 id="draft-method-title">Le garanzie del metodo</h2></div>
           <ul class="method-list">
-            <li><h3>Consiglio locale</h3><p>Mox mantiene una scelta principale, ma dichiara quando esistono alternative statisticamente equivalenti.</p></li>
+            <li><h3>Consiglio locale</h3><p>MOX mantiene una scelta principale, ma dichiara quando esistono alternative statisticamente equivalenti.</p></li>
             <li><h3>Campione e incertezza</h3><p>Ogni percentuale pubblicata porta il campione e un intervallo di affidabilità.</p></li>
             <li><h3>Segnali separati</h3><p>Set, evento e periodo non vengono mescolati per creare numeri più attraenti ma meno utili.</p></li>
-            <li><h3>Privacy e controllo</h3><p>I dati completi anonimi restano privati; il sito espone solo aggregati e il consenso è revocabile.</p></li>
+            <li><h3>Privacy e controllo</h3><p>Le tracce complete restano private; il sito espone solo aggregati e il consenso è revocabile.</p></li>
           </ul>
         </div>
       </section>
@@ -120,8 +120,8 @@
   <footer class="site-footer">
     <div class="footer-row">
       <a class="brand" href="./index.html"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
-      <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Account</a><a href="./supporto.html">Supporto</a></nav>
-      <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia Mox</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
+      <nav aria-label="Footer"><a href="./index.html">Home</a><a href="./meta.html">Meta</a><a href="./draft.html">Draft</a><a href="./account.html">Il mio MOX</a><a href="./supporto.html">Supporto</a></nav>
+      <nav class="footer-service" aria-label="Pagine di servizio"><a href="./download.html">Download</a><a href="./cosa-invia-mox.html">Cosa invia MOX</a><a href="./note-versione.html">Note di versione</a><a href="./privacy.html">Privacy</a><a href="https://github.com/Dennis96/moxtracker" rel="noopener noreferrer">GitHub</a></nav>
     </div>
     <p class="fan-content-disclaimer">MOX è un contenuto amatoriale non ufficiale consentito dalle <a href="https://company.wizards.com/en/legal/fancontentpolicy" rel="noopener noreferrer">Linee guida sui contenuti amatoriali</a>. Non è approvato né autorizzato da Wizards. Parte dei materiali utilizzati è proprietà di Wizards of the Coast. © Wizards of the Coast LLC.</p>
   </footer>

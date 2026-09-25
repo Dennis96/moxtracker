@@ -52,7 +52,7 @@ async function pacchettoMoxDaZip(file) {
   if (file.size > 10 * 1024 * 1024) throw new Error("Pacchetto diagnostico troppo grande");
   const buffer = await file.arrayBuffer(); const view = new DataView(buffer); const byte = new Uint8Array(buffer);
   const fine = trovaFineZip(byte);
-  if (fine < 0 || view.getUint32(fine, true) !== 0x06054b50) throw new Error("Pacchetto ZIP Mox non leggibile");
+  if (fine < 0 || view.getUint32(fine, true) !== 0x06054b50) throw new Error("Pacchetto ZIP MOX non leggibile");
   const quanti = view.getUint16(fine + 10, true); let cursore = view.getUint32(fine + 16, true); const visti = new Set();
   for (let indice = 0; indice < quanti; indice += 1) {
     if (cursore + 46 > byte.length || view.getUint32(cursore, true) !== 0x02014b50) throw new Error("Indice ZIP non valido");
@@ -60,7 +60,7 @@ async function pacchettoMoxDaZip(file) {
     const extra = view.getUint16(cursore + 30, true); const commento = view.getUint16(cursore + 32, true);
     const nome = new TextDecoder().decode(byte.slice(cursore + 46, cursore + 46 + nomeLunghezza));
     if (!["rapporto.json", "LEGGIMI.txt", "arena/Player.log"].includes(nome) || visti.has(nome)) {
-      throw new Error("Il pacchetto non è un diagnostico Mox valido");
+      throw new Error("Il pacchetto non è un diagnostico MOX valido");
     }
     if (nome === "rapporto.json" && scompresso > 256 * 1024) {
       throw new Error("Il pacchetto contiene un rapporto.json troppo grande");
@@ -72,7 +72,7 @@ async function pacchettoMoxDaZip(file) {
   return file;
 }
 
-// Mox anonimizza il rapporto, ma la diagnostica recente conserva unicamente le
+// MOX anonimizza il rapporto, ma la diagnostica recente conserva unicamente le
 // ultime cifre dell'impronta del Draft. Per il ticket non servono: le togliamo
 // prima dell'invio, insieme a qualunque campo che il server considera privato.
 function ripulisciRapportoMox(valore, chiave = "") {

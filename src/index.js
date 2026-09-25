@@ -14,7 +14,9 @@ import { gestisciAccount, pulisciCredenzialiScadute } from "./account.js";
 import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
 import { controllaStorageGiornaliero } from "./monitoraggio.js";
 import { assegnaBrewProgrammato } from "./brew-gruppi.js";
+import { pulisciContributiScaduti } from "./retention.js";
 import { configResearch, saluteResearch } from "./research/config.js";
+import { pulisciResearchScaduta } from "./research/retention.js";
 import { gestisciResearch } from "./research/rotte.js";
 
 const INTESTAZIONI = {
@@ -353,13 +355,20 @@ export default {
     return risposta({ errore: "non c'e' niente qui" }, 404);
   },
   async scheduled(_controllore, ambiente, contesto) {
-    contesto.waitUntil(Promise.all([
+    contesto.waitUntil(Promise.allSettled([
+      // Brew segue la cancellazione delle partite: nessun gruppo viene assegnato
+      // mentre il suo supporto sta per essere rimosso.
+      pulisciContributiScaduti(ambiente).then(() => assegnaBrewProgrammato(ambiente)),
+      pulisciResearchScaduta(ambiente).then((esito) => {
+        if (esito.incompleta) console.warn("retention Research: residui da riprendere al prossimo cron");
+      }),
       pulisciTicketScaduti(ambiente),
       pulisciCredenzialiScadute(ambiente),
       controllaStorageGiornaliero(ambiente),
-      // Spento finche' `BREW_GRUPPI` non vale "on" (S1): i nuovi membri dei
-      // gruppi Brew non si assegnano mai durante una GET.
-      assegnaBrewProgrammato(ambiente),
-    ]));
+    ]).then((esiti) => {
+      const errori = esiti.filter((esito) => esito.status === "rejected");
+      if (errori.length) throw new AggregateError(errori.map((esito) => esito.reason),
+        "manutenzione programmata incompleta");
+    }));
   },
 };

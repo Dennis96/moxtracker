@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 
 import server from "../src/index.js";
 import { sha256Hex } from "../src/research/canonico.js";
+import { limiteResearch, pulisciResearchScaduta } from "../src/research/retention.js";
 import { creaFintoD1 } from "./finto-d1.js";
 
 const QUI = fileURLToPath(new URL(".", import.meta.url));
@@ -74,6 +75,106 @@ const stati = (esito) => esito.corpo.risultati.map((r) => r.stato);
 function nuovoDb() {
   return creaFintoD1(SCHEMA);
 }
+
+test("retention Research: cutoff incluso, figli e revisioni rimossi, consenso conservato e reinvio soppresso", async () => {
+  const db = nuovoDb();
+  const amb = ambiente(db);
+  const token = await consenso(amb);
+  const recente = bo1(); recente.id_pubblico = "a".repeat(64);
+  const vicina = bo1(); vicina.id_pubblico = "b".repeat(64);
+  const vecchia = bo3();
+  assert.equal((await manda(amb, "/research/partite", busta([vecchia, recente, vicina]),
+    { token })).stato, 200);
+  const altroToken = await consenso(amb, ALTRO, SEGRETO_ALTRO);
+  const altra = bo1(); altra.id_pubblico = "c".repeat(64);
+  assert.equal((await manda(amb, "/research/partite",
+    busta([altra], ALTRO, SEGRETO_ALTRO), { token: altroToken })).stato, 200);
+  const ora = Date.parse("2026-09-25T12:00:00Z");
+  const limite = limiteResearch(ora);
+  assert.equal(limite, "2024-09-25T12:00:00Z");
+  const prima = "2024-09-25T11:59:59Z";
+  db.prepare("UPDATE research_contribution SET ricevuta = ? WHERE id_pubblico = ?")
+    .bind(prima, vecchia.id_pubblico).run();
+  db.prepare("UPDATE research_contribution SET ricevuta = ? WHERE id_pubblico = ?")
+    .bind(limite, vicina.id_pubblico).run();
+  db.prepare("UPDATE research_contribution SET ricevuta = ? WHERE id_pubblico = ?")
+    .bind("2024-09-26T12:00:00Z", recente.id_pubblico).run();
+  const idVecchia = db.tutte("SELECT id FROM research_contribution WHERE id_pubblico = ?",
+    vecchia.id_pubblico)[0].id;
+  db.prepare(`INSERT INTO research_contribution_variante
+    (contribution_id, variant_hash, body, ricevuta) VALUES (?, ?, ?, ?)`).bind(
+    idVecchia, "f".repeat(64), "{}", prima).run();
+  db.prepare(`INSERT INTO research_snapshot_storia
+    (contribution_id, revisione_modello, revisione_osservazioni, variant_hash,
+      overflow, body, archiviata) VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(
+    idVecchia, 1, 2, "f".repeat(64), 0, "{}", prima).run();
+  const esito = await pulisciResearchScaduta(amb, ora);
+  assert.equal(esito.eliminate, 2);
+  assert.deepEqual(db.tutte("SELECT id_pubblico FROM research_contribution ORDER BY id_pubblico")
+    .map((r) => r.id_pubblico), [recente.id_pubblico, altra.id_pubblico]);
+  for (const tabella of ["research_event", "research_deck_card", "research_sideboard_delta",
+    "research_game_contribution", "research_contribution_variante", "research_snapshot_storia",
+    "research_revisione_server"]) {
+    assert.equal(db.tutte(`SELECT COUNT(*) AS n FROM ${tabella} WHERE ` +
+      (tabella === "research_revisione_server" ? "id_pubblico = ?" :
+        "contribution_id NOT IN (SELECT id FROM research_contribution)"),
+    ...(tabella === "research_revisione_server" ? [vecchia.id_pubblico] : []) )[0].n, 0, tabella);
+  }
+  assert.equal(db.conta("research_contribution_variante"), 0);
+  assert.equal(db.conta("research_snapshot_storia"), 0);
+  assert.equal(db.conta("research_deleted_contribution"), 2);
+  assert.equal(db.tutte("SELECT stato FROM research_lineage WHERE stato = 'active'").length, 2);
+  assert.equal(db.tutte("SELECT stato FROM research_consent_generation WHERE stato = 'active'").length, 2);
+  assert.equal((await pulisciResearchScaduta(amb, ora)).eliminate, 0);
+  const reinvio = await manda(amb, "/research/partite", busta([vecchia]), { token });
+  assert.equal(db.tutte("SELECT id FROM research_contribution WHERE id_pubblico = ?",
+    vecchia.id_pubblico).length, 0, JSON.stringify(reinvio.corpo));
+  const nuova = bo1(); nuova.id_pubblico = "d".repeat(64);
+  assert.equal((await manda(amb, "/research/partite", busta([nuova]), { token })).stato, 200);
+  assert.equal(db.tutte("SELECT id FROM research_contribution WHERE id_pubblico = ?",
+    nuova.id_pubblico).length, 1);
+  assert.equal((await manda(amb, "/research/consenso/revoca",
+    { mittente: MITTENTE, segreto_cancellazione: SEGRETO })).stato, 200);
+  assert.equal((await manda(amb, "/research/elimina",
+    { mittente: MITTENTE, segreto_cancellazione: SEGRETO })).stato, 200);
+});
+
+test("retention Research: batch fallito riparte senza dati parziali", async () => {
+  const db = nuovoDb();
+  const amb = ambiente(db);
+  const token = await consenso(amb);
+  await manda(amb, "/research/partite", busta([bo1(), bo3()]), { token });
+  db.prepare("UPDATE research_contribution SET ricevuta = ?")
+    .bind("2020-01-01T00:00:00Z").run();
+  db.guasti.saltaBatch = 1;
+  db.guasti.statement = 4;
+  await assert.rejects(pulisciResearchScaduta(amb, Date.parse("2026-09-25T12:00:00Z")));
+  assert.equal(db.conta("research_contribution"), 1);
+  assert.equal(db.conta("research_deleted_contribution"), 1);
+  assert.equal((await pulisciResearchScaduta(amb,
+    Date.parse("2026-09-25T12:00:00Z"))).eliminate, 1);
+  assert.equal(db.conta("research_contribution"), 0);
+  assert.equal(db.conta("research_deleted_contribution"), 2);
+});
+
+test("retention Research: un upload gia' preparato non ricrea il contributo scaduto", async () => {
+  const db = nuovoDb();
+  const amb = ambiente(db);
+  const token = await consenso(amb);
+  await manda(amb, "/research/partite", busta([bo1()]), { token });
+  db.prepare("UPDATE research_contribution SET ricevuta = ?")
+    .bind("2020-01-01T00:00:00Z").run();
+  db.primaDelBatch = async () => {
+    assert.equal((await pulisciResearchScaduta(amb,
+      Date.parse("2026-09-25T12:00:00Z"))).eliminate, 1);
+  };
+  const revisione = bo1(); revisione.revisione.osservazioni += 1;
+  const esito = await manda(amb, "/research/partite", busta([revisione]), { token });
+  assert.deepEqual(esito.corpo.risultati.map((r) => r.motivo_codice),
+    ["deleted_contribution"]);
+  assert.equal(db.conta("research_contribution"), 0);
+  assert.equal(db.tutte("SELECT stato FROM research_consent_generation")[0].stato, "active");
+});
 
 test("/salute pubblica il blocco research dalla stessa configurazione", async () => {
   const db = nuovoDb();

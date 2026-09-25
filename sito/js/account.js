@@ -62,8 +62,8 @@ function dataOra(valore) {
 function statoConsensi(dispositivo) {
   if (dispositivo.consenso_partite === null || dispositivo.consenso_partite === undefined ||
       dispositivo.consenso_draft === null || dispositivo.consenso_draft === undefined) {
-    return INGLESE ? "Consent status not yet synchronized by Mox"
-      : "Stato consensi non ancora sincronizzato da Mox";
+    return INGLESE ? "Consent status not yet synchronized by MOX"
+      : "Stato consensi non ancora sincronizzato da MOX";
   }
   const partite = dispositivo.consenso_partite
     ? (INGLESE ? "Matches on" : "Partite attive")
@@ -97,7 +97,7 @@ function rankPartita(partita) {
   return `Livello ${partita.rank_livello} · classe non fornita da Arena`;
 }
 
-// Finche' Mox non ha mai mandato i mazzi, il sito non sa quali esistano
+// Finche' MOX non ha mai mandato i mazzi, il sito non sa quali esistano
 // ancora in Arena: in quel caso non dice niente, invece di dedurlo.
 function etichettaMazzo(mazzo) {
   if (!stato.statistiche?.sincronizzazione?.mazzi) return null;
@@ -185,7 +185,7 @@ async function immagineCondivisibileMazzo(mazzo) {
   contesto.fillText(testoCanvas(contesto, nomeMazzo(mazzo), 1030), 64, 180);
   contesto.font = "500 26px system-ui, sans-serif"; contesto.fillStyle = "#bfb2ce";
   const meta = [mazzo.formato || mazzo.evento, mazzo.archetipo, mazzo.strategia].filter(Boolean).join(" • ");
-  contesto.fillText(testoCanvas(contesto, meta || "Statistiche registrate da Mox", 1060), 64, 224);
+  contesto.fillText(testoCanvas(contesto, meta || "Statistiche registrate da MOX", 1060), 64, 224);
 
   const metricheImmagine = [
     ["PARTITE", String(mazzo.partite ?? 0)], ["VITTORIE", String(mazzo.vittorie ?? 0)],
@@ -226,7 +226,7 @@ function scaricaFile(file) {
 }
 
 async function condividiFile(file, titolo) {
-  const condivisione = { title: titolo, text: "Statistiche e decklist Mox", files: [file] };
+  const condivisione = { title: titolo, text: "Statistiche e decklist MOX", files: [file] };
   if (!(navigator.canShare?.(condivisione) && navigator.share)) return false;
   await navigator.share(condivisione);
   return true;
@@ -245,7 +245,7 @@ function mostraAnteprimaCondivisibile(host, file, mazzo) {
     "L'immagine contiene le statistiche del mazzo e la decklist. Puoi controllarla qui prima di scaricarla o condividerla.");
   if (host._moxPreviewUrl) URL.revokeObjectURL(host._moxPreviewUrl);
   const immagine = document.createElement("img"); immagine.className = "deck-share-image";
-  immagine.alt = `Scheda Mox del mazzo ${nomeMazzo(mazzo)}`;
+  immagine.alt = `Scheda MOX del mazzo ${nomeMazzo(mazzo)}`;
   host._moxPreviewUrl = URL.createObjectURL(file); immagine.src = host._moxPreviewUrl;
   const azioni = nodo("div", "service-actions");
   const condividi = nodo("button", "service-button primary", "Condividi PNG"); condividi.type = "button";
@@ -473,10 +473,10 @@ function renderMazzi() {
   const storici = sincronizzati ? stato.statistiche.mazzi.filter((m) => !m.in_arena)
     : stato.statistiche.mazzi;
   if (correnti.length) contenitore.append(gruppoMazzi("In Arena",
-    "Fotografia dell'ultima sincronizzazione di Mox.", correnti));
+    "Fotografia dell'ultima sincronizzazione di MOX.", correnti));
   if (storici.length) contenitore.append(gruppoMazzi(sincronizzati ? "Storico" : "Dalle partite",
     sincronizzati ? "Liste non più presenti in Arena, conservate insieme alle partite giocate."
-      : "Mox non ha ancora inviato la fotografia dei mazzi attuali.", storici));
+      : "MOX non ha ancora inviato la fotografia dei mazzi attuali.", storici));
   if (!totale) contenitore.append(riga("Nessun mazzo disponibile",
     "Le partite senza decklist restano comunque nella cronologia."));
 }
@@ -638,8 +638,8 @@ async function apriDraft(id) {
         seguite += fatte.filter((carta) => consigli.includes(carta)).length;
       }
       const riepilogo = nodo("section", "draft-mox-summary");
-      riepilogo.append(nodo("h3", "", "Riepilogo Mox"), nodo("p", "detail-note",
-        `Mox ha registrato ${scelte} scelte; ${seguite} coincidevano con il consiglio salvato. Il dettaglio pick-by-pick resta fuori dalla prima beta.`));
+      riepilogo.append(nodo("h3", "", "Riepilogo MOX"), nodo("p", "detail-note",
+        `MOX ha registrato ${scelte} scelte; ${seguite} coincidevano con il consiglio salvato. Il dettaglio pick-by-pick resta fuori dalla prima beta.`));
       contenuto.push(riepilogo);
     }
     if (traccia?.pool_finale?.length) contenuto.push(listaCarte("Pool finale",
@@ -677,10 +677,10 @@ async function apriDraft(id) {
     if (!traccia) contenuto.push(nodo("p", "detail-note",
       "Il dettaglio del pool non è disponibile, ma l'indice del Draft è conservato."));
     if (traccia && !versioni.length) contenuto.push(nodo("p", "detail-warning",
-      "Mox non ha registrato una versione del mazzo montato per questo Draft."));
+      "MOX non ha registrato una versione del mazzo montato per questo Draft."));
     if (traccia && Number(d.pick) < traccia.pool_finale.length) contenuto.push(
       nodo("p", "detail-warning",
-        `Il pool contiene ${traccia.pool_finale.length} carte, ma Mox registrò soltanto ${d.pick} pick: la cronologia delle scelte è parziale.`));
+        `Il pool contiene ${traccia.pool_finale.length} carte, ma MOX registrò soltanto ${d.pick} pick: la cronologia delle scelte è parziale.`));
     mostraDialogo("Traccia Draft", `${d.set_code} · ${d.formato}`, contenuto);
   } catch (errore) {
     mostraDialogo("Traccia Draft", "Impossibile aprire il Draft",
@@ -757,7 +757,7 @@ function renderPanoramicaPartite() {
   const partite = stato.partite.slice(0, 4);
   contenitore.replaceChildren(...partite.map(creaRigaPartita));
   if (!partite.length) contenitore.append(riga("Nessuna partita ricevuta",
-    "Le partite compaiono qui dopo il primo invio di Mox."));
+    "Le partite compaiono qui dopo il primo invio di MOX."));
 }
 
 function renderPartite() {
@@ -897,7 +897,7 @@ async function carica() {
     const giorniFermo = ultimoInvio ? Math.floor((Date.now() - ultimoInvio.getTime()) / 86400000) : null;
     $("last-send").classList.toggle("stale-send", giorniFermo === null || giorniFermo >= 3);
     $("last-send").title = giorniFermo === null ? "Nessun contributo ricevuto"
-      : giorniFermo >= 3 ? `${giorniFermo} giorni senza nuovi invii: verifica Mox e i consensi.` : "Invio recente";
+      : giorniFermo >= 3 ? `${giorniFermo} giorni senza nuovi invii: verifica MOX e i consensi.` : "Invio recente";
     mostraElenco($("devices"), dashboard.dispositivi.map((d) => {
       const b = nodo("button", "service-button danger", "Revoca");
       b.type = "button";

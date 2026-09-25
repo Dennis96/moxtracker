@@ -182,7 +182,7 @@ function setupLocalFilters() {
 
 function syncClassificationControls(decks, catalogInfo = null) {
   const enabled = classificationAvailable(decks);
-  const engineReady = catalogInfo?.disponibile === true;
+  const catalogoPronto = catalogInfo?.disponibile === true;
   const strategies = availableStrategies(decks);
   const strategy = document.querySelector("#strategy-filter");
   const previous = state.localFilters.strategy;
@@ -207,9 +207,9 @@ function syncClassificationControls(decks, catalogInfo = null) {
   const help = document.querySelector("#classification-help");
   help.textContent = enabled
     ? "Colori e Strategia filtrano gli archetipi riconosciuti dalla lista completa; i colori selezionati devono essere tutti presenti."
-    : engineReady
-      ? "Catalogo archetipi attivo: nel filtro corrente nessun gruppo supera ancora la soglia di riconoscimento."
-      : "Colori e strategia si attiveranno dopo la generazione del catalogo archetipi server.";
+    : catalogoPronto
+      ? "Colori e strategia non sono disponibili per gli archetipi nel filtro corrente."
+      : "Colori e strategia saranno disponibili quando gli archetipi saranno riconosciuti con sufficiente affidabilità.";
   help.classList.toggle("ready", enabled);
 }
 
