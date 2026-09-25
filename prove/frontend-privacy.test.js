@@ -29,7 +29,7 @@ test("testi pubblici separano catalogo e osservazioni e descrivono la soglia a 3
   assert.match(detail, /almeno 30 partite/);
   assert.match(detail, /Percentuali e decklist precisa vengono pubblicate quando la stessa variante raggiunge almeno 30 partite/);
   assert.match(privacy, /almeno 30 partite/);
-  assert.match(privacy, /anche se il campione proviene da una sola installazione/);
+  assert.match(privacy, /anche se i contributi provengono da una sola installazione/);
   assert.doesNotMatch(privacy, /5 installazioni/);
   assert.doesNotMatch(detail, /installazioni distinte/);
   assert.match(privacy, /catalogo pubblico curato separatamente/);

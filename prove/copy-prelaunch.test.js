@@ -29,7 +29,9 @@ test("il sito presenta la soglia matchup 30/100 e dichiara i limiti privacy", ()
   assert.match(privacy, /una sola installazione/);
   assert.match(privacy, /pseudonimizzati/);
   assert.match(privacy, /730 giorni/);
-  assert.match(privacy, /non hanno oggi un termine massimo di conservazione/);
+  assert.match(privacy, /massimo di 730 giorni dalla ricezione sul server/);
+  assert.match(privacy, /l'account Arena, l'identificatore dell'installazione o la cronologia personale/);
+  assert.doesNotMatch(privacy, /non hanno oggi un termine massimo di conservazione/);
 });
 
 test("prima del login Il mio MOX spiega i benefici e nasconde le metriche", () => {

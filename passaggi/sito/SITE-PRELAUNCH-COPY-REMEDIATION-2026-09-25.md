@@ -1,11 +1,11 @@
-# MOX — remediation copy pre-lancio (checkpoint bloccato)
+# MOX — remediation copy pre-lancio e retention (candidato preview)
 
 ## Perimetro e baseline
 
 - Baseline: `moxtracker/main` `4868934a4f3b41e28302d95937050a27f7aff124`, checkout pulito.
 - Branch: `codex/site-prelaunch-copy-remediation-2026-09-25`.
-- Solo sito, traduzioni e test del sito. Nessuna modifica a client, Worker, D1 o API.
-- La review indipendente del 25 settembre è stata letta integralmente; il prompt operativo allegato è stato seguito nei limiti dei due stop di policy sotto.
+- La review indipendente del 25 settembre è stata letta integralmente. Il delta di policy successivo ha fissato la soglia decklist a 30 partite anche da una sola installazione e la retention Partite/Draft a 730 giorni.
+- Nessuna modifica al client, alla soglia 30, allo schema D1 o alla retention Research. Il Worker cambia solo nella manutenzione programmata.
 
 ## Fatto nel branch
 
@@ -18,21 +18,22 @@
 - Download: prima schermata con versione, Windows, CTA, estrazione e avvio rapidi; indice presentato come guida completa.
 - Brand e traduzioni: `MOX` uniforme nel copy, eccetto il nome reale del file `Mox.exe`; nuovi testi italiani coperti da `sito/i18n/en.json`.
 
-## Stop di policy
+## Decisioni di policy applicate
 
-1. **Decklist esatte:** `src/privacy-pubblica.js` usa solo `SOGLIA_DECKLIST_PARTITE = 30`; `src/dettaglio-archetipo.js` la applica alla variante senza soglia di installazioni indipendenti. La lista esatta può quindi essere pubblicata da una sola installazione. Una regola diversa richiede decisione privacy/statistica e modifica effettiva del comportamento server. Nessuna soglia numerica è stata inventata.
-2. **Conservazione:** il lifecycle R2 delle tracce Draft a 730 giorni risulta documentato come attivo in `passaggi/archivio/2026-08-passaggi-e-piani-superati/STEP7-DRAFT-DATI-ONLINE.md`; ticket chiusi e allegati hanno pulizia nel cron (`src/ticket.js`). Per indici Draft e partite, il cron in `src/index.js` non applica una scadenza e non è stata trovata una durata massima definita. La Privacy del branch dichiara il comportamento attuale. Definire un limite e applicarlo richiede una decisione e un cambiamento di comportamento separato.
+1. **Decklist esatte:** `src/privacy-pubblica.js` resta a 30 partite senza soglia contributor. La Privacy dichiara espressamente la possibilità che tutte le partite provengano da una installazione e che una lista riconoscibile consenta un collegamento indiretto. Non rivendica anonimato assoluto.
+2. **Conservazione:** `src/retention.js` usa solo `partite.ricevuta` e `draft.ricevuto`, con cutoff UTC stretto `< now - 730 giorni`; il record esattamente sulla soglia resta fino al giro successivo. Il cron elimina figli e righe Partite nello stesso batch D1, poi pulisce Brew con l'helper canonico. Per Draft elimina prima gli oggetti R2 censiti dall'indice e poi figli e righe D1 in batch atomico. Un errore R2 lascia l'indice intatto; un errore D1 dopo R2 è recuperabile al giro successivo. Gli aggregati pubblici si ricalcolano dalle righe rimaste.
+3. **Altre categorie:** la pulizia non tocca Research, account, ticket o record tecnici dei contributori. Nessuna migrazione D1.
 
-Il branch **non è pronto per merge, preview o produzione** finché questi due punti non sono decisi e risolti. Nessun deploy è stato eseguito.
+La configurazione remota del lifecycle R2 è documentata come attiva a 730 giorni nel passaggio storico `STEP7-DRAFT-DATI-ONLINE.md`, ma non è stata riverificata il 25 settembre: Wrangler non dispone di un token nella sessione e la dashboard richiede nuovo accesso. L'eliminazione esplicita degli oggetti indicizzati usa lo stesso limite di 730 giorni e rende la retention indipendente da quella verifica. Eventuali oggetti orfani preesistenti richiedono il controllo amministrativo `riconciliaStorageDraft` già presente.
 
 ## Verifiche
 
-- Test mirati del copy e del frontend: 40/40 PASS; dopo la suite, altri 25/25 PASS sui test che fissavano il vecchio copy.
-- `npm run prove` completo eseguito **una volta**: due test falliti perché attendevano letteralmente il vecchio `Mox`, la data Privacy del 24 settembre e la vecchia sezione Research. Le aspettative sono state aggiornate e i test coinvolti passano mirati. La suite completa non è stata ripetuta.
-- `git diff --check`: PASS.
-- `npm run sito:build` due volte: stessa build `31a1cc3ecd5cf33a`, 91 file.
-- QA visiva 1440/390/360, tastiera, console, preview e checkpoint umano: non avviati per lo stop di policy.
+- Prima del delta: test mirati copy e frontend PASS; una suite completa con due aspettative editoriali ormai stale, poi corrette e verificate in modo mirato.
+- Delta retention: test mirati su 729, 730 e oltre 730 giorni, timestamp server, figli, Meta/Brew, Draft/R2, idempotenza, guasti recuperabili e isolamento Research/account/ticket PASS.
+- Gate finale del candidato: `npm run prove` **una sola volta**, 472/472 PASS; `git diff --check` PASS; due `npm run sito:build` con build ID identico `3b42223a764f591a` (91 file).
+- QA locale della build: 1440/390/360 px, IT/EN, Privacy, Draft, Il mio MOX logged-out, Meta, Cosa invia MOX e Download; nessun overflow orizzontale, immagine rotta o warning/error di console. Il dettaglio archetipo senza ID mostra correttamente lo stato non disponibile; va verificato con un ID pubblico sulla preview reale.
+- Preview remota, noindex e alias stabile: ancora da verificare dopo il deploy.
 
-## Prossimo passo necessario
+## Checkpoint corrente
 
-Decidere la regola di pubblicazione delle decklist osservate esatte e il periodo di conservazione per indici Draft e partite; implementare e verificare i cambi reali in un lavoro separato. Poi riesaminare la Privacy, rifare il gate finale e procedere a merge e preview per il checkpoint visivo unico.
+L'istruzione più recente richiede commit, push e deploy del candidato sull'alias preview senza merge in `main` e senza deploy Pages/Worker production. Dopo la preview il lavoro si ferma per il PASS visivo umano. Il Worker production sarà necessario dopo il PASS per attivare la retention runtime; rollback previsto al precedente Worker mantenendo schema D1 invariato.
