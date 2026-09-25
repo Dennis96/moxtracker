@@ -220,7 +220,7 @@ function guardia(kind, condizione, params) {
 }
 
 /** Tombstone e cancellazione di una contribution nella stessa unita' atomica. */
-export function pianoDeleteContribution({ lineage_tag: lineage, mittente, id_pubblico: id, tag, adesso }) {
+function pianoCancellazioneContribution({ guardia: controllo, mittente, id_pubblico: id, tag, adesso }) {
   const segni = tag.map((_, i) => `(?${i * 2 + 2}, ?${i * 2 + 3}, ?1, 'delete')`);
   const params = [adesso, ...tag.flatMap((t) => [t.tag, t.key_version])];
   const cancella = (kind, tabella) => descrittore(kind,
@@ -229,9 +229,7 @@ export function pianoDeleteContribution({ lineage_tag: lineage, mittente, id_pub
   const cancellaFiglie = (kind, tabella) => descrittore(kind,
     `DELETE FROM ${tabella} WHERE contribution_id = ${CID}`, [mittente, id]);
   return Object.freeze([
-    guardia("guardia_deleting",
-      "EXISTS (SELECT 1 FROM research_lineage WHERE lineage_tag = ?1 AND stato = 'deleting')",
-      [lineage]),
+    controllo,
     descrittore("tombstone_insert", `INSERT OR IGNORE INTO research_deleted_contribution
       (tag, key_version, creato, motivo) VALUES ${segni.join(", ")}`, params),
     cancellaFiglie("event_delete", "research_event"),
@@ -244,6 +242,27 @@ export function pianoDeleteContribution({ lineage_tag: lineage, mittente, id_pub
     cancella("contribution_delete", "research_contribution"),
     descrittore("guardia_svuota", SQL_GUARDIA_SVUOTA, []),
   ]);
+}
+
+export function pianoDeleteContribution({ lineage_tag: lineage, mittente, id_pubblico: id, tag, adesso }) {
+  return pianoCancellazioneContribution({ mittente, id_pubblico: id, tag, adesso,
+    guardia: guardia("guardia_deleting",
+      "EXISTS (SELECT 1 FROM research_lineage WHERE lineage_tag = ?1 AND stato = 'deleting')",
+      [lineage]) });
+}
+
+/** Scadenza atomica: sopprime la contribution, senza revocare il consenso. */
+export function pianoScadenzaContribution({ id, lineage_tag: lineage, mittente,
+  id_pubblico: idPubblico, tag, adesso, limite }) {
+  return pianoCancellazioneContribution({ mittente, id_pubblico: idPubblico, tag, adesso,
+    guardia: guardia("guardia_scadenza", `EXISTS (
+      SELECT 1 FROM research_contribution c
+      JOIN research_consent_generation g ON g.hash = c.generation_hash
+      JOIN research_lineage l ON l.lineage_tag = g.lineage_tag
+      WHERE c.id = ?1 AND c.mittente = ?2 AND c.id_pubblico = ?3
+        AND g.lineage_tag = ?4 AND c.ricevuta <= ?5
+        AND l.stato IN ('active', 'deleting'))`,
+    [id, mittente, idPubblico, lineage, limite]) });
 }
 
 /** Primo passo del delete: la lineage si chiude e le generation si revocano. */

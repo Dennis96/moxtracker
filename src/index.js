@@ -16,6 +16,7 @@ import { controllaStorageGiornaliero } from "./monitoraggio.js";
 import { assegnaBrewProgrammato } from "./brew-gruppi.js";
 import { pulisciContributiScaduti } from "./retention.js";
 import { configResearch, saluteResearch } from "./research/config.js";
+import { pulisciResearchScaduta } from "./research/retention.js";
 import { gestisciResearch } from "./research/rotte.js";
 
 const INTESTAZIONI = {
@@ -358,6 +359,9 @@ export default {
       // Brew segue la cancellazione delle partite: nessun gruppo viene assegnato
       // mentre il suo supporto sta per essere rimosso.
       pulisciContributiScaduti(ambiente).then(() => assegnaBrewProgrammato(ambiente)),
+      pulisciResearchScaduta(ambiente).then((esito) => {
+        if (esito.incompleta) console.warn("retention Research: residui da riprendere al prossimo cron");
+      }),
       pulisciTicketScaduti(ambiente),
       pulisciCredenzialiScadute(ambiente),
       controllaStorageGiornaliero(ambiente),

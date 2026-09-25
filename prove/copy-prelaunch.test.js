@@ -48,3 +48,16 @@ test("prima del login Il mio MOX spiega i benefici e nasconde le metriche", () =
   assert.match(js, /if \(errore\.stato !== 401\)/);
   assert.match(js, /\$\("account-login"\)\.classList\.remove\("hidden"\)/);
 });
+
+test("P1: nomi Draft, 17Lands e retention Research sono coerenti in IT/EN", () => {
+  const en = JSON.parse(leggi("i18n/en.json"));
+  const pagine = ["index.html", "draft.html", "account.html", "privacy.html", "note-versione.html"]
+    .map(leggi).join("\n");
+  assert.doesNotMatch(pagine, /Assistente al draft|17lands|Al gioco \/ risposta/);
+  assert.match(pagine, /Assistente al Draft/);
+  assert.match(pagine, /17Lands/);
+  assert.match(pagine, /Al gioco \/ alla risposta/);
+  assert.match(leggi("privacy.html"), /Research sono conservati per un massimo di 730 giorni dalla prima ricezione sul server/);
+  assert.match(en["I contributi Partite/Meta e Draft sono conservati per un massimo di 730 giorni dalla ricezione sul server. I contributi Research sono conservati per un massimo di 730 giorni dalla prima ricezione sul server. Puoi interrompere gli invii; per Research, la revoca del consenso e la cancellazione dei dati restano azioni separate."], /first receipt by the server/);
+  assert.doesNotMatch(leggi("note-versione.html"), /Build del sito riproducibile|protezione CORS/);
+});

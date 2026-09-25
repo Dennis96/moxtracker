@@ -69,7 +69,7 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
       `${pagina}: asset non riscritto per /en/`);
   }
   assert.match(readFileSync(join(BUILD, "en", "index.html"), "utf8"),
-    /Tracker, Draft assistant, decks and statistics for MTG Arena\./);
+    /Tracker, Draft Assistant, decks and statistics for MTG Arena\./);
   assert.match(readFileSync(join(BUILD, "en", "download.html"), "utf8"),
     /Checking the latest release…/);
   assert.match(readFileSync(join(BUILD, "en", "draft.html"), "utf8"),
