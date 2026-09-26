@@ -21,6 +21,18 @@ test("privacy, trasparenza e download hanno copy inglese per ogni testo nuovo", 
   assert.deepEqual(missing, []);
 });
 
+test("Web Analytics usa solo il beacon Cloudflare consentito dalla CSP ed è dichiarato in IT/EN", () => {
+  const headers = leggi("_headers");
+  const privacy = leggi("privacy.html");
+  const en = JSON.parse(leggi("i18n/en.json"));
+  const scriptSrc = headers.match(/script-src ([^;]+)/)?.[1] || "";
+  assert.match(scriptSrc, /https:\/\/static\.cloudflareinsights\.com/);
+  assert.doesNotMatch(headers, /connect-src [^;]*cloudflareinsights\.com/);
+  assert.match(privacy, /Cloudflare Web Analytics misura in forma aggregata/);
+  assert.match(privacy, /Non usa cookie per questa analisi/);
+  assert.match(en["Cloudflare Web Analytics misura in forma aggregata le visite, le pagine viste, la provenienza delle visite e le prestazioni del sito. Non usa cookie per questa analisi né serve a mostrare pubblicità o a creare profili pubblicitari."], /uses no cookies/);
+});
+
 test("il sito presenta la soglia matchup 30/100 e dichiara i limiti privacy", () => {
   const meta = leggi("meta.html");
   const privacy = leggi("privacy.html");
