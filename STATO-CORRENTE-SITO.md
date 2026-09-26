@@ -1,5 +1,9 @@
 # Stato corrente — sito Mox
 
+## Cloudflare Web Analytics — candidato preview, 26 settembre 2026
+
+Dal `main` verificato `c007802d4aa63b0feeb4010e503bccf63d745c31`, il branch `codex/cloudflare-web-analytics-2026-09-26` prepara Web Analytics nel commit prodotto `d6b7c3c8e0304dbbb650cad84a1706ce273f59f8`: CSP limitata al beacon ufficiale `static.cloudflareinsights.com`, informativa Privacy aggiornata in italiano e inglese, nessuno snippet o tracking custom. La configurazione Web Analytics del progetto Pages non è stata modificata: il dashboard richiede un nuovo accesso Google e il toggle non è stato verificato. Serve abilitare **Workers & Pages → moxtracker → Metrics → Web Analytics → Enable**. Solo dopo quel click, il deployment successivo su `https://preview.moxtracker.pages.dev` potrà verificare beacon, RUM e console. La preview attuale e `moxtracker.app` non sono stati aggiornati in questo delta; nessun merge, deploy Pages production, Worker o migrazione D1.
+
 ## MOX Beta 2.11.2 e Worker matchup — production, 25 settembre 2026
 
 La release [MOX Beta 2.11.2](https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.2) è Latest, non prerelease. Il sito pubblico esistente mostra automaticamente **MOX Beta 2.11.2** nella pagina Download; nessun deploy Pages è stato necessario. Il client proviene dal `FINAL_RELEASE_HEAD` `20d2d0728435bd40601d87b7dfe2d4810404d043` di `mox-core`. Lo ZIP pubblico riscaricato coincide con lo SHA-256 locale `800ef639ab985b4c4527142957b63b062024c1c080a84190f5596cb7bbda55ec`. Gate release 7/7 PASS, updater isolato, canary e stable 2.11.1→2.11.2 PASS.
