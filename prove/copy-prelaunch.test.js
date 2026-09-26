@@ -29,6 +29,7 @@ test("Web Analytics usa solo il beacon Cloudflare consentito dalla CSP ed è dic
   assert.match(scriptSrc, /https:\/\/static\.cloudflareinsights\.com/);
   assert.match(headers, /connect-src [^;]*https:\/\/cloudflareinsights\.com/);
   assert.doesNotMatch(headers, /connect-src [^;]*\*\.cloudflareinsights\.com/);
+  assert.match(headers, /^  Referrer-Policy: strict-origin$/m);
   assert.match(privacy, /Cloudflare Web Analytics misura in forma aggregata/);
   assert.match(privacy, /Non usa cookie per questa analisi/);
   assert.match(en["Cloudflare Web Analytics misura in forma aggregata le visite, le pagine viste, la provenienza delle visite e le prestazioni del sito. Non usa cookie per questa analisi né serve a mostrare pubblicità o a creare profili pubblicitari."], /uses no cookies/);
