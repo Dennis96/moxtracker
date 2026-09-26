@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { rimuoviBeaconIniettati } from "./html_cloudflare.mjs";
 
 const RADICE = fileURLToPath(new URL("..", import.meta.url));
 const CONFIG = JSON.parse(readFileSync(join(RADICE, "release-sito.config.json"), "utf8"));
@@ -108,16 +109,23 @@ async function verificaContenutoProduzione(urlDeployment, hashAtteso) {
   const impronta = async (url) => {
     const risposta = await fetch(new URL("/", url), { cache: "no-store" });
     if (!risposta.ok) throw new Error(`home non raggiungibile: ${url}`);
-    return createHash("sha256").update(Buffer.from(await risposta.arrayBuffer())).digest("hex");
+    const originale = Buffer.from(await risposta.arrayBuffer()).toString("utf8");
+    const normalizzato = rimuoviBeaconIniettati(originale);
+    return {
+      hash: createHash("sha256").update(normalizzato.html).digest("hex"),
+      beacon: normalizzato.beacon,
+    };
   };
-  const hashDeployment = await impronta(urlDeployment);
-  if (hashDeployment !== hashAtteso) {
+  const deployment = await impronta(urlDeployment);
+  if (deployment.hash !== hashAtteso) {
     throw new Error("il deployment non coincide con la build approvata");
   }
   for (let tentativo = 0; tentativo < 6; tentativo += 1) {
     try {
-      if (await impronta(urlPubblico) === hashAtteso) {
-        return { url_pubblico: urlPubblico, home_sha256: hashAtteso };
+      const pubblico = await impronta(urlPubblico);
+      if (pubblico.hash === hashAtteso) {
+        return { url_pubblico: urlPubblico, home_sha256: hashAtteso,
+          beacon_deployment: deployment.beacon, beacon_pubblico: pubblico.beacon };
       }
     } catch { /* Il dominio può impiegare qualche secondo ad aggiornarsi. */ }
     await new Promise((risolvi) => setTimeout(risolvi, 1_000));
