@@ -115,7 +115,7 @@ test("privacy e note 2.11.1 sono complete", () => {
   const privacy = leggi("privacy.html");
   const trasparenza = leggi("cosa-invia-mox.html");
   const note = leggi("note-versione.html");
-  assert.match(privacy, /Aggiornata il 25 settembre 2026/);
+  assert.match(privacy, /Aggiornata il 26 settembre 2026/);
   assert.match(privacy, /privacy@moxtracker\.app/);
   assert.match(privacy, /<strong>Dennis Santinelli è il titolare del trattamento dei dati personali trattati tramite MOX e MoxTracker\.<\/strong>/);
   assert.doesNotMatch(privacy, /la legge chiama questo ruolo/);
