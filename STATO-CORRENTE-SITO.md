@@ -1,5 +1,15 @@
 # Stato corrente — sito Mox
 
+## Cloudflare Web Analytics — preview verificata, 27 settembre 2026
+
+Il sito Web Analytics separato per `preview.moxtracker.pages.dev` è stato creato dal proprietario con il token ufficiale `f78e57ab382d423cb02c7b5414b8929e`. Il branch `codex/cloudflare-web-analytics-preview-host-2026-09-26` aggiunge quel beacon soltanto alle build preview, in IT/EN; il build production non contiene lo snippet. La suite finale del candidato ha dato **481/481 PASS**. Commit del codice `b45b8fca58bad8a944d24184ca56a909e3e7e519`, build preview `14def003bd8e67b8`.
+
+Il progetto Pages aggiungeva il proprio beacon sia alla preview sia alla produzione. Dopo un primo deploy preview che ha mostrato due beacon, l'integrazione Pages è stata disabilitata tramite l'API ufficiale Cloudflare (`build_config.web_analytics_tag` e `web_analytics_token` null; risposta `success: true`) con l'autorizzazione esplicita del proprietario. La stessa build preview è stata ridistribuita su `https://preview.moxtracker.pages.dev` (`a86d1c30.moxtracker.pages.dev`): il browser vede **un solo beacon**, con il token dell'host preview, e nessun errore console. Nel dashboard del sito Analytics esatto sono comparsi **1 visita e 1 pageview**, dimensione Host `preview.moxtracker.pages.dev`; l'ingestione preview è dunque verificata.
+
+La produzione `moxtracker.app` non è ancora stata ridistribuita dopo la disattivazione Pages: il browser vede ancora il vecchio beacon Pages e quello automatico della zona. Il sito Analytics Pages (`moxtracker.pages.dev +1`) registrava 18 pageview e 4 visite, incluse visite con Host `moxtracker.app`; il sito automatico della zona `moxtracker.app` era a 0/0. Prossimi passi: merge del branch, deploy Pages production senza snippet nel sorgente, conferma di un solo beacon della zona e dell'ingestione nel dashboard `moxtracker.app`. Nessun Worker o D1 è coinvolto.
+
+La sezione del 26 settembre qui sotto è storica e descrive lo stato precedente alla configurazione dell'host preview.
+
 ## Cloudflare Web Analytics — candidato preview, 26 settembre 2026
 
 Dal `main` verificato `c007802d4aa63b0feeb4010e503bccf63d745c31`, il branch `codex/cloudflare-web-analytics-2026-09-26` prepara Web Analytics nel commit prodotto `d6b7c3c8e0304dbbb650cad84a1706ce273f59f8`, nel fix CSP `4d117bc49571b334b74e3190c4d7a8c5d52e2432` e nel fix `Referrer-Policy: strict-origin` `78a8ccd672216fc75f95379a53e95df192d102b4`. La CSP consente i soli host ufficiali osservati: `static.cloudflareinsights.com` per lo script e `cloudflareinsights.com` per l'endpoint RUM usato dalla preview. `strict-origin` trasmette solo l'origine HTTPS come Referer, senza percorso o query: la [FAQ Cloudflare](https://developers.cloudflare.com/web-analytics/faq/) documenta che il Referer è ancora necessario all'ingestione. Privacy IT/EN aggiornata; nessuno snippet o tracking custom. Web Analytics del progetto Pages `moxtracker` è **abilitato** tramite il dashboard.
