@@ -1,8 +1,14 @@
 # Stato corrente — sito Mox
 
-## Installer Stable/Canary separati — branch, 27 settembre 2026
+## MOX Beta 2.11.3 e installer Stable/Canary separati — production, 27 settembre 2026
 
-Sul branch `claude/persistent-canary-2.11.3-2026-09-27` (da `main` `837ba32b645d315d920f0269f769e930217c35e6`) il Worker serve ogni installer da una route sua, `/mox/installer/<X.Y.Z>/<sha256>/Mox-Installer-win-x64.exe`, che legge la chiave R2 omonima sotto `installer/` e rifiuta ogni altra forma senza toccare il bucket. Così una pubblicazione Canary non può cambiare i byte promessi dal manifesto Stable. `/mox/download.exe` resta e serve sempre l'oggetto storico `Mox-Installer-win-x64.exe` (installer 2.11.2), che nessuna pubblicazione scrive più. `/mox/release` è invariato. Nessun cambio a sito, D1, binding o secret. **Non deployato**: deploy Worker, caricamenti R2 e manifesti seguono l'autorizzazione del checkpoint. Il lato client è in `mox-core`, `passaggi/release/handoff/HANDOFF-CANARY-PERSISTENTE-2.11.3-2026-09-27.md`.
+La [PR #28](https://github.com/Dennis96/moxtracker/pull/28), unita in `main` `6f09f82f73fbb31b1ff1273e6a900a2b577af3eb`, aggiunge la route `/mox/installer/<X.Y.Z>/<sha256>/Mox-Installer-win-x64.exe`, che legge la chiave R2 omonima sotto `installer/` e rifiuta ogni altra forma senza toccare il bucket. Stable e Canary non condividono più l'oggetto R2. `/mox/download.exe` resta sull'oggetto storico `Mox-Installer-win-x64.exe` (installer 2.11.2, SHA `12ed355a…`), che nessuna pubblicazione scrive più e che non si cancella. `/mox/release` invariato. **486/486 test PASS**.
+
+**Worker production:** da `9baa7bbf-f5c1-4364-a199-277e49c7bc99` (rollback) a `f518d1b9-e3ba-47ff-985e-bc7971ee4318`; binding e variabili identici al dry-run, Research `on`, `BREW_GRUPPI` `on`. Nessuna migrazione D1, nessun deploy Pages. Smoke: `/salute`, `/meta` e `/scontri` con formato, `/draft/statistiche` 200; `/account/me` 401; percorsi installer fuori forma 404; `/mox/download.exe` 200 con lo SHA storico.
+
+**Release:** installer 2.11.3 in `moxtracker-releases/installer/2.11.3/7e95f82af91c831b9f3f0c4f7f868b640147faa73d52c1648b39016eec77e29b/Mox-Installer-win-x64.exe` (67.056.096 byte, riscaricato dalla route identico). Lo stesso manifesto firmato (SHA `da732e1a…`) è andato prima su `MOX_RELEASE_MANIFEST_CANARY`, con il canary reale 2.11.2 → 2.11.3 sul PC di Dennis PASS, e poi su `MOX_RELEASE_MANIFEST`. La [release MOX Beta 2.11.3](https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.3) è Latest, non prerelease, tag su `6f09f82f`; lo ZIP `MOX-2.11.3.zip` riscaricato coincide con lo SHA locale `7770523b96147baf9d57d4111e04dd8f4087bc1f63351c53f21e15b5cc7bfd32`. La pagina Download mostra «MOX Beta 2.11.3» senza deploy Pages. Il client proviene da `mox-core` `59ad91f9512edcca333e2b4f935d8627f4c0a021`.
+
+Da qui il manifesto canary serve le versioni sperimentali ai PC del programma tester; il pubblico resta sullo stable.
 
 ## Web Analytics — preview e production verificate, 27 settembre 2026
 
