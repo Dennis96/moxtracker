@@ -1,5 +1,9 @@
 # Stato corrente — sito Mox
 
+## Installer Stable/Canary separati — branch, 27 settembre 2026
+
+Sul branch `claude/persistent-canary-2.11.3-2026-09-27` (da `main` `837ba32b645d315d920f0269f769e930217c35e6`) il Worker serve ogni installer da una route sua, `/mox/installer/<X.Y.Z>/<sha256>/Mox-Installer-win-x64.exe`, che legge la chiave R2 omonima sotto `installer/` e rifiuta ogni altra forma senza toccare il bucket. Così una pubblicazione Canary non può cambiare i byte promessi dal manifesto Stable. `/mox/download.exe` resta e serve sempre l'oggetto storico `Mox-Installer-win-x64.exe` (installer 2.11.2), che nessuna pubblicazione scrive più. `/mox/release` è invariato. Nessun cambio a sito, D1, binding o secret. **Non deployato**: deploy Worker, caricamenti R2 e manifesti seguono l'autorizzazione del checkpoint. Il lato client è in `mox-core`, `passaggi/release/handoff/HANDOFF-CANARY-PERSISTENTE-2.11.3-2026-09-27.md`.
+
 ## Web Analytics — preview e production verificate, 27 settembre 2026
 
 La [PR #26](https://github.com/Dennis96/moxtracker/pull/26) ha separato il token di `preview.moxtracker.pages.dev` da quello del progetto Pages (`main` `1b8e2908f6da23e6adb8319934e3787ff9a830d7`). L'iniezione Web Analytics del progetto Pages è stata disabilitata tramite API ufficiale Cloudflare per evitare duplicati. La preview usa un solo snippet ufficiale con token `f78e57ab382d423cb02c7b5414b8929e`.

@@ -107,6 +107,140 @@ test("il canary vede la sua release, e non ripiega mai sullo stable", async () =
   assert.equal(sconosciuto.stato, 400);
 });
 
+// Il bucket delle release in miniatura: chiavi, byte, e l'elenco delle chiavi
+// chieste, per vedere che il Worker non legga mai niente fuori forma.
+function bucketFinto(oggetti = {}) {
+  const dentro = new Map(Object.entries(oggetti));
+  const chieste = [];
+  return {
+    chieste,
+    metti(chiave, testo) { dentro.set(chiave, new TextEncoder().encode(testo)); },
+    async get(chiave) {
+      chieste.push(chiave);
+      const byte = dentro.get(chiave);
+      return byte ? { body: new Blob([byte]).stream(), size: byte.length } : null;
+    },
+  };
+}
+
+async function scarica(percorso, ambiente, metodo = "GET") {
+  const risposta = await server.fetch(
+    new Request("https://esempio.invalid" + percorso, { method: metodo }), ambiente);
+  return { stato: risposta.status, testo: await risposta.text(), headers: risposta.headers };
+}
+
+async function sha256(testo) {
+  const impronta = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(testo));
+  return [...new Uint8Array(impronta)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function releaseFinta(bucket, versione, numero, contenuto) {
+  const impronta = await sha256(contenuto);
+  const percorso = `/mox/installer/${numero}/${impronta}/Mox-Installer-win-x64.exe`;
+  bucket.metti(percorso.replace("/mox/", ""), contenuto);
+  return { versione, url: "https://api.moxtracker.app" + percorso, sha256: impronta,
+    dimensione: contenuto.length, firma: "f" };
+}
+
+test("stable e canary scaricano ognuno i propri byte, e il canary non tocca lo stable", async () => {
+  const db = creaFintoD1(SCHEMA);
+  const bucket = bucketFinto();
+  const stabile = await releaseFinta(bucket, "2 beta 2.11.3", "2.11.3", "installer-A");
+  const ambiente = { MOX_RELEASES: bucket, MOX_RELEASE_MANIFEST: JSON.stringify(stabile) };
+  const release = "/mox/release?piattaforma=win-x64&corrente=2%20beta%202.11.2&canale=";
+
+  const primo = await manda(db, null, "GET", release + "stable", ambiente);
+  const percorsoStabile = new URL(primo.corpo.url).pathname;
+  const prima = await scarica(percorsoStabile, { DB: db, ...ambiente });
+  assert.equal(prima.stato, 200);
+  assert.equal(prima.testo, "installer-A");
+  assert.equal(prima.headers.get("cache-control"), "no-store");
+  // senza manifesto canary il canary non ripiega sullo stable
+  const vuoto = await manda(db, null, "GET", release + "canary", ambiente);
+  assert.equal(vuoto.corpo.disponibile, false);
+
+  // si pubblica un canary: installer nuovo, manifesto canary
+  const canary = await releaseFinta(bucket, "2 beta 2.12.0", "2.12.0", "installer-B");
+  ambiente.MOX_RELEASE_MANIFEST_CANARY = JSON.stringify(canary);
+  const dalCanary = await manda(db, null, "GET", release + "canary", ambiente);
+  assert.equal(dalCanary.corpo.versione, "2 beta 2.12.0");
+  const byteCanary = await scarica(new URL(dalCanary.corpo.url).pathname, { DB: db, ...ambiente });
+  assert.equal(byteCanary.testo, "installer-B");
+
+  // lo stable resta identico: stesso manifesto, stesso URL, stessi byte
+  const dopo = await manda(db, null, "GET", release + "stable", ambiente);
+  assert.equal(dopo.corpo.versione, "2 beta 2.11.3");
+  assert.equal(dopo.corpo.url, primo.corpo.url);
+  const ancora = await scarica(percorsoStabile, { DB: db, ...ambiente });
+  assert.equal(ancora.testo, "installer-A");
+  assert.equal(await sha256(ancora.testo), stabile.sha256);
+
+  // un canary ripubblicato con lo stesso numero finisce in un'altra chiave
+  const ribattuto = await releaseFinta(bucket, "2 beta 2.12.0", "2.12.0", "installer-C");
+  assert.notEqual(ribattuto.url, canary.url);
+  assert.equal((await scarica(percorsoStabile, { DB: db, ...ambiente })).testo, "installer-A");
+});
+
+test("l'indirizzo storico serve ancora l'oggetto storico, e solo quello", async () => {
+  const bucket = bucketFinto();
+  bucket.metti("Mox-Installer-win-x64.exe", "installer-2.11.2");
+  bucket.metti(`installer/2.12.0/${"a".repeat(64)}/Mox-Installer-win-x64.exe`, "canary");
+  const storico = await scarica("/mox/download.exe", { MOX_RELEASES: bucket });
+  assert.equal(storico.stato, 200);
+  assert.equal(storico.testo, "installer-2.11.2");
+  assert.equal(storico.headers.get("content-disposition"),
+    "attachment; filename=\"Mox-Installer-win-x64.exe\"");
+  assert.deepEqual(bucket.chieste, ["Mox-Installer-win-x64.exe"]);
+
+  const post = await scarica("/mox/download.exe", { MOX_RELEASES: bucket }, "POST");
+  assert.equal(post.stato, 405);
+  const senzaBucket = await scarica("/mox/download.exe", {});
+  assert.equal(senzaBucket.stato, 503);
+});
+
+test("un percorso di installer fuori forma non legge niente dal bucket", async () => {
+  const bucket = bucketFinto({ "Mox-Installer-win-x64.exe": new Uint8Array([1]) });
+  const buono = "a".repeat(64);
+  const fuoriForma = [
+    `/mox/installer/2.12.0/${"A".repeat(64)}/Mox-Installer-win-x64.exe`,
+    `/mox/installer/2.12.0/${"a".repeat(63)}/Mox-Installer-win-x64.exe`,
+    `/mox/installer/2.12/${buono}/Mox-Installer-win-x64.exe`,
+    `/mox/installer/2.12.0-canary1/${buono}/Mox-Installer-win-x64.exe`,
+    `/mox/installer/2.12.0/${buono}/altro.exe`,
+    `/mox/installer/2.12.0/${buono}/Mox-Installer-win-x64.exe/extra`,
+    `/mox/installer/../Mox-Installer-win-x64.exe`,
+    `/mox/installer/2.12.0/%2e%2e/Mox-Installer-win-x64.exe`,
+    "/mox/installer/",
+  ];
+  for (const percorso of fuoriForma) {
+    const esito = await scarica(percorso, { MOX_RELEASES: bucket });
+    assert.notEqual(esito.stato, 200, percorso);
+  }
+  assert.deepEqual(bucket.chieste, []);
+
+  const mancante = await scarica(`/mox/installer/2.12.0/${buono}/Mox-Installer-win-x64.exe`,
+    { MOX_RELEASES: bucket });
+  assert.equal(mancante.stato, 404);
+  assert.deepEqual(bucket.chieste, [`installer/2.12.0/${buono}/Mox-Installer-win-x64.exe`]);
+});
+
+test("un manifesto rotto risponde 503 su entrambi i canali, senza ripieghi", async () => {
+  const db = creaFintoD1(SCHEMA);
+  const buono = JSON.stringify({ versione: "2 beta 2.11.3", url: "https://x.invalid/a.exe",
+    sha256: "a".repeat(64), dimensione: 1, firma: "f" });
+  const incompleto = JSON.stringify({ versione: "2 beta 2.11.3", url: "https://x.invalid/a.exe" });
+  for (const canale of ["stable", "canary"]) {
+    const variabile = canale === "canary" ? "MOX_RELEASE_MANIFEST_CANARY" : "MOX_RELEASE_MANIFEST";
+    const altro = canale === "canary" ? "MOX_RELEASE_MANIFEST" : "MOX_RELEASE_MANIFEST_CANARY";
+    const percorso = `/mox/release?piattaforma=win-x64&canale=${canale}&corrente=2%20beta%202.11.2`;
+    for (const rotto of ["{non json", incompleto, "null"]) {
+      const esito = await manda(db, null, "GET", percorso, { [variabile]: rotto, [altro]: buono });
+      assert.equal(esito.stato, 503, `${canale}: ${rotto}`);
+      assert.equal(esito.headers.get("cache-control"), "no-store");
+    }
+  }
+});
+
 test("il ponte updater ritarda solo i client precedenti alla correzione", async () => {
   const db = creaFintoD1(SCHEMA);
   const manifesto = {
