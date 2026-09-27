@@ -22,8 +22,8 @@ function git(...argomenti) {
     ...argomenti], { cwd: RADICE, encoding: "utf8" }).trim();
 }
 
-function esegui(comando, argomenti) {
-  const esito = spawnSync(comando, argomenti, { cwd: RADICE, encoding: "utf8", stdio: "inherit" });
+function esegui(comando, argomenti, env = process.env) {
+  const esito = spawnSync(comando, argomenti, { cwd: RADICE, encoding: "utf8", stdio: "inherit", env });
   if (esito.status !== 0) throw new Error(`gate fallito: ${comando} ${argomenti.join(" ")}`);
 }
 
@@ -154,7 +154,14 @@ if (upstream !== commit) {
 }
 
 esegui(process.execPath, ["--test", "prove/*.test.js"]);
-esegui(process.execPath, ["strumenti/build_sito.mjs"]);
+esegui(process.execPath, ["strumenti/build_sito.mjs"],
+  { ...process.env, MOX_BUILD_TARGET: "preview" });
+const previewBuildId = JSON.parse(readFileSync(
+  join(CARTELLA_BUILD, "build-manifest.json"), "utf8")).build_id;
+if (ambiente === "production") {
+  esegui(process.execPath, ["strumenti/build_sito.mjs"],
+    { ...process.env, MOX_BUILD_TARGET: "production" });
+}
 const manifesto = JSON.parse(readFileSync(join(CARTELLA_BUILD, "build-manifest.json"), "utf8"));
 if (manifesto.commit_git !== commit) throw new Error("manifesto e commit Git non coincidono");
 
@@ -191,7 +198,7 @@ if (ambiente === "production") {
   if (!recordPreview) throw new Error("la produzione richiede --preview-record=<file>");
   const preview = JSON.parse(readFileSync(recordPreview, "utf8"));
   if (preview.ambiente !== "preview" || preview.commit !== commit ||
-      preview.build_id !== manifesto.build_id || preview.indicizzazione?.modalita !== "noindex" ||
+      preview.build_id !== previewBuildId || preview.indicizzazione?.modalita !== "noindex" ||
       !Array.isArray(preview.smoke_test) || preview.smoke_test.length < 6 ||
       preview.smoke_test.some((riga) => riga.stato !== 200)) {
     throw new Error("il record preview non corrisponde esattamente alla build corrente");

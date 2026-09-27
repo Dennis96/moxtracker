@@ -1,5 +1,15 @@
 # Stato corrente — sito Mox
 
+## Web Analytics — correzione production in corso, 27 settembre 2026
+
+La [PR #26](https://github.com/Dennis96/moxtracker/pull/26) è stata unita in `main` (`1b8e2908f6da23e6adb8319934e3787ff9a830d7`). Il deploy Pages production `ba04528d.moxtracker.pages.dev` ha rimosso il beacon Pages duplicato: su `moxtracker.app` il browser vede soltanto quello automatico del sito Analytics della zona, token `ad3e87d3290849cb8eadcf6c74765066`, senza errori console. Preview e production hanno risposto 200 sulle sei route campionate; la preview conserva `noindex` e `robots.txt` con `Disallow: /`, la production resta indicizzabile.
+
+Il sito Analytics automatico `moxtracker.app` resta a **0 visite/0 pageview**. L'endpoint che il beacon automatico usa sul dominio, `https://moxtracker.app/cdn-cgi/rum`, risponde **404** sia al GET sia a un POST diagnostico vuoto; il test non dimostra lo status di un POST con payload completo, ma insieme al dashboard a zero segnala che l'iniezione automatica non è utilizzabile in questa configurazione Pages. La [documentazione Cloudflare](https://developers.cloudflare.com/web-analytics/faq/) distingue l'endpoint del beacon automatico (`/<cdn-cgi>/rum` sul dominio) da quello dello snippet manuale (`cloudflareinsights.com/cdn-cgi/rum`).
+
+Il branch `codex/cloudflare-web-analytics-production-manual-2026-09-27` inserisce lo snippet ufficiale del sito `moxtracker.app` nelle build production, mantenendo il token distinto della preview, e aggiorna il gate release per verificarli. Il candidato ha superato **482/482 test** e `git diff --check`. Per evitare due beacon, l'impostazione del sito Analytics `moxtracker.app` deve passare da **Abilita** a **Abilita con l'installazione del frammento JS**. Il dashboard nel browser integrato non ha persistito il salvataggio: il proprietario potrebbe dover effettuare questo singolo cambio nel proprio Chrome. Nessun deploy production del candidato manuale è stato eseguito.
+
+La sezione seguente registra la fase preview già verificata.
+
 ## Cloudflare Web Analytics — preview verificata, 27 settembre 2026
 
 Il sito Web Analytics separato per `preview.moxtracker.pages.dev` è stato creato dal proprietario con il token ufficiale `f78e57ab382d423cb02c7b5414b8929e`. Il branch `codex/cloudflare-web-analytics-preview-host-2026-09-26` aggiunge quel beacon soltanto alle build preview, in IT/EN; il build production non contiene lo snippet. La suite finale del candidato ha dato **481/481 PASS**. Commit del codice `b45b8fca58bad8a944d24184ca56a909e3e7e519`, build preview `14def003bd8e67b8`.
