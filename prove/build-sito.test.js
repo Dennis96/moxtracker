@@ -85,6 +85,9 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
   assert.match(headers, /\/en\/\n  Cache-Control: no-store/);
 
   const homeIt = readFileSync(join(BUILD, "index.html"), "utf8");
+  assert.equal((homeIt.match(/static\.cloudflareinsights\.com\/beacon\.min\.js/g) || []).length, 1);
+  assert.match(homeIt, /ad3e87d3290849cb8eadcf6c74765066/);
+  assert.doesNotMatch(homeIt, /f78e57ab382d423cb02c7b5414b8929e/);
   assert.match(homeIt, /<link rel="canonical" href="https:\/\/moxtracker\.app\/">/);
   assert.match(homeIt, /hreflang="it" href="https:\/\/moxtracker\.app\/"/);
   assert.match(homeIt, /hreflang="en" href="https:\/\/moxtracker\.app\/en\/"/);
@@ -95,6 +98,7 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
   assert.match(homeIt, /name="twitter:card" content="summary_large_image"/);
 
   const homeEn = readFileSync(join(BUILD, "en", "index.html"), "utf8");
+  assert.match(homeEn, /ad3e87d3290849cb8eadcf6c74765066/);
   assert.match(homeEn, /<link rel="canonical" href="https:\/\/moxtracker\.app\/en\/">/);
   assert.match(homeEn, /property="og:locale" content="en_US"/);
 

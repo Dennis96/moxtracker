@@ -3,7 +3,8 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { aggiungiBeaconPreview } from "./analytics_preview.mjs";
+import { aggiungiBeaconAnalytics, TOKEN_ANALYTICS_PREVIEW,
+  TOKEN_ANALYTICS_PRODUZIONE } from "./analytics_sito.mjs";
 
 const RADICE = fileURLToPath(new URL("..", import.meta.url));
 const SORGENTE = join(RADICE, "sito");
@@ -225,15 +226,12 @@ function intestazioniCache(nomiHtml) {
 }
 
 async function main() {
-  const previewToken = process.env.MOX_WEB_ANALYTICS_PREVIEW_TOKEN || "";
-  const previewBuild = process.env.MOX_BUILD_TARGET === "preview";
-  if (previewBuild !== Boolean(previewToken) ||
-      (process.env.MOX_BUILD_TARGET && !previewBuild)) {
-    throw new Error("il beacon preview richiede MOX_BUILD_TARGET=preview e il suo token");
+  const ambiente = process.env.MOX_BUILD_TARGET || "production";
+  if (!["production", "preview"].includes(ambiente)) {
+    throw new Error("MOX_BUILD_TARGET deve essere production o preview");
   }
-  if (previewBuild && !/^[a-f0-9]{32}$/.test(previewToken)) {
-    throw new Error("token Cloudflare Web Analytics preview non valido");
-  }
+  const analyticsToken = ambiente === "preview"
+    ? TOKEN_ANALYTICS_PREVIEW : TOKEN_ANALYTICS_PRODUZIONE;
   const sorgenti = await fileDentro(SORGENTE);
   const hashSorgente = createHash("sha256");
   const contenuti = new Map();
@@ -243,7 +241,7 @@ async function main() {
     contenuti.set(relativo, corpo);
     hashSorgente.update(relativo).update("\0").update(corpo).update("\0");
   }
-  if (previewBuild) hashSorgente.update("web-analytics-preview\0").update(previewToken);
+  hashSorgente.update(`web-analytics-${ambiente}\0`).update(analyticsToken);
   const sorgenteSha256 = hashSorgente.digest("hex");
   const buildId = sorgenteSha256.slice(0, 16);
   const traduzioni = JSON.parse(contenuti.get("i18n/en.json")?.toString("utf8") || "{}");
@@ -267,7 +265,7 @@ async function main() {
       let testo = corpo.toString("utf8");
       if (tipo === ".html") {
         testo = aggiungiSeo(testo, relativo, "it");
-        if (previewBuild) testo = aggiungiBeaconPreview(testo, previewToken);
+        testo = aggiungiBeaconAnalytics(testo, analyticsToken);
       }
       uscita = Buffer.from(trasforma(testo, tipo, buildId));
     }
@@ -284,7 +282,7 @@ async function main() {
     const destinazione = join(uscitaRisolta, relativo);
     await mkdir(dirname(destinazione), { recursive: true });
     let tradotta = aggiungiSeo(paginaInglese(corpo.toString("utf8"), traduzioni, nome), nome, "en");
-    if (previewBuild) tradotta = aggiungiBeaconPreview(tradotta, previewToken);
+    tradotta = aggiungiBeaconAnalytics(tradotta, analyticsToken);
     const uscita = Buffer.from(trasforma(tradotta, ".html", buildId));
     await writeFile(destinazione, uscita);
     hashFile[relativo] = createHash("sha256").update(uscita).digest("hex");
