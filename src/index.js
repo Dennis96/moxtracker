@@ -227,11 +227,32 @@ async function releaseMox(ambiente, indirizzo) {
   return rispostaRelease({ disponibile: true, ...manifesto });
 }
 
-async function scaricaReleaseMox(ambiente) {
+// Dalla 2.11.3 ogni installer sta in una chiave sua, fatta di versione e
+// SHA-256: `installer/<numero>/<sha256>/Mox-Installer-win-x64.exe`. Cosi' il
+// manifesto stable e quello canary puntano a oggetti diversi, e pubblicare un
+// canary non puo' cambiare i byte che lo stable promette. Il percorso si
+// accetta solo in questa forma esatta: nessun'altra chiave del bucket e'
+// raggiungibile da qui.
+const PERCORSO_INSTALLER =
+  /^\/mox\/installer\/(\d+\.\d+\.\d+)\/([0-9a-f]{64})\/Mox-Installer-win-x64\.exe$/;
+
+// `/mox/download.exe` resta per i manifesti gia' firmati fino alla 2.11.2,
+// che portano quell'indirizzo: serve l'oggetto storico e nessuna
+// pubblicazione nuova lo scrive piu'.
+const CHIAVE_INSTALLER_STORICO = "Mox-Installer-win-x64.exe";
+
+function chiaveInstaller(pathname) {
+  if (pathname === "/mox/download.exe") return CHIAVE_INSTALLER_STORICO;
+  const trovato = PERCORSO_INSTALLER.exec(pathname);
+  if (!trovato) return null;
+  return `installer/${trovato[1]}/${trovato[2]}/Mox-Installer-win-x64.exe`;
+}
+
+async function scaricaReleaseMox(ambiente, chiave) {
   if (!ambiente.MOX_RELEASES) {
     return risposta({ errore: "download release non configurato" }, 503);
   }
-  const oggetto = await ambiente.MOX_RELEASES.get("Mox-Installer-win-x64.exe");
+  const oggetto = await ambiente.MOX_RELEASES.get(chiave);
   if (!oggetto) return risposta({ errore: "installer non trovato" }, 404);
   return new Response(oggetto.body, {
     headers: {
@@ -273,9 +294,10 @@ export default {
       return releaseMox(ambiente, indirizzo);
     }
 
-    if (indirizzo.pathname === "/mox/download.exe") {
+    const chiaveDownload = chiaveInstaller(indirizzo.pathname);
+    if (chiaveDownload) {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
-      return scaricaReleaseMox(ambiente);
+      return scaricaReleaseMox(ambiente, chiaveDownload);
     }
 
     if (indirizzo.pathname === "/meta") {
