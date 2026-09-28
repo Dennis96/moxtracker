@@ -4,7 +4,7 @@ Leggere prima [`STATO-CORRENTE-SITO.md`](../STATO-CORRENTE-SITO.md): è l'unica 
 
 Questo indice serve soltanto a trovare i documenti attivi e a distinguere le fonti correnti dallo storico.
 
-## Documenti attivi — 19/09/2026
+## Ingressi e specifiche — riallineamento del 28/09/2026
 
 1. [`STATO-CORRENTE-SITO.md`](../STATO-CORRENTE-SITO.md) — stato operativo canonico di sito, preview, Worker, D1 e release client collegata.
 2. [`RUNBOOK-R3-PRODUZIONE.md`](research/RUNBOOK-R3-PRODUZIONE.md) — gestione operativa Research R3 in produzione, inclusi modalità, qualification e rollback.
@@ -16,7 +16,7 @@ Questo indice serve soltanto a trovare i documenti attivi e a distinguere le fon
 8. [`META-CATALOG-REFRESH-ROADMAP-2026-09-13.md`](sito/META-CATALOG-REFRESH-ROADMAP-2026-09-13.md) — roadmap tecnica del catalogo Meta; lo stato effettivo dei task successivi resta nei relativi branch/report.
 9. [`S1-BREW-CONTRATTO-B1-2026-09-15.md`](sito/S1-BREW-CONTRATTO-B1-2026-09-15.md) — contratto backend dei gruppi Brew: distanza, `k=4`, identificativi, privacy e API.
 10. [`S2-BREW-FRONTEND-2026-09-16.md`](sito/S2-BREW-FRONTEND-2026-09-16.md) — frontend dei gruppi Brew, dettaglio `id_brew`, fallback legacy e URL canonici.
-11. [`S3-META-CATALOG-REFRESH-2026-09-17.md`](sito/S3-META-CATALOG-REFRESH-2026-09-17.md) — raccolta e decisioni S3; la review indipendente e il consolidamento restano sul branch dedicato fino alla PR.
+11. [`S3-META-CATALOG-REFRESH-2026-09-17.md`](sito/S3-META-CATALOG-REFRESH-2026-09-17.md) — raccolta e decisioni S3; specifica e risultati storici; consolidamento e pubblicazione sono attestati nello stato canonico del sito.
 
 ## Research — stato corrente e storico
 
@@ -28,7 +28,7 @@ La vecchia [`R3-PREP-SCHEMA-STORAGE.md`](research/proposte/R3-PREP-SCHEMA-STORAG
 
 I documenti `passaggi/sito/` datati 13–14 settembre su redesign, mockup e prossimi sviluppi restano utili come specifiche o storia del redesign. Per decidere cosa è realmente live oggi, usare sempre `STATO-CORRENTE-SITO.md`.
 
-I documenti launch del 17/09 sopra elencati sono specifiche o implementazioni su branch di preparazione: **non attestano da soli che il launch gate sia PASS e non autorizzano deploy o pubblicazione**.
+Il redesign è stato pubblicato il 25/09 e Web Analytics verificata in produzione il 27/09. I documenti launch del 17/09 sopra elencati restano specifiche del ciclo di preparazione: **non attestano da soli che il launch gate sia PASS e non autorizzano deploy o pubblicazione**.
 
 ## Storico
 

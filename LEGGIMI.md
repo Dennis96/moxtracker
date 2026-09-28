@@ -32,7 +32,7 @@ D1 sono passaggi separati e richiedono autorizzazione esplicita.
 Per riprendere il lavoro leggere nell'ordine:
 
 1. [STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md), sempre prima di nuovo lavoro.
-2. [Indice documentazione](passaggi/INDICE.md).
+2. [Indice documentazione](passaggi/INDICE.md). Per il coordinatore generale usare anche l’[ingresso nel repository privato mox-core](https://github.com/Dennis96/mox-core/blob/main/passaggi/coordinamento/START-COORDINATORE-WEB-2026-09-28.md), su `main`.
 3. [Checklist manuale R0](passaggi/checklist/CHECKLIST-MANUALE-R0-CORRENTE.md),
    prima di un collaudo reale.
 4. [Contratto Account e Ticket](passaggi/contratti/ACCOUNT-E-TICKET.md), solo

@@ -1,5 +1,7 @@
 # Per Codex — riprendere il sito, dopo A109 e la 2.9.24
 
+> **Housekeeping 28/09/2026:** i riferimenti non più risolvibili sono conservati come testo di provenienza. Questo documento fotografa la sua data; per lo stato corrente usare l’ingresso del repository.
+
 > Scritto la sera del **26/08/2026** da Claude. Sostituisce
 > `PASSAGGIO-A-CODEX-DOPO-A109-2026-08-26.md`, che copriva solo il repo.
 > Da leggere insieme ai tuoi due:
@@ -24,7 +26,7 @@ ogni pick con quello del pick prima più la sua scelta **carta per carta e in
 posizione**. Nella traccia del 26/08 le rotture erano 22 su 42 pick. Quattro
 Draft veri rifiutati interi fra il 24 e il 26/08, con dentro tutte le carte
 giuste. Il racconto completo, comprese le strade sbagliate, è in
-[`../Codice/passaggi/PASSAGGIO-DRAFT-A109-ESITO-2026-08-26.md`](../Codice/passaggi/PASSAGGIO-DRAFT-A109-ESITO-2026-08-26.md).
+`../Codice/passaggi/PASSAGGIO-DRAFT-A109-ESITO-2026-08-26.md` (riferimento storico non risolvibile: `../Codice/passaggi/PASSAGGIO-DRAFT-A109-ESITO-2026-08-26.md`).
 
 Tre conseguenze che cambiano quello che arriva al server:
 
@@ -126,6 +128,6 @@ Pubblicata su entrambi i canali e verificata riscaricandola: l'installer sceso
 dal canale pubblico ha lo stesso SHA-256 di quello costruito in locale, e l'asset
 GitHub coincide con lo ZIP. Release
 [`mox-v2-beta2.9.24`](https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.24).
-Dettagli in [`../Codice/MOX-2.9.24-STATO.md`](../Codice/MOX-2.9.24-STATO.md).
+Dettagli in `../Codice/MOX-2.9.24-STATO.md` (riferimento storico non risolvibile: `../Codice/MOX-2.9.24-STATO.md`).
 
 Suite Mox completa verde (174 prove Draft), suite del server **152/152**.
