@@ -1,7 +1,9 @@
 # moxtracker — server, meta e sito di Mox
 
+> **Housekeeping 28/09/2026:** i riferimenti non più risolvibili sono conservati come testo di provenienza. Questo documento fotografa la sua data; per lo stato corrente usare l’ingresso del repository.
+
 > Stato verificato il **25/08/2026**. L'indice dei documenti è in
-> [DOCUMENTAZIONE.md](DOCUMENTAZIONE.md).
+> DOCUMENTAZIONE.md (riferimento storico non risolvibile: `DOCUMENTAZIONE.md`).
 
 moxtracker è la parte online di Mox. Riceve, solo con consenso, le partite che
 il programma locale legge da MTG Arena; le conserva in Cloudflare D1, riconosce

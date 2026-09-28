@@ -1,5 +1,7 @@
 # Handoff — preview R0 `moxtracker`
 
+> **Housekeeping 28/09/2026:** i riferimenti non più risolvibili sono conservati come testo di provenienza. Questo documento fotografa la sua data; per lo stato corrente usare l’ingresso del repository.
+
 Data: 31 agosto 2026
 Stato: **preview R0 pubblicata, nessuna promozione autorizzata**
 
@@ -47,7 +49,7 @@ Restano **MANUALI**, non PASS:
   di prova.
 
 La checklist pronta per 3–5 tester è
-[CHECKLIST-TESTER-R0-PREVIEW-2026-08-31.md](CHECKLIST-TESTER-R0-PREVIEW-2026-08-31.md).
+CHECKLIST-TESTER-R0-PREVIEW-2026-08-31.md (riferimento storico non risolvibile: `CHECKLIST-TESTER-R0-PREVIEW-2026-08-31.md`).
 
 ## 5. Esiti
 

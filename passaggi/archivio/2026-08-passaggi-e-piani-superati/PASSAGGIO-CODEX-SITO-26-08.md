@@ -1,9 +1,11 @@
 # Passaggio a Codex — il sito, dopo la 2.9.23
 
+> **Housekeeping 28/09/2026:** i riferimenti non più risolvibili sono conservati come testo di provenienza. Questo documento fotografa la sua data; per lo stato corrente usare l’ingresso del repository.
+
 > Scritto il **26/08/2026**, subito dopo la pubblicazione di Mox 2 beta 2.9.23.
 > Serve a chi riprende il **sito**: cosa è cambiato sotto, cosa tocca davvero
 > le pagine, e cosa aspetta un via libera che non è ancora arrivato.
-> Per lo stato corrente del server vale sempre [LEGGIMI.md](LEGGIMI.md).
+> Per lo stato corrente del server vale sempre LEGGIMI.md (riferimento storico non risolvibile: `LEGGIMI.md`).
 
 ## Il via libera che manca
 
@@ -23,7 +25,7 @@ terre duali comuni scambiate per terre base (in Arena hanno la stessa rarità
 delle Paludi), un Draft nuovo che ereditava il precedente, «chiudi draft» che
 azzerava le carte ma non l'identità, e le statistiche 17lands assenti nella
 riserva del deck builder. Dettaglio in
-[`Codice\MOX-2.9.23-STATO.md`](../Codice/MOX-2.9.23-STATO.md).
+`Codice\MOX-2.9.23-STATO.md` (riferimento storico non risolvibile: `../Codice/MOX-2.9.23-STATO.md`).
 
 **Il Worker** (versione `face6463-912c-452e-a1c3-29aa8bf44e96`) ha due novità:
 il canale `canary` di `/mox/release` e la colonna `sospetto` sulle tracce

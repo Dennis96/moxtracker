@@ -1,8 +1,10 @@
 # MOXTRACKER Frontend v1 — prima build
 
+> **Housekeeping 28/09/2026:** i riferimenti non più risolvibili sono conservati come testo di provenienza. Questo documento fotografa la sua data; per lo stato corrente usare l’ingresso del repository.
+
 > **Passaggio storico.** I file descritti qui sono già stati integrati nel
 > repository. Lo sviluppo è poi arrivato allo Step 6.1.1; per lo stato corrente
-> usare [LEGGIMI.md](../../LEGGIMI.md) e [DOCUMENTAZIONE.md](../../DOCUMENTAZIONE.md).
+> usare LEGGIMI.md (riferimento storico non risolvibile: `../../LEGGIMI.md`) e DOCUMENTAZIONE.md (riferimento storico non risolvibile: `../../DOCUMENTAZIONE.md`).
 
 Questa era la prima consegna: conteneva solo file frontend e un test, senza
 modificare `src/`, `schema.sql` o `wrangler.toml`.
