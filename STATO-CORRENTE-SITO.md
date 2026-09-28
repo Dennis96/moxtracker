@@ -1,5 +1,21 @@
 # Stato corrente — sito Mox
 
+## Kill switch dei dati 17Lands — ramo, NON deployato, 28 settembre 2026
+
+Il ramo `claude/17lands-compliance-guardrails-2026-09-28` aggiunge
+`GET /mox/external-data-policy` (`src/politica-dati-esterni.js`): legge il
+secret `MOX_EXTERNAL_DATA_POLICY` (schema 1, `providers["17lands"].mode` =
+`enabled` | `cache_only` | `disabled`) e risponde con `cache-control: no-store`.
+Secret assente → `enabled` con `configurata: false`; secret non valido → 503
+senza ripeterne il contenuto; altri metodi → 405. Lo legge MOX dalla 2.11.4
+(release candidate locale); **la 2.11.3 e le precedenti non lo leggono**.
+Prove: `prove/politica-dati-esterni.test.js` 10/10; suite 495/496, con
+l'unico fallimento `brew-nomi` · «l'esecutore vero avvia il .js di Wrangler»
+identico sulla base `42b5917c` in una worktree senza `node_modules`
+(ambientale). **Nessun deploy, secret remoto non impostato.** Il permesso
+17Lands è in attesa; runbook in `mox-core`
+`passaggi/coordinamento/KILL-SWITCH-17LANDS-2026-09-28.md`.
+
 ## MOX Beta 2.11.3 e installer Stable/Canary separati — production, 27 settembre 2026
 
 La [PR #28](https://github.com/Dennis96/moxtracker/pull/28), unita in `main` `6f09f82f73fbb31b1ff1273e6a900a2b577af3eb`, aggiunge la route `/mox/installer/<X.Y.Z>/<sha256>/Mox-Installer-win-x64.exe`, che legge la chiave R2 omonima sotto `installer/` e rifiuta ogni altra forma senza toccare il bucket. Stable e Canary non condividono più l'oggetto R2. `/mox/download.exe` resta sull'oggetto storico `Mox-Installer-win-x64.exe` (installer 2.11.2, SHA `12ed355a…`), che nessuna pubblicazione scrive più e che non si cancella. `/mox/release` invariato. **486/486 test PASS**.
