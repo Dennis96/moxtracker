@@ -1,5 +1,37 @@
 # Stato corrente — sito Mox
 
+## FRA — remediation Codex dopo review FAIL, non deployata, 30 settembre 2026
+
+La review indipendente degli HEAD core `5274790` e tracker `730c334` ha trovato
+tre MAJOR. Il branch `codex/remediate-fra-real-draft-2026-09-30`, da `730c334`,
+corregge i metadati delle copie candidate: dati della carta coerenti e consumo
+per rango senza propagare `vicina`. Corpus Python/JS 51 casi identici; API v1
+e D1 invariati. Core corregge coppia/traccia e salvataggio su branch omonimo.
+**In attesa di review indipendente Claude**, non fuso/non deployato:
+[handoff Codex](passaggi/handoff/HANDOFF-CODEX-FRA-COPIE-CANDIDATE-2026-09-30.md).
+
+## Draft con due copie nello stesso pacchetto — ramo, NON deployato, 30 settembre 2026
+
+Il ramo `claude/fra-real-draft-remediation-2026-09-30` (base `ec0333e0`)
+corregge `controllaDraft` e la metrica di `salvaUno` in `src/draft.js`. Nel
+primo Draft reale di Reality Fracture, il 30/09/2026, Arena ha offerto due
+copie della stessa carta nello stesso pacchetto: il controllo pretendeva carte
+tutte diverse e avrebbe rifiutato il Draft intero con «carte offerte non
+valide» (Mox lo ha trattenuto prima, con la stessa regola). Ora un pacchetto è
+un elenco di copie: scelte, consigli e candidati si controllano **per
+molteplicità**, non più copie di quante ne sono offerte; i motivi di rifiuto
+sono le stesse stringhe. `abbinaScelte` conta il `seguito` copia per copia
+(`[A, B]` consigliate, `[A, A]` scelte: una seguita, una no) e abbina a una
+scelta non seguita un consiglio rimasto senza scelta. Il gemello nel client è
+`mox-core` `strumenti/pacchetto_draft.py`, stesso ramo; i casi condivisi in
+`prove/casi-pacchetto-draft.json` passano da 19 a 29, copia identica.
+
+Nessuna migrazione D1, API v1 e rotta della policy invariate. **Nessun deploy:
+in produzione resta il Worker `bbefb475`**, che un Draft con un doppione lo
+rifiuta ancora: questo ramo va deployato prima che una 2.11.4 corretta ne
+spedisca uno. Resoconto in `mox-core`
+`passaggi/release/handoff/HANDOFF-FRA-REAL-DRAFT-REMEDIATION-2026-09-30.md`.
+
 ## Kill switch dei dati 17Lands — production, 30 settembre 2026
 
 `GET /mox/external-data-policy` (`src/politica-dati-esterni.js`) è in
