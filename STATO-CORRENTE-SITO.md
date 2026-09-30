@@ -1,6 +1,25 @@
 # Stato corrente — sito Mox
 
-## FRA — remediation Codex dopo review FAIL, non deployata, 30 settembre 2026
+## Worker FRA-02 e Canary 2.11.4 — production, 30 settembre 2026
+
+PR #33 fusa: `main` `fda6c84`, albero identico a `8f8327f`, certificato dalla
+review Claude PASS (`mox-core` `3d54b8f`). Suite 504/504 dalla checkout
+operativa.
+
+**Worker production:** da `407c22a2-13b6-4dd5-8377-cbe637f465d2` (rollback) a
+`1713abcd-26c7-4850-9d25-71fd6066c34c`, 21:27 UTC, dal sorgente `fda6c84`;
+binding e variabili invariati. Nessuna migrazione D1, secret della policy non
+toccato. Verifica: policy 200 `enabled`, `configurata: true`, `no-store`;
+`/salute` vivo; `/meta` e `/scontri` con formato 200; `/draft/statistiche`
+FRA a 0 (il Draft FRA vero resta in quarantena, non spedito).
+
+**Canary 2.11.4:** installer in
+`installer/2.11.4/29f9be1f…abb1e/Mox-Installer-win-x64.exe`, manifesto sul
+solo `MOX_RELEASE_MANIFEST_CANARY`. `MOX_RELEASE_MANIFEST`, GitHub Release e
+sito non toccati: stable resta 2.11.3. Dettagli nel passaggio
+`mox-core/passaggi/release/handoff/HANDOFF-CANARY-2.11.4-2026-09-30.md`.
+
+## FRA — remediation Codex dopo review FAIL, fusa e deployata il 30/09 (sopra)
 
 La review indipendente degli HEAD core `5274790` e tracker `730c334` ha trovato
 tre MAJOR. Il branch `codex/remediate-fra-real-draft-2026-09-30`, da `730c334`,
