@@ -18,6 +18,7 @@ import { pulisciContributiScaduti } from "./retention.js";
 import { configResearch, saluteResearch } from "./research/config.js";
 import { pulisciResearchScaduta } from "./research/retention.js";
 import { gestisciResearch } from "./research/rotte.js";
+import { politicaDatiEsterni } from "./politica-dati-esterni.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -278,6 +279,12 @@ export default {
     if (ticket) return ticket;
     const account = await gestisciAccount(richiesta, ambiente, indirizzo);
     if (account) return account;
+
+    // Il kill switch dei dati esterni: prima di OPTIONS e di tutto il resto,
+    // cosi' ogni metodo che non sia GET riceve un 405 senza cache.
+    if (indirizzo.pathname === "/mox/external-data-policy") {
+      return politicaDatiEsterni(richiesta, ambiente);
+    }
 
     if (richiesta.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: INTESTAZIONI });
