@@ -1,20 +1,39 @@
 # Stato corrente — sito Mox
 
-## Kill switch dei dati 17Lands — ramo, NON deployato, 28 settembre 2026
+## Kill switch dei dati 17Lands — production, 30 settembre 2026
 
-Il ramo `claude/17lands-compliance-guardrails-2026-09-28` aggiunge
-`GET /mox/external-data-policy` (`src/politica-dati-esterni.js`): legge il
-secret `MOX_EXTERNAL_DATA_POLICY` (schema 1, `providers["17lands"].mode` =
-`enabled` | `cache_only` | `disabled`) e risponde con `cache-control: no-store`.
-Secret assente → `enabled` con `configurata: false`; secret non valido → 503
-senza ripeterne il contenuto; altri metodi → 405. Lo legge MOX dalla 2.11.4
-(release candidate locale); **la 2.11.3 e le precedenti non lo leggono**.
-Prove: `prove/politica-dati-esterni.test.js` 10/10; suite 495/496, con
-l'unico fallimento `brew-nomi` · «l'esecutore vero avvia il .js di Wrangler»
-identico sulla base `42b5917c` in una worktree senza `node_modules`
-(ambientale). **Nessun deploy, secret remoto non impostato.** Il permesso
-17Lands è in attesa; runbook in `mox-core`
-`passaggi/coordinamento/KILL-SWITCH-17LANDS-2026-09-28.md`.
+`GET /mox/external-data-policy` (`src/politica-dati-esterni.js`) è in
+produzione: legge il secret `MOX_EXTERNAL_DATA_POLICY` (schema 1,
+`providers["17lands"].mode` = `enabled` | `cache_only` | `disabled`) e risponde
+con `cache-control: no-store`. Secret assente → `enabled` con
+`configurata: false`; secret non valido → 503 senza ripeterne il contenuto;
+altri metodi → 405. Lo legge MOX dalla 2.11.4; **la 2.11.3 e le precedenti non
+lo leggono**.
+
+**Merge e deploy, autorizzati da Dennis in chat il 30/09/2026.** PR #31, un solo
+commit (`d4098a0`), fusa in `main` a `01fecab`; suite dalla checkout operativa
+**496/496**. Rispetto al sorgente del deploy precedente cambiano solo
+`src/politica-dati-esterni.js` e sette righe di `src/index.js`: nessuna
+migrazione D1, binding e variabili identici al dry-run, Research `on`,
+`BREW_GRUPPI` `on`.
+
+**Worker production:** da `d05bb6c7-80c2-402d-9007-82c2bcf2168c` (rollback) a
+`bbefb475-e4ba-431f-86a9-72ced20cd23c`; poi il secret, versione corrente
+`407c22a2-13b6-4dd5-8377-cbe637f465d2`. Secret impostato su **`enabled`**
+esplicito, dal redirect di bash, con `updated_at` `2026-09-30T12:38:56Z`: il
+permesso 17Lands resta in attesa e l'uso è quello che la 2.11.3 fa già.
+
+**Verifica:** l'endpoint di produzione risponde 200, `no-store`, `enabled`,
+`configurata: true`; `POST` → 405. Il client della 2.11.4, da cold start
+`disabled`, riceve la policy, la applica e la salva (`ricevuta`, `applicata`,
+`persistita`). Smoke prima e dopo il secret: `/salute`, `/meta`,
+`/draft/statistiche` e i manifesti stable e canary 200; `/account/me` 401.
+
+Rollback, **non usato**: `npx wrangler rollback
+d05bb6c7-80c2-402d-9007-82c2bcf2168c --name moxtracker`. Per spegnere i dati
+17Lands non serve il rollback: si scrive `disabled` nel secret. **La 2.11.4 non
+è pubblicata**: nessun manifesto, installer o release è stato toccato. Runbook
+in `mox-core` `passaggi/coordinamento/KILL-SWITCH-17LANDS-2026-09-28.md`.
 
 ## MOX Beta 2.11.3 e installer Stable/Canary separati — production, 27 settembre 2026
 
