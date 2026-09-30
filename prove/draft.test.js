@@ -3,7 +3,9 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import server from "../src/index.js";
-import { controllaDraft, riconciliaStorageDraft, sospettoDraft } from "../src/draft.js";
+import {
+  abbinaScelte, controllaDraft, riconciliaStorageDraft, sospettoDraft,
+} from "../src/draft.js";
 import { creaFintoD1 } from "./finto-d1.js";
 
 const QUI = fileURLToPath(new URL(".", import.meta.url));
@@ -138,6 +140,88 @@ test("Prendi Due valida e indicizza entrambe le carte della decisione", async ()
   const incompleto = structuredClone(pickTwo);
   incompleto.pick[0].scelte = [101];
   assert.match(controllaDraft(incompleto), /scelt/);
+});
+
+// FRA-02, 30/09/2026: nel primo Draft vero di Reality Fracture Arena ha
+// offerto due copie della stessa carta nello stesso pacchetto. Un pacchetto e'
+// un elenco di copie, e il conto si fa copia per copia.
+function prendiDueConDoppione(consigli, scelte, offerte = [101, 101, 102]) {
+  return esempio({
+    draft: "7".repeat(32), formato: "PickTwoDraft", set: "FRA",
+    pick: [{
+      numero: 1, posizione: [1, 1], offerte, pool_prima: [],
+      consiglio_mox: consigli[0], consigli_mox: consigli, politica: "policy-test",
+      scelte, seguito_mox: false,
+      candidati: offerte.map((carta, indice) => (
+        { carta, rango_mox: indice + 1, campione: 0, vicina: false })),
+    }],
+    pool_finale: scelte,
+  });
+}
+
+test("due copie nel pacchetto: il seguito si conta copia per copia", async () => {
+  const env = ambiente();
+  const dato = prendiDueConDoppione([101, 102], [101, 101]);
+  assert.equal(controllaDraft(dato), null);
+  const esito = await manda(env, "/draft", dato);
+  assert.equal(esito.stato, 200);
+  const indice = env.DRAFT_DB.tutte(
+    "SELECT numero, consiglio, scelta, seguito FROM draft_pick ORDER BY numero");
+  assert.deepEqual(indice.map((riga) => riga.scelta), [101, 101]);
+  // Una sola 101 era consigliata: la prima scelta la segue, la seconda no, e
+  // il consiglio rimasto senza scelta e' la 102.
+  assert.deepEqual(indice.map((riga) => riga.seguito), [1, 0]);
+  assert.deepEqual(indice.map((riga) => riga.consiglio), [101, 102]);
+  // La traccia conservata tiene le due copie offerte, cosi' come sono arrivate.
+  const raw = JSON.parse([...env.DRAFT_RAW.oggetti.values()][0]);
+  assert.deepEqual(raw.pick[0].offerte, [101, 101, 102]);
+  assert.equal(raw.pick[0].candidati.filter((c) => c.carta === 101).length, 2);
+});
+
+test("due copie consigliate e tutte e due scelte: due su due", async () => {
+  const env = ambiente();
+  const dato = prendiDueConDoppione([101, 101], [101, 101]);
+  assert.equal(controllaDraft(dato), null);
+  assert.equal((await manda(env, "/draft", dato)).stato, 200);
+  const indice = env.DRAFT_DB.tutte(
+    "SELECT consiglio, scelta, seguito FROM draft_pick ORDER BY numero");
+  assert.deepEqual(indice.map((riga) => riga.seguito), [1, 1]);
+  assert.deepEqual(indice.map((riga) => riga.consiglio), [101, 101]);
+});
+
+test("oltre le copie offerte non si sceglie, non si consiglia, non si candida", () => {
+  assert.equal(controllaDraft(prendiDueConDoppione([101, 102], [101, 102])), null);
+  assert.equal(
+    controllaDraft(prendiDueConDoppione([101, 102], [101, 101], [101, 102, 103])),
+    "scelta: le carte non sono fra quelle offerte");
+  assert.equal(
+    controllaDraft(prendiDueConDoppione([101, 101], [101, 102], [101, 102, 103])),
+    "consiglio Mox multiplo non valido");
+  const treCandidati = prendiDueConDoppione([101, 102], [101, 102], [101, 101, 102, 103]);
+  treCandidati.pick[0].candidati[3].carta = 101;
+  assert.equal(controllaDraft(treCandidati), "candidato non offerto o duplicato");
+});
+
+test("senza doppioni il seguito resta quello di sempre", () => {
+  const seguite = (scelte, consigli) =>
+    abbinaScelte(scelte, consigli).map((esito) => esito.seguito);
+  assert.deepEqual(seguite([102, 101], [101, 102]), [true, true]);
+  assert.deepEqual(seguite([103, 101], [101, 102]), [false, true]);
+  assert.deepEqual(seguite([103, 104], [101, 102]), [false, false]);
+  assert.deepEqual(seguite([103], [101]), [false]);
+  assert.deepEqual(seguite([], [101]), []);
+});
+
+test("a una scelta non seguita va il consiglio rimasto senza scelta", () => {
+  const consigli = (scelte, dati) =>
+    abbinaScelte(scelte, dati).map((esito) => esito.consiglio);
+  // La 101 era consigliata ed e' stata presa: contro la 103 resta la 102.
+  assert.deepEqual(consigli([103, 101], [101, 102]), [102, 101]);
+  assert.deepEqual(consigli([101, 103], [101, 102]), [101, 102]);
+  assert.deepEqual(consigli([103, 104], [101, 102]), [101, 102]);
+  assert.deepEqual(consigli([103], [101]), [101]);
+  // Due copie scelte, una sola consigliata: la seconda non ha il suo consiglio.
+  assert.deepEqual(consigli([102, 102], [101, 102]), [102, 101]);
 });
 
 test("salva indice in D1 e traccia privata in R2 senza il segreto", async () => {

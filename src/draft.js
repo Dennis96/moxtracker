@@ -109,6 +109,49 @@ function controllaMazzoGiocato(valore) {
   return null;
 }
 
+// Un pacchetto di Arena e' un elenco di copie fisiche, non un insieme: la
+// stessa carta puo' starci due volte. E' successo nel primo Draft vero di
+// Reality Fracture, il 30/09/2026, e il controllo di allora - carte tutte
+// diverse - avrebbe rifiutato il Draft intero. La regola e' per molteplicita':
+// due copie offerte si possono scegliere, consigliare e candidare due volte,
+// non tre. Gemello di `_entro_le_copie` in `pacchetto_draft.py`.
+function copie(carte) {
+  const conto = new Map();
+  for (const carta of carte) conto.set(carta, (conto.get(carta) || 0) + 1);
+  return conto;
+}
+
+function entroLeCopie(carte, offerte) {
+  const disponibili = copie(offerte);
+  for (const [carta, quante] of copie(carte)) {
+    if (quante > (disponibili.get(carta) || 0)) return false;
+  }
+  return true;
+}
+
+/** Scelte e consigli abbinati copia per copia: `[{ seguito, consiglio }]`.
+ *
+ * Ogni copia consigliata vale per una scelta sola: con `[A, B]` consigliate e
+ * `[A, A]` scelte la prima A e' seguita, la seconda no. `includes` le avrebbe
+ * contate tutte e due. A una scelta che non segue il consiglio si abbina, in
+ * ordine, un consiglio rimasto senza scelta - mai uno gia' seguito, che e' il
+ * solo modo di non scrivere una riga con consiglio e scelta uguali e
+ * `seguito` a zero.
+ */
+export function abbinaScelte(scelte, consigli) {
+  const liberi = [...consigli];
+  const esiti = scelte.map((scelta) => {
+    const posto = liberi.indexOf(scelta);
+    if (posto === -1) return { seguito: false, consiglio: null };
+    liberi.splice(posto, 1);
+    return { seguito: true, consiglio: scelta };
+  });
+  for (const esito of esiti) {
+    if (!esito.seguito) esito.consiglio = liberi.shift() ?? consigli[0];
+  }
+  return esiti;
+}
+
 function stessoPool(a, b) {
   return a.length === b.length && a.every((carta, indice) => carta === b[indice]);
 }
@@ -155,8 +198,7 @@ export function controllaDraft(dato) {
       return "sequenza dei pick non continua";
     }
     numeroPrecedente = voce.numero;
-    if (!elencoCarte(voce.offerte) || voce.offerte.length === 0 ||
-        new Set(voce.offerte).size !== voce.offerte.length) {
+    if (!elencoCarte(voce.offerte) || voce.offerte.length === 0) {
       return "carte offerte non valide";
     }
     if (!elencoCarte(voce.pool_prima, LIMITI_DRAFT.pickMassimi)) {
@@ -171,8 +213,7 @@ export function controllaDraft(dato) {
     const quante = dato.formato === "PickTwoDraft" ? 2 : 1;
     const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
     if (!elencoCarte(consigli, quante) || consigli.length !== quante ||
-        new Set(consigli).size !== consigli.length ||
-        consigli.some((carta) => !voce.offerte.includes(carta)) ||
+        !entroLeCopie(consigli, voce.offerte) ||
         consigli[0] !== voce.consiglio_mox) {
       return "consiglio Mox multiplo non valido";
     }
@@ -180,11 +221,13 @@ export function controllaDraft(dato) {
         voce.politica.length > 80) return "politica non valida";
     if (!Array.isArray(voce.candidati) || voce.candidati.length === 0 ||
         voce.candidati.length > voce.offerte.length) return "candidati non validi";
-    const carteCandidate = new Set();
+    // Un candidato per copia offerta, non uno per carta.
+    const copieLibere = copie(voce.offerte);
     for (const candidato of voce.candidati) {
-      if (!candidato || !voce.offerte.includes(candidato.carta) ||
-          carteCandidate.has(candidato.carta)) return "candidato non offerto o duplicato";
-      carteCandidate.add(candidato.carta);
+      if (!candidato || !((copieLibere.get(candidato.carta) || 0) >= 1)) {
+        return "candidato non offerto o duplicato";
+      }
+      copieLibere.set(candidato.carta, copieLibere.get(candidato.carta) - 1);
       if (!interoTra(candidato.rango_mox, 1, voce.offerte.length)) {
         return "rango Mox non valido";
       }
@@ -205,8 +248,7 @@ export function controllaDraft(dato) {
     if (voce.scelte !== undefined && quante !== 2) return "scelte multiple nel formato normale";
     const scelte = voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []);
     if (scelte.length && (!elencoCarte(scelte, quante) || scelte.length !== quante ||
-        new Set(scelte).size !== scelte.length ||
-        scelte.some((carta) => !voce.offerte.includes(carta)))) {
+        !entroLeCopie(scelte, voce.offerte))) {
       return "scelta: le carte non sono fra quelle offerte";
     }
     poolAtteso = [...voce.pool_prima];
@@ -339,10 +381,10 @@ async function salvaUno(db, r2, dato, ricevuto) {
   for (const voce of dato.pick) {
     const scelte = voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []);
     const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
+    const abbinate = abbinaScelte(scelte, consigli);
     for (let indice = 0; indice < scelte.length; indice += 1) {
-      const scelta = scelte[indice];
-      const consiglio = consigli.includes(scelta) ? scelta : (consigli[indice] ?? consigli[0]);
-      pickScelti.push({ voce, scelta, consiglio,
+      const { seguito, consiglio } = abbinate[indice];
+      pickScelti.push({ voce, scelta: scelte[indice], consiglio, seguito,
         numero: voce.pool_prima.length + indice + 1 });
     }
   }
@@ -352,12 +394,12 @@ async function salvaUno(db, r2, dato, ricevuto) {
     const blocco = pickScelti.slice(i, i + 10);
     const argomenti = [];
     for (const elemento of blocco) {
-      const { voce, scelta, consiglio, numero } = elemento;
+      const { voce, scelta, consiglio, seguito, numero } = elemento;
       const candidatoScelto = voce.candidati.find((c) => c.carta === scelta);
       const vicina = voce.candidati.some((c) => c.carta === scelta && c.vicina);
       argomenti.push(
         dato.draft, numero, fase(numero), consiglio,
-        scelta, (voce.consigli_mox ?? [voce.consiglio_mox]).includes(scelta) ? 1 : 0,
+        scelta, seguito ? 1 : 0,
         vicina ? 1 : 0, Number(candidatoScelto?.campione || 0),
         candidatoScelto?.fonte_17lands ?? null, voce.politica,
       );
