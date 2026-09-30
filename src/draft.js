@@ -223,8 +223,10 @@ export function controllaDraft(dato) {
         voce.candidati.length > voce.offerte.length) return "candidati non validi";
     // Un candidato per copia offerta, non uno per carta.
     const copieLibere = copie(voce.offerte);
+    const datiPerCarta = new Map();
     for (const candidato of voce.candidati) {
-      if (!candidato || !((copieLibere.get(candidato.carta) || 0) >= 1)) {
+      if (!candidato || !interoTra(candidato.carta, 1, 9_999_999) ||
+          !((copieLibere.get(candidato.carta) || 0) >= 1)) {
         return "candidato non offerto o duplicato";
       }
       copieLibere.set(candidato.carta, copieLibere.get(candidato.carta) - 1);
@@ -232,6 +234,9 @@ export function controllaDraft(dato) {
         return "rango Mox non valido";
       }
       if (!interoTra(candidato.campione, 0, 100_000_000)) return "campione non valido";
+      if (candidato.fonte_17lands != null && typeof candidato.fonte_17lands !== "string") {
+        return "fonte 17lands non valida";
+      }
       if ("valore_17lands" in candidato &&
           (typeof candidato.valore_17lands !== "number" ||
            candidato.valore_17lands < 0 || candidato.valore_17lands > 1)) {
@@ -243,6 +248,13 @@ export function controllaDraft(dato) {
            candidato.intervallo_95[0] > candidato.intervallo_95[1])) {
         return "intervallo non valido";
       }
+      // Dati della carta identici; rango e vicina restano per singola copia.
+      const dati = JSON.stringify([candidato.campione, candidato.fonte_17lands ?? null,
+        candidato.valore_17lands ?? null, candidato.intervallo_95 ?? null]);
+      if (datiPerCarta.has(candidato.carta) && datiPerCarta.get(candidato.carta) !== dati) {
+        return "dati discordanti fra copie della stessa carta";
+      }
+      datiPerCarta.set(candidato.carta, dati);
     }
     if (voce.scelta !== undefined && quante !== 1) return "scelta singola nel formato Prendi Due";
     if (voce.scelte !== undefined && quante !== 2) return "scelte multiple nel formato normale";
@@ -382,9 +394,15 @@ async function salvaUno(db, r2, dato, ricevuto) {
     const scelte = voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []);
     const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
     const abbinate = abbinaScelte(scelte, consigli);
+    // Il log non identifica fisicamente la copia: convenzione deterministica,
+    // si consuma prima quella di rango migliore, una candidata per scelta.
+    const liberi = [...voce.candidati].sort((a, b) => a.rango_mox - b.rango_mox);
     for (let indice = 0; indice < scelte.length; indice += 1) {
       const { seguito, consiglio } = abbinate[indice];
+      const posto = liberi.findIndex((c) => c.carta === scelte[indice]);
+      const candidatoScelto = posto < 0 ? null : liberi.splice(posto, 1)[0];
       pickScelti.push({ voce, scelta: scelte[indice], consiglio, seguito,
+        candidatoScelto,
         numero: voce.pool_prima.length + indice + 1 });
     }
   }
@@ -394,9 +412,8 @@ async function salvaUno(db, r2, dato, ricevuto) {
     const blocco = pickScelti.slice(i, i + 10);
     const argomenti = [];
     for (const elemento of blocco) {
-      const { voce, scelta, consiglio, seguito, numero } = elemento;
-      const candidatoScelto = voce.candidati.find((c) => c.carta === scelta);
-      const vicina = voce.candidati.some((c) => c.carta === scelta && c.vicina);
+      const { voce, scelta, consiglio, seguito, numero, candidatoScelto } = elemento;
+      const vicina = Boolean(candidatoScelto?.vicina);
       argomenti.push(
         dato.draft, numero, fase(numero), consiglio,
         scelta, seguito ? 1 : 0,

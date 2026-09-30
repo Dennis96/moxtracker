@@ -224,6 +224,51 @@ test("a una scelta non seguita va il consiglio rimasto senza scelta", () => {
   assert.deepEqual(consigli([102, 102], [101, 102]), [102, 101]);
 });
 
+test("copie candidate consumate per rango: vicina non si propaga", async () => {
+  for (const inverti of [false, true]) {
+    const env = ambiente();
+    const dato = prendiDueConDoppione([101, 102], [101, 101]);
+    dato.pick[0].candidati[1].vicina = true;
+    if (inverti) dato.pick[0].candidati.reverse();
+    assert.equal((await manda(env, "/draft", dato)).stato, 200);
+    const righe = env.DRAFT_DB.tutte(
+      "SELECT numero, seguito, vicina FROM draft_pick ORDER BY numero");
+    assert.deepEqual(righe.map((r) => r.seguito), [1, 0]);
+    assert.deepEqual(righe.map((r) => r.vicina), [0, 1]);
+  }
+});
+
+test("copie discordanti per campione o fonte rifiutate prima dello storage", async () => {
+  for (const campo of ["campione", "fonte_17lands", "valore_17lands", "intervallo_95"]) {
+    const env = ambiente();
+    const dato = prendiDueConDoppione([101, 102], [101, 101]);
+    dato.pick[0].candidati[1][campo] = {
+      campione: 9000, fonte_17lands: "diversa", valore_17lands: .6, intervallo_95: [.5, .7],
+    }[campo];
+    assert.equal(controllaDraft(dato), "dati discordanti fra copie della stessa carta");
+    const risposta = await manda(env, "/draft", dato);
+    assert.equal(risposta.corpo.accettati, 0);
+    assert.equal(risposta.corpo.rifiutati.length, 1);
+    assert.equal(env.DRAFT_RAW.oggetti.size, 0);
+    assert.equal(env.DRAFT_DB.tutte("SELECT * FROM draft_pick").length, 0);
+  }
+});
+
+test("seguito e intersezione multiset coincidono in ogni ordine", () => {
+  for (const a of [101, 102, 103]) for (const b of [101, 102, 103]) {
+    for (const c of [101, 102, 103]) for (const d of [101, 102, 103]) {
+      const atteso = [101, 102, 103].reduce((somma, carta) => somma + Math.min(
+        [a, b].filter((x) => x === carta).length,
+        [c, d].filter((x) => x === carta).length), 0);
+      for (const consigli of [[a, b], [b, a]]) for (const scelte of [[c, d], [d, c]]) {
+        const esiti = abbinaScelte(scelte, consigli);
+        assert.equal(esiti.filter((r) => r.seguito).length, atteso);
+        assert.ok(esiti.every((r, i) => r.seguito === (r.consiglio === scelte[i])));
+      }
+    }
+  }
+});
+
 test("salva indice in D1 e traccia privata in R2 senza il segreto", async () => {
   const env = ambiente();
   const esito = await manda(env, "/draft", { draft: [esempio()] });

@@ -1,5 +1,15 @@
 # Stato corrente — sito Mox
 
+## FRA — remediation Codex dopo review FAIL, non deployata, 30 settembre 2026
+
+La review indipendente degli HEAD core `5274790` e tracker `730c334` ha trovato
+tre MAJOR. Il branch `codex/remediate-fra-real-draft-2026-09-30`, da `730c334`,
+corregge i metadati delle copie candidate: dati della carta coerenti e consumo
+per rango senza propagare `vicina`. Corpus Python/JS 51 casi identici; API v1
+e D1 invariati. Core corregge coppia/traccia e salvataggio su branch omonimo.
+**In attesa di review indipendente Claude**, non fuso/non deployato:
+[handoff Codex](passaggi/handoff/HANDOFF-CODEX-FRA-COPIE-CANDIDATE-2026-09-30.md).
+
 ## Draft con due copie nello stesso pacchetto — ramo, NON deployato, 30 settembre 2026
 
 Il ramo `claude/fra-real-draft-remediation-2026-09-30` (base `ec0333e0`)

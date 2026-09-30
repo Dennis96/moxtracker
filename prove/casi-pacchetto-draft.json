@@ -3941,6 +3941,1582 @@
           301
         ]
       }
+    },
+    {
+      "nome": "FRA-02 Codex: numeri interi JSON float in offerte",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401.0,
+              401.0,
+              402.0,
+              403.0
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: numeri interi JSON float in pool_prima",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: numeri interi JSON float in consigli_mox",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402.0,
+              401.0
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: numeri interi JSON float in scelte",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401.0,
+              401.0
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: candidato carta numerico intero",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402.0,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401.0,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401.0,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403.0,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: candidato rango_mox numerico intero",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1.0,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2.0,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3.0,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4.0,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: candidato campione numerico intero",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0.0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0.0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0.0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0.0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: copie discordanti per campione",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 9000,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "dati discordanti fra copie della stessa carta"
+    },
+    {
+      "nome": "FRA-02 Codex: copie discordanti per fonte_17lands",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false,
+                "fonte_17lands": "discordante"
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "dati discordanti fra copie della stessa carta"
+    },
+    {
+      "nome": "FRA-02 Codex: copie discordanti per valore_17lands",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false,
+                "valore_17lands": 0.99
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "dati discordanti fra copie della stessa carta"
+    },
+    {
+      "nome": "FRA-02 Codex: copie discordanti per intervallo_95",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false,
+                "intervallo_95": [
+                  0.1,
+                  0.9
+                ]
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "dati discordanti fra copie della stessa carta"
+    },
+    {
+      "nome": "FRA-02 Codex: vicina per copia non e dato della carta",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": true
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
+    },
+    {
+      "nome": "FRA-02 Codex: carta candidata tipo rifiutato True",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": true,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "candidato non offerto o duplicato"
+    },
+    {
+      "nome": "FRA-02 Codex: carta candidata tipo rifiutato '301'",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": "301",
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "candidato non offerto o duplicato"
+    },
+    {
+      "nome": "FRA-02 Codex: carta candidata tipo rifiutato 301.5",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 301.5,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "candidato non offerto o duplicato"
+    },
+    {
+      "nome": "FRA-02 Codex: carta candidata tipo rifiutato None",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": null,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "candidato non offerto o duplicato"
+    },
+    {
+      "nome": "FRA-02 Codex: carta candidata tipo rifiutato []",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": [],
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "candidato non offerto o duplicato"
+    },
+    {
+      "nome": "FRA-02 Codex: carta candidata tipo rifiutato {}",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": {},
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "candidato non offerto o duplicato"
+    },
+    {
+      "nome": "FRA-02 Codex: fonte deve essere testo True",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false,
+                "fonte_17lands": true
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "fonte 17lands non valida"
+    },
+    {
+      "nome": "FRA-02 Codex: fonte deve essere testo 1200",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false,
+                "fonte_17lands": 1200
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "fonte 17lands non valida"
+    },
+    {
+      "nome": "FRA-02 Codex: fonte deve essere testo {'origine': 'sintetica'}",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false,
+                "fonte_17lands": {
+                  "origine": "sintetica"
+                }
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": "fonte 17lands non valida"
+    },
+    {
+      "nome": "FRA-02 Codex: fonte nulla e assente equivalgono",
+      "pacchetto": {
+        "versione": 1,
+        "draft": "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "mittente": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+        "segreto_cancellazione": "3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c",
+        "mox": "2 beta 2.11.4",
+        "set": "FRA",
+        "formato": "PickTwoDraft",
+        "iniziato": "2026-09-30T12:48:33Z",
+        "completo": true,
+        "pick": [
+          {
+            "numero": 1,
+            "offerte": [
+              401,
+              401,
+              402,
+              403
+            ],
+            "pool_prima": [],
+            "consiglio_mox": 402,
+            "politica": "mox-draft-2.9-riferimento",
+            "candidati": [
+              {
+                "carta": 402,
+                "rango_mox": 1,
+                "campione": 0,
+                "vicina": false,
+                "fonte_17lands": null
+              },
+              {
+                "carta": 401,
+                "rango_mox": 2,
+                "campione": 0,
+                "vicina": false,
+                "fonte_17lands": null
+              },
+              {
+                "carta": 401,
+                "rango_mox": 3,
+                "campione": 0,
+                "vicina": false
+              },
+              {
+                "carta": 403,
+                "rango_mox": 4,
+                "campione": 0,
+                "vicina": false,
+                "fonte_17lands": null
+              }
+            ],
+            "posizione": [
+              1,
+              1
+            ],
+            "scelte": [
+              401,
+              401
+            ],
+            "consigli_mox": [
+              402,
+              401
+            ]
+          }
+        ],
+        "pool_finale": [
+          401,
+          401
+        ]
+      },
+      "atteso": null
     }
   ]
 }
