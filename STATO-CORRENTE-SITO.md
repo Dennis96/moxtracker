@@ -1,5 +1,11 @@
 # Stato corrente — sito Mox
 
+## Riferimento documentale — 04/10/2026
+
+`moxtracker/main` verificato in Git a `d3b6780030a289842af3e0585b63158ce13536d8`. Questo documento conserva le evidenze operative raccolte nelle date indicate: l’ultimo controllo Worker riportato qui è del 30/09/2026. Non è stata fatta una nuova interrogazione di produzione durante l’housekeeping, quindi tale versione è l’ultima **documentata**, non una verifica live al 04/10.
+
+La Stable documentata è MOX Beta 2.11.3; lo stato Canary più recente è in `mox-core/STATUS.md` (2.11.6). Le sezioni seguenti sono registrazioni datate, non una nuova attestazione del runtime. Il prossimo macro-task tecnico, ancora non avviato, è la pipeline reale Draft/server elencata in [mox-core/STATUS.md](https://github.com/Dennis96/mox-core/blob/codex/pre-draft-doc-housekeeping-2026-10-04/STATUS.md): P1 500 intermittenti, P2 aggiornamento idempotente mazzo finale, P3 upload e mano iniziale (causa da certificare), P4 cartelle duplicate; P5 manutenzione server resta separata. Questo riferimento documentale non autorizza modifiche o deploy.
+
 ## Worker FRA-02 e Canary 2.11.4 — production, 30 settembre 2026
 
 PR #33 fusa: `main` `fda6c84`, albero identico a `8f8327f`, certificato dalla
