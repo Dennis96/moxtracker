@@ -563,21 +563,43 @@ async function salvaUno(db, r2, dato, ricevuto, giro = 0) {
   return inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro);
 }
 
-function pickIndicizzati(dato) {
+// Le convenzioni con cui i Worker hanno scritto `draft_pick`, dalla piu'
+// recente. Le righe gia' indicizzate non si riscrivono: un Draft arrivato
+// prima del 30/09/2026 ha ancora le sue, e le certifica la sua convenzione.
+// - "copie" (8f8327f, FRA): consigli abbinati copia per copia, una candidata
+//   per copia in ordine di rango. E' quella dell'inserimento.
+// - "abbinate" (730c334, FRA-02, 30/09 pomeriggio): consigli abbinati, ma la
+//   candidata era la prima della carta e `vicina` valeva per qualunque copia.
+// - "insieme" (dal 20/08): consiglio non seguito = `consigli[indice]`,
+//   `seguito` con `includes`, candidata come in "abbinate".
+const CONVENZIONI_PICK = ["copie", "abbinate", "insieme"];
+
+function pickIndicizzati(dato, convenzione = "copie") {
   const righe = [];
   for (const voce of dato.pick) {
     const scelte = voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []);
     const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
-    const abbinate = abbinaScelte(scelte, consigli);
-    // Una candidata per copia: stessa convenzione dell'inserimento originale.
-    const liberi = [...voce.candidati].sort((a, b) => a.rango_mox - b.rango_mox);
+    const abbinate = convenzione === "insieme"
+      ? scelte.map((scelta, indice) => ({ seguito: consigli.includes(scelta),
+        consiglio: consigli.includes(scelta) ? scelta : (consigli[indice] ?? consigli[0]) }))
+      : abbinaScelte(scelte, consigli);
+    const liberi = convenzione === "copie"
+      ? [...voce.candidati].sort((a, b) => a.rango_mox - b.rango_mox) : null;
     for (let indice = 0; indice < scelte.length; indice += 1) {
       const { seguito, consiglio } = abbinate[indice];
-      const posto = liberi.findIndex((c) => c.carta === scelte[indice]);
-      const candidato = posto < 0 ? null : liberi.splice(posto, 1)[0];
+      let candidato;
+      let vicina;
+      if (convenzione === "copie") {
+        const posto = liberi.findIndex((c) => c.carta === scelte[indice]);
+        candidato = posto < 0 ? null : liberi.splice(posto, 1)[0];
+        vicina = Boolean(candidato?.vicina);
+      } else {
+        candidato = voce.candidati.find((c) => c.carta === scelte[indice]);
+        vicina = voce.candidati.some((c) => c.carta === scelte[indice] && c.vicina);
+      }
       const numero = voce.pool_prima.length + indice + 1;
       righe.push({ numero, fase: fase(numero), consiglio, scelta: scelte[indice],
-        seguito: seguito ? 1 : 0, vicina: candidato?.vicina ? 1 : 0,
+        seguito: seguito ? 1 : 0, vicina: vicina ? 1 : 0,
         campione: Number(candidato?.campione || 0),
         fonte: candidato?.fonte_17lands ?? null, politica: voce.politica });
     }
@@ -702,11 +724,13 @@ async function aggiornaEsistente(db, r2, dato, riga, ricevuto, giro) {
   }
   // Un raw valido in forma puo' comunque descrivere scelte diverse dai
   // fatti gia' indicizzati. Non autorizza append o repair in quel caso.
-  const pickNoti = (await passo("lettura", () => db.prepare(`SELECT numero, fase,
+  // Basta una delle convenzioni dei Worker passati: tutte derivano le righe
+  // dallo stesso raw, e chi le ha scritte prima del 30/09 non le ha riscritte.
+  const pickNoti = canonico((await passo("lettura", () => db.prepare(`SELECT numero, fase,
     consiglio, scelta, seguito, vicina, campione, fonte, politica
     FROM draft_pick WHERE draft_id = ? ORDER BY numero`).bind(dato.draft).all()))
-    .results || [];
-  if (canonico(pickNoti) !== canonico(pickIndicizzati(registrato))) {
+    .results || []);
+  if (!CONVENZIONI_PICK.some((c) => canonico(pickIndicizzati(registrato, c)) === pickNoti)) {
     throw new GuastoTemporaneo("r2_integrita", new Error("storia raw e fatti D1 discordanti"));
   }
   if (storiaDraft(registrato) !== storiaDraft(dato)) {

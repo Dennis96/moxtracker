@@ -171,6 +171,111 @@ test("IND-28 B4: fatti pick D1 incompleti restano temporanei e non vengono ricos
   assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 0);
 });
 
+// Le righe `draft_pick` come le scrivevano i Worker prima di 8f8327f
+// (30/09/2026): `insieme` e' 5f63268..730c334^, `abbinate` e' 730c334.
+const FASI = ["apertura", "direzione", "struttura", "chiusura"];
+
+function righePickStoriche(dato, convenzione) {
+  const righe = [];
+  for (const voce of dato.pick) {
+    const scelte = voce.scelte ?? [voce.scelta];
+    const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
+    const liberi = [...consigli];
+    const abbinate = scelte.map((scelta) => {
+      const posto = liberi.indexOf(scelta);
+      if (posto < 0) return { seguito: false, consiglio: null };
+      liberi.splice(posto, 1);
+      return { seguito: true, consiglio: scelta };
+    });
+    for (const voceAbbinata of abbinate) {
+      if (!voceAbbinata.seguito) voceAbbinata.consiglio = liberi.shift() ?? consigli[0];
+    }
+    scelte.forEach((scelta, indice) => {
+      const { seguito, consiglio } = convenzione === "insieme"
+        ? { seguito: consigli.includes(scelta),
+          consiglio: consigli.includes(scelta) ? scelta : (consigli[indice] ?? consigli[0]) }
+        : abbinate[indice];
+      const numero = voce.pool_prima.length + indice + 1;
+      const candidato = voce.candidati.find((c) => c.carta === scelta);
+      righe.push([dato.draft, numero, FASI[Math.min(3, [4, 17, 27].filter((n) => numero > n).length)], consiglio, scelta, seguito ? 1 : 0,
+        voce.candidati.some((c) => c.carta === scelta && c.vicina) ? 1 : 0,
+        Number(candidato?.campione || 0), candidato?.fonte_17lands ?? null, voce.politica]);
+    });
+  }
+  return righe;
+}
+
+function riscriviPick(env, dato, convenzione) {
+  env.DRAFT_DB.prepare("DELETE FROM draft_pick WHERE draft_id = ?").bind(dato.draft).run();
+  for (const riga of righePickStoriche(dato, convenzione)) {
+    env.DRAFT_DB.prepare("INSERT INTO draft_pick VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind(...riga).run();
+  }
+}
+
+// Prendi Due: la prima scelta non segue il consiglio, la seconda segue il
+// primo. Il Worker di agosto scriveva consiglio 201 sulla prima riga,
+// quello di oggi 202.
+function prendiDueStorico(cambia = {}) {
+  return esempio({ draft: "e".repeat(32), formato: "PickTwoDraft", completo: false,
+    impronta_arena: "f".repeat(64),
+    pick: [{ numero: 1, offerte: [201, 202, 203], pool_prima: [], consiglio_mox: 201,
+      consigli_mox: [201, 202], politica: "policy-test", scelte: [203, 201], candidati: [
+        { carta: 201, rango_mox: 1, campione: 50, vicina: false },
+        { carta: 202, rango_mox: 2, campione: 40, vicina: false },
+        { carta: 203, rango_mox: 3, campione: 30, vicina: true }] }],
+    pool_finale: [203, 201], ...cambia });
+}
+
+// Due copie della carta migliore: la copia di rango 1 non e' vicina, quella
+// di rango 2 con lo stesso punteggio si' (draft_assistente.py). Prima di
+// 8f8327f `vicina` valeva 1 se lo era una copia qualunque.
+function copiaDoppiaStorica(cambia = {}) {
+  return esempio({ draft: "9".repeat(32), completo: false, impronta_arena: "8".repeat(64),
+    pick: [{ numero: 1, offerte: [101, 101, 102], pool_prima: [], consiglio_mox: 101,
+      politica: "policy-test", scelta: 101, candidati: [
+        { carta: 101, rango_mox: 1, campione: 1200, vicina: false },
+        { carta: 101, rango_mox: 2, campione: 1200, vicina: true },
+        { carta: 102, rango_mox: 3, campione: 1100, vicina: false }] }],
+    pool_finale: [101], ...cambia });
+}
+
+test("IND-29 B4: Draft indicizzati dai Worker prima del 30/09 si aggiornano ancora", async () => {
+  for (const fabbrica of [prendiDueStorico, copiaDoppiaStorica]) {
+    for (const convenzione of ["insieme", "abbinate"]) {
+      const caso = `${fabbrica.name}/${convenzione}`;
+      const env = ambiente();
+      assert.deepEqual(esiti((await manda(env, "/draft", fabbrica())).corpo), ["nuovo"], caso);
+      riscriviPick(env, fabbrica(), convenzione);
+      const pickPrima = env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero");
+      const r = await manda(env, "/draft", fabbrica({ mazzo_giocato: [VERSIONE_1] }));
+      assert.equal(r.stato, 200, caso);
+      assert.deepEqual(esiti(r.corpo), ["aggiornato"], caso);
+      assert.deepEqual(env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero"), pickPrima, caso);
+      assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 1, caso);
+      await coerente(env);
+    }
+  }
+});
+
+test("IND-30 B4: una convenzione storica non copre un raw diverso dai pick", async () => {
+  const env = ambiente();
+  await manda(env, "/draft", prendiDueStorico());
+  riscriviPick(env, prendiDueStorico(), "insieme");
+  const riga = env.DRAFT_DB.tutte("SELECT * FROM draft")[0];
+  const raw = JSON.parse(env.DRAFT_RAW.oggetti.get(riga.oggetto_r2));
+  raw.pick[0].candidati[2].campione = 31;
+  env.DRAFT_RAW.oggetti.set(riga.oggetto_r2, JSON.stringify(raw));
+  const pickPrima = env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero");
+  const r = await manda(env, "/draft", { ...raw, segreto_cancellazione: esempio().segreto_cancellazione,
+    mazzo_giocato: [VERSIONE_1] });
+  assert.equal(r.stato, 503);
+  assert.deepEqual(esiti(r.corpo), ["temporaneo"]);
+  assert.deepEqual(env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero"), pickPrima);
+  assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 0);
+  assert.equal(env.DRAFT_DB.tutte("SELECT oggetto_r2 FROM draft")[0].oggetto_r2, riga.oggetto_r2);
+});
+
 test("IND-26 blocco massimo: quattro Draft, 45 pick, 30 mazzi entro il budget dei binding", async (t) => {
   const env = ambiente();
   const pick = Array.from({ length: 45 }, (_, i) => ({
