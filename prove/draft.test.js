@@ -405,16 +405,18 @@ test("riconcilia D1 e R2 senza esporre o leggere il contenuto grezzo", async () 
     [riga.oggetto_r2]);
 });
 
+// Dal 04/10/2026 (P1) un guasto del momento non e' piu' un 500 generico: e'
+// un 503 con l'esito «temporaneo» di quel Draft, che il client ritenta.
 test("un guasto R2 non scrive D1 e un guasto D1 compensa R2", async () => {
   const r2Rotto = ambiente();
   r2Rotto.DRAFT_RAW.put = async () => { throw new Error("R2 put guasto"); };
-  assert.equal((await manda(r2Rotto, "/draft", esempio())).stato, 500);
+  assert.equal((await manda(r2Rotto, "/draft", esempio())).stato, 503);
   assert.equal(r2Rotto.DRAFT_DB.conta("draft"), 0);
   assert.equal(r2Rotto.DRAFT_RAW.oggetti.size, 0);
 
   const d1Rotto = ambiente();
   d1Rotto.DRAFT_DB.batch = async () => { throw new Error("D1 batch guasto"); };
-  assert.equal((await manda(d1Rotto, "/draft", esempio())).stato, 500);
+  assert.equal((await manda(d1Rotto, "/draft", esempio())).stato, 503);
   assert.equal(d1Rotto.DRAFT_DB.conta("draft"), 0);
   assert.equal(d1Rotto.DRAFT_RAW.oggetti.size, 0);
 });
@@ -423,7 +425,7 @@ test("il raro doppio guasto viene trovato dalla riconciliazione", async () => {
   const env = ambiente();
   env.DRAFT_DB.batch = async () => { throw new Error("D1 batch guasto"); };
   env.DRAFT_RAW.delete = async () => { throw new Error("R2 delete guasto"); };
-  assert.equal((await manda(env, "/draft", esempio())).stato, 500);
+  assert.equal((await manda(env, "/draft", esempio())).stato, 503);
   assert.equal(env.DRAFT_DB.conta("draft"), 0);
   assert.equal(env.DRAFT_RAW.oggetti.size, 1);
   const rapporto = await riconciliaStorageDraft(env.DRAFT_DB, env.DRAFT_RAW);

@@ -224,6 +224,7 @@ export function controllaDraft(dato) {
     // Un candidato per copia offerta, non uno per carta.
     const copieLibere = copie(voce.offerte);
     const datiPerCarta = new Map();
+    const ranghi = new Set();
     for (const candidato of voce.candidati) {
       if (!candidato || !interoTra(candidato.carta, 1, 9_999_999) ||
           !((copieLibere.get(candidato.carta) || 0) >= 1)) {
@@ -233,6 +234,11 @@ export function controllaDraft(dato) {
       if (!interoTra(candidato.rango_mox, 1, voce.offerte.length)) {
         return "rango Mox non valido";
       }
+      // A121: due copie allo stesso rango rendono `vicina` dipendente
+      // dall'ordine dell'array, perche' `salvaUno` consuma le candidate per
+      // rango. Il client normale da' ranghi 1..n; il contratto lo impone.
+      if (ranghi.has(candidato.rango_mox)) return "rango Mox duplicato";
+      ranghi.add(candidato.rango_mox);
       if (!interoTra(candidato.campione, 0, 100_000_000)) return "campione non valido";
       if (candidato.fonte_17lands != null && typeof candidato.fonte_17lands !== "string") {
         return "fonte 17lands non valida";
@@ -355,27 +361,210 @@ async function controllaTetti(db, mittente, byteNuovi, quanti) {
   return null;
 }
 
-async function salvaUno(db, r2, dato, ricevuto) {
-  const gia = await db.prepare("SELECT id FROM draft WHERE id = ?").bind(dato.draft).first();
-  if (gia) return "gia";
-  const segretoHash = await sha256(dato.segreto_cancellazione);
-  const contributore = await db.prepare(
-    "SELECT cancellazione_hash FROM contributori WHERE mittente = ?"
-  ).bind(dato.mittente).first();
-  if (contributore && contributore.cancellazione_hash !== segretoHash) {
-    throw new Error("segreto del contributore non coerente");
+// Un salvataggio fermato da un guasto del momento, di D1 o di R2: il client
+// deve ritentarlo e sul server non resta niente di indicizzato a meta'.
+// `fase` dice dove si e' fermato, ed e' la prima cosa che serve nel log: fino
+// al 04/10/2026 i 500 sui Draft registravano soltanto la pila di D1, senza il
+// messaggio, e la causa non si poteva ricostruire (P1).
+class GuastoTemporaneo extends Error {
+  constructor(fase, causa) {
+    super(`guasto temporaneo in ${fase}`);
+    this.name = "GuastoTemporaneo";
+    this.fase = fase;
+    this.causa = causa;
   }
+}
+
+async function passo(fase, lavoro) {
+  try {
+    return await lavoro();
+  } catch (guasto) {
+    if (guasto instanceof GuastoTemporaneo) throw guasto;
+    throw new GuastoTemporaneo(fase, guasto);
+  }
+}
+
+// Tipo e messaggio di un guasto, mai il pacchetto: il messaggio di D1 dice il
+// vincolo o il limite violato, non i valori.
+function descriviGuasto(guasto) {
+  return {
+    tipo: String(guasto?.name || typeof guasto).slice(0, 60),
+    messaggio: String(guasto?.message ?? guasto).slice(0, 300),
+  };
+}
+
+// JSON con le chiavi in ordine: due client possono serializzare lo stesso
+// Draft con le chiavi in un ordine diverso, e non e' un Draft diverso.
+function canonico(valore) {
+  if (Array.isArray(valore)) return `[${valore.map(canonico).join(",")}]`;
+  if (valore && typeof valore === "object") {
+    return `{${Object.keys(valore).sort()
+      .map((chiave) => `${JSON.stringify(chiave)}:${canonico(valore[chiave])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(valore ?? null);
+}
+
+// La storia di un Draft sono i suoi fatti: chi, cosa, quando, che cosa e'
+// stato offerto e scelto, e il pool. Non ci sono la versione di Mox, l'ora di
+// chiusura, il mazzo montato (che cresce dopo il Draft, P2) ne' i dati dei
+// candidati: una versione nuova di Mox che aggiunge un campo a un candidato
+// non deve far diventare un conflitto il reinvio col mazzo.
+function storiaDraft(dato) {
+  return canonico({
+    versione: dato.versione, draft: dato.draft, mittente: dato.mittente,
+    set: dato.set, formato: dato.formato, iniziato: dato.iniziato ?? null,
+    completo: dato.completo, impronta_arena: dato.impronta_arena ?? null,
+    pool_finale: dato.pool_finale,
+    pick: (Array.isArray(dato.pick) ? dato.pick : []).map((voce) => ({
+      numero: voce.numero, offerte: voce.offerte, pool_prima: voce.pool_prima,
+      scelte: voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []),
+      posizione: voce.posizione ?? null,
+    })),
+  });
+}
+
+function numeroPick(dato) {
+  return dato.pick.reduce((totale, voce) => totale +
+    (voce.scelte?.length ?? (voce.scelta !== undefined ? 1 : 0)), 0);
+}
+
+// Le versioni del mazzo come le scrive `draft_mazzo`: e' la forma in cui si
+// confrontano quelle gia' registrate con quelle appena arrivate.
+function versioniMazzo(dato) {
+  return (Array.isArray(dato.mazzo_giocato) ? dato.mazzo_giocato : []).map((versione) => ({
+    quando: versione.quando ?? null,
+    lista: JSON.stringify(versione.mazzo),
+    riserva: versione.riserva ? JSON.stringify(versione.riserva) : null,
+  }));
+}
+
+function stessaVersione(a, b) {
+  return a.quando === b.quando && a.lista === b.lista && a.riserva === b.riserva;
+}
+
+// Il mazzo davvero montato, versione per versione. Sette campi per riga: otto
+// righe per statement stanno dentro i 100 parametri di D1 Free, e trenta
+// versioni al massimo fanno quattro statement.
+function comandiMazzo(db, draftId, versioni, gia) {
+  const comandi = [];
+  for (let i = 0; i < versioni.length; i += 8) {
+    const blocco = versioni.slice(i, i + 8);
+    const argomenti = [];
+    for (let scarto = 0; scarto < blocco.length; scarto += 1) {
+      const versione = blocco[scarto];
+      const mazzo = JSON.parse(versione.lista);
+      const carte = mazzo.reduce((totale, [, quante]) => totale + quante, 0);
+      argomenti.push(
+        draftId, gia + i + scarto + 1, versione.quando, carte,
+        mazzo.length, versione.lista, versione.riserva,
+      );
+    }
+    const valori = blocco.map(() => "(?, ?, ?, ?, ?, ?, ?)").join(", ");
+    comandi.push(db.prepare(`INSERT INTO draft_mazzo
+      (draft_id, versione, quando, carte, distinte, lista, riserva)
+      VALUES ${valori}`).bind(...argomenti));
+  }
+  return comandi;
+}
+
+/** L'oggetto R2 di un contenuto: chiave per contenuto, mai riscritta.
+ *
+ * Fino al 04/10/2026 la chiave era `mese/draft.json`. Un batch D1 fallito
+ * cancellava l'oggetto per compensazione: se un'altra richiesta dello stesso
+ * Draft l'aveva gia' indicizzato, si cancellava l'oggetto vivo; se la
+ * cancellazione falliva, restava un orfano. Il 02 e il 03/10 l'orfano c'era
+ * (D1 41 righe, R2 42 oggetti) ed e' quello che ha reso «incompleta» la
+ * manutenzione notturna (P5). Con la chiave per contenuto un ritento dello
+ * stesso Draft riscrive gli stessi byte, e un contenuto diverso ha un oggetto
+ * suo: il puntatore vivo e' soltanto `draft.oggetto_r2`.
+ */
+async function preparaOggetto(dato, ricevuto) {
   const pulito = structuredClone(dato);
   delete pulito.segreto_cancellazione;
   const grezzo = JSON.stringify(pulito);
-  const byte = new TextEncoder().encode(grezzo).byteLength;
-  const mese = ricevuto.slice(0, 7);
-  const chiave = `${mese}/${dato.draft}.json`;
-  await r2.put(chiave, grezzo, { httpMetadata: { contentType: "application/json" } });
+  const impronta = (await sha256(grezzo)).slice(0, 16);
+  return {
+    grezzo,
+    byte: new TextEncoder().encode(grezzo).byteLength,
+    chiave: `${ricevuto.slice(0, 7)}/${dato.draft}-${impronta}.json`,
+  };
+}
+
+async function scriviOggetto(r2, oggetto) {
+  await passo("r2_scrittura", () => r2.put(oggetto.chiave, oggetto.grezzo,
+    { httpMetadata: { contentType: "application/json" } }));
+}
+
+/** Toglie un oggetto R2 che non e' (o non e' piu') quello indicizzato.
+ *
+ * Un secondo tentativo, poi un log che dice quale chiave e' rimasta: il
+ * controllo giornaliero la conta e `riconciliaStorageDraft` la elenca.
+ */
+async function togliOggetto(r2, chiave, contesto) {
+  let ultimo = null;
+  for (let giro = 0; giro < 2; giro += 1) {
+    try {
+      await r2.delete(chiave);
+      return true;
+    } catch (guasto) {
+      ultimo = guasto;
+    }
+  }
+  console.error(JSON.stringify({ evento: "draft_oggetto_orfano", ...contesto,
+    oggetto_r2: chiave, ...descriviGuasto(ultimo) }));
+  return false;
+}
+
+// Rilegge la riga dopo un batch fallito. `undefined` vuol dire «non lo so»:
+// allora non si cancella niente, perche' l'oggetto potrebbe essere vivo.
+async function rileggiRiga(db, id) {
+  try {
+    return await db.prepare("SELECT ricevuto, oggetto_r2 FROM draft WHERE id = ?")
+      .bind(id).first();
+  } catch {
+    return undefined;
+  }
+}
+
+/** Salva un Draft e dice com'e' andata: `{ esito, motivo? }`.
+ *
+ * `nuovo`, `gia`, `aggiornato` e `rifiutato` sono definitivi; un guasto del
+ * momento esce come `GuastoTemporaneo`. D1 e R2 non hanno una transazione in
+ * comune: l'oggetto R2 si scrive prima, il batch D1 lo rende vivo, e dopo un
+ * batch fallito si rilegge D1 prima di decidere se togliere l'oggetto.
+ */
+async function salvaUno(db, r2, dato, ricevuto, giro = 0) {
+  const segretoHash = await sha256(dato.segreto_cancellazione);
+  const [riga, contributore] = await passo("lettura", () => Promise.all([
+    db.prepare(`SELECT id, mittente, ricevuto, set_code, formato, completo, pick,
+      versione, oggetto_r2 FROM draft WHERE id = ?`).bind(dato.draft).first(),
+    db.prepare("SELECT cancellazione_hash FROM contributori WHERE mittente = ?")
+      .bind(dato.mittente).first(),
+  ]));
+  if (contributore && contributore.cancellazione_hash !== segretoHash) {
+    return { esito: "rifiutato", motivo: "segreto del contributore non coerente" };
+  }
+  if (riga) return aggiornaEsistente(db, r2, dato, riga, ricevuto, giro);
+  return inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro);
+}
+
+async function inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro) {
+  // Arena puo' riusare lo stesso draftId in due Draft diversi (28/08/2026):
+  // con l'indice UNIQUE il secondo fallirebbe per sempre, e con lui il blocco
+  // in cui viaggia. Si conserva senza collegamento: l'impronta resta nel
+  // grezzo, ma un collegamento ambiguo non deve finire nell'indice.
+  let impronta = dato.impronta_arena ?? null;
+  if (impronta) {
+    const altro = await passo("lettura", () => db.prepare(
+      "SELECT id FROM draft WHERE impronta_arena = ? AND id <> ?",
+    ).bind(impronta, dato.draft).first());
+    if (altro) impronta = null;
+  }
+  const oggetto = await preparaOggetto(dato, ricevuto);
+  await scriviOggetto(r2, oggetto);
   const politica = dato.pick[0] ? dato.pick[0].politica : "nessuna";
   const sospetto = sospettoDraft(dato);
-  const numeroPick = dato.pick.reduce((totale, voce) => totale +
-    (voce.scelte?.length ?? (voce.scelta !== undefined ? 1 : 0)), 0);
   const comandi = [
     db.prepare(`INSERT OR IGNORE INTO contributori
       (mittente, cancellazione_hash, creato) VALUES (?, ?, ?)`).bind(
@@ -385,9 +574,9 @@ async function salvaUno(db, r2, dato, ricevuto) {
        politica, mox, impronta_arena, oggetto_r2, byte, versione, sospetto)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
         dato.draft, dato.mittente, ricevuto, dato.iniziato ?? null, dato.set,
-        dato.formato, dato.completo ? 1 : 0, numeroPick, politica,
-        String(dato.mox || "").slice(0, 40), dato.impronta_arena ?? null,
-        chiave, byte, dato.versione, sospetto),
+        dato.formato, dato.completo ? 1 : 0, numeroPick(dato), politica,
+        String(dato.mox || "").slice(0, 40), impronta,
+        oggetto.chiave, oggetto.byte, dato.versione, sospetto),
   ];
   const pickScelti = [];
   for (const voce of dato.pick) {
@@ -426,34 +615,110 @@ async function salvaUno(db, r2, dato, ricevuto) {
       (draft_id, numero, fase, consiglio, scelta, seguito, vicina, campione,
        fonte, politica) VALUES ${valori}`).bind(...argomenti));
   }
-  // Il mazzo davvero montato, versione per versione. Sei campi per riga: otto
-  // righe per statement stanno dentro i 100 parametri di D1 Free, e trenta
-  // versioni al massimo fanno quattro statement.
-  const versioni = Array.isArray(dato.mazzo_giocato) ? dato.mazzo_giocato : [];
-  for (let i = 0; i < versioni.length; i += 8) {
-    const blocco = versioni.slice(i, i + 8);
-    const argomenti = [];
-    for (let scarto = 0; scarto < blocco.length; scarto += 1) {
-      const versione = blocco[scarto];
-      const carte = versione.mazzo.reduce((totale, [, quante]) => totale + quante, 0);
-      argomenti.push(
-        dato.draft, i + scarto + 1, versione.quando ?? null, carte,
-        versione.mazzo.length, JSON.stringify(versione.mazzo),
-        versione.riserva ? JSON.stringify(versione.riserva) : null,
-      );
-    }
-    const valori = blocco.map(() => "(?, ?, ?, ?, ?, ?, ?)").join(", ");
-    comandi.push(db.prepare(`INSERT INTO draft_mazzo
-      (draft_id, versione, quando, carte, distinte, lista, riserva)
-      VALUES ${valori}`).bind(...argomenti));
-  }
+  comandi.push(...comandiMazzo(db, dato.draft, versioniMazzo(dato), 0));
   try {
     await db.batch(comandi);
   } catch (guasto) {
-    await r2.delete(chiave);
-    throw guasto;
+    const dopo = await rileggiRiga(db, dato.draft);
+    if (dopo === undefined) throw new GuastoTemporaneo("d1_batch", guasto);
+    // Stesso contenuto gia' vivo: o il nostro batch e' passato e si e' persa
+    // la risposta, o un'altra richiesta identica e' arrivata prima.
+    if (dopo && dopo.oggetto_r2 === oggetto.chiave) {
+      return { esito: dopo.ricevuto === ricevuto ? "nuovo" : "gia" };
+    }
+    await togliOggetto(r2, oggetto.chiave, { draft: dato.draft, fase: "d1_batch" });
+    // Un'altra richiesta ha salvato lo stesso Draft con un contenuto diverso:
+    // questo invio diventa un aggiornamento, una volta sola.
+    if (dopo && giro === 0) return salvaUno(db, r2, dato, ricevuto, giro + 1);
+    throw new GuastoTemporaneo("d1_batch", guasto);
   }
-  return "nuovo";
+  return { esito: "nuovo" };
+}
+
+function stessaRiga(riga, dato) {
+  return riga.set_code === dato.set && riga.formato === dato.formato &&
+    Boolean(riga.completo) === dato.completo && riga.versione === dato.versione &&
+    Number(riga.pick) === numeroPick(dato);
+}
+
+/** Lo stesso Draft arrivato di nuovo: no-op, mazzo nuovo o conflitto (P2).
+ *
+ * Mox spedisce la traccia all'ultima scelta, prima che il mazzo esista; il
+ * mazzo arriva dopo, e fino al 04/10/2026 ogni invio successivo era scartato
+ * come «gia' presente»: nessuno dei Draft 2.11.x aveva il mazzo sul server.
+ * Adesso le versioni del mazzo crescono, e solo loro: pick, pool e
+ * identificativi devono essere gli stessi, una versione gia' registrata non
+ * cambia e un invio piu' vecchio non toglie niente. Il conflitto vero si
+ * rifiuta con il suo motivo, invece di vincere l'ultimo che scrive.
+ */
+async function aggiornaEsistente(db, r2, dato, riga, ricevuto, giro) {
+  const conflitto = (motivo) => {
+    console.warn(JSON.stringify({ evento: "draft_conflitto", draft: dato.draft, motivo }));
+    return { esito: "rifiutato", motivo };
+  };
+  if (riga.mittente !== dato.mittente) {
+    return conflitto("Draft gia' presente con contenuto diverso");
+  }
+  const noti = ((await passo("lettura", () => db.prepare(`SELECT quando, lista, riserva
+    FROM draft_mazzo WHERE draft_id = ? ORDER BY versione`).bind(dato.draft).all()))
+    .results || []).map((v) => ({ quando: v.quando ?? null, lista: v.lista,
+    riserva: v.riserva ?? null }));
+  const letto = await passo("r2_lettura", async () => {
+    const trovato = await r2.get(riga.oggetto_r2);
+    return trovato ? trovato.text() : null;
+  });
+  let registrato = null;
+  try { registrato = letto === null ? null : JSON.parse(letto); } catch { registrato = null; }
+  // Senza l'oggetto (un guasto doppio di prima) la storia si confronta con
+  // quello che dice la riga, e il nuovo oggetto ripara il buco.
+  const stessaStoria = registrato ? storiaDraft(registrato) === storiaDraft(dato)
+    : stessaRiga(riga, dato);
+  if (!stessaStoria) return conflitto("Draft gia' presente con contenuto diverso");
+
+  const arrivate = versioniMazzo(dato);
+  const comune = Math.min(noti.length, arrivate.length);
+  for (let i = 0; i < comune; i += 1) {
+    if (!stessaVersione(noti[i], arrivate[i])) {
+      return conflitto("Draft gia' presente con un mazzo giocato diverso");
+    }
+  }
+  // Un invio piu' vecchio di quello registrato: non toglie niente.
+  if (arrivate.length < noti.length) return { esito: "gia" };
+  const nuove = arrivate.slice(noti.length);
+  const oggettoCoerente = registrato !== null &&
+    canonico(versioniMazzo(registrato)) === canonico(noti);
+  if (!nuove.length && oggettoCoerente) return { esito: "gia" };
+
+  const oggetto = await preparaOggetto(dato, ricevuto);
+  // Stessa chiave dell'oggetto vivo: lo stesso contenuto, che pero' manca o
+  // non corrisponde alle righe. Si riscrive al suo posto; qui un puntatore
+  // uguale non prova niente, e l'oggetto non si cancella mai.
+  const stessoOggetto = oggetto.chiave === riga.oggetto_r2;
+  await scriviOggetto(r2, oggetto);
+  try {
+    await db.batch([
+      ...comandiMazzo(db, dato.draft, nuove, noti.length),
+      db.prepare("UPDATE draft SET oggetto_r2 = ?, byte = ? WHERE id = ?")
+        .bind(oggetto.chiave, oggetto.byte, dato.draft),
+    ]);
+  } catch (guasto) {
+    if (stessoOggetto) throw new GuastoTemporaneo("d1_batch", guasto);
+    const dopo = await rileggiRiga(db, dato.draft);
+    if (dopo === undefined) throw new GuastoTemporaneo("d1_batch", guasto);
+    if (!(dopo && dopo.oggetto_r2 === oggetto.chiave)) {
+      await togliOggetto(r2, oggetto.chiave, { draft: dato.draft, fase: "d1_batch" });
+      // Un altro aggiornamento e' passato nel frattempo: si rivaluta una
+      // volta contro il suo stato, che puo' rendere questo invio un no-op.
+      if (dopo && dopo.oggetto_r2 !== riga.oggetto_r2 && giro === 0) {
+        return salvaUno(db, r2, dato, ricevuto, giro + 1);
+      }
+      throw new GuastoTemporaneo("d1_batch", guasto);
+    }
+  }
+  if (!stessoOggetto) {
+    await togliOggetto(r2, riga.oggetto_r2, { draft: dato.draft, fase: "r2_pulizia" });
+  }
+  return { esito: "aggiornato" };
 }
 
 // Controllo amministrativo, intenzionalmente non collegato a una rotta HTTP.
@@ -506,32 +771,64 @@ export async function riceviDraft(richiesta, ambiente, risposta) {
   if (!arrivate.length || arrivate.length > LIMITI_DRAFT.perRichiesta) {
     return risposta({ errore: "numero di Draft non valido" }, 413);
   }
+  // Un esito per ogni Draft arrivato, nello stesso ordine (P1). Fino al
+  // 04/10/2026 un guasto al quarto Draft di un blocco rispondeva 500 per tutta
+  // la richiesta, con i primi tre gia' salvati: il client non poteva sapere
+  // quali togliere dalla coda e li rispediva tutti.
+  const esiti = arrivate.map((dato, indice) => ({
+    indice,
+    draft: typeof dato?.draft === "string" ? dato.draft.slice(0, 32) : null,
+  }));
   const buoni = [];
   const rifiutati = [];
-  for (const dato of arrivate) {
+  arrivate.forEach((dato, indice) => {
     const motivo = controllaDraft(dato);
-    if (motivo) rifiutati.push({ draft: dato?.draft, motivo }); else buoni.push(dato);
+    if (motivo) {
+      rifiutati.push({ draft: dato?.draft, motivo });
+      Object.assign(esiti[indice], { esito: "rifiutato", motivo });
+    } else buoni.push(indice);
+  });
+  if (!buoni.length) {
+    return risposta({ accettati: 0, gia_presenti: 0, aggiornati: 0, rifiutati, esiti }, 400);
   }
-  if (!buoni.length) return risposta({ accettati: 0, gia_presenti: 0, rifiutati }, 400);
-  const mittente = buoni[0].mittente;
-  if (buoni.some((d) => d.mittente !== mittente)) return risposta({ errore: "una richiesta, un mittente solo" }, 400);
-  const byte = buoni.reduce((n, d) => n + new TextEncoder().encode(JSON.stringify(d)).byteLength, 0);
+  const mittente = arrivate[buoni[0]].mittente;
+  if (buoni.some((i) => arrivate[i].mittente !== mittente)) return risposta({ errore: "una richiesta, un mittente solo" }, 400);
+  const byte = buoni.reduce((n, i) => n + new TextEncoder().encode(JSON.stringify(arrivate[i])).byteLength, 0);
   const tetto = await controllaTetti(ambiente.DRAFT_DB, mittente, byte, buoni.length);
-  if (tetto) return risposta({ errore: tetto, rimanda: buoni.map((d) => d.draft) }, 429);
-  let accettati = 0;
-  let giaPresenti = 0;
+  if (tetto) return risposta({ errore: tetto, rimanda: buoni.map((i) => arrivate[i].draft) }, 429);
+  const conti = { nuovo: 0, gia: 0, aggiornato: 0, rifiutato: 0, temporaneo: 0 };
   const ricevuto = new Date().toISOString();
-  for (const dato of buoni) {
+  for (const indice of buoni) {
+    const dato = arrivate[indice];
     try {
       const esito = await salvaUno(ambiente.DRAFT_DB, ambiente.DRAFT_RAW, dato, ricevuto);
-      if (esito === "gia") giaPresenti += 1; else accettati += 1;
+      Object.assign(esiti[indice], esito);
+      if (esito.esito === "rifiutato") rifiutati.push({ draft: dato.draft, motivo: esito.motivo });
     } catch (guasto) {
-      if (String(guasto).includes("segreto del contributore")) {
-        rifiutati.push({ draft: dato.draft, motivo: "segreto del contributore non coerente" });
-      } else throw guasto;
+      // Qualunque guasto qui e' da ritentare: il Draft non e' stato reso
+      // vivo, e un ritento identico e' idempotente.
+      const temporaneo = guasto instanceof GuastoTemporaneo ? guasto
+        : new GuastoTemporaneo("sconosciuta", guasto);
+      esiti[indice].esito = "temporaneo";
+      console.error(JSON.stringify({ evento: "draft_salvataggio_fallito",
+        fase: temporaneo.fase, ...descriviGuasto(temporaneo.causa),
+        draft: dato.draft, indice, totale: arrivate.length }));
     }
   }
-  return risposta({ accettati, gia_presenti: giaPresenti, rifiutati });
+  for (const esito of esiti) if (esito.esito) conti[esito.esito] += 1;
+  const daRitentare = esiti.filter((e) => e.esito === "temporaneo").map((e) => e.draft);
+  console.log(JSON.stringify({ evento: "draft_ricevuti", totale: arrivate.length, ...conti }));
+  // 503, non 200, se qualcosa va ritentato: un client di prima del 04/10
+  // toglie dalla coda tutto il blocco a ogni 200, e perderebbe il Draft
+  // rimasto indietro. Con 503 lo tiene, e al ritento gli altri sono «gia'».
+  return risposta({
+    accettati: conti.nuovo,
+    gia_presenti: conti.gia,
+    aggiornati: conti.aggiornato,
+    rifiutati,
+    esiti,
+    da_ritentare: daRitentare,
+  }, daRitentare.length ? 503 : 200);
 }
 
 export async function recuperaDraft(richiesta, ambiente, risposta) {

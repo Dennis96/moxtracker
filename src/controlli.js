@@ -120,7 +120,14 @@ export function controlla(dato) {
   if ("turni" in dato && !interoTra(dato.turni, 1, LIMITI.turniMassimi)) {
     return "turni non validi";
   }
-  if ("apertura" in dato && !carteConCopie(dato.apertura, 7)) {
+  // `apertura` e' un campo legacy: Mox ci mette l'**ultima mano osservata**
+  // della partita, non la mano iniziale, e il nome resta per compatibilita'.
+  // Il tetto di sette carte valeva per una mano d'apertura: il 02/10/2026 una
+  // partita vera e' stata rifiutata con nove carte in mano a fine partita e
+  // zero mulligan (P3). Un'ultima mano puo' superare le sette carte; il limite
+  // e' quello di qualunque elenco di carte del mazzo. Vuota resta un errore:
+  // il client omette il campo quando la mano non e' stata osservata.
+  if ("apertura" in dato && !carteConCopie(dato.apertura, LIMITI.carteInMazzo)) {
     return "campo legacy apertura non valido";
   }
   if (typeof dato.evento !== "string" || dato.evento.length > 80) {
