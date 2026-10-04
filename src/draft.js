@@ -407,9 +407,9 @@ function canonico(valore) {
 
 // La storia di un Draft sono i suoi fatti: chi, cosa, quando, che cosa e'
 // stato offerto e scelto, e il pool. Non ci sono la versione di Mox, l'ora di
-// chiusura, il mazzo montato (che cresce dopo il Draft, P2) ne' i dati dei
-// candidati: una versione nuova di Mox che aggiunge un campo a un candidato
-// non deve far diventare un conflitto il reinvio col mazzo.
+// chiusura o il mazzo montato (che cresce dopo il Draft, P2). I fatti dei
+// consigli gia' persistiti restano immutabili; campi futuri aggiuntivi nei
+// candidati non trasformano il reinvio col mazzo in un conflitto.
 function storiaDraft(dato) {
   return canonico({
     versione: dato.versione, draft: dato.draft, mittente: dato.mittente,
@@ -420,6 +420,14 @@ function storiaDraft(dato) {
       numero: voce.numero, offerte: voce.offerte, pool_prima: voce.pool_prima,
       scelte: voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []),
       posizione: voce.posizione ?? null,
+      consigli: voce.consigli_mox ?? [voce.consiglio_mox],
+      politica: voce.politica,
+      candidati: [...(voce.candidati || [])].sort((a, b) => a.rango_mox - b.rango_mox)
+        .map((c) => ({ carta: c.carta, rango_mox: c.rango_mox,
+          campione: c.campione, vicina: Boolean(c.vicina),
+          fonte_17lands: c.fonte_17lands ?? null,
+          valore_17lands: c.valore_17lands ?? null,
+          intervallo_95: c.intervallo_95 ?? null })),
     })),
   });
 }
@@ -446,7 +454,7 @@ function stessaVersione(a, b) {
 // Il mazzo davvero montato, versione per versione. Sette campi per riga: otto
 // righe per statement stanno dentro i 100 parametri di D1 Free, e trenta
 // versioni al massimo fanno quattro statement.
-function comandiMazzo(db, draftId, versioni, gia) {
+function comandiMazzo(db, draftId, versioni, gia, atteso = null) {
   const comandi = [];
   for (let i = 0; i < versioni.length; i += 8) {
     const blocco = versioni.slice(i, i + 8);
@@ -459,31 +467,37 @@ function comandiMazzo(db, draftId, versioni, gia) {
         draftId, gia + i + scarto + 1, versione.quando, carte,
         mazzo.length, versione.lista, versione.riserva,
       );
+      if (atteso !== null) argomenti.push(draftId, atteso);
     }
     const valori = blocco.map(() => "(?, ?, ?, ?, ?, ?, ?)").join(", ");
+    const selezioni = blocco.map(() => `SELECT ?, ?, ?, ?, ?, ?, ?
+      WHERE EXISTS (SELECT 1 FROM draft WHERE id = ? AND oggetto_r2 = ?)`)
+      .join(" UNION ALL ");
     comandi.push(db.prepare(`INSERT INTO draft_mazzo
       (draft_id, versione, quando, carte, distinte, lista, riserva)
-      VALUES ${valori}`).bind(...argomenti));
+      ${atteso === null ? `VALUES ${valori}` : selezioni}`).bind(...argomenti));
   }
   return comandi;
 }
 
-/** L'oggetto R2 di un contenuto: chiave per contenuto, mai riscritta.
+/** Un oggetto immutabile di proprieta' di questo solo tentativo.
  *
  * Fino al 04/10/2026 la chiave era `mese/draft.json`. Un batch D1 fallito
  * cancellava l'oggetto per compensazione: se un'altra richiesta dello stesso
  * Draft l'aveva gia' indicizzato, si cancellava l'oggetto vivo; se la
  * cancellazione falliva, restava un orfano. Il 02 e il 03/10 l'orfano c'era
  * (D1 41 righe, R2 42 oggetti) ed e' quello che ha reso «incompleta» la
- * manutenzione notturna (P5). Con la chiave per contenuto un ritento dello
- * stesso Draft riscrive gli stessi byte, e un contenuto diverso ha un oggetto
- * suo: il puntatore vivo e' soltanto `draft.oggetto_r2`.
+ * manutenzione notturna (P5). La review ha riprodotto una race anche con le
+ * chiavi per contenuto: adesso ogni tentativo ha una chiave propria, mai
+ * riutilizzata da un concorrente. Il puntatore vivo e' `draft.oggetto_r2`.
  */
 async function preparaOggetto(dato, ricevuto) {
   const pulito = structuredClone(dato);
   delete pulito.segreto_cancellazione;
   const grezzo = JSON.stringify(pulito);
-  const impronta = (await sha256(grezzo)).slice(0, 16);
+  // Due richieste identiche non condividono l'oggetto da compensare: D1 e
+  // R2 non offrono un delete condizionato atomico fra i due servizi.
+  const impronta = (await sha256(grezzo + "\0" + crypto.randomUUID())).slice(0, 16);
   return {
     grezzo,
     byte: new TextEncoder().encode(grezzo).byteLength,
@@ -538,7 +552,7 @@ async function salvaUno(db, r2, dato, ricevuto, giro = 0) {
   const segretoHash = await sha256(dato.segreto_cancellazione);
   const [riga, contributore] = await passo("lettura", () => Promise.all([
     db.prepare(`SELECT id, mittente, ricevuto, set_code, formato, completo, pick,
-      versione, oggetto_r2 FROM draft WHERE id = ?`).bind(dato.draft).first(),
+      versione, iniziato, byte, oggetto_r2 FROM draft WHERE id = ?`).bind(dato.draft).first(),
     db.prepare("SELECT cancellazione_hash FROM contributori WHERE mittente = ?")
       .bind(dato.mittente).first(),
   ]));
@@ -550,18 +564,14 @@ async function salvaUno(db, r2, dato, ricevuto, giro = 0) {
 }
 
 async function inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro) {
-  // Arena puo' riusare lo stesso draftId in due Draft diversi (28/08/2026):
-  // con l'indice UNIQUE il secondo fallirebbe per sempre, e con lui il blocco
-  // in cui viaggia. Si conserva senza collegamento: l'impronta resta nel
-  // grezzo, ma un collegamento ambiguo non deve finire nell'indice.
-  let impronta = dato.impronta_arena ?? null;
-  if (impronta) {
-    const altro = await passo("lettura", () => db.prepare(
-      "SELECT id FROM draft WHERE impronta_arena = ? AND id <> ?",
-    ).bind(impronta, dato.draft).first());
-    if (altro) impronta = null;
-  }
+  const impronta = dato.impronta_arena ?? null;
   const oggetto = await preparaOggetto(dato, ricevuto);
+  // Il preflight del blocco non riserva spazio: un append precedente o due
+  // voci dello stesso ID possono avere cambiato i byte davvero da salvare.
+  if (await numero(db, "SELECT COALESCE(SUM(byte), 0) AS n FROM draft") +
+      oggetto.byte > LIMITI_DRAFT.byteConservati) {
+    throw new GuastoTemporaneo("quota", new Error("tetto di spazio R2"));
+  }
   await scriviOggetto(r2, oggetto);
   const politica = dato.pick[0] ? dato.pick[0].politica : "nessuna";
   const sospetto = sospettoDraft(dato);
@@ -569,13 +579,23 @@ async function inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro) {
     db.prepare(`INSERT OR IGNORE INTO contributori
       (mittente, cancellazione_hash, creato) VALUES (?, ?, ?)`).bind(
         dato.mittente, segretoHash, ricevuto),
+    ...(impronta ? [
+      db.prepare(`UPDATE draft SET impronta_arena = 'ambigua:' || ? || ':' || id
+        WHERE impronta_arena = ?`).bind(impronta, impronta),
+      db.prepare(`DELETE FROM draft_link WHERE draft_id IN
+        (SELECT id FROM draft WHERE substr(impronta_arena, 1, 73) = ?)`)
+        .bind(`ambigua:${impronta}:`),
+    ] : []),
     db.prepare(`INSERT INTO draft
       (id, mittente, ricevuto, iniziato, set_code, formato, completo, pick,
        politica, mox, impronta_arena, oggetto_r2, byte, versione, sospetto)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ${impronta ? `CASE WHEN EXISTS (SELECT 1 FROM draft WHERE substr(impronta_arena, 1, 73) = ?)
+          THEN ? ELSE ? END` : "?"}, ?, ?, ?, ?)`).bind(
         dato.draft, dato.mittente, ricevuto, dato.iniziato ?? null, dato.set,
         dato.formato, dato.completo ? 1 : 0, numeroPick(dato), politica,
-        String(dato.mox || "").slice(0, 40), impronta,
+        String(dato.mox || "").slice(0, 40),
+        ...(impronta ? [`ambigua:${impronta}:`, `ambigua:${impronta}:${dato.draft}`, impronta] : [null]),
         oggetto.chiave, oggetto.byte, dato.versione, sospetto),
   ];
   const pickScelti = [];
@@ -659,48 +679,73 @@ async function aggiornaEsistente(db, r2, dato, riga, ricevuto, giro) {
   if (riga.mittente !== dato.mittente) {
     return conflitto("Draft gia' presente con contenuto diverso");
   }
-  const noti = ((await passo("lettura", () => db.prepare(`SELECT quando, lista, riserva
+  const noti = ((await passo("lettura", () => db.prepare(`SELECT versione, quando, carte, distinte, lista, riserva
     FROM draft_mazzo WHERE draft_id = ? ORDER BY versione`).bind(dato.draft).all()))
-    .results || []).map((v) => ({ quando: v.quando ?? null, lista: v.lista,
-    riserva: v.riserva ?? null }));
+    .results || []).map((v) => ({ ...v, quando: v.quando ?? null,
+      riserva: v.riserva ?? null }));
   const letto = await passo("r2_lettura", async () => {
     const trovato = await r2.get(riga.oggetto_r2);
     return trovato ? trovato.text() : null;
   });
   let registrato = null;
   try { registrato = letto === null ? null : JSON.parse(letto); } catch { registrato = null; }
-  // Senza l'oggetto (un guasto doppio di prima) la storia si confronta con
-  // quello che dice la riga, e il nuovo oggetto ripara il buco.
-  const stessaStoria = registrato ? storiaDraft(registrato) === storiaDraft(dato)
-    : stessaRiga(riga, dato);
-  if (!stessaStoria) return conflitto("Draft gia' presente con contenuto diverso");
+  // L'indice non conserva offerte e pool completi: senza raw non si puo'
+  // certificare la storia. Un guasto di archivio non e' un rifiuto definitivo.
+  if (!registrato || controllaDraft({ ...registrato,
+      segreto_cancellazione: dato.segreto_cancellazione }) ||
+      registrato.draft !== riga.id || registrato.mittente !== riga.mittente ||
+      !stessaRiga(riga, registrato) ||
+      (riga.iniziato ?? null) !== (registrato.iniziato ?? null)) {
+    throw new GuastoTemporaneo("r2_integrita", new Error("storia Draft non verificabile"));
+  }
+  if (storiaDraft(registrato) !== storiaDraft(dato)) {
+    return conflitto("Draft gia' presente con contenuto diverso");
+  }
 
   const arrivate = versioniMazzo(dato);
-  const comune = Math.min(noti.length, arrivate.length);
+  const vive = versioniMazzo(registrato);
+  if (noti.some((v) => !Number.isInteger(v.versione) || v.versione < 1 ||
+      v.versione > vive.length || !stessaVersione(v, vive[v.versione - 1]))) {
+    throw new GuastoTemporaneo("d1_integrita", new Error("versioni D1 non verificabili dal raw"));
+  }
+  const comune = Math.min(vive.length, arrivate.length);
   for (let i = 0; i < comune; i += 1) {
-    if (!stessaVersione(noti[i], arrivate[i])) {
+    if (!stessaVersione(vive[i], arrivate[i])) {
       return conflitto("Draft gia' presente con un mazzo giocato diverso");
     }
   }
-  // Un invio piu' vecchio di quello registrato: non toglie niente.
-  if (arrivate.length < noti.length) return { esito: "gia" };
-  const nuove = arrivate.slice(noti.length);
-  const oggettoCoerente = registrato !== null &&
-    canonico(versioniMazzo(registrato)) === canonico(noti);
-  if (!nuove.length && oggettoCoerente) return { esito: "gia" };
-
-  const oggetto = await preparaOggetto(dato, ricevuto);
-  // Stessa chiave dell'oggetto vivo: lo stesso contenuto, che pero' manca o
-  // non corrisponde alle righe. Si riscrive al suo posto; qui un puntatore
-  // uguale non prova niente, e l'oggetto non si cancella mai.
+  const nuove = arrivate.slice(vive.length);
+  const indiceCoerente = noti.length === vive.length && noti.every((v, i) => {
+    const carte = JSON.parse(vive[i].lista);
+    return v.versione === i + 1 && stessaVersione(v, vive[i]) &&
+      v.carte === carte.reduce((n, [, q]) => n + q, 0) && v.distinte === carte.length;
+  });
+  if (!nuove.length && indiceCoerente) return { esito: "gia" };
+  // Solo il mazzo puo' crescere. Il raw mantiene i fatti gia' approvati.
+  const aggiornato = structuredClone(registrato);
+  if (nuove.length) aggiornato.mazzo_giocato = structuredClone(dato.mazzo_giocato);
+  const versioni = versioniMazzo(aggiornato);
+  const oggetto = nuove.length ? await preparaOggetto(aggiornato, ricevuto)
+    : { chiave: riga.oggetto_r2, byte: new TextEncoder().encode(letto).byteLength };
   const stessoOggetto = oggetto.chiave === riga.oggetto_r2;
-  await scriviOggetto(r2, oggetto);
+  const crescita = Math.max(0, oggetto.byte - Number(riga.byte));
+  if (crescita && await numero(db, "SELECT COALESCE(SUM(byte), 0) AS n FROM draft") +
+      crescita > LIMITI_DRAFT.byteConservati) {
+    throw new GuastoTemporaneo("quota", new Error("tetto di spazio R2"));
+  }
+  if (!stessoOggetto) await scriviOggetto(r2, oggetto);
   try {
-    await db.batch([
-      ...comandiMazzo(db, dato.draft, nuove, noti.length),
-      db.prepare("UPDATE draft SET oggetto_r2 = ?, byte = ? WHERE id = ?")
-        .bind(oggetto.chiave, oggetto.byte, dato.draft),
+    const esiti = await db.batch([
+      db.prepare(`DELETE FROM draft_mazzo WHERE draft_id = ? AND EXISTS
+        (SELECT 1 FROM draft WHERE id = ? AND oggetto_r2 = ?)`)
+        .bind(dato.draft, dato.draft, riga.oggetto_r2),
+      ...comandiMazzo(db, dato.draft, versioni, 0, riga.oggetto_r2),
+      db.prepare("UPDATE draft SET oggetto_r2 = ?, byte = ? WHERE id = ? AND oggetto_r2 = ?")
+        .bind(oggetto.chiave, oggetto.byte, dato.draft, riga.oggetto_r2),
     ]);
+    if (Number(esiti.at(-1)?.meta?.changes) !== 1) {
+      throw new Error("puntatore Draft cambiato durante l'aggiornamento");
+    }
   } catch (guasto) {
     if (stessoOggetto) throw new GuastoTemporaneo("d1_batch", guasto);
     const dopo = await rileggiRiga(db, dato.draft);
@@ -793,8 +838,16 @@ export async function riceviDraft(richiesta, ambiente, risposta) {
   }
   const mittente = arrivate[buoni[0]].mittente;
   if (buoni.some((i) => arrivate[i].mittente !== mittente)) return risposta({ errore: "una richiesta, un mittente solo" }, 400);
-  const byte = buoni.reduce((n, i) => n + new TextEncoder().encode(JSON.stringify(arrivate[i])).byteLength, 0);
-  const tetto = await controllaTetti(ambiente.DRAFT_DB, mittente, byte, buoni.length);
+  const distinti = [...new Map(buoni.map((i) => [arrivate[i].draft, arrivate[i]])).values()];
+  const presenti = await ambiente.DRAFT_DB.prepare(`SELECT id FROM draft WHERE id IN
+    (${distinti.map(() => "?").join(",")})`).bind(...distinti.map((d) => d.draft)).all();
+  const noti = new Set((presenti.results || []).map((d) => d.id));
+  const nuovi = distinti.filter((d) => !noti.has(d.draft));
+  const byte = nuovi.reduce((n, d) => {
+    const pulito = structuredClone(d); delete pulito.segreto_cancellazione;
+    return n + new TextEncoder().encode(JSON.stringify(pulito)).byteLength;
+  }, 0);
+  const tetto = nuovi.length ? await controllaTetti(ambiente.DRAFT_DB, mittente, byte, nuovi.length) : null;
   if (tetto) return risposta({ errore: tetto, rimanda: buoni.map((i) => arrivate[i].draft) }, 429);
   const conti = { nuovo: 0, gia: 0, aggiornato: 0, rifiutato: 0, temporaneo: 0 };
   const ricevuto = new Date().toISOString();
@@ -1069,13 +1122,11 @@ export async function collegaPartiteDraft(db, partite) {
   const comandi = [];
   for (const partita of partite) {
     if (partita.versione !== 2 || !stringaHex(partita.draft, 64)) continue;
-    const trovato = await db.prepare("SELECT id FROM draft WHERE impronta_arena = ?")
-      .bind(partita.draft).first();
-    if (trovato) {
-      comandi.push(db.prepare(`INSERT OR IGNORE INTO draft_link
-        (draft_id, partita, esito) VALUES (?, ?, ?)`).bind(
-          trovato.id, partita.partita, partita.andamento.esito));
-    }
+    // La ricerca e il link stanno nello stesso statement: una collisione
+    // scoperta prima del batch non puo' lasciare un link verso il primo ID.
+    comandi.push(db.prepare(`INSERT OR IGNORE INTO draft_link
+      (draft_id, partita, esito) SELECT id, ?, ? FROM draft WHERE impronta_arena = ?`)
+      .bind(partita.partita, partita.andamento.esito, partita.draft));
   }
   if (comandi.length) await db.batch(comandi);
 }

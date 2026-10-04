@@ -6,30 +6,15 @@
 
 La Stable documentata è MOX Beta 2.11.3; lo stato Canary più recente è in `mox-core/STATUS.md` (2.11.6). Le sezioni seguenti sono registrazioni datate, non una nuova attestazione del runtime. La pipeline reale Draft/server elencata in [mox-core/STATUS.md](https://github.com/Dennis96/mox-core/blob/main/STATUS.md) e' stata corretta sul branch descritto nella sezione seguente, non ancora fuso ne' deployato. Questo riferimento documentale non autorizza modifiche o deploy.
 
-## Pre-Stable Draft/Server Closeout — branch, 4 ottobre 2026
+## Pre-Stable Draft/Server Closeout — remediation in review, 4 ottobre 2026
 
-Branch `claude/prestable-draft-server-closeout-2026-10-04` da `afe58d3`, **non
-fuso, non deployato**; production resta quella documentata qui sotto. Letti in
-sola lettura i log Workers: il cron delle 03:17 UTC e' fallito il 02 e il 03/10
-con `controllo_storage_giornaliero` incoerente (D1 41 / R2 42, poi 45 / 46), ed
-e' tornato verde il 04/10 (53 / 53); i 500 su `POST /draft` del 29/09 e del
-03/10 registrano solo la pila di D1, senza messaggio.
+Il candidato Claude `9c27f3f7346f08849acf55b8aebf7522c68da4bc` e' stato bocciato dalla review indipendente Codex. La remediation `codex/remediate-claude-prestable-draft-server-closeout-2026-10-04` parte da quel HEAD e corregge link di impronte riutilizzate, compensazione e update concorrenti D1/R2, raw non verificabile, righe mazzo mancanti, storia immutabile, quote/retry e accettazione delle nuove chiavi nel backfill. Impronte collidenti marcate ambigue per tutti i Draft, link precedenti rimossi atomicamente; nessuna migrazione D1.
 
-- `src/draft.js`: esito per Draft in `esiti`, 503 se qualcosa va ritentato;
-  oggetti R2 a chiave per contenuto, compensazione che rilegge D1 e non
-  cancella mai l'oggetto vivo; aggiornamento monotono del mazzo giocato sullo
-  stesso Draft (copy-on-write, conflitti rifiutati con motivo); Draft con
-  `impronta_arena` gia' usata salvato senza indice; «rango Mox duplicato»
-  (A121); log JSON di fase, tipo e messaggio.
-- `src/controlli.js`: `apertura` validata come ultima mano osservata (tetto
-  `carteInMazzo`, non 7).
-- `src/index.js`, `src/monitoraggio.js`: compiti della manutenzione con nome
-  in log e messaggio d'errore.
-- Nessuna migrazione D1, nessun binding o secret nuovo. Prove: `npm run prove`
-  sul branch; esiti nel report del task. Contratto della risposta e stato per
-  voce nel [handoff di mox-core](https://github.com/Dennis96/mox-core/blob/claude/prestable-draft-server-closeout-2026-10-04/passaggi/draft/handoff/HANDOFF-PRESTABLE-DRAFT-SERVER-CLOSEOUT-2026-10-04.md).
-- Prossimo passo: review indipendente Codex; poi merge e deploy del Worker con
-  mandati separati.
+Le chiavi R2 `mese/id-hex16.json` sono ora proprie di ciascun tentativo (nonce), non deterministiche per contenuto. Un orfano da delete falliti resta osservabile da P5 e non viene riassorbito dal retry. Raw assente/corrotto produce 503 temporaneo, senza ricostruzione dai soli indici. Il CAS sul puntatore protegge nella stessa transazione l'indice e l'append. Quote preventive: ID esistenti non ricontati come nuovi, append su crescita netta.
+
+Suite finale `npm run prove`: **550/550 PASS**, comprese 26 prove indipendenti sintetiche. Code review automatica del diff completata: due finding di quota corretti e provati, segnalazione sul budget dei batch esaminata nel handoff, nessun finding aggiuntivo nella review finale.
+
+Suite e limiti nel [handoff Codex](https://github.com/Dennis96/mox-core/blob/codex/remediate-claude-prestable-draft-server-closeout-2026-10-04/passaggi/draft/handoff/HANDOFF-CODEX-REMEDIATION-PRESTABLE-DRAFT-SERVER-CLOSEOUT-2026-10-04.md). Prossimo passo: review indipendente Claude in nuova chat. Non fuso o deployato; nessuna mutazione production, nessun secret nuovo. A137 equivalente indipendentemente sul medesimo snapshot ma ancora rosso; READY FOR CANARY = NO. Lo stato production qui sotto resta una registrazione datata.
 
 ## Worker FRA-02 e Canary 2.11.4 — production, 30 settembre 2026
 

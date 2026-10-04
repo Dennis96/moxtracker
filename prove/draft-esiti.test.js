@@ -188,7 +188,7 @@ test("P1: D1 salva ma la risposta si perde: l'oggetto R2 resta, l'esito e' nuovo
   await coerente(env);
 });
 
-test("P1: compensazione R2 fallita: orfano registrato, poi riassorbito dal ritento", async () => {
+test("P1: compensazione R2 fallita: orfano osservabile, retry salva un oggetto proprio", async () => {
   const env = ambiente();
   env.DRAFT_DB.guasti.statement = 0;
   env.DRAFT_RAW.guastiDelete = 2;
@@ -201,12 +201,14 @@ test("P1: compensazione R2 fallita: orfano registrato, poi riassorbito dal riten
   const rapporto = await riconciliaStorageDraft(env.DRAFT_DB, env.DRAFT_RAW);
   assert.equal(rapporto.orfani_r2.length, 1);
 
-  // Stesso contenuto, stesso mese, stessa chiave: il ritento rende vivo
-  // proprio quell'oggetto.
+  // Il retry non riusa la chiave di un tentativo precedente: l'orfano
+  // resta osservabile dalla manutenzione, senza rischiare l'oggetto vivo.
   const ritento = await silenzia(() => manda(env, "/draft", esempio()));
   assert.deepEqual(esiti(ritento.esito.corpo), ["nuovo"]);
-  assert.equal(env.DRAFT_RAW.oggetti.size, 1);
-  await coerente(env);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 2);
+  const dopo = await riconciliaStorageDraft(env.DRAFT_DB, env.DRAFT_RAW);
+  assert.equal(dopo.senza_oggetto.length, 0);
+  assert.deepEqual(dopo.orfani_r2, rapporto.orfani_r2);
 });
 
 test("P1: un guasto R2 in scrittura e' temporaneo e non scrive D1", async () => {
@@ -245,7 +247,8 @@ test("P1: due Draft distinti con la stessa impronta Arena si salvano entrambi", 
   assert.equal(secondo.esito.stato, 200);
   assert.deepEqual(esiti(secondo.esito.corpo), ["nuovo"]);
   const righe = env.DRAFT_DB.tutte("SELECT id, impronta_arena FROM draft ORDER BY id");
-  assert.deepEqual(righe.map((r) => r.impronta_arena), ["c".repeat(64), null]);
+  assert.deepEqual(righe.map((r) => r.impronta_arena), [1, 2].map(
+    (n) => `ambigua:${"c".repeat(64)}:${idDraft(n)}`));
   // L'impronta resta nel grezzo: e' l'indice a non poterla avere due volte.
   const grezzo = [...env.DRAFT_RAW.oggetti.values()].map((v) => JSON.parse(v))
     .find((d) => d.draft === idDraft(2));
@@ -379,15 +382,16 @@ test("P2: aggiornamento salvato con risposta persa: nessun oggetto perso", async
   await coerente(env);
 });
 
-test("P2: un oggetto R2 mancante viene ripristinato dal reinvio dello stesso Draft", async () => {
+test("P2: un oggetto R2 mancante conserva il retry senza inventare la storia", async () => {
   const env = ambiente();
   await manda(env, "/draft", esempio({ mazzo_giocato: [VERSIONE_1] }));
   env.DRAFT_RAW.oggetti.clear();
   const { esito } = await silenzia(() => manda(env, "/draft",
     esempio({ mazzo_giocato: [VERSIONE_1] })));
-  assert.deepEqual(esiti(esito.corpo), ["aggiornato"]);
-  assert.equal(env.DRAFT_RAW.oggetti.size, 1);
-  await coerente(env);
+  assert.equal(esito.stato, 503);
+  assert.deepEqual(esiti(esito.corpo), ["temporaneo"]);
+  assert.equal(env.DRAFT_RAW.oggetti.size, 0);
+  assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 1);
 });
 
 test("A121: con ranghi distinti `vicina` non dipende dall'ordine dei candidati", async () => {
