@@ -563,6 +563,28 @@ async function salvaUno(db, r2, dato, ricevuto, giro = 0) {
   return inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro);
 }
 
+function pickIndicizzati(dato) {
+  const righe = [];
+  for (const voce of dato.pick) {
+    const scelte = voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []);
+    const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
+    const abbinate = abbinaScelte(scelte, consigli);
+    // Una candidata per copia: stessa convenzione dell'inserimento originale.
+    const liberi = [...voce.candidati].sort((a, b) => a.rango_mox - b.rango_mox);
+    for (let indice = 0; indice < scelte.length; indice += 1) {
+      const { seguito, consiglio } = abbinate[indice];
+      const posto = liberi.findIndex((c) => c.carta === scelte[indice]);
+      const candidato = posto < 0 ? null : liberi.splice(posto, 1)[0];
+      const numero = voce.pool_prima.length + indice + 1;
+      righe.push({ numero, fase: fase(numero), consiglio, scelta: scelte[indice],
+        seguito: seguito ? 1 : 0, vicina: candidato?.vicina ? 1 : 0,
+        campione: Number(candidato?.campione || 0),
+        fonte: candidato?.fonte_17lands ?? null, politica: voce.politica });
+    }
+  }
+  return righe.sort((a, b) => a.numero - b.numero);
+}
+
 async function inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro) {
   const impronta = dato.impronta_arena ?? null;
   const oggetto = await preparaOggetto(dato, ricevuto);
@@ -598,37 +620,17 @@ async function inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro) {
         ...(impronta ? [`ambigua:${impronta}:`, `ambigua:${impronta}:${dato.draft}`, impronta] : [null]),
         oggetto.chiave, oggetto.byte, dato.versione, sospetto),
   ];
-  const pickScelti = [];
-  for (const voce of dato.pick) {
-    const scelte = voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []);
-    const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
-    const abbinate = abbinaScelte(scelte, consigli);
-    // Il log non identifica fisicamente la copia: convenzione deterministica,
-    // si consuma prima quella di rango migliore, una candidata per scelta.
-    const liberi = [...voce.candidati].sort((a, b) => a.rango_mox - b.rango_mox);
-    for (let indice = 0; indice < scelte.length; indice += 1) {
-      const { seguito, consiglio } = abbinate[indice];
-      const posto = liberi.findIndex((c) => c.carta === scelte[indice]);
-      const candidatoScelto = posto < 0 ? null : liberi.splice(posto, 1)[0];
-      pickScelti.push({ voce, scelta: scelte[indice], consiglio, seguito,
-        candidatoScelto,
-        numero: voce.pool_prima.length + indice + 1 });
-    }
-  }
+  const pickScelti = pickIndicizzati(dato);
   // D1 Free consente 50 query per invocazione e 100 parametri per query.
   // Dieci pick da dieci campi riempiono esattamente un solo statement.
   for (let i = 0; i < pickScelti.length; i += 10) {
     const blocco = pickScelti.slice(i, i + 10);
     const argomenti = [];
     for (const elemento of blocco) {
-      const { voce, scelta, consiglio, seguito, numero, candidatoScelto } = elemento;
-      const vicina = Boolean(candidatoScelto?.vicina);
-      argomenti.push(
-        dato.draft, numero, fase(numero), consiglio,
-        scelta, seguito ? 1 : 0,
-        vicina ? 1 : 0, Number(candidatoScelto?.campione || 0),
-        candidatoScelto?.fonte_17lands ?? null, voce.politica,
-      );
+      const { numero, fase: fasePick, consiglio, scelta, seguito, vicina,
+        campione, fonte, politica } = elemento;
+      argomenti.push(dato.draft, numero, fasePick, consiglio, scelta, seguito,
+        vicina, campione, fonte, politica);
     }
     const valori = blocco.map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");
     comandi.push(db.prepare(`INSERT INTO draft_pick
@@ -697,6 +699,15 @@ async function aggiornaEsistente(db, r2, dato, riga, ricevuto, giro) {
       !stessaRiga(riga, registrato) ||
       (riga.iniziato ?? null) !== (registrato.iniziato ?? null)) {
     throw new GuastoTemporaneo("r2_integrita", new Error("storia Draft non verificabile"));
+  }
+  // Un raw valido in forma puo' comunque descrivere scelte diverse dai
+  // fatti gia' indicizzati. Non autorizza append o repair in quel caso.
+  const pickNoti = (await passo("lettura", () => db.prepare(`SELECT numero, fase,
+    consiglio, scelta, seguito, vicina, campione, fonte, politica
+    FROM draft_pick WHERE draft_id = ? ORDER BY numero`).bind(dato.draft).all()))
+    .results || [];
+  if (canonico(pickNoti) !== canonico(pickIndicizzati(registrato))) {
+    throw new GuastoTemporaneo("r2_integrita", new Error("storia raw e fatti D1 discordanti"));
   }
   if (storiaDraft(registrato) !== storiaDraft(dato)) {
     return conflitto("Draft gia' presente con contenuto diverso");

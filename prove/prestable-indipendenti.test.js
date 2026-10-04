@@ -123,6 +123,54 @@ function byteRaw(dato) {
   return new TextEncoder().encode(JSON.stringify(pulito)).byteLength;
 }
 
+test("IND-27 B4: raw valido ma discordante dai fatti D1 non autorizza append", async () => {
+  for (const campo of ["scelta", "consiglio", "politica", "campione", "vicina", "fonte"]) {
+    const env = ambiente();
+    await manda(env, "/draft", esempio());
+    const riga = env.DRAFT_DB.tutte("SELECT * FROM draft")[0];
+    const originale = env.DRAFT_RAW.oggetti.get(riga.oggetto_r2);
+    const raw = JSON.parse(originale);
+    if (campo === "scelta") {
+      raw.pick[0].scelta = 101;
+      raw.pick[1].pool_prima = [101];
+      raw.pool_finale = [101, 103];
+    }
+    if (campo === "consiglio") raw.pick[0].consiglio_mox = 102;
+    if (campo === "politica") raw.pick[0].politica = "altra";
+    if (campo === "campione") raw.pick[0].candidati[1].campione += 1;
+    if (campo === "vicina") raw.pick[0].candidati[1].vicina = false;
+    if (campo === "fonte") raw.pick[0].candidati[1].fonte_17lands = "altra";
+    env.DRAFT_RAW.oggetti.set(riga.oggetto_r2, JSON.stringify(raw));
+    const pickPrima = env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero");
+    const richiesta = { ...raw, segreto_cancellazione: esempio().segreto_cancellazione,
+      mazzo_giocato: [VERSIONE_1] };
+    const risposta = await manda(env, "/draft", richiesta);
+    assert.equal(risposta.stato, 503, campo);
+    assert.deepEqual(esiti(risposta.corpo), ["temporaneo"], campo);
+    assert.deepEqual(env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero"), pickPrima);
+    assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 0);
+    assert.equal(env.DRAFT_RAW.oggetti.size, 1);
+    assert.equal(env.DRAFT_DB.tutte("SELECT oggetto_r2 FROM draft")[0].oggetto_r2, riga.oggetto_r2);
+    // Recovery separata simulata: ripristinare il raw originale consente
+    // il retry normale, senza inventare o riscrivere la storia dei pick.
+    env.DRAFT_RAW.oggetti.set(riga.oggetto_r2, originale);
+    assert.deepEqual(esiti((await manda(env, "/draft", esempio({mazzo_giocato:[VERSIONE_1]}))).corpo), ["aggiornato"]);
+    await coerente(env);
+  }
+});
+
+test("IND-28 B4: fatti pick D1 incompleti restano temporanei e non vengono ricostruiti", async () => {
+  const env = ambiente();
+  await manda(env, "/draft", esempio());
+  env.DRAFT_DB.prepare("DELETE FROM draft_pick WHERE numero=1").run();
+  const prima = env.DRAFT_DB.tutte("SELECT * FROM draft_pick");
+  const r = await manda(env, "/draft", esempio({mazzo_giocato:[VERSIONE_1]}));
+  assert.equal(r.stato, 503);
+  assert.deepEqual(esiti(r.corpo), ["temporaneo"]);
+  assert.deepEqual(env.DRAFT_DB.tutte("SELECT * FROM draft_pick"), prima);
+  assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 0);
+});
+
 test("IND-26 blocco massimo: quattro Draft, 45 pick, 30 mazzi entro il budget dei binding", async (t) => {
   const env = ambiente();
   const pick = Array.from({ length: 45 }, (_, i) => ({
