@@ -45,7 +45,7 @@ function leggiRigheD1() {
 
 function leggiTraccia(chiave) {
   if (typeof chiave !== "string" ||
-      !/^[0-9]{4}-[0-9]{2}\/[0-9a-f]{32}\.json$/.test(chiave)) {
+      !/^[0-9]{4}-[0-9]{2}\/[0-9a-f]{32}(?:-[0-9a-f]{16})?\.json$/.test(chiave)) {
     throw new Error("chiave R2 non valida nell'indice Draft");
   }
   const corpo = wrangler([

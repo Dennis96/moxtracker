@@ -149,7 +149,7 @@ test("il collegamento fra partita e Draft resta deterministico lato server", asy
   const collega = src.match(/export async function collegaPartiteDraft[\s\S]*?\n\}/)[0];
   // Si collega solo per identificativo: l'impronta HMAC che il client calcola
   // dal `draftId` di Arena. Mai per orario, set, formato o record.
-  assert.match(collega, /SELECT id FROM draft WHERE impronta_arena = \?/);
+  assert.match(collega, /INSERT OR IGNORE INTO draft_link[\s\S]*SELECT id, \?, \? FROM draft WHERE impronta_arena = \?/);
   assert.match(collega, /stringaHex\(partita\.draft, 64\)/);
   assert.doesNotMatch(collega, /quando|ricevuta|set_code|formato|BETWEEN/);
 });

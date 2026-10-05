@@ -12,7 +12,7 @@ import {
 } from "./draft.js";
 import { gestisciAccount, pulisciCredenzialiScadute } from "./account.js";
 import { gestisciTicket, pulisciTicketScaduti } from "./ticket.js";
-import { controllaStorageGiornaliero } from "./monitoraggio.js";
+import { controllaStorageGiornaliero, eseguiManutenzione } from "./monitoraggio.js";
 import { assegnaBrewProgrammato } from "./brew-gruppi.js";
 import { pulisciContributiScaduti } from "./retention.js";
 import { configResearch, saluteResearch } from "./research/config.js";
@@ -266,6 +266,26 @@ async function scaricaReleaseMox(ambiente, chiave) {
   });
 }
 
+// I compiti della manutenzione notturna, ognuno col suo nome. Brew segue la
+// cancellazione delle partite: nessun gruppo viene assegnato mentre il suo
+// supporto sta per essere rimosso, e se la retention fallisce Brew risulta
+// saltato, con il motivo, invece di sparire dal conto.
+export function compitiManutenzione(ambiente) {
+  const contributi = pulisciContributiScaduti(ambiente);
+  return [
+    ["retention_contributi", contributi],
+    ["brew", contributi.then(() => assegnaBrewProgrammato(ambiente), () => {
+      throw new Error("saltato: la retention dei contributi e' fallita");
+    })],
+    ["research", pulisciResearchScaduta(ambiente).then((esito) => {
+      if (esito.incompleta) console.warn("retention Research: residui da riprendere al prossimo cron");
+    })],
+    ["ticket", pulisciTicketScaduti(ambiente)],
+    ["credenziali", pulisciCredenzialiScadute(ambiente)],
+    ["storage", controllaStorageGiornaliero(ambiente)],
+  ];
+}
+
 export default {
   async fetch(richiesta, ambiente) {
     const indirizzo = new URL(richiesta.url);
@@ -342,7 +362,12 @@ export default {
       try {
         return await riceviDraft(richiesta, ambiente, risposta);
       } catch (guasto) {
-        console.error("guasto ricevendo Draft", guasto);
+        // La pila da sola non basta: fino al 04/10/2026 i log di Cloudflare
+        // registravano la pila di D1 senza il messaggio (P1).
+        console.error("guasto ricevendo Draft", JSON.stringify({
+          tipo: String(guasto?.name || typeof guasto).slice(0, 60),
+          messaggio: String(guasto?.message ?? guasto).slice(0, 300),
+        }), guasto);
         return risposta({ errore: "guasto del server" }, 500);
       }
     }
@@ -384,20 +409,6 @@ export default {
     return risposta({ errore: "non c'e' niente qui" }, 404);
   },
   async scheduled(_controllore, ambiente, contesto) {
-    contesto.waitUntil(Promise.allSettled([
-      // Brew segue la cancellazione delle partite: nessun gruppo viene assegnato
-      // mentre il suo supporto sta per essere rimosso.
-      pulisciContributiScaduti(ambiente).then(() => assegnaBrewProgrammato(ambiente)),
-      pulisciResearchScaduta(ambiente).then((esito) => {
-        if (esito.incompleta) console.warn("retention Research: residui da riprendere al prossimo cron");
-      }),
-      pulisciTicketScaduti(ambiente),
-      pulisciCredenzialiScadute(ambiente),
-      controllaStorageGiornaliero(ambiente),
-    ]).then((esiti) => {
-      const errori = esiti.filter((esito) => esito.status === "rejected");
-      if (errori.length) throw new AggregateError(errori.map((esito) => esito.reason),
-        "manutenzione programmata incompleta");
-    }));
+    contesto.waitUntil(eseguiManutenzione(compitiManutenzione(ambiente)));
   },
 };

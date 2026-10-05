@@ -169,3 +169,30 @@ test("senza livello e senza classe non si deduce niente", () => {
   assert.equal(r.rank_classe, null);
   assert.equal(r.rank_stato, "assente");
 });
+
+test("P3: apertura e' l'ultima mano osservata, anche oltre le sette carte", () => {
+  // Il caso reale del 02/10/2026: nove carte, otto distinte, zero mulligan.
+  const nove = { "101": 2, "102": 1, "103": 1, "104": 1, "105": 1, "106": 1, "107": 1, "108": 1 };
+  for (const versione of [1, 2]) {
+    const cambia = versione === 2 ? { versione, segreto_cancellazione: "e".repeat(64) } : { versione };
+    assert.equal(controlla(pacchettoBuono({ ...cambia, apertura: nove })), null);
+    assert.equal(controlla(pacchettoBuono({ ...cambia,
+      andamento: { esito: "persa", mulligan: 2 }, apertura: { "101": 5 } })), null);
+    assert.equal(controlla(pacchettoBuono({ ...cambia, apertura: { "101": 7 } })), null);
+  }
+  // Campo assente: nessun problema, ed e' quello che fa Mox quando non c'e' mano.
+  const senza = pacchettoBuono();
+  delete senza.apertura;
+  assert.equal(controlla(senza), null);
+});
+
+test("P3: apertura resta validata come elenco di carte", () => {
+  for (const sbagliata of [{}, [], { "101": 0 }, { "101": 1.5 }, { "abc": 1 },
+    { "12345678": 1 }, { "101": LIMITI.carteInMazzo + 1 }, null, "101"]) {
+    assert.equal(controlla(pacchettoBuono({ apertura: sbagliata })),
+      "campo legacy apertura non valido", JSON.stringify(sbagliata));
+  }
+  // Dell'avversario non entra niente, nemmeno con la regola nuova.
+  assert.equal(controlla(pacchettoBuono({ avversario: { carte: [201], mano: { "201": 1 } } })),
+    "dell'avversario non deve arrivare mano");
+});
