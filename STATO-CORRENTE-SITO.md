@@ -1,12 +1,20 @@
 # Stato corrente — sito Mox
 
-## Riferimento documentale — 04/10/2026
+## Riferimento corrente — 05/10/2026
 
-`moxtracker/main` verificato in Git a `afe58d36a3577b92ade1cd0eb032f20ffa73c43e` (fast-forward documentale da `d3b6780030a289842af3e0585b63158ce13536d8`). Questo documento conserva le evidenze operative raccolte nelle date indicate: l’ultimo controllo Worker riportato qui è del 30/09/2026. Non è stata fatta una nuova interrogazione di produzione durante l’housekeeping, quindi tale versione è l’ultima **documentata**, non una verifica live al 04/10.
+`moxtracker/main` = `ba93b0fd4f450fc6a39d536a7b3a3ee750a41574`, merge commit della PR #35 (secondo genitore il sorgente certificato `308d479ef1f2ef61c7efeafbefef6856b7e12298`, albero identico). Stable documentata MOX Beta 2.11.3; **Canary MOX Beta 2.11.7** dal 05/10/2026, dettagli nel [handoff Canary 2.11.7](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.7-2026-10-05.md) di mox-core. La qualification Research di produzione in `wrangler.toml` scade il **15/10/2026**.
 
-La Stable documentata è MOX Beta 2.11.3; lo stato Canary più recente è in `mox-core/STATUS.md` (2.11.6). Le sezioni seguenti sono registrazioni datate, non una nuova attestazione del runtime. La pipeline reale Draft/server elencata in [mox-core/STATUS.md](https://github.com/Dennis96/mox-core/blob/main/STATUS.md) e' stata corretta sul branch descritto nella sezione seguente, non ancora fuso ne' deployato. Questo riferimento documentale non autorizza modifiche o deploy.
+## Worker Draft/server closeout e Canary 2.11.7 — production, 5 ottobre 2026
 
-## Pre-Stable Draft/Server Closeout — remediation in review, 4 ottobre 2026
+**Worker production:** da `2c8b6a81-042f-41bc-9229-a5a89ccab51e` (rollback) a **`682fea22-6c1c-431b-84ce-55e7cb1d3fc3`**, deploy da `main` `ba93b0f` pulito, `npm run prove` 558/558 prima e dopo il merge. Binding, variabili e cron `17 3 * * *` invariati; **nessuna migrazione D1, nessun deploy Pages**, nessun dato toccato. Contenuto: esiti per Draft (P1), aggiornamento del mazzo giocato (P2), `apertura` come ultima mano osservata (P3), manutenzione con compiti nominati e storage controllato (P5), A121, B4 limitato alle convenzioni deployate `insieme`/`copie`.
+
+**Smoke in sola lettura**, prima e dopo: `strumenti/smoke_beta.mjs --site https://moxtracker.app` verde, `/salute`, `/mox/external-data-policy`, `/draft/statistiche`, `/meta` 200, CORS invariato; risposte `/mox/release` Stable/Canary e `/mox/download.exe` byte-identiche al preflight; tail del Worker senza eccezioni.
+
+**Canary:** installer 2.11.7 in `installer/2.11.7/090a400b…1339/Mox-Installer-win-x64.exe` (riscaricato identico), manifesto sul solo `MOX_RELEASE_MANIFEST_CANARY`: versione Worker attiva **`523b659e-2093-4a56-930d-537e786c0438`** (secret change sopra `682fea22`). I secret seguono la versione: un rollback a `2c8b6a81` riporterebbe anche il manifesto Canary 2.11.6; per tornare solo al Worker precedente tenendo la 2.11.7, rollback del codice e poi di nuovo il `secret put` del manifesto 2.11.7. Stable `MOX_RELEASE_MANIFEST`, GitHub Latest `mox-v2-beta2.11.3` e `/mox/download.exe` invariati.
+
+**Da osservare prima della Stable:** nessun 500 persistente su `/draft` nei log dopo i Draft veri del field test; almeno un cron 03:17 UTC post-deploy con compiti nominati, nessun fallimento non spiegato e storage coerente.
+
+## Pre-Stable Draft/Server Closeout — catena di review, 4–5 ottobre 2026 (storico)
 
 **05/10/2026 — Review Codex finale FAIL, M1/B4 corretto sul fixer.**
 Report-only congelato `4568a4fffa8b0378fc0c21a7eb3db7197176fa96` in mox-core.
