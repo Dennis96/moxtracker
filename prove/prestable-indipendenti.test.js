@@ -323,6 +323,29 @@ test("IND-33 M1: copie nuove mantengono fatti, retry, ordine candidati e secondo
   await coerente(env);
 });
 
+// Prendi Due con un doppione solo fra le offerte: scelte, consigli e candidate
+// restano senza doppioni, ma il Worker storico rifiutava gia' l'offerta.
+// "insieme" e "copie" danno alla seconda scelta consigli diversi (202 e 201).
+test("IND-34 B4: offerte doppie da sole escludono il fallback insieme", async () => {
+  const env = ambiente();
+  const dato = esempio({ draft: "6".repeat(32), formato: "PickTwoDraft", completo: false,
+    impronta_arena: "5".repeat(64), pool_finale: [202, 203],
+    pick: [{ numero: 1, offerte: [201, 202, 203, 203], pool_prima: [], consiglio_mox: 201,
+      consigli_mox: [201, 202], politica: "policy-test", scelte: [202, 203], candidati: [
+        { carta: 201, rango_mox: 1, campione: 50, vicina: false },
+        { carta: 202, rango_mox: 2, campione: 40, vicina: false },
+        { carta: 203, rango_mox: 3, campione: 30, vicina: false }] }] });
+  assert.deepEqual(esiti((await manda(env, "/draft", dato)).corpo), ["nuovo"]);
+  const copie = env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero");
+  riscriviPick(env, dato, "insieme");
+  assert.notDeepEqual(env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero"), copie);
+  const prima = fotografia(env);
+  const r = await manda(env, "/draft", { ...dato, mazzo_giocato: [VERSIONE_1] });
+  assert.equal(r.stato, 503);
+  assert.deepEqual(esiti(r.corpo), ["temporaneo"]);
+  assert.deepEqual(fotografia(env), prima);
+});
+
 test("IND-30 B4: una convenzione storica non copre un raw diverso dai pick", async () => {
   const env = ambiente();
   await manda(env, "/draft", prendiDueStorico());
