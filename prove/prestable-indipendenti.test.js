@@ -171,8 +171,8 @@ test("IND-28 B4: fatti pick D1 incompleti restano temporanei e non vengono ricos
   assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 0);
 });
 
-// Le righe `draft_pick` come le scrivevano i Worker prima di 8f8327f
-// (30/09/2026): `insieme` e' 5f63268..730c334^, `abbinate` e' 730c334.
+// Oracolo dei sorgenti Git: "insieme" e' il Worker precedente al deploy
+// 8f8327f; "abbinate" serve solo a costruire righe della variante NON deployata.
 const FASI = ["apertura", "direzione", "struttura", "chiusura"];
 
 function righePickStoriche(dato, convenzione) {
@@ -227,9 +227,9 @@ function prendiDueStorico(cambia = {}) {
     pool_finale: [203, 201], ...cambia });
 }
 
-// Due copie della carta migliore: la copia di rango 1 non e' vicina, quella
-// di rango 2 con lo stesso punteggio si' (draft_assistente.py). Prima di
-// 8f8327f `vicina` valeva 1 se lo era una copia qualunque.
+// Due copie valide solo dal deploy 8f8327f. Riscriverne i fatti con una
+// convenzione precedente costruisce un indice che nessun Worker deployato
+// avrebbe prodotto: il vecchio validatore rifiutava gia' le offerte.
 function copiaDoppiaStorica(cambia = {}) {
   return esempio({ draft: "9".repeat(32), completo: false, impronta_arena: "8".repeat(64),
     pick: [{ numero: 1, offerte: [101, 101, 102], pool_prima: [], consiglio_mox: 101,
@@ -241,8 +241,8 @@ function copiaDoppiaStorica(cambia = {}) {
 }
 
 test("IND-29 B4: Draft indicizzati dai Worker prima del 30/09 si aggiornano ancora", async () => {
-  for (const fabbrica of [prendiDueStorico, copiaDoppiaStorica]) {
-    for (const convenzione of ["insieme", "abbinate"]) {
+  for (const fabbrica of [prendiDueStorico]) {
+    for (const convenzione of ["insieme"]) {
       const caso = `${fabbrica.name}/${convenzione}`;
       const env = ambiente();
       assert.deepEqual(esiti((await manda(env, "/draft", fabbrica())).corpo), ["nuovo"], caso);
@@ -256,6 +256,71 @@ test("IND-29 B4: Draft indicizzati dai Worker prima del 30/09 si aggiornano anco
       await coerente(env);
     }
   }
+});
+
+
+function fotografia(env) {
+  return { draft: env.DRAFT_DB.tutte("SELECT * FROM draft ORDER BY id"),
+    pick: env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY draft_id, numero"),
+    mazzi: env.DRAFT_DB.tutte("SELECT * FROM draft_mazzo ORDER BY draft_id, versione"),
+    raw: [...env.DRAFT_RAW.oggetti], batch: env.DRAFT_DB.registro.batch.length };
+}
+
+test("IND-31 B4: copie con fatti di una convenzione mai deployata restano temporanee", async () => {
+  for (const convenzione of ["insieme", "abbinate"]) {
+    const env = ambiente();
+    const dato = copiaDoppiaStorica();
+    await manda(env, "/draft", dato);
+    riscriviPick(env, dato, convenzione);
+    const prima = fotografia(env);
+    const r = await manda(env, "/draft", { ...dato, mazzo_giocato: [VERSIONE_1] });
+    assert.equal(r.stato, 503, convenzione);
+    assert.deepEqual(esiti(r.corpo), ["temporaneo"]);
+    assert.deepEqual(fotografia(env), prima);
+  }
+});
+
+test("IND-32 B4: spostare vicina o rango fra copie non passa un fallback storico", async () => {
+  for (const campo of ["vicina", "rango", "entrambi"]) {
+    const env = ambiente();
+    const dato = copiaDoppiaStorica();
+    dato.pick[0].candidati[0].vicina = true;
+    dato.pick[0].candidati[1].vicina = false;
+    await manda(env, "/draft", dato);
+    const riga = env.DRAFT_DB.tutte("SELECT * FROM draft")[0];
+    const raw = JSON.parse(env.DRAFT_RAW.oggetti.get(riga.oggetto_r2));
+    if (campo === "vicina") {
+      raw.pick[0].candidati[0].vicina = false;
+      raw.pick[0].candidati[1].vicina = true;
+    } else {
+      raw.pick[0].candidati[0].rango_mox = 2;
+      raw.pick[0].candidati[1].rango_mox = 1;
+      if (campo === "entrambi") raw.pick[0].candidati[0].vicina = false;
+    }
+    env.DRAFT_RAW.oggetti.set(riga.oggetto_r2, JSON.stringify(raw));
+    const prima = fotografia(env);
+    const r = await manda(env, "/draft", { ...raw,
+      segreto_cancellazione: dato.segreto_cancellazione, mazzo_giocato: [VERSIONE_1] });
+    assert.equal(r.stato, 503, campo);
+    assert.deepEqual(esiti(r.corpo), ["temporaneo"]);
+    assert.deepEqual(fotografia(env), prima);
+  }
+});
+
+test("IND-33 M1: copie nuove mantengono fatti, retry, ordine candidati e secondo mazzo", async () => {
+  const env = ambiente();
+  const dato = copiaDoppiaStorica();
+  assert.deepEqual(esiti((await manda(env, "/draft", dato)).corpo), ["nuovo"]);
+  const prima = env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero");
+  assert.equal(prima[0].vicina, 0);
+  assert.deepEqual(esiti((await manda(env, "/draft", { ...dato, mazzo_giocato: [VERSIONE_1] })).corpo), ["aggiornato"]);
+  assert.deepEqual(esiti((await manda(env, "/draft", { ...dato, mazzo_giocato: [VERSIONE_1] })).corpo), ["gia"]);
+  const riordinato = structuredClone(dato);
+  riordinato.pick[0].candidati.reverse();
+  assert.deepEqual(esiti((await manda(env, "/draft", { ...riordinato, mazzo_giocato: [VERSIONE_1, VERSIONE_2] })).corpo), ["aggiornato"]);
+  assert.equal(env.DRAFT_DB.conta("draft_mazzo"), 2);
+  assert.deepEqual(env.DRAFT_DB.tutte("SELECT * FROM draft_pick ORDER BY numero"), prima);
+  await coerente(env);
 });
 
 test("IND-30 B4: una convenzione storica non copre un raw diverso dai pick", async () => {

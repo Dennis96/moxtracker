@@ -563,16 +563,22 @@ async function salvaUno(db, r2, dato, ricevuto, giro = 0) {
   return inserisciNuovo(db, r2, dato, ricevuto, segretoHash, giro);
 }
 
-// Le convenzioni con cui i Worker hanno scritto `draft_pick`, dalla piu'
-// recente. Le righe gia' indicizzate non si riscrivono: un Draft arrivato
-// prima del 30/09/2026 ha ancora le sue, e le certifica la sua convenzione.
-// - "copie" (8f8327f, FRA): consigli abbinati copia per copia, una candidata
-//   per copia in ordine di rango. E' quella dell'inserimento.
-// - "abbinate" (730c334, FRA-02, 30/09 pomeriggio): consigli abbinati, ma la
-//   candidata era la prima della carta e `vicina` valeva per qualunque copia.
-// - "insieme" (dal 20/08): consiglio non seguito = `consigli[indice]`,
-//   `seguito` con `includes`, candidata come in "abbinate".
-const CONVENZIONI_PICK = ["copie", "abbinate", "insieme"];
+// Convenzioni effettivamente deployate: "insieme" (5f63268 .. 01fecab)
+// e "copie" (8f8327f, albero del deploy fda6c84). La variante "abbinate"
+// di 730c334 e' rimasta su un branch non deployato: non certifica fatti D1.
+const CONVENZIONI_PICK = ["copie", "insieme"];
+
+function formaPickInsieme(dato) {
+  // Il Worker precedente a FRA-02 rifiutava ogni duplicato in queste quattro
+  // liste. Il raw e' gia' validato dal contratto corrente, piu' restrittivo
+  // sugli altri campi; restano da imporre i vincoli storici sulle copie.
+  return dato.pick.every((voce) => {
+    const scelte = voce.scelte ?? (voce.scelta !== undefined ? [voce.scelta] : []);
+    const consigli = voce.consigli_mox ?? [voce.consiglio_mox];
+    return [voce.offerte, scelte, consigli, voce.candidati.map((c) => c.carta)]
+      .every((carte) => new Set(carte).size === carte.length);
+  });
+}
 
 function pickIndicizzati(dato, convenzione = "copie") {
   const righe = [];
@@ -724,13 +730,15 @@ async function aggiornaEsistente(db, r2, dato, riga, ricevuto, giro) {
   }
   // Un raw valido in forma puo' comunque descrivere scelte diverse dai
   // fatti gia' indicizzati. Non autorizza append o repair in quel caso.
-  // Basta una delle convenzioni dei Worker passati: tutte derivano le righe
-  // dallo stesso raw, e chi le ha scritte prima del 30/09 non le ha riscritte.
+  // Il fallback storico vale solo per un raw che quel Worker poteva accettare.
+  // Le righe derivano sempre dal raw intero con un'unica convenzione.
   const pickNoti = canonico((await passo("lettura", () => db.prepare(`SELECT numero, fase,
     consiglio, scelta, seguito, vicina, campione, fonte, politica
     FROM draft_pick WHERE draft_id = ? ORDER BY numero`).bind(dato.draft).all()))
     .results || []);
-  if (!CONVENZIONI_PICK.some((c) => canonico(pickIndicizzati(registrato, c)) === pickNoti)) {
+  if (!CONVENZIONI_PICK.some((c) =>
+    (c !== "insieme" || formaPickInsieme(registrato)) &&
+    canonico(pickIndicizzati(registrato, c)) === pickNoti)) {
     throw new GuastoTemporaneo("r2_integrita", new Error("storia raw e fatti D1 discordanti"));
   }
   if (storiaDraft(registrato) !== storiaDraft(dato)) {

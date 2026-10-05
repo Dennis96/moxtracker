@@ -8,6 +8,18 @@ La Stable documentata è MOX Beta 2.11.3; lo stato Canary più recente è in `mo
 
 ## Pre-Stable Draft/Server Closeout — remediation in review, 4 ottobre 2026
 
+**05/10/2026 — Review Codex finale FAIL, M1/B4 corretto sul fixer.**
+Report-only congelato `4568a4fffa8b0378fc0c21a7eb3db7197176fa96` in mox-core.
+Il Git certifica due convenzioni deployate: `insieme` e `copie`; `730c334`
+(`abbinate`) era NON deployato. Il vecchio Worker rifiutava duplicati in
+offerte, consigli, scelte e candidate. Il fixer su
+`codex/remediate-claude-final-prestable-closeout-2026-10-05` limita il fallback
+`insieme` a quel dominio, preserva i nuovi insert `copie` e non riscrive i pick.
+IND-31/32 coprono il controesempio raw/D1, IND-33 update/retry/secondo mazzo;
+suite **557/557 PASS**. [Handoff e limiti](https://github.com/Dennis96/mox-core/blob/codex/remediate-claude-final-prestable-closeout-2026-10-05/passaggi/draft/handoff/HANDOFF-CODEX-FINAL-PRESTABLE-CLOSEOUT-2026-10-05.md).
+In attesa della nuova review Claude. Nessun merge/deploy/produzione, A137
+invariato e Canary bloccata. Le note sottostanti restano provenienza storica.
+
 La review Claude del delta B4/B5 (`a6180f1e`) e' **FAIL: 0 BLOCKER, 1 MAJOR**. [Report-only congelato](https://github.com/Dennis96/mox-core/blob/4b668e9f82d21e6e5308a12be6cc21b1078e8fd3/passaggi/draft/audit/REVIEW-CLAUDE-CODEX-B4-B5-REMEDIATION-2026-10-04.md). Il confronto B4 usava soltanto la convenzione di indicizzazione di oggi (`8f8327f`, 30/09), e i Draft indicizzati prima, Prendi Due e copie doppie della carta scelta, restavano in 503 per sempre al reinvio col mazzo. Il branch `claude/remediate-codex-b4-b5-2026-10-04` accetta `draft_pick` se coincide con una delle tre convenzioni dei Worker passati, ricalcolata dallo stesso raw; l'inserimento resta su quella di oggi. IND-29/30, suite **554/554 PASS**. Nessun merge/deploy/mutazione production; A137 invariato e Canary bloccata. Le righe seguenti conservano la provenienza precedente.
 
 La review della remediation Codex `6ee275a14eefa08fe6583fe128292328d4a7a1a7` e del client `3fcf1d36` e' **FAIL: 2 BLOCKER (B4/B5), 0 MAJOR**. [Report-only congelato](https://github.com/Dennis96/mox-core/blob/b7afed97facbfc84ec0daa1b9d3dc5c1cf2f1980/passaggi/draft/audit/REVIEW-CLAUDE-CODEX-REMEDIATION-PRESTABLE-DRAFT-SERVER-CLOSEOUT-2026-10-04.md). Il branch `claude/remediate-codex-prestable-draft-server-closeout-2026-10-04` completa B4 confrontando raw e fatti D1 prima di consentire append/repair; incoerenza → 503 temporaneo, pick intatti. B5 e' corretto nel client con lock fra processi. Suite server **552/552 PASS**, IND27/28 e 35 sonde locali aggiuntive verdi; code review automatica del delta senza ulteriori BLOCKER/MAJOR. Richiesta nuova review Codex indipendente. [Handoff B4/B5](https://github.com/Dennis96/mox-core/blob/claude/remediate-codex-prestable-draft-server-closeout-2026-10-04/passaggi/draft/handoff/HANDOFF-CLAUDE-REMEDIATION-CODEX-PRESTABLE-DRAFT-SERVER-CLOSEOUT-2026-10-04.md). Nessun merge/deploy/mutazione production; A137 esterno invariato e Canary bloccata. Le righe seguenti conservano la provenienza Codex.
