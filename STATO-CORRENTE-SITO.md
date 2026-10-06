@@ -1,6 +1,16 @@
 # Stato corrente — sito Mox
 
-## Riferimento corrente — 05/10/2026
+## Riferimento corrente — 06/10/2026
+
+`moxtracker/main` = `3bc05da6b0c37d51016e315638e0d87059e9a9e5`, merge commit della PR [#37](https://github.com/Dennis96/moxtracker/pull/37) (A141; secondo genitore `630bf2baf7191827c560b66d06e1ebcb10f3a541`, albero identico). Stable MOX Beta 2.11.3; **Canary MOX Beta 2.11.8** dal 06/10/2026, client da `mox-core` `86fe7c0daf0a4bac80f014737960654e2424e96e` ([handoff](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.8-2026-10-06.md)).
+
+## Privacy A141 e Canary 2.11.8 — production, 6 ottobre 2026
+
+**Pages:** `strumenti/release_sito.mjs` da `main` `3bc05da` pulito: prove 558/558, preview `054c1b60` (build `2c07a662eebbe8ed`, 6/6 smoke, `noindex`), poi production **`b1e3a39e`** (build `83b81f0227530856`); rollback `68c224fd`. Il record `.release/production-3bc05da6b0c3-b1e3a39e.json` dice «smoke-fallito» perché il cancello ha letto il dominio prima della propagazione (6 s); subito dopo la home servita aveva lo SHA approvato, `smoke_beta.mjs --site https://moxtracker.app` 14/14 e Privacy / «Cosa invia MOX» IT/EN mostravano i testi A141. Lo screenshot mobile del cancello è del browser con emulazione 375 px: Edge headless a 390 px non emula il telefono e taglia la pagina.
+
+**Worker:** nessun deploy di codice. Secret `MOX_RELEASE_MANIFEST_CANARY` = manifesto 2.11.8 (`6e0de52a…`, 1.028 byte, redirezione di bash): versione **`3848f9db-7d5e-4de7-b471-cd35d4643bb5`**, rollback `523b659e-2093-4a56-930d-537e786c0438` (manifesto 2.11.7 `3d504757…`). Installer in R2 `installer/2.11.8/84f72416…ca3c/Mox-Installer-win-x64.exe`, 67.247.524 byte, riscaricato identico. Stable invariato. Nessuna migrazione D1. `npx.cmd` passa da `cmd` e spezza i percorsi con spazi: per R2 e secret usare `node node_modules/wrangler/bin/wrangler.js`.
+
+## Riferimento precedente — 05/10/2026
 
 `moxtracker/main` = `ba93b0fd4f450fc6a39d536a7b3a3ee750a41574`, merge commit della PR #35 (secondo genitore il sorgente certificato `308d479ef1f2ef61c7efeafbefef6856b7e12298`, albero identico). Stable documentata MOX Beta 2.11.3; **Canary MOX Beta 2.11.7** dal 05/10/2026, dettagli nel [handoff Canary 2.11.7](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.7-2026-10-05.md) di mox-core. La qualification Research di produzione in `wrangler.toml` scade il **15/10/2026**.
 
