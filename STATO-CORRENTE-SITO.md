@@ -1,10 +1,20 @@
 # Stato corrente — sito Mox
 
-## Riferimento corrente — 06/10/2026
+## Riferimento corrente — 08/10/2026
 
-`moxtracker/main` = `3bc05da6b0c37d51016e315638e0d87059e9a9e5`, merge commit della PR [#37](https://github.com/Dennis96/moxtracker/pull/37) (A141; secondo genitore `630bf2baf7191827c560b66d06e1ebcb10f3a541`, albero identico). Stable MOX Beta 2.11.3; **Canary MOX Beta 2.11.8** dal 06/10/2026, client da `mox-core` `86fe7c0daf0a4bac80f014737960654e2424e96e` ([handoff](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.8-2026-10-06.md)).
+`moxtracker/main` = `568ad9f099b2f3c3f12d7950a62c42ebe08e4efb` (solo documenti dopo `3bc05da`). **Stable e Canary MOX Beta 2.11.8**: Stable dall'08/10/2026, client da `mox-core` `86fe7c0daf0a4bac80f014737960654e2424e96e` ([handoff Stable](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-STABLE-2.11.8-2026-10-08.md)).
 
-## Privacy A141 e Canary 2.11.8 — production, 6 ottobre 2026
+## Stable 2.11.8 — production, 8 ottobre 2026
+
+**Worker:** nessun deploy di codice. Secret `MOX_RELEASE_MANIFEST` = gli stessi byte di `MOX_RELEASE_MANIFEST_CANARY` (manifesto 2.11.8 `6e0de52a…`, 1.028 byte, redirezione di bash): versione **`c5cdf29d-a300-46e6-86fb-e1a4a38efe76`**, rollback `3848f9db-7d5e-4de7-b471-cd35d4643bb5` (Stable 2.11.3 `da732e1a…`, Canary 2.11.8). Installer R2 non ricaricato (già presente, riscaricato identico). Nessuna migrazione D1, nessuna scrittura R2, nessun deploy Pages.
+
+**GitHub:** [MOX Beta 2.11.8](https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.8), tag `mox-v2-beta2.11.8` su `main` `568ad9f`, Latest, non prerelease, unico asset `MOX-2.11.8.zip` (`31b8c9fa…`, 110.267.929 byte, riscaricato identico). La pagina Download risolve quello ZIP; `smoke_beta.mjs --site https://moxtracker.app` 14/14.
+
+**Osservazioni pre-Stable del 05/10** (controllate dopo la pubblicazione): Workers Logs a 7 giorni senza nessun 500 su `POST /draft` dopo il deploy del 05/10; cron `17 3 * * *` `success` il 06, 07 e 08/10. Compiti nominati e storage non leggibili dai log: non verificati.
+
+## Privacy A141 e Canary 2.11.8 — production, 6 ottobre 2026 (riferimento del 06/10)
+
+`moxtracker/main` era `3bc05da6b0c37d51016e315638e0d87059e9a9e5`, merge commit della PR [#37](https://github.com/Dennis96/moxtracker/pull/37) (A141; secondo genitore `630bf2baf7191827c560b66d06e1ebcb10f3a541`, albero identico). Stable MOX Beta 2.11.3; **Canary MOX Beta 2.11.8** dal 06/10/2026, client da `mox-core` `86fe7c0daf0a4bac80f014737960654e2424e96e` ([handoff](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.8-2026-10-06.md)).
 
 **Pages:** `strumenti/release_sito.mjs` da `main` `3bc05da` pulito: prove 558/558, preview `054c1b60` (build `2c07a662eebbe8ed`, 6/6 smoke, `noindex`), poi production **`b1e3a39e`** (build `83b81f0227530856`); rollback `68c224fd`. Il record `.release/production-3bc05da6b0c3-b1e3a39e.json` dice «smoke-fallito» perché il cancello ha letto il dominio prima della propagazione (6 s); subito dopo la home servita aveva lo SHA approvato, `smoke_beta.mjs --site https://moxtracker.app` 14/14 e Privacy / «Cosa invia MOX» IT/EN mostravano i testi A141. Lo screenshot mobile del cancello è del browser con emulazione 375 px: Edge headless a 390 px non emula il telefono e taglia la pagina.
 
