@@ -7,6 +7,7 @@ import { readFileSync, mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { createServer } from "node:http";
 
 import server from "../src/index.js";
 import { normalizzaPolitica } from "../src/politica-dati-esterni.js";
@@ -764,4 +765,36 @@ test("raccolta: timeout copre anche il corpo lento e una revoca nega il retry", 
     } });
   assert.equal(revocato.esito, "negata");
   assert.equal(chiamate, 1);
+});
+
+test("raccolta: un redirect HTTP non esce dalla whitelist degli endpoint", async () => {
+  let destinazioni = 0;
+  const dest = createServer((_req, res) => {
+    destinazioni++;
+    res.end(JSON.stringify([{ mtga_id: 1, name: "Carta sintetica" }]));
+  });
+  await new Promise(risolvi => dest.listen(0, "127.0.0.1", risolvi));
+  const origine = createServer((_req, res) => {
+    res.writeHead(302, { Location: `http://127.0.0.1:${dest.address().port}/fuori-whitelist` });
+    res.end();
+  });
+  await new Promise(risolvi => origine.listen(0, "127.0.0.1", risolvi));
+  try {
+    let chiamate = 0;
+    const risultato = await raccogliTabella({ tabella: "card_data", set: "TMT", formato: "PremierDraft",
+      ambiente: AMBIENTE_RACCOLTA, fetch: async (_url, opzioni) => {
+        chiamate++;
+        // L'URL 17Lands e' sostituito prima di fetch: solo loopback reale.
+        return fetch(`http://127.0.0.1:${origine.address().port}/endpoint`, opzioni);
+      } });
+    assert.equal(risultato.definitivo, true);
+    assert.equal(risultato.motivo, "HTTP 302");
+    assert.equal(chiamate, 1);
+    assert.equal(destinazioni, 0);
+  } finally {
+    for (const server of [origine, dest]) {
+      server.closeAllConnections();
+      await new Promise(risolvi => server.close(risolvi));
+    }
+  }
 });

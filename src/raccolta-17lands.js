@@ -196,7 +196,7 @@ export async function raccogliTabella({ tabella, set, formato, colori = null, am
     const timer = setTimeout(() => interruttore.abort(), LIMITI_RACCOLTA.millisecondiRete);
     try {
       const risposta = await prendi(url, { headers: { "user-agent": AGENTE,
-        accept: "application/json" }, signal: interruttore.signal });
+        accept: "application/json" }, signal: interruttore.signal, redirect: "manual" });
       if (risposta.status === 429 || risposta.status >= 500) {
         ultimoErrore = `HTTP ${risposta.status}`;
         continue;
