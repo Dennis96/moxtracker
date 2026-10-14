@@ -2,11 +2,11 @@
 
 **Mandato:** 14 ottobre 2026. **Autore:** Codex. **Perimetro:** analisi e report; nessuna modifica applicativa, merge, PR, deploy, release, migrazione o scrittura Cloudflare. Repository di consegna pubblico: `Dennis96/moxtracker`. Branch: `codex/audit-draft-omen-vs-mox-site-news-2026-10-14`, da `a08ee510152044b544ecdec014dd0876fd3920b0`.
 
-**Stato della consegna:** analisi completata; verifiche e limiti in §12. Il permalink e lo SHA del singolo commit documentale sono nella consegna della chat e nella storia Git di questo file. Il documento non incorpora il proprio SHA, che cambierebbe incorporandolo. Tutte le sezioni propositive sono backlog, non autorizzazioni all'esecuzione.
+**Stato della consegna:** analisi completata; verifiche iniziali e limiti in §12. Approfondimento Draft richiesto successivamente dall'utente, con prove sintetiche offline e nuova fotografia live, in §13. I permalink e gli SHA dei commit documentali sono nelle consegne della chat e nella storia Git di questo file. Il documento non incorpora il proprio SHA, che cambierebbe incorporandolo. Tutte le sezioni propositive sono backlog, non autorizzazioni all'esecuzione.
 
 ## 1. Sintesi decisionale
 
-**MOX non ha bisogno di imitare Draft Omen nel suo insieme. Ha bisogno di rendere trovabili e comprensibili qualità che in parte possiede già.** Il sito MOX mostra bene il companion completo e dispone di una Privacy sostanziosa, ma News e documentazione del metodo non sono tenute allo stesso livello del prodotto. Draft Omen comunica meglio il singolo problema del Draft, rende il metodo consultabile e mantiene una cronologia reale delle release. Non è dimostrato che consigli carte o costruisca mazzi migliori di MOX.
+**MOX non ha bisogno di imitare Draft Omen nel suo insieme. Deve comunicare qualità che possiede già e migliorare alcuni componenti del Draft.** Il sito MOX mostra bene il companion completo e dispone di una Privacy sostanziosa, ma News e documentazione del metodo non sono tenute allo stesso livello del prodotto. Draft Omen comunica meglio il singolo problema del Draft, rende il metodo consultabile e mantiene una cronologia reale delle release. L'approfondimento §13 identifica vantaggi strutturali del builder Omen, della scelta congiunta Pick-Two MOX e della lettura del mana MOX, oltre a un limite riprodotto del simulatore MOX. Non è dimostrata la superiorità complessiva di uno dei due sui risultati delle partite.
 
 Le cinque differenze che incidono davvero sulla decisione:
 
@@ -82,7 +82,7 @@ Ordine seguito: istruzioni locali e policy workspace → stato/lavori/arretrati 
 
 **VERIFICATO LIVE:** risposte HTTP, DOM, immagini viste nel browser, metadati GitHub, misura dei layout. **VERIFICATO SORGENTE:** lettura di codice/tag/documento specifico, senza implicare prova sul binario. **RIFERITO:** test o certificazione eseguiti da Claude, fonte identificata. **INFERENZA:** conseguenza motivata non misurata sul campo. **PROPOSTA:** comportamento futuro. **NON VERIFICATO:** accesso o prova non svolta. **STALE/CONTRADDITTORIO:** discordanza puntuale, non giudizio globale sul progetto.
 
-Codice MOX: ranking/builder Stable confrontati col `FINAL_RELEASE_HEAD` 2.11.9; `draft_valutazione.py` è identico fra le due release. Cambiano acquisizione e provenance, non quella politica di ranking. Codice Omen: archivio sorgenti ufficiale del tag 0.6.4, letto senza installazione o esecuzione. Il confronto Git tag→master serve a separare sviluppi successivi; non attribuisce automaticamente nuove funzioni alla release.
+Codice MOX: ranking/builder Stable confrontati col `FINAL_RELEASE_HEAD` 2.11.9; `draft_valutazione.py` è identico fra le due release. Cambiano acquisizione e provenance, non quella politica di ranking. Codice Omen: archivio sorgenti ufficiale del tag 0.6.4, letto senza installazione o esecuzione nella prima fase dell'audit. Nell'approfondimento §13 sono state eseguite esclusivamente librerie di calcolo su ingressi inventati, con rete e accesso a dati personali impediti; nessun client è stato avviato. Il confronto Git tag→master serve a separare sviluppi successivi; non attribuisce automaticamente nuove funzioni alla release.
 
 Browser reale integrato: home, Download/Docs, Privacy e News di entrambi; viewport 375/390/768/1440, **dopo caricamento CSS**. Verificati menu, struttura, immagini e alcuni stili. Non è una certificazione WCAG, Lighthouse o un field test desktop dei client. I primi rilievi transitori prima del caricamento CSS sono stati scartati.
 
@@ -455,7 +455,7 @@ MOX conserva una disciplina diversa: D3 ciclo 1 negativo per la candidata provat
 8. **UX/performance:** stessa macchina Windows, finestra compatta/secondo monitor, cache fredda/calda, percentile latenza pack→ranking, RAM/CPU, errore/missing data. Campioni e macchina dichiarati, niente benchmark globale da un click.
 9. **Decisione:** promozione soltanto se endpoint primario e guardrail migliorano senza regressione rilevante; risultati negativi conservati. Ricerca e implementazione restano due decisioni successive.
 
-Questo task **non ha eseguito** il protocollo: richiede nuovi adattatori/benchmark e riapertura autorizzata della ricerca; implementarli ora violerebbe il mandato «solo report». La proposta è concreta e testabile, senza spacciare per risultato un piano di esperimento.
+La prima fase del task **non ha eseguito** questo protocollo; nemmeno le successive prove sintetiche §13 costituiscono quel benchmark. Un confronto statistico su corpus richiede un mandato di ricerca distinto, ingressi e adattatori concordati. La proposta è concreta e testabile, senza spacciare per risultato un piano di esperimento.
 
 ### 9.4 Cosa studiare e cosa non copiare
 
@@ -517,7 +517,7 @@ La centralizzazione attuale MOX ha costi propri, indipendenti dalle News: handof
 
 **Verifiche della Canary riferite a Claude:** suite sul `FINAL_RELEASE_HEAD` (63 voci: 61 ok, due saltate per corpus golden/ZIP non ancora costruito), gate e aggiornamento reale 16/16. Non sono una nuova certificazione prodotta da questo audit. La scadenza qualification e la versione Worker `47f9b73e` sono documentazione/configurazione coerenti con risposte pubbliche; non è stato interrogato l'account Cloudflare per provare ID del deployment o fatturazione.
 
-**Il prossimo cron delle 21:23:** non osservato nella fotografia delle 20:40; non si promettono 40/40 coppie già disponibili. Le tabelle mancanti sono un limite temporaneo dichiarato, non un fallimento del macro-task documentale. Nessun monitor o promemoria creato.
+**Cron delle 21:23:** non osservato nella fotografia iniziale delle 20:40. La successiva verifica delle 21:35, documentata in §13.2, ha trovato tutte le 40 coppie FRA disponibili. Le due fotografie restano distinte; nessun monitor o promemoria creato.
 
 **Decisioni proprietario per lavori successivi:** autorizzare il primo macro-task A+C/Guide/Privacy e scegliere la collocazione del menu; definire body IT/EN e politica retrofill; mantenere esplicito il gate Pages; decidere se pubblicare comunicazioni Canary separate; incaricare eventuale verifica giuridica puntuale. Rinnovo Research prima del **15/11/2026** (`valida_fino=2026-11-15T00:00:00Z`); promozione Stable 2.11.9 soltanto dopo field test e nuova decisione. Questo report non autorizza nessuna di queste operazioni.
 
@@ -528,7 +528,7 @@ La centralizzazione attuale MOX ha costi propri, indipendenti dalle News: handof
 ### 12.1 Eseguito
 
 - Git preflight e `ls-remote` sui tre main; worktree/dirty e registro lavori letti; SHA delle PR finali e tag Omen risolti con API. I due checkout primari core/tracker sono rimasti puliti sugli SHA iniziali.
-- Release GitHub MOX tutte le pagine, Latest separata; tag Omen, compare tag→master e archivio del solo sorgente 0.6.4. Nessuna esecuzione del software concorrente.
+- Release GitHub MOX tutte le pagine, Latest separata; tag Omen, compare tag→master e archivio del solo sorgente 0.6.4. Nella prima fase nessuna esecuzione del software concorrente; librerie pure su ingressi inventati nella successiva §13.
 - **38 GET** del primo inventario HTTP (pagine, salute/policy, manifesti e statistiche) e **43 GET** del campione supplementare (tre manifesti Omen e quaranta coppie FRA). Lettura browser separata delle pagine e delle linee guida 17Lands. Inventari con URL/status/redirect/timestamp/hash conservati fuori Git.
 - **Quattro GET** ulteriori alle 21:09 per i payload pubblici globali ECL/SOS/TLA/TMT: 4/4 hash validi contro manifesto e header. Nuova fotografia dei main remoti core/tracker e di master Omen: invariati.
 - Firme dei due manifesti di update verificate con RS256 e chiave pubblica MOX; SHA dei payload API confrontati con header. Conteggi GIH/GP riprodotti dai dati aggregati.
@@ -565,7 +565,150 @@ Controlli di consegna: `git diff --check`, allowlist del diff staged, contenuto 
 
 Nessuna migrazione, account creation, form, email, issue, messaggio ad altra chat, installazione di binari, cambi di consenso o nuove risorse cloud. Il report conserva risultati sanitizzati e proposte, non dump o materiale privato della workspace.
 
-## 13. Registro delle fonti verificabili
+## 13. Approfondimento indipendente dei sistemi Draft
+
+### 13.1 Domanda, revisioni e metodo
+
+Questo approfondimento risponde alla richiesta successiva dell'utente di andare oltre «MOX sceglie coppie, Omen spiega meglio». Il giudizio va separato per acquisizione dei dati, scelta dei colori, scelta delle carte, Pick-Two, costruzione finale, mana e prove scientifiche. Un prodotto può essere migliore in un componente e peggiore in un altro.
+
+Revisioni riconfermate il 14/10: MOX main `67c683e36e5ee82beeb85e21effc6677991028c2`; client Canary sorgente `aa32b06da6c7f2f5a078e5410f1dc16345bd365a`; Omen ultima release ancora `v0.6.4`, commit `dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84`, master ancora `b39d518deb41559f38d7c5a58c0de2159d19659e`. `draft_valutazione.py`, `mana.py` e `simulatore_mazzo.py` non presentano differenze Stable 2.11.8 → Canary 2.11.9: i rilievi su questi moduli non sono regressioni introdotte dall'ultima Canary. La chiusura release del §2 resta distinta dalla qualità strategica del Draft.
+
+Sono state eseguite cinque verifiche sintetiche di comportamento e un esempio numerico di regolarizzazione. Python 3.12.14 del runtime Codex, modalità `-B -I`, nessuna installazione o avvio GUI. Le librerie Omen di scoring/builder e i moduli puri MOX di ranking/mana/simulazione hanno lavorato soltanto su carte inventate. Un audit hook ha vietato socket, processi figli, scritture diverse dal risultato e letture fuori dalle cartelle dei sorgenti, del runtime e delle evidenze del task. Le quattro funzioni MOX del builder sono state estratte dal loro AST originale, senza importare la GUI, il database personale o Player.log, e senza modificarne il corpo. Le prove verificano le differenze riportate sotto; **non** stimano frequenza dei problemi, win rate o superiorità media.
+
+Evidenze locali in `Non pubblicare/evidenze/2026-10-14/audit-draft-omen-vs-mox/approfondimento-draft/`: `probe.py`, `probe-results.json`, `live-check.mjs`, `live-inventory.json`, `live-summary.json`, quattro profili pubblici FRA Omen e quattro payload aggregati MOX. In Git entra solo questa sintesi condivisibile, non l'area delle evidenze. I risultati definitivi dei probe sono del `2026-10-14T19:45:55Z`.
+
+### 13.2 Dati realmente disponibili su FRA
+
+Fra `19:35:22` e `19:35:26 UTC` (21:35 locali) sono state effettuate 49 richieste pubbliche: manifesto profili Omen, quattro artefatti FRA, quattro globali MOX e quaranta coppie MOX. Nessuna chiamata diretta a 17Lands. I quattro profili Omen hanno superato sia il controllo SHA-256 del gzip sia quello del JSON decompresso; i quattro payload globali MOX hanno hash coincidente con `x-mox-sha256`.
+
+**MOX: 40/40 coppie presenti**, dieci per formato. Premier e Traditional conservano `generated_at=18:23:52.369Z`; Pick-Two contiene due generazioni, `18:23:52.369Z` e `19:23:52.365Z`; Quick è del secondo giro. I quattro globali sono ancora del primo giro. La raccolta oraria ha completato la disponibilità; questo non significa che tutte le tabelle siano rigenerate ogni ora nello stesso istante.
+
+**Omen: FRA ha profili `early` dei quattro formati, generati alle `06:40:40.305515Z`, senza Augmented disponibile.** I profili contengono rating globali regolarizzati e performance delle coppie; ciascun `pair_profile` FRA ha soltanto `pair` e `performance`. `samples.total=0` significa assenza di campioni di mazzi per i target del profilo, **non** assenza di partite delle carte. Non vi sono qui target empirici per ruoli/curva, scarcity o tabelle di sinergia dei pair. Il motore può comunque classificare ruoli dai metadati e applicare i propri valori generici. [L2] [D4]
+
+| Formato FRA | MOX: GIH utilizzabile + GP ricentrato | Omen: righe di profilo e fonte del rating |
+|---|---:|---|
+| Premier | 279 + 4 | 279 Premier |
+| Traditional | 237 + 25 | 237 Traditional + 43 Premier + 1 prior |
+| Pick-Two | 255 + 13 | 255 Pick-Two + 24 Premier |
+| Quick | 217 + 28 | 217 Quick + 62 Premier + 1 Traditional |
+
+MOX riceve 290 righe per formato; le colonne contano i rating che il client può usare secondo il proprio schema. Omen usa chiavi canoniche di carta e profili con un'altra selezione delle righe: **non è una tabella di accuratezza o di copertura normalizzata sulla medesima anagrafica**. In questa fotografia il conteggio MOX di GIH validi è identico con soglia 100 o 500; la differenza generale fra soglie non spiega da sola questi totali FRA.
+
+Il compromesso concreto è diverso. MOX mantiene un formato unico per il contesto, usa GP ricentrato per alcune carte e passa a un altro formato se la copertura complessiva è insufficiente. Omen può riempire il buco di una singola carta con Premier, lasciando le altre nel formato richiesto e segnalando la fonte. Omen ottiene così più rating numerici in alcuni formati; MOX conserva maggiore omogeneità del formato. Nessuna delle due scelte garantisce da sola un consiglio migliore. Il fallback per carta è un'idea utile da studiare, soprattutto se l'interfaccia lo dichiara con chiarezza. [M2] [D4]
+
+### 13.3 Che cosa fa MOX durante le pick
+
+La parte statistica parte dal GIH WR quando disponibile. Se manca ma c'è un GP con campione sufficiente, aggiunge lo scarto medio GIH−GP osservato nel set; se manca anche quello, usa un prior 54% con un piccolissimo spareggio ATA. «Stima GIH» rimane una stima: anche l'intervallo GP traslato non comprende automaticamente l'incertezza del ricentraggio.
+
+Il ranking aggiunge quattro gruppi di informazioni: qualità e quantità delle carte già prese; compatibilità e costo del mana; segnali dei pacchetti visti; carenze di creature/curva. La forza del pool viene pesata per qualità relativa al set, con correzioni per ibridi e un vincolo tardivo sui colori. Il commitment dipende da avanzamento, chiarezza e qualità; può riaprirsi davanti a segnali forti fino a prima della ventesima carta. Nel Pack 3, dopo 28 carte, una carta fuori dal piano mana può passare in fascia inferiore anche se ha un WR alto. È un vincolo reale sull'ordine, non una semplice diminuzione del numero mostrato. [M3]
+
+I «segnali» sono un vantaggio funzionale effettivo: MOX osserva quante carte forti continuano ad arrivare nei pacchetti ridotti, non soltanto ciò che è stato scelto. Il criterio ha limiti: usa dimensione del pack ≤10 e almeno tre osservazioni; non ricostruisce un modello completo del tavolo o la probabilità che un colore sia aperto. Nel Pick-Two un pacchetto perde due carte alla volta: la medesima soglia di dimensione non equivale al medesimo numero di passaggi del Draft singolo. **Studiare il valore dei segnali sì; presentarli come lettura certa dei vicini no.**
+
+Il limite principale è che il motore riconosce soprattutto colore, costo, creature e distribuzione della curva. Non ha nel ranking attivo un sistema equivalente al ledger Omen di rimozioni, supporti/payoff, saturazione dei ruoli e pacchetti di sinergia. Inoltre le carenze strutturali derivano dalle carte del pool pagabili nei colori probabili; non da una nuova ottimizzazione completa delle 23 carte del mazzo per ogni candidata. La presenza di 15 creature nel pool può dunque mascherare il fatto che alcune siano carte che non si vorrebbero giocare. Questo è un limite strutturale del metodo, non una misura di quanto spesso accada. [M3] [M5]
+
+Il punteggio visibile 0–110 deriva da percentile del punteggio contestuale e spinta positiva del contesto. Non è un WR e non va confrontato numericamente con il DO Score di Omen. La collezione personale è un ulteriore livello MOX: badge e, se richiesto, spareggio della scelta singola; non altera la valutazione strategica della coppia Pick-Two. [M2] [M3]
+
+### 13.4 Che cosa fa Draft Omen durante le pick
+
+Omen separa almeno tre bracci che non devono essere confusi:
+
+1. **Basic:** rating, normalizzazione, commitment dei colori, splash e spareggi.
+2. **Contextual:** bonus/penalità per ruoli, urgenza, sinergie, ridondanza, payoff senza supporto e fixing, quando abilitati e quando esiste un contesto valido.
+3. **Augmented:** correzione prodotta da un modello separato e compatibile con set/formato, quando l'utente lo abilita e il modello è disponibile.
+
+Nella **GUI v0.6.4 sia Contextual sia Augmented sono disattivati di default** e la scelta viene conservata. L'API del motore e LiveSession hanno default Contextual attivo: citarlo senza guardare le preferenze della GUI descriverebbe un'esperienza diversa da quella ordinaria del nuovo utente. Spegnere Contextual non spegne commitment, splash e normalizzazione. Il builder ha la propria logica di pacchetto; non va considerato disattivato da quel toggle delle pick. [D4] [D5] [D6]
+
+I profili empirici validi hanno precedenza sul rating legacy per la carta mappata esattamente. Il loro GIH è già regolarizzato; il motore evita una seconda regolarizzazione. Il DO Score di base normalizza sulla distribuzione del set, con centro vicino al prior 50 e limiti 0–100; applica poi fattori di colore. Con commitment pieno, on-color arriva fino a ×1,15, off-color scende a ×0,75; splash supportato/speculativo hanno altri fattori. Essere «locked» non impedisce necessariamente che una bomba fuori colore resti sopra una carta mediocre: è un fattore di punteggio, non l'equivalente del tier MOX. [D4] [O11]
+
+Il commitment dei colori è prevalentemente una rampa prefissata: prime cinque decisioni aperte, dalla sesta cresce, dalla sedicesima è pieno **se viene inferita una coppia**. Non usa una storia dei pacchetti ricevuti equivalente ai segnali MOX. «Locked» significa intensità massima del fattore: la coppia viene comunque inferita di nuovo dal pool, non memorizzata come scelta irrevocabile.
+
+Una precisazione rilevante per il **Pick-Two**: Omen usa l'indice delle decisioni logiche, MOX il numero di carte già prese. La sedicesima decisione Omen cade in P2P2 nel Draft singolo a 14 decisioni/pack e in P3P2 nel Pick-Two a 7 decisioni/pack. Quindi non è corretto dire che la rampa «6→16» chiude allo stesso momento relativo tutti i formati. È una proprietà verificata di config, rules e chiamante live, non una prova che quella scelta temporale sia sbagliata sul campo. [D4] [D7] [D10] [D11]
+
+Con Contextual attivo, Omen conta ruoli deterministici dai metadati della carta: tipi, costo, keywords, Oracle text e facce. Distingue, per esempio, rimozioni, vantaggio carte, creature economiche, evasione, token e meccanismi che abilitano altre carte. Bonus e penalità sono limitati: ruolo ≤2,5; urgenza ≤3; sinergia ≤1,5; fixing ≤1,5; ridondanza e payoff non supportati fino a −2 ciascuno. Maturità/confidenza e avanzamento riducono l'influenza. È un approccio più espressivo di «mi manca una creatura» e può spiegare quale funzione serva al mazzo. Non comprende liberamente le carte come una persona: classificatori e regole possono mancare interazioni nuove o condizionali. [D4]
+
+**Rating per archetipo: non attribuire al percorso normale più di ciò che fa.** Il codice legacy supporta GIH di carta nella coppia quando locked, ma il lookup empirico del profilo globale ha precedenza e torna prima di quel percorso. I profili FRA osservati contengono rating globali e performance delle coppie, non GIH individuali per ogni coppia. Né la disponibilità di 40 tabelle MOX sul server né la presenza di pair profiles Omen dimostrano che il rispettivo ranking usi già tutti quei dati per ogni carta. [M2] [D4]
+
+### 13.5 Pick-Two: vantaggio reale MOX, con un confine preciso
+
+MOX enumera tutte le coppie dell'offerta. Per ogni `{A,B}` ricalcola B dopo avere aggiunto A al pool e A dopo avere aggiunto B; confronta la media dei due totali. Rispetta inoltre le fasce che escludono terre base e carte fuori dal piano mana. Non si limita a prendere la prima e la seconda carta del ranking singolo. Omen v0.6.4 ordina le carte singolarmente; documenta una raccomandazione top-card e misura anche quante delle prime due siano state effettivamente scelte. **Non ha una ricerca equivalente della coppia.** [M3] [O4]
+
+Prova sintetica S1: pool di 36 carte, 22 spell alternate W/B con base 55%, 14 creature (le prime quattro a costo 2, le altre spell a costo 3) e 14 terre base W/B. Offerta di quattro carte: A creatura W a costo 2 con base 56,8%; B creatura B a costo 2 al 56,79%; C instant W a costo 3 al 57%; D instant W a costo 6 al 45%. Tutti i rating sono inventati, i campioni delle spell sono 5.000, non vi sono segnali o performance di coppia. Nel ranking singolo MOX A=0,581, B=0,5809, C=0,570 e D=0,450: sceglierebbe A+B. La funzione congiunta sceglie **A+C**: dopo la prima creatura economica non serve attribuire nuovamente alla seconda lo stesso beneficio per le carenze appena colmate. Il vantaggio è una proprietà di comportamento riprodotta, non una vittoria registrata.
+
+Il confine: questa è una ricerca esatta delle coppie **rispetto a due valutazioni sequenziali del medesimo score locale**. Non è un'ottimizzazione globale del futuro mazzo e non introduce automaticamente sinergie di testo o valore marginale del miglior mazzo da 40. Il vincolo sperimentale che impedirebbe due nuovi colori contemporanei è disattivato nella policy corrente. Non promuovere questa funzione a «MOX capisce tutte le sinergie fra le due carte».
+
+### 13.6 Mazzo finale: qui il distacco metodologico favorisce Omen
+
+MOX cerca fra dieci coppie di colori e può mostrare fino a tre liste sufficientemente diverse. Le alternative sono soprattutto **coppie di colori diverse**, non tre strategie garantite dentro la stessa coppia. Dentro una coppia `_candidato_colori` prende le migliori spell pagabili ordinate per GIH; il costo inferiore interviene solo a parità. Aggiunge fuori-colore soltanto se mancano spell per completare la lista, minimizzando prima il costo dello splash. Creature e curva aiutano a confrontare le liste soltanto dopo coerenza e forza arrotondata, non impongono una riselezione delle spell della singola coppia. [M2]
+
+Questa semplicità rende le scelte ispezionabili, ma lascia due opportunità concrete: scambiare qualche punto di qualità individuale per un pacchetto meglio distribuito; considerare una carta da splash eccezionale anche quando esistono già 23 spell nei colori. Nel metodo attuale MOX quella seconda opportunità può non essere esplorata, indipendentemente dal fixing disponibile.
+
+Omen sceglie prima la coppia con una combinazione dichiarata fra qualità delle migliori spell e performance del pair (default 85/15). Poi cerca un pacchetto con vincoli, beam search e miglioramenti locali. Default: 23 spell, 14–17 creature, almeno cinque creature a costo 2 e non più di tre spell da 6+; può ricavare altri target dalle evidenze disponibili. Se non riesce, rilassa i vincoli nell'ordine dichiarato e mostra le deroghe. Rivaluta spell/terre quando passa da 17 a 16 o 18 terre, per arrivare a 40 carte. Il budget della ricerca è limitato: beam 24, 32.768 nodi, 4.096 valutazioni, due round locali. **È un ottimizzatore euristico, non una prova di ottimo globale.** [D6] [D7]
+
+Con profili adatti la funzione obiettivo include ruoli, rimozioni effettive, equilibrio supporti/payoff, sinergia, ridondanza e pressione sul mana. Su FRA manca la parte empirica dei target/pair interaction descritta in §13.2; non bisogna trasferire automaticamente a FRA tutta la ricchezza mostrata nei set storici. La selezione iniziale della coppia, inoltre, non compara necessariamente i dieci mazzi già ottimizzati con questa intera funzione: rimane un passaggio preliminare distinto.
+
+Prova sintetica S2, medesime 28 spell W e medesima coppia WU, senza profili né splash: 13 creature al 57% (tre a costo 2, dieci a costo 4), dieci instant a costo 4 al 59%, cinque ulteriori creature a costo 2 al 56%; tutte a un solo pip W e con campione 5.000. MOX seleziona dieci instant e le prime 13 creature: **13 creature, tre carte economiche**. Omen seleziona **14 creature, sei creature a costo 2**, senza deroghe. Questo mostra che Omen sa sacrificare qualità individuale per struttura; non prova che un mazzo pieno di instant sia peggiore, perché le fixture non hanno un contesto strategico reale. Il criterio utile per MOX è la capacità di esplorare e rendere visibile quel compromesso, non copiare ciecamente «14 creature e cinque two-drop».
+
+Omen ha anche limiti restrittivi: splash default di un solo terzo colore, al massimo due carte elite con un pip fuori e fonti richieste esplicite; un controllo o un set con token, trasformazioni o costi alternativi può richiedere deroghe differenti. Più regole e classificatori significano più capacità, ma anche più punti da calibrare e mantenere. MOX può offrire più alternative di colori; Omen spiega meglio selezione, bench e vincoli. «Più proposte» e «migliore ottimizzazione della singola proposta» sono vantaggi diversi.
+
+### 13.7 Mana e colori: limiti riprodotti in entrambi
+
+**S3 — inferenza dei colori Omen sensibile agli ibridi.** Stesso pool di 20 carte: sei mono R, sei mono B, otto `{2}{U/R}`, tutte creature con GIH 55% e 5.000 partite inventate; offerta mono U e mono B con rating identico. Senza profili/Augmented e con Contextual disattivo, Omen assegna pesi R=14, U=8, B=6, inferisce UR e preferisce U. MOX considera gli ibridi pagabili con il Rosso già presente, inferisce BR e preferisce B. Il codice Omen accumula `card.colors`, mentre MOX distingue i pagamenti necessari dall'identità. **L'ibrido non richiede Blu per essere giocato.** Il problema è l'evidenza per inferire il piano colori; non si sostiene che Omen sbagli sempre la castability: il suo modulo splash sa riconoscere molti ibridi pagabili. [M3] [D3] [D4]
+
+**S4 — pool monocolore Omen.** Con 35 carte R già prese, un rating noto e pick 36, il motore restituisce `inferred_pair=None` e commitment 0. La config richiede almeno due colori rappresentati e azzera la rampa senza pair. È riprodotto; non prova quale carta sarebbe sbagliata nel caso reale, ma significa che il commitment non esprime l'investimento tardivo in un solo colore. MOX contempla esplicitamente un nucleo mono e il possibile secondo colore. Non copiare l'inferenza Omen come se fosse sempre più avanzata. [M3] [D4] [D7]
+
+**S5 — il simulatore MOX non distingue la molteplicità dei simboli colorati.** Due mazzi sintetici identici da 40 carte: 23 spell a costo totale 3, otto Plains e nove Swamps. Nel primo le spell costano `{2}{W}`, nel secondo `{W}{W}{W}`. Sono stati forniti modi di pagamento espliciti con uno o tre simboli W, quindi non è solo un difetto del vecchio parametro `pip`. Su 2.000 simulazioni con seme `20260824` **tutte le metriche coincidono**, inclusa `giocata_t3=83,9%` e `colore_mancante_t3=6,85%`. Non sono probabilità certificate delle due carte in Arena: sono gli output del modello sotto prova. [D2]
+
+La causa è ispezionabile: il simulatore unisce in una maschera i colori prodotti dalle terre viste e controlla che ogni simbolo abbia un colore presente; non assegna ogni pagamento a una fonte distinta. Una sola fonte W può quindi soddisfare i tre simboli W nel predicato. Il conteggio complessivo delle terre verifica la quantità di mana, ma non rimedia alla quantità delle fonti di quel colore. Lo stesso limite coinvolge l'uso ripetuto di una duale per simboli diversi.
+
+**Impatto e confine:** il simulatore è consumato per scegliere il numero di duali e cercare ripartizioni vicine a quella proporzionale. Può dunque sottostimare la pressione dei doppi/tripli pip nella scelta delle terre. La ripartizione iniziale MOX invece usa `pip_effettivi`, che considera la molteplicità e tratta meglio gli ibridi: **non è vero che tutto il builder ignori i pip**. Non si è dimostrata la frequenza di ripartizioni finali errate. Il difetto del simulatore è confermato; l'effetto su specifici mazzi reali richiede una misura separata. [M2] [D2] [D3]
+
+Altri limiti dichiarati MOX: il simulatore non modella ingresso tappato delle terre, scelte legali di quali terre giocare, Arena hand smoothing o un'intera politica London mulligan; i pesi del suo punteggio non sono tarati sui risultati delle partite. Omen pianifica fonti proporzionali, un minimo per i colori principali e pressione dei doppi pip, ma non esegue un simulatore completo di castabilità per turno. Anche il suo semplice conteggio dei simboli può attribuire a entrambi i colori un simbolo ibrido quando entrambi sono nella coppia. Il mana resta un'area di ricerca di entrambi, non una gara fra «ha simulazione» e «non ha simulazione».
+
+### 13.8 Regolarizzazione e intelligenza appresa: cosa vale studiare
+
+Omen produce stime con prior equivalente a 500 partite: `(vittorie + 500 × prior)/(partite + 500)`. È una prudenza operativa già presente nei profili; MOX nel ranking rilasciato usa `confidenza="nessuna"`, anche se mostra Wilson e dispone di candidati di ricerca per scontare l'incertezza. **Mostrare un intervallo non significa usarlo nella scelta.** Un GIH alto su un campione piccolo può ancora precedere un GIH più basso e molto solido in MOX, a parità di contesto. [M3] [O11]
+
+Esempio numerico, non fotografia FRA: A=65% su 100 partite, B=59% su 5.000. Con prior 55% e forza 500, la funzione Omen restituisce A=56,67% e B=58,64%; la graduatoria si inverte rispetto ai grezzi. Questo spiega il metodo; **non dimostra che quel prior o 500 siano i parametri migliori per MOX**. Le partite delle carte non sono un campione casuale omogeneo: giocatori, mazzi e selezione influenzano la statistica. GP ricentrato e GIH shrinkato non risolvono automaticamente questo problema.
+
+Augmented Omen è un modello piccolo eseguito localmente: 22 conteggi del pool per colori, creature/noncreature, fasce di costo e tipi; trasformazione `log1p`, strato nascosto di 32 unità `tanh`, output per identità canonica della carta. Non è un LLM, non genera spiegazioni leggendo liberamente Oracle text e non impara dal Draft personale dell'utente mentre gioca. Il modello apprende scelte storiche dei giocatori in relazione alla composizione del pool; centra i logit sulle carte offerte e limita la correzione a ±8 punti DO. Le eventuali Card Pairs aggiungono una componente separata relativa alle carte già presenti. [D8] [O9] [O13]
+
+L'architettura scientifica ha pregi: split cronologico per draft 70/15/15, rifiuto dei draft incompleti/incoerenti, uso del pool pre-pick, scelta di calibrazione sulla validation, confronto finale con Basic sul test. Il training osservato esclude righe con seconda pick e presume 42 pick singole: **non è un training della scelta congiunta Pick-Two**. La disponibilità live è limitata a DFT, HOB e WOE; su FRA il confronto è fra sistemi statistici/regole, non MOX contro quel modello. [O9] [L2]
+
+I miglioramenti pubblicati, per esempio HOB top-1 Basic 54,91% → Augmented 59,18%, restano accordo con scelte umane dichiarato dal progetto, non risultati ricalcolati o aumenti di vittorie. Inoltre il gate promuove i modelli che migliorano sul test: i soli modelli pubblicati sono una selezione dei tentativi, non una stima neutrale di quanto funzioni il metodo su ogni set.
+
+**Cautela aggiuntiva sulle Card Pairs:** il codice costruisce la tabella sui game data antecedenti alla validation, ma il gate di correlazione win-rate usa tutti i game data dal suo inizio in avanti (`held=~train`). Non definisce lì una finestra disgiunta validation/test; la correzione entra solo se `gap_low>0`. È quindi necessario verificare la disgiunzione degli ID e dei periodi prima di considerare indipendente il test finale dopo quella selezione. Non sono stati scaricati i raw né dimostrata la sovrapposizione effettiva delle singole righe: il rilievo è sul protocollo e su un rischio di selezione, non un'accusa di leakage provata nei dati pubblicati. Il gate osservazionale, anche stratificato per colori/rank/forza, non dimostra un effetto causale del consiglio. [D9] [O9]
+
+MOX conserva esiti negativi e un freeze scientifico esplicito. È una qualità da mantenere: non attivare shrinkage, sinergie o modelli copiati perché il concorrente li mostra. Per un confronto serio occorrono gli stessi ingressi, i bracci GUI reali separati dalle opzioni, stesse metriche di coppia e una valutazione indipendente dei mazzi. §9 resta il protocollo proposto; nessuna nuova ricerca su corpus è stata avviata qui.
+
+### 13.9 Giudizio per componente e priorità MOX
+
+| Componente | Giudizio fondato | Confine della conclusione |
+|---|---|---|
+| Lettura del tavolo | **MOX ha più informazione disponibile**: usa i pacchetti ricevuti. | Segnale euristico; qualità dei pivot non misurata qui. |
+| Ibridi e nucleo colori | **MOX più coerente nei casi riprodotti.** | Non equivale a superiorità su tutte le carte speciali. |
+| Pick-Two | **MOX ha una scelta congiunta che Omen non ha.** | Due score locali, non miglior futuro mazzo globale. |
+| Incertezza dei rating | **Omen applica prudenza statistica nel percorso reale dei profili.** | Parametri e utilità per MOX da validare; prior ≠ verità. |
+| Ruoli e sinergie | **Omen più espressivo come capacità.** | Contextual GUI off di default; dati FRA meno ricchi; classificatori limitati. |
+| Selezione delle spell finali | **Omen più articolato e strutturalmente vincolato.** | Ottimizzazione euristica e target non universali; nessuna prova di WR migliore. |
+| Alternative finali | **MOX mostra più liste di colori distinte.** | Numero delle liste ≠ qualità della scelta dentro ogni coppia. |
+| Fonti mana | Nessun vincitore generale; **limite concreto MOX riprodotto**. | Ripartizione iniziale MOX considera i pip; frequenza di errori finali non misurata. |
+| Spiegazioni e riesame | **Omen rende più accessibili ragioni, compromessi e audit.** | MOX ha già trace/motivi: il valore è organizzazione e accessibilità. |
+| Miglior consiglio in partita | **Non stabilito.** | Mancano benchmark appaiato e risultati prospettici; S1–S5 non li sostituiscono. |
+
+Per il solo Draft, l'ordine di valore suggerito per un mandato successivo è:
+
+1. **P1 · Correttezza del simulatore mana.** Conservare un esempio a mano e un confronto `{2}{W}`/`{W}{W}{W}`; assegnare simboli a fonti distinte; misurare l'effetto sulle ripartizioni prima di cambiare il comportamento rilasciato. S è la prova minima, M/L l'intervento e la validazione. Nessun hotfix o blocco release automatico da questo report.
+2. **P1 · Builder della singola coppia.** Esplorare piccoli scambi fra spell e candidate per qualità/curva/ruoli, dichiarare costi e deroghe; valutare separatamente splash elite quando il fixing lo consente. Accettazione: quantità e 40 carte corrette, casi di controllo/aggro/ibridi e valutazione cieca su pool autorizzati. Effort L; conservare le alternative MOX.
+3. **P2 · Spiegazioni del compromesso.** «Perché questa carta, perché non l'altra, quale carenza colma, quanto costa il mana», distinguendo dati misurati e regole. Mostrarle anche per le due carte Pick-Two e per i tagli del builder. Effort M, senza telemetria nuova né necessità di cambiare ranking.
+4. **P2 · Incertezza e fallback per carta.** Confronto controllato fra prior/shrinkage, GP ricentrato e fallback formato, con coverage e fonte dichiarati. Non copiare 500 né soglie dal concorrente; rispettare freeze/mandato scientifico. Effort L.
+5. **P2 · Ruoli prima del modello appreso.** Studiare un ledger piccolo e verificabile di rimozioni, vantaggio carte, supporti/payoff e saturazione, collegato al mazzo proposto; mantenere opt-in finché non validato. Evitare l'inferenza Omen che conta tutti i colori degli ibridi e adattare le fasi ai diversi formati. Effort L.
+6. **P3 · Augmented soltanto dopo una baseline forte.** Un modello aggiunge dati, training, compatibilità e manutenzione per set. Richiedere un test davvero riservato anche dopo i gate, metriche di coppia e prova che superi una baseline con builder/ruoli corretti. Effort XL; nessun vantaggio disponibile di quel modello su FRA oggi.
+
+La priorità numero uno non è «aggiungere AI». Il ritorno plausibile maggiore è un mazzo finale che esplori meglio struttura e mana e renda leggibili i suoi compromessi, conservando i punti forti MOX su tavolo, ibridi e coppie. È una raccomandazione progettuale sostenuta dal codice e dalle fixture; il beneficio in vittorie resta da misurare.
+
+L'approfondimento modifica soltanto questo report sul branch già creato. Nessun codice di prodotto/prova, release, PR, merge, deploy, produzione o registro di decisioni proprietarie è stato cambiato. Push documentale e verifica remota vengono riportati nella consegna della chat; la worktree resta disponibile per la revisione del coordinatore.
+
+## 14. Registro delle fonti verificabili
 
 Fonti consultate il **14/10/2026**. I collegamenti al codice usano SHA; quelli live sono accompagnati da fotografie/versioni/digest nel testo. Il repository core è privato: accesso al link richiede i permessi del progetto; nessun contenuto riservato grezzo viene pubblicato qui.
 
@@ -628,6 +771,14 @@ Fonti consultate il **14/10/2026**. I collegamenti al codice usano SHA; quelli l
 - **W6:** Cloudflare Web Analytics ufficiale, distinto dalla verifica del beacon MOX live.
 - **W7:** GDPR EUR-Lex e guida EDPB su informazione e diritti; nessun parere legale definitivo.
 
+### Approfondimento Draft del §13
+
+- **D2/D3:** simulatore e mana MOX sul sorgente Canary, identici alla Stable per i file confrontati; prova S5 e distinzione fra presenza del colore, molteplicità dei pip e ripartizione iniziale.
+- **D4/D5/D6/D7:** motore Omen, preferenze GUI, builder e config del tag 0.6.4; capacità disponibili distinte da quelle abilitate di default. La preferenza GUI viene passata alla sessione da `qt_gui.py` riga 732 del medesimo tag.
+- **D8/D9:** feature del training Augmented e gate osservazionale Card Pairs del tag; lettura del protocollo, senza nuova esecuzione del training o accesso ai raw.
+- **D10/D11:** regole per formato e indice decisionale nel chiamante live Omen; precisazione sulle fasi Pick-Two.
+- Evidenza sintetica e metadata HTTP aggiuntivi: percorso locale e orari in §§13.1–13.2; non sono corpus di Draft reali né nuove certificazioni dei client.
+
 Ulteriori riferimenti puntuali: [script News Omen](https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/scripts/write_release_news.py#L41), [workflow Release](https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/.github/workflows/release.yml#L143), [gate output sito](https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/website/scripts/check-release-output.mjs#L109), [ML storico](https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/docs/ml-pick-recommendations.md#L1), [manifesto profili live](https://www.draftomen.com/profiles/manifest.json), [manifesto Augmented live](https://www.draftomen.com/augmented/manifest.json), [sorgente canonico Draft stale](https://github.com/Dennis96/mox-core/blob/67c683e36e5ee82beeb85e21effc6677991028c2/passaggi/draft/STATO-DRAFT-CORRENTE.md#L4), [sorgente binding stale](https://github.com/Dennis96/moxtracker/blob/a08ee510152044b544ecdec014dd0876fd3920b0/src/dati-draft.js#L19), [configurazione qualification/R2](https://github.com/Dennis96/moxtracker/blob/a08ee510152044b544ecdec014dd0876fd3920b0/wrangler.toml#L47), [GDPR ufficiale](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng/).
 
 [G1]: https://github.com/Dennis96/mox-core/pull/40
@@ -680,6 +831,16 @@ Ulteriori riferimenti puntuali: [script News Omen](https://github.com/andreagran
 [O16]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/website/src/components/Header.astro#L1
 [O17]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/website/src/layouts/BaseLayout.astro#L1
 [O18]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/pickengine.py#L2850
+[D2]: https://github.com/Dennis96/mox-core/blob/aa32b06da6c7f2f5a078e5410f1dc16345bd365a/strumenti/simulatore_mazzo.py#L105
+[D3]: https://github.com/Dennis96/mox-core/blob/aa32b06da6c7f2f5a078e5410f1dc16345bd365a/strumenti/mana.py#L254
+[D4]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/pickengine.py#L885
+[D5]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/preferences.py#L211
+[D6]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/deckbuilder.py#L524
+[D7]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/config.py#L36
+[D8]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/augmented_training_data.py#L28
+[D9]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/augmented_card_pairs.py#L267
+[D10]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/draft_format.py#L19
+[D11]: https://github.com/andreagrandi/draftomen/blob/dc9f5ece2d54bc0eccfcbdc8a4a8b66752e78b84/draftomen/session.py#L5339
 [L1]: https://api.moxtracker.app/mox/draft-data/v1/public/manifest.json
 [L2]: https://www.draftomen.com/sets/manifest.json
 [W1]: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api
