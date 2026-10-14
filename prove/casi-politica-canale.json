@@ -1,0 +1,156 @@
+[
+ {
+  "nome": "legacy enabled, senza canale",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\"}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "enabled",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z"
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "legacy disabled, senza canale",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"disabled\"}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "disabled",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z"
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "public_only con modo scritto enabled",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"public_only\"}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "disabled",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z",
+     "channel": "public_only",
+     "api_authorization": null
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "off",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"cache_only\",\"channel\":\"off\"}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "disabled",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z",
+     "channel": "off",
+     "api_authorization": null
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "central_api senza autorizzazione",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\"}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "disabled",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z",
+     "channel": "public_only",
+     "api_authorization": null
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "central_api con base non valida",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\",\"api_authorization\":{\"basis\":\"permesso\",\"reference\":\"email 2026-10-01\"}}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "disabled",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z",
+     "channel": "public_only",
+     "api_authorization": null
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "central_api decisione del proprietario, enabled",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\",\"api_authorization\":{\"basis\":\"owner_decision\",\"reference\":\"decisione del proprietario 14/10/2026\",\"decided_at\":\"2026-10-14\"}}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "enabled",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z",
+     "channel": "central_api",
+     "api_authorization": {
+      "basis": "owner_decision",
+      "reference": "decisione del proprietario 14/10/2026",
+      "decided_at": "2026-10-14"
+     }
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "central_api permesso 17Lands, cache_only",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"cache_only\",\"channel\":\"central_api\",\"api_authorization\":{\"basis\":\"17lands_permission\",\"reference\":\"email 17Lands\"}}}}",
+  "stato": 200,
+  "risposta": {
+   "schema": 1,
+   "providers": {
+    "17lands": {
+     "mode": "cache_only",
+     "reason": "caso",
+     "updated_at": "2026-10-14T00:00:00Z",
+     "channel": "central_api",
+     "api_authorization": {
+      "basis": "17lands_permission",
+      "reference": "email 17Lands",
+      "decided_at": null
+     }
+    }
+   },
+   "configurata": true
+  }
+ },
+ {
+  "nome": "canale sconosciuto",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"api\"}}}",
+  "stato": 503,
+  "risposta": null
+ }
+]

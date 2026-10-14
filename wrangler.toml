@@ -44,15 +44,27 @@ RESEARCH_AMBIENTE = "produzione"
 RESEARCH_DEPLOYMENT = "research-produzione-r3"
 RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST = "33"
 RESEARCH_MAX_D1_QUERIES_PER_REQUEST = "1000"
-# Generata con `qualification.mjs --valida-fino 2026-10-15T00:00:00Z` il
-# 15/09/2026. Va rinnovata prima della scadenza: dopo, l'ingresso si chiude da
-# solo (consenso nuovo e upload) e revoca e cancellazione restano aperte.
-RESEARCH_RUNTIME_QUALIFICATION = '{"versione":1,"id":"q-produzione-2026-09-15","deployment":"research-produzione-r3","max_contributions_per_request":33,"max_d1_queries_per_request":1000,"valida_fino":"2026-10-15T00:00:00Z"}'
+# Generata con `qualification.mjs --valida-fino 2026-11-15T00:00:00Z --id
+# q-produzione-2026-10-14` il 14/10/2026 (rinnovo della precedente, valida fino
+# al 15/10, autorizzato da Dennis). Va rinnovata prima della scadenza: dopo,
+# l'ingresso si chiude da solo (consenso nuovo e upload) e revoca e
+# cancellazione restano aperte.
+RESEARCH_RUNTIME_QUALIFICATION = '{"versione":1,"id":"q-produzione-2026-10-14","deployment":"research-produzione-r3","max_contributions_per_request":33,"max_d1_queries_per_request":1000,"valida_fino":"2026-11-15T00:00:00Z"}'
+# Dati Draft centralizzati (14/10/2026, decisione di Dennis: `central_api` dal
+# primo giorno, embargo di 17Lands rispettato). Aprono distribuzione e raccolta
+# delle tabelle API; servono ANCHE la policy `central_api` con
+# `api_authorization` (strumenti/dati-draft/politica.mjs) e un set fuori
+# embargo in `config/set-attivi.json`. Per fermare la raccolta e la
+# distribuzione API senza deploy: `politica.mjs --canale public_only`.
+MOX_DRAFT_API_DISTRIBUTION = "on"
+MOX_17LANDS_RACCOLTA = "on"
 
 # Pulizia giornaliera: allegati dei ticket chiusi dopo 90 giorni, intero
 # ticket dopo 365 giorni. La funzione e' idempotente e lavora a lotti.
+# Al minuto 23 di ogni ora, la raccolta centrale dei dati Draft
+# (`src/raccolta-17lands.js`); il resto del cron non cambia.
 [triggers]
-crons = [ "17 3 * * *" ]
+crons = [ "17 3 * * *", "23 * * * *" ]
 
 [[ratelimits]]
 name = "TICKET_RATE_LIMITER"
@@ -119,3 +131,10 @@ bucket_name = "moxtracker-ticket-files"
 [[r2_buckets]]
 binding = "MOX_RELEASES"
 bucket_name = "moxtracker-releases"
+
+# Statistiche Draft distribuite ai client (`src/dati-draft.js`): payload dei
+# Public Data Sets, tabelle API raccolte dal cron, elenco dei set. Bucket creato
+# il 14/10/2026; i binding qui sopra restano dedicati ai loro contratti.
+[[r2_buckets]]
+binding = "DRAFT_STATS"
+bucket_name = "moxtracker-draft-stats"

@@ -19,6 +19,8 @@ import { configResearch, saluteResearch } from "./research/config.js";
 import { pulisciResearchScaduta } from "./research/retention.js";
 import { gestisciResearch } from "./research/rotte.js";
 import { politicaDatiEsterni } from "./politica-dati-esterni.js";
+import { gestisciDatiDraft } from "./dati-draft.js";
+import { CRON_RACCOLTA_17LANDS, eseguiRaccolta } from "./raccolta-17lands.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -306,6 +308,11 @@ export default {
       return politicaDatiEsterni(richiesta, ambiente);
     }
 
+    // Le statistiche Draft per i client (14/10/2026): solo GET, mai CORS, e
+    // 503 finche' il binding R2 dedicato non esiste.
+    const datiDraft = await gestisciDatiDraft(richiesta, ambiente, indirizzo);
+    if (datiDraft) return datiDraft;
+
     if (richiesta.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: INTESTAZIONI });
     }
@@ -408,7 +415,15 @@ export default {
 
     return risposta({ errore: "non c'e' niente qui" }, 404);
   },
-  async scheduled(_controllore, ambiente, contesto) {
+  async scheduled(controllore, ambiente, contesto) {
+    // Il cron orario della raccolta 17Lands (14/10/2026) non tocca la
+    // manutenzione notturna; ogni altro cron resta quello di prima.
+    if (controllore?.cron === CRON_RACCOLTA_17LANDS) {
+      contesto.waitUntil(eseguiRaccolta(ambiente).then((esito) => {
+        if (esito.esito === "eseguita") console.log("raccolta 17Lands", JSON.stringify(esito));
+      }, (errore) => console.error("raccolta 17Lands fallita:", String(errore?.message ?? errore))));
+      return;
+    }
     contesto.waitUntil(eseguiManutenzione(compitiManutenzione(ambiente)));
   },
 };

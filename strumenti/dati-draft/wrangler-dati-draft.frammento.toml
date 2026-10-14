@@ -1,0 +1,32 @@
+# Frammento INERTE: wrangler non legge questo file.
+#
+# Configurazione della distribuzione dei dati Draft (14/10/2026), da copiare in
+# `wrangler.toml` **solo** dopo l'autorizzazione del proprietario e nell'ordine
+# del runbook (`mox-core/passaggi/coordinamento/RUNBOOK-DATI-DRAFT-CENTRALIZZATI-2026-10-14.md`):
+#   1. `npx wrangler r2 bucket create moxtracker-draft-stats` (bucket nuovo,
+#      R2 Standard; costo stimato $0 dentro la quota gratuita dell'account);
+#   2. le righe qui sotto in `wrangler.toml`, poi deploy del Worker;
+#   3. elenco dei set (`set-attivi.mjs`), canale (`politica.mjs`) e prima
+#      pubblicazione dei dati pubblici (`pubblica.mjs`).
+# Metterle in `wrangler.toml` prima che il bucket esista farebbe fallire il
+# prossimo deploy, qualunque cosa porti: per questo stanno qui.
+#
+# Rollback: togliere binding, variabili e cron e ripubblicare il Worker; le
+# rotte `/mox/draft-data/v1/` tornano 503 e i client usano i ripieghi interni.
+# Per fermare solo la raccolta API basta il canale (`politica.mjs --canale
+# public_only`): vale alla richiesta successiva, senza deploy.
+
+[[r2_buckets]]
+binding = "DRAFT_STATS"
+bucket_name = "moxtracker-draft-stats"
+
+# Decisione del proprietario del 14/10/2026: `central_api` attivo dall'inizio.
+# Le due variabili aprono distribuzione e raccolta; servono ANCHE la policy
+# `central_api` con `api_authorization` (comando `politica.mjs`) e un set fuori
+# embargo nell'elenco. In `[vars]`, accanto alle altre:
+#   MOX_DRAFT_API_DISTRIBUTION = "on"
+#   MOX_17LANDS_RACCOLTA = "on"
+#
+# Il cron orario della raccolta, accanto a quello della manutenzione:
+#   [triggers]
+#   crons = [ "17 3 * * *", "23 * * * *" ]
