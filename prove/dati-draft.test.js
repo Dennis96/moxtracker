@@ -369,6 +369,39 @@ test("raccolta programmata: un rifiuto definitivo si ritenta dopo 12 ore, non og
   dimenticaSetAttivi();
 });
 
+// MINOR-A della review Claude del 14/10: l'attesa fra i tentativi e' quella
+// predefinita, non solo quella iniettata. Si osserva `setTimeout` senza passare
+// `dormi`: le attese da 2 s si eseguono subito, i timer del timeout restano veri.
+async function conAtteseOsservate(funzione) {
+  const vero = globalThis.setTimeout;
+  const attese = [];
+  globalThis.setTimeout = (callback, ms, ...argomenti) => {
+    if (ms === 2000) { attese.push(ms); callback(...argomenti); return 0; }
+    return vero(callback, ms, ...argomenti);
+  };
+  try { await funzione(); } finally { globalThis.setTimeout = vero; }
+  return attese;
+}
+
+test("raccolta: senza dormi iniettato si aspetta davvero 2 s prima del ritentativo", async () => {
+  let chiamate = 0;
+  const attese = await conAtteseOsservate(() => raccogliTabella({ tabella: "card_data", set: "TMT",
+    formato: "PremierDraft", ambiente: AMBIENTE_RACCOLTA,
+    fetch: async () => { chiamate += 1; return rispostaFinta("", 503); } }));
+  assert.deepEqual([chiamate, attese], [2, [2000]]);
+});
+
+test("raccolta programmata: il giro orario usa l'attesa predefinita", async () => {
+  const ambiente = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
+  let chiamate = 0;
+  const attese = await conAtteseOsservate(() => eseguiRaccolta(ambiente, {
+    fetch: async () => { chiamate += 1; return rispostaFinta("", 503); },
+    adesso: Date.parse("2026-12-01T00:00:00Z") }));
+  assert.equal(chiamate, 24, "12 tabelle, 2 tentativi");
+  assert.equal(attese.length, 12, "un'attesa da 2 s per tabella");
+  dimenticaSetAttivi();
+});
+
 test("raccolta programmata: dopo 8 minuti non comincia tabelle nuove", async () => {
   const ambiente = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
   let tempo = 0;
