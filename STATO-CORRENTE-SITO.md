@@ -1,6 +1,26 @@
 # Stato corrente — sito Mox
 
-## Riferimento corrente — 08/10/2026
+## Riferimento corrente — 14/10/2026
+
+`moxtracker/main` = `5eb5cb04376d8b9e079ef00a4e1d951ce3f2d025`, merge commit della PR [#40](https://github.com/Dennis96/moxtracker/pull/40) (dati Draft centralizzati e rinnovo della qualification Research; secondo genitore `9e50ec59`, albero identico). **Stable e Canary MOX Beta 2.11.8**; **Canary MOX Beta 2.11.9** dal 14/10/2026 (client senza chiamate dirette a 17Lands; installer `39f84dc6…`, manifesto `33041aaf…` sul solo `MOX_RELEASE_MANIFEST_CANARY`: Worker **`47f9b73e-6833-4d67-a7bc-5f01947ac48a`**, rollback `4bdade31` = Canary 2.11.8 `6e0de52a…`; Canary reale 16/16; [handoff](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.9-2026-10-14.md)).
+
+## Dati Draft centralizzati — production, 14 ottobre 2026
+
+Autorizzato da Dennis in chat (bucket, merge, deploy, scritture R2, secret della policy, Canary dopo il suo Draft; rinnovo Research). Contratto e runbook in mox-core: `passaggi/draft/contratti/CONTRATTO-DATI-DRAFT-CENTRALIZZATI-2026-10-14.md`, `passaggi/coordinamento/RUNBOOK-DATI-DRAFT-CENTRALIZZATI-2026-10-14.md`.
+
+**R2:** bucket nuovo **`moxtracker-draft-stats`** (Standard), binding `DRAFT_STATS`. `config/set-attivi.json`: **FRA** (uscita su Arena 29/09/2026, embargo fino al 12/10), PremierDraft, TradDraft, PickTwoDraft, QuickDraft. Dati pubblici revisione **1**: 44 tabelle (ECL, SOS, TLA, TMT PremierDraft, globale + 10 coppie), 3,1 MB, CSV d'ingresso con ETag S3 ufficiale; manifesto servito `56b39389…`, payload TMT globale `ae1ca824…` riletto identico.
+
+**Worker:** da `c5cdf29d-a300-46e6-86fb-e1a4a38efe76` (rollback del codice) a **`cd0a0f55-c577-4b03-a492-61ca9ce74c37`** (deploy da `main` `5eb5cb0` pulito, `npm run prove` 598/598), poi **`4bdade31-f59c-42c2-a420-7d669b6a3e90`** (solo secret `MOX_EXTERNAL_DATA_POLICY`: `channel: central_api`, `api_authorization.basis: owner_decision`, `mode: enabled` per i client 2.11.4–2.11.8). Variabili `MOX_DRAFT_API_DISTRIBUTION` e `MOX_17LANDS_RACCOLTA` su `on`; cron `17 3 * * *` (manutenzione) e `23 * * * *` (raccolta). Qualification Research **`q-produzione-2026-10-14`, valida fino al 15/11/2026** (la precedente scadeva il 15/10). Nessuna migrazione D1, nessun deploy Pages.
+
+**Smoke in sola lettura:** `/salute` (Research `on`, qualification valida), `/mox/external-data-policy` (invariata prima del secret, poi `central_api`), `/meta?formato=standard` 200, `moxtracker.app` 200; `aggiornamenti.controlla` Stable e Canary → 2.11.8 con firma valida; `public/manifest.json` 200 `public, max-age=300` con `x-mox-sha256`; API FRA prima del secret 403, dopo 404 fino al primo giro.
+
+**Primo giro della raccolta:** Primo giro del cron `23 * * * *` alle 18:23 UTC del 14/10/2026: raccolte e servite le tabelle FRA `card_data` e `color_ratings` di PremierDraft, TradDraft, PickTwoDraft e QuickDraft più le 10 coppie PremierDraft (le coppie degli altri formati al giro successivo: 30 tabelle al massimo per giro). FRA PremierDraft: 290 carte, 279 con almeno 500 partite GIH, `generated_at` 2026-10-14T18:23:52Z, `collection.basis` `owner_decision`, servita `private, no-store` con `x-mox-sha256`. Prova del client 2.11.9 (`aa32b06`) contro la produzione con dati isolati: FRA dalla classe `api_centrale` (283 carte su 290 con campione solido, testata «17Lands via MOX — API · 17lands.com/card_data»), TMT dai Public Data Sets (testata con «aggiornati al 08/04/2026 · CC BY 4.0»); unico host contattato `api.moxtracker.app`.
+
+**Rollback:** fermare la raccolta e la distribuzione API senza deploy: `node strumenti/dati-draft/politica.mjs --canale public_only --esegui --conferma-produzione` (i client 2.11.4–2.11.8 ricevono `disabled`); tutto il codice: `wrangler rollback c5cdf29d…` (riporta anche la qualification scaduta il 15/10: preferire un deploy con le variabili spente).
+
+**Da osservare:** giri del cron `23 * * * *` in GraphQL `workersInvocationsScheduled`; richieste a 17Lands ≈ 96 al giorno con FRA × 4 formati; letture R2 dei client dopo la Canary 2.11.9.
+
+## Riferimento precedente — 08/10/2026
 
 `moxtracker/main` = `568ad9f099b2f3c3f12d7950a62c42ebe08e4efb` (solo documenti dopo `3bc05da`). **Stable e Canary MOX Beta 2.11.8**: Stable dall'08/10/2026, client da `mox-core` `86fe7c0daf0a4bac80f014737960654e2424e96e` ([handoff Stable](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-STABLE-2.11.8-2026-10-08.md)).
 
