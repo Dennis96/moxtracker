@@ -43,9 +43,7 @@
      "reason": "caso",
      "updated_at": "2026-10-14T00:00:00Z",
      "channel": "public_only",
-     "api_permission": {
-      "granted": false
-     }
+     "api_authorization": null
     }
    },
    "configurata": true
@@ -63,16 +61,14 @@
      "reason": "caso",
      "updated_at": "2026-10-14T00:00:00Z",
      "channel": "off",
-     "api_permission": {
-      "granted": false
-     }
+     "api_authorization": null
     }
    },
    "configurata": true
   }
  },
  {
-  "nome": "central_api senza permesso",
+  "nome": "central_api senza autorizzazione",
   "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\"}}}",
   "stato": 200,
   "risposta": {
@@ -83,17 +79,15 @@
      "reason": "caso",
      "updated_at": "2026-10-14T00:00:00Z",
      "channel": "public_only",
-     "api_permission": {
-      "granted": false
-     }
+     "api_authorization": null
     }
    },
    "configurata": true
   }
  },
  {
-  "nome": "central_api con permesso finto (granted non booleano)",
-  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\",\"api_permission\":{\"granted\":\"true\",\"reference\":\"email 2026-10-01\"}}}}",
+  "nome": "central_api con base non valida",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\",\"api_authorization\":{\"basis\":\"permesso\",\"reference\":\"email 2026-10-01\"}}}}",
   "stato": 200,
   "risposta": {
    "schema": 1,
@@ -103,17 +97,15 @@
      "reason": "caso",
      "updated_at": "2026-10-14T00:00:00Z",
      "channel": "public_only",
-     "api_permission": {
-      "granted": false
-     }
+     "api_authorization": null
     }
    },
    "configurata": true
   }
  },
  {
-  "nome": "central_api con permesso, enabled",
-  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\",\"api_permission\":{\"granted\":true,\"reference\":\"email 17Lands 2026-10-20\",\"granted_at\":\"2026-10-20\"}}}}",
+  "nome": "central_api decisione del proprietario, enabled",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"enabled\",\"channel\":\"central_api\",\"api_authorization\":{\"basis\":\"owner_decision\",\"reference\":\"decisione del proprietario 14/10/2026\",\"decided_at\":\"2026-10-14\"}}}}",
   "stato": 200,
   "risposta": {
    "schema": 1,
@@ -123,10 +115,10 @@
      "reason": "caso",
      "updated_at": "2026-10-14T00:00:00Z",
      "channel": "central_api",
-     "api_permission": {
-      "granted": true,
-      "reference": "email 17Lands 2026-10-20",
-      "granted_at": "2026-10-20"
+     "api_authorization": {
+      "basis": "owner_decision",
+      "reference": "decisione del proprietario 14/10/2026",
+      "decided_at": "2026-10-14"
      }
     }
    },
@@ -134,8 +126,8 @@
   }
  },
  {
-  "nome": "central_api con permesso, cache_only",
-  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"cache_only\",\"channel\":\"central_api\",\"api_permission\":{\"granted\":true,\"reference\":\"email 17Lands 2026-10-20\"}}}}",
+  "nome": "central_api permesso 17Lands, cache_only",
+  "secret": "{\"schema\":1,\"providers\":{\"17lands\":{\"reason\":\"caso\",\"updated_at\":\"2026-10-14T00:00:00Z\",\"mode\":\"cache_only\",\"channel\":\"central_api\",\"api_authorization\":{\"basis\":\"17lands_permission\",\"reference\":\"email 17Lands\"}}}}",
   "stato": 200,
   "risposta": {
    "schema": 1,
@@ -145,10 +137,10 @@
      "reason": "caso",
      "updated_at": "2026-10-14T00:00:00Z",
      "channel": "central_api",
-     "api_permission": {
-      "granted": true,
-      "reference": "email 17Lands 2026-10-20",
-      "granted_at": null
+     "api_authorization": {
+      "basis": "17lands_permission",
+      "reference": "email 17Lands",
+      "decided_at": null
      }
     }
    },

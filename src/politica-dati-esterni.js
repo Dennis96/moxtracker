@@ -27,10 +27,13 @@
 //   modo sia scritto nel secret: i client 2.11.4–2.11.8 smettono di chiamare
 //   17Lands **e** di leggere le cache API. Nessun client vecchio usa i Public
 //   Data Sets, quindi `disabled` e' l'unico modo legacy coerente con entrambi;
-// - `central_api` vale solo con `api_permission.granted === true` e un
-//   riferimento scritto (`reference`): senza, il canale effettivo e'
-//   `public_only` (fail-closed, mai un `enabled` implicito). Con il permesso il
-//   modo legacy resta quello scritto;
+// - `central_api` vale solo con un'autorizzazione scritta, `api_authorization`
+//   con `basis` (`owner_decision`: decisione del proprietario, oppure
+//   `17lands_permission`: permesso di 17Lands) e un riferimento (`reference`).
+//   Senza, il canale effettivo e' `public_only` (fail-closed, mai un `enabled`
+//   implicito). Il motivo resta scritto cosi' com'e': una decisione del
+//   proprietario non si registra come «permesso concesso». Con l'autorizzazione
+//   il modo legacy resta quello scritto;
 // - senza `channel` la risposta e' **byte per byte quella di prima**.
 // I client fino alla 2.11.3 non leggono questa route: nessun canale li ferma.
 
@@ -50,11 +53,13 @@ function testo(valore, massimo) {
   return typeof valore === "string" ? valore.slice(0, massimo) : null;
 }
 
-// Il permesso API come lo scrive il comando amministrativo: niente di implicito.
-export function permessoApiValido(voce) {
-  const permesso = voce && typeof voce === "object" ? voce.api_permission : null;
-  return Boolean(permesso && typeof permesso === "object" && permesso.granted === true
-    && typeof permesso.reference === "string" && permesso.reference.trim().length >= 3);
+export const BASI_AUTORIZZAZIONE_API = Object.freeze(["owner_decision", "17lands_permission"]);
+
+// L'autorizzazione API come la scrive il comando amministrativo: niente di implicito.
+export function autorizzazioneApiValida(voce) {
+  const a = voce && typeof voce === "object" ? voce.api_authorization : null;
+  return Boolean(a && typeof a === "object" && BASI_AUTORIZZAZIONE_API.includes(a.basis)
+    && typeof a.reference === "string" && a.reference.trim().length >= 3);
 }
 
 export function normalizzaPolitica(grezzo) {
@@ -75,13 +80,14 @@ export function normalizzaPolitica(grezzo) {
     // Un canale scritto male e' un secret rotto: 503, come un modo sconosciuto.
     if (!CANALI_DATI_DRAFT.includes(voce.channel)) return null;
     let canale = voce.channel;
-    if (canale === "central_api" && !permessoApiValido(voce)) canale = "public_only";
+    if (canale === "central_api" && !autorizzazioneApiValida(voce)) canale = "public_only";
     uscita.channel = canale;
     if (canale !== "central_api") uscita.mode = "disabled";
-    uscita.api_permission = canale === "central_api"
-      ? { granted: true, reference: testo(voce.api_permission.reference, 200),
-        granted_at: testo(voce.api_permission.granted_at, 40) }
-      : { granted: false };
+    uscita.api_authorization = canale === "central_api"
+      ? { basis: voce.api_authorization.basis,
+        reference: testo(voce.api_authorization.reference, 200),
+        decided_at: testo(voce.api_authorization.decided_at, 40) }
+      : null;
   }
   return { schema: 1, providers: { "17lands": uscita } };
 }

@@ -24,10 +24,15 @@
 // si toccano.
 
 import { canaleEffettivo, politicaCorrente } from "./politica-dati-esterni.js";
+import { inEmbargo, leggiSetAttivi } from "./set-attivi.js";
 
 export const PREFISSO = "/mox/draft-data/v1/";
 export const MASSIMO_MANIFESTO = 256 * 1024;
 export const MASSIMO_PAYLOAD = 4 * 1024 * 1024;
+// Una tabella API piu' vecchia di cosi' non si serve: se la raccolta si ferma
+// (17Lands rifiuta, cron rotto) il client ripiega sui Public Data Sets invece
+// di mostrare per settimane numeri vecchi come attuali.
+export const ETA_MASSIMA_API_MS = 7 * 24 * 3600 * 1000;
 const SHA = /^[0-9a-f]{64}$/;
 const SET = /^[A-Z0-9]{2,8}$/;
 // I formati che la raccolta API puo' chiedere: quelli che il client usa.
@@ -132,8 +137,17 @@ export async function gestisciDatiDraft(richiesta, ambiente, indirizzo) {
     }
     const chiave = chiaveTabellaApi(resto.slice(4), indirizzo.searchParams);
     if (!chiave) return errore("parametri non ammessi", 400);
-    return servi(await archivio.get(chiave), MASSIMO_PAYLOAD,
-      { "cache-control": "private, no-store" }, richiesta);
+    // Embargo di 17Lands: un set in elenco ancora nei primi giorni non si serve,
+    // anche se per errore ci fosse una tabella salvata.
+    const set = indirizzo.searchParams.get("expansion");
+    const voce = (await leggiSetAttivi(archivio)).find((v) => v.set === set);
+    if (voce && inEmbargo(voce)) return errore("set in embargo", 404);
+    const oggetto = await archivio.get(chiave);
+    const raccolto = Date.parse(oggetto?.customMetadata?.raccolto_il ?? "");
+    if (oggetto && !(Date.now() - raccolto < ETA_MASSIMA_API_MS)) {
+      return errore("dati API scaduti", 404);
+    }
+    return servi(oggetto, MASSIMO_PAYLOAD, { "cache-control": "private, no-store" }, richiesta);
   }
   return errore("non trovato", 404);
 }

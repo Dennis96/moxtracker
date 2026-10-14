@@ -47,6 +47,24 @@ export const IPOTESI = Object.freeze({
 export const PUBBLICAZIONE = Object.freeze({ setFormatiAttivi: 10, revisioniTenute: 3,
   pubblicazioniAlMese: 4 });
 
+// Raccolta API centrale (decisione del proprietario, 14/10/2026): cron orario,
+// 2 set attivi × 3 formati × 12 tabelle (globale, colori, 10 coppie), ogni
+// tabella rinnovata 2 volte al giorno. Ogni giro legge lo stato di tutte le
+// tabelle (HEAD), nel caso pessimo anche il loro segnaposto di rifiuto, e
+// l'elenco dei set; i rifiuti definitivi scrivono un segnaposto (qui: tutte le
+// tabelle rifiutate una volta al giorno, pessimo).
+export const RACCOLTA = Object.freeze({ setAttivi: 2, formatiPerSet: 3, tabellePerFormato: 12,
+  rinnoviAlGiorno: 2, giriAlGiorno: 24 });
+
+export function raccoltaAlMese(r = RACCOLTA) {
+  const tabelle = r.setAttivi * r.formatiPerSet * r.tabellePerFormato;
+  const giri = r.giriAlGiorno * 30;
+  const scritture = tabelle * r.rinnoviAlGiorno * 30;
+  return { tabelle, invocazioni: giri, richieste17Lands: scritture,
+    richieste17LandsAlGiorno: tabelle * r.rinnoviAlGiorno,
+    classeA: scritture + tabelle * 30, classeB: giri * (2 * tabelle + 1), byte: tabelle * 250_000 };
+}
+
 const oltre = (uso, incluso, perMilione) => Math.max(0, uso - incluso) / 1e6 * perMilione;
 
 export function costo({ richieste, byte, classeA, classeB }, t = TARIFFE) {
@@ -62,11 +80,14 @@ export function costo({ richieste, byte, classeA, classeB }, t = TARIFFE) {
 export function scenario(utenti, ipotesi) {
   const perUtente = ipotesi.manifestoAlMese + ipotesi.payloadAlMese;
   // Ogni richiesta al Worker e' una lettura R2 (anche il 304: si legge l'ETag).
+  const raccolta = raccoltaAlMese();
   const aggiunte = {
-    richieste: utenti * perUtente,
-    byte: PUBBLICAZIONE.setFormatiAttivi * PUBBLICAZIONE.revisioniTenute * MISURE.bytePerSetFormato,
-    classeA: PUBBLICAZIONE.pubblicazioniAlMese * (MISURE.payloadPerSetFormato + 2),
-    classeB: utenti * perUtente + PUBBLICAZIONE.pubblicazioniAlMese * MISURE.payloadPerSetFormato,
+    richieste: utenti * perUtente + raccolta.invocazioni,
+    byte: PUBBLICAZIONE.setFormatiAttivi * PUBBLICAZIONE.revisioniTenute * MISURE.bytePerSetFormato
+      + raccolta.byte,
+    classeA: PUBBLICAZIONE.pubblicazioniAlMese * (MISURE.payloadPerSetFormato + 2) + raccolta.classeA,
+    classeB: utenti * perUtente + PUBBLICAZIONE.pubblicazioniAlMese * MISURE.payloadPerSetFormato
+      + raccolta.classeB,
   };
   const base = { richieste: BASE.workersRichieste, byte: BASE.r2Byte,
     classeA: BASE.r2ClasseA, classeB: BASE.r2ClasseB };
@@ -95,7 +116,8 @@ export function tutti() {
   // Fino a quanti utenti il caso pessimo resta dentro le richieste incluse.
   const perUtente = IPOTESI.pessimo.manifestoAlMese + IPOTESI.pessimo.payloadAlMese;
   fuori.soglia_utenti_pessimo = Math.floor(
-    (TARIFFE.workersRichiesteIncluse - BASE.workersRichieste) / perUtente);
+    (TARIFFE.workersRichiesteIncluse - BASE.workersRichieste - raccoltaAlMese().invocazioni) / perUtente);
+  fuori.raccolta = raccoltaAlMese();
   return fuori;
 }
 

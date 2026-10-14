@@ -11,34 +11,42 @@
 // checkout pulita, con wrangler autenticato.
 //
 // **Predefinito: `--dry-run`.** Scrive davvero solo con `--esegui` **e**
-// `--conferma-produzione`. `central_api` richiede `--permesso-riferimento`
-// (dove sta scritto il permesso di 17Lands e del proprietario) e un
-// `--modo-legacy` esplicito: niente di implicito.
+// `--conferma-produzione`. `central_api` richiede `--base` (`owner_decision`,
+// decisione del proprietario, o `17lands_permission`, permesso scritto di
+// 17Lands), `--riferimento` (dove sta scritta) e un `--modo-legacy` esplicito:
+// niente di implicito, e una decisione del proprietario non si registra come
+// permesso di 17Lands.
 //
 // Esempi:
 //   node strumenti/dati-draft/politica.mjs --canale public_only --motivo "solo dati pubblici"
+//   node strumenti/dati-draft/politica.mjs --canale central_api --base owner_decision \
+//     --riferimento "decisione del proprietario 14/10/2026; richiesta a 17Lands del 28/09 senza risposta" \
+//     --modo-legacy enabled --motivo "raccolta centrale"
 //   node strumenti/dati-draft/politica.mjs --canale off --motivo "richiesta 17Lands" --esegui --conferma-produzione
 
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
-import { CANALI_DATI_DRAFT, MODI_DATI_ESTERNI, normalizzaPolitica }
+import { BASI_AUTORIZZAZIONE_API, CANALI_DATI_DRAFT, MODI_DATI_ESTERNI, normalizzaPolitica }
   from "../../src/politica-dati-esterni.js";
 
-export function costruisciSecret({ canale, motivo = "", modoLegacy, riferimento, dataPermesso,
+export function costruisciSecret({ canale, motivo = "", modoLegacy, base, riferimento, dataDecisione,
   adesso = new Date() }) {
   if (!CANALI_DATI_DRAFT.includes(canale)) throw new Error(`canale non valido: ${canale}`);
   const voce = { reason: String(motivo).slice(0, 200), updated_at: adesso.toISOString(), channel: canale };
   if (canale === "central_api") {
+    if (!BASI_AUTORIZZAZIONE_API.includes(base)) {
+      throw new Error("central_api richiede --base owner_decision o 17lands_permission");
+    }
     if (!riferimento || riferimento.trim().length < 3) {
-      throw new Error("central_api richiede --permesso-riferimento");
+      throw new Error("central_api richiede --riferimento");
     }
     if (!MODI_DATI_ESTERNI.includes(modoLegacy)) {
       throw new Error("central_api richiede --modo-legacy esplicito");
     }
     voce.mode = modoLegacy;
-    voce.api_permission = { granted: true, reference: riferimento.trim(),
-      granted_at: dataPermesso ?? null };
+    voce.api_authorization = { basis: base, reference: riferimento.trim(),
+      decided_at: dataDecisione ?? adesso.toISOString().slice(0, 10) };
   } else {
     if (modoLegacy && modoLegacy !== "disabled") {
       throw new Error(`${canale} impone il modo legacy disabled`);
@@ -56,7 +64,7 @@ export function effetti(secret) {
   const legacy = { enabled: "chiamano 17Lands e usano le cache",
     cache_only: "nessuna richiesta, usano le cache su disco",
     disabled: "nessuna richiesta e nessuna cache 17Lands" }[voce.mode];
-  const nuovo = { central_api: "aggregati API via MOX, poi Public Data Sets",
+  const nuovo = { central_api: `aggregati API via MOX (${voce.api_authorization?.basis}), poi Public Data Sets`,
     public_only: "solo Public Data Sets (CC BY 4.0)", off: "nessun dato esterno" }[voce.channel];
   return { risposta_worker: { ...risposta, configurata: true },
     client: { "fino a 2.11.3": "invariati: non leggono la policy (limite dichiarato)",
@@ -66,7 +74,7 @@ export function effetti(secret) {
 function argomenti(argv) {
   const a = { esegui: false, conferma: false };
   const nomi = { "--canale": "canale", "--motivo": "motivo", "--modo-legacy": "modoLegacy",
-    "--permesso-riferimento": "riferimento", "--permesso-data": "dataPermesso" };
+    "--base": "base", "--riferimento": "riferimento", "--data-decisione": "dataDecisione" };
   for (let i = 0; i < argv.length; i += 1) {
     const x = argv[i];
     if (x === "--esegui") a.esegui = true;

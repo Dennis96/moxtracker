@@ -12,13 +12,17 @@ import server from "../src/index.js";
 import { normalizzaPolitica } from "../src/politica-dati-esterni.js";
 import { chiaveTabellaApi } from "../src/dati-draft.js";
 import { LIMITI_RACCOLTA, raccogliLotto, raccogliTabella, raccoltaAutorizzata,
-  salvaTabellaApi } from "../src/raccolta-17lands.js";
+  salvaTabellaApi, eseguiRaccolta, tabelleDelSet, CRON_RACCOLTA_17LANDS } from "../src/raccolta-17lands.js";
+import { CHIAVE_SET_ATTIVI, dimenticaSetAttivi, fineEmbargo, inEmbargo, validaSetAttivi }
+  from "../src/set-attivi.js";
+import { main as mainSetAttivi } from "../strumenti/dati-draft/set-attivi.mjs";
 import { sha256, validaPayload } from "../strumenti/dati-draft/contratto.mjs";
 import { main as mainPubblica, pianifica, pianoRollback } from "../strumenti/dati-draft/pubblica.mjs";
 import { costruisciSecret, effetti, main as mainPolitica } from "../strumenti/dati-draft/politica.mjs";
 import { BASE, TARIFFE, scenario, tutti } from "../strumenti/dati-draft/scenari-costi.mjs";
 
-const PERMESSO = { granted: true, reference: "email 17Lands 2026-10-20" };
+const PERMESSO = { basis: "owner_decision", reference: "decisione del proprietario 14/10/2026",
+  decided_at: "2026-10-14" };
 
 function secret(voce) {
   return JSON.stringify({ schema: 1, providers: { "17lands": { reason: "prova",
@@ -44,12 +48,15 @@ class R2Finto {
       typeof v === "string" ? new TextEncoder().encode(v) : v]));
     this.letture = [];
     this.scritture = [];
+    this.metadati = new Map();
   }
   async get(chiave) {
     this.letture.push(chiave);
     const byte = this.oggetti.get(chiave);
     if (!byte) return null;
-    return { size: byte.byteLength, httpEtag: `"e-${sha256(Buffer.from(byte)).slice(0, 8)}"`,
+    // Senza metadati espliciti una tabella e' appena raccolta.
+    const customMetadata = this.metadati.get(chiave) ?? { raccolto_il: new Date().toISOString() };
+    return { size: byte.byteLength, customMetadata, httpEtag: `"e-${sha256(Buffer.from(byte)).slice(0, 8)}"`,
       arrayBuffer: async () => byte.buffer.slice(byte.byteOffset, byte.byteOffset + byte.byteLength) };
   }
   async put(chiave, byte) { this.scritture.push(chiave); this.oggetti.set(chiave, byte); }
@@ -94,16 +101,19 @@ test("policy: public_only e off forzano disabled per i client 2.11.4–2.11.8", 
   }
 });
 
-test("policy: central_api senza permesso esplicito vale public_only, mai enabled implicito", () => {
-  for (const permesso of [undefined, null, {}, { granted: true }, { granted: "true", reference: "abc" },
-    { granted: 1, reference: "abc" }, { granted: true, reference: "  " }]) {
-    const p = normalizzaPolitica(secret({ mode: "enabled", channel: "central_api", api_permission: permesso }));
+test("policy: central_api senza autorizzazione esplicita vale public_only, mai enabled implicito", () => {
+  for (const autorizzazione of [undefined, null, {}, { basis: "owner_decision" },
+    { basis: "proprietario", reference: "abc" }, { basis: true, reference: "abc" },
+    { basis: "owner_decision", reference: "  " }, { granted: true, reference: "abc" }]) {
+    const p = normalizzaPolitica(secret({ mode: "enabled", channel: "central_api", api_authorization: autorizzazione }));
     assert.equal(p.providers["17lands"].channel, "public_only");
     assert.equal(p.providers["17lands"].mode, "disabled");
   }
-  const p = normalizzaPolitica(secret({ mode: "cache_only", channel: "central_api", api_permission: PERMESSO }));
+  const p = normalizzaPolitica(secret({ mode: "cache_only", channel: "central_api", api_authorization: PERMESSO }));
   assert.equal(p.providers["17lands"].channel, "central_api");
   assert.equal(p.providers["17lands"].mode, "cache_only");
+  // La base resta scritta com'e': una decisione del proprietario non diventa un permesso.
+  assert.deepEqual(p.providers["17lands"].api_authorization, PERMESSO);
 });
 
 test("policy: canale sconosciuto e' un secret rotto (503)", async () => {
@@ -179,9 +189,9 @@ test("rotte API: negate senza central_api, permesso e variabile; mai in cache", 
     { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled" }) },
     { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "public_only" }) },
     { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api" }), MOX_DRAFT_API_DISTRIBUTION: "on" },
-    { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_permission: PERMESSO }) },
-    { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_permission: PERMESSO }), MOX_DRAFT_API_DISTRIBUTION: "true" },
-    { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "disabled", channel: "central_api", api_permission: PERMESSO }), MOX_DRAFT_API_DISTRIBUTION: "on" },
+    { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_authorization: PERMESSO }) },
+    { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_authorization: PERMESSO }), MOX_DRAFT_API_DISTRIBUTION: "true" },
+    { MOX_EXTERNAL_DATA_POLICY: secret({ mode: "disabled", channel: "central_api", api_authorization: PERMESSO }), MOX_DRAFT_API_DISTRIBUTION: "on" },
   ];
   for (const ambiente of negati) {
     r2.letture.length = 0;
@@ -191,13 +201,26 @@ test("rotte API: negate senza central_api, permesso e variabile; mai in cache", 
     assert.deepEqual(r2.letture, [], "nessuna lettura dello spazio API quando e' negato");
   }
   const attivo = { DRAFT_STATS: r2, MOX_DRAFT_API_DISTRIBUTION: "on",
-    MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_permission: PERMESSO }) };
+    MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_authorization: PERMESSO }) };
   const r = await chiedi(percorso, attivo);
   assert.equal(r.stato, 200);
   assert.equal(r.headers.get("cache-control"), "private, no-store");
   assert.equal(r.headers.get("x-mox-sha256"), sha256(r.corpo));
   for (const brutto of ["&user_group=top", "&time_period=LAST_DAY", "&expansion=SOS", "&colors=WUB", "&colors=WX"]) {
     assert.equal((await chiedi(percorso + brutto, attivo)).stato, 400, brutto);
+  }
+});
+
+test("rotte API: una tabella piu' vecchia di 7 giorni non si serve", async () => {
+  const { r2 } = archivioPubblico();
+  const chiave = "api/card_data/TMT/PremierDraft/tutti.json";
+  const attivo = { DRAFT_STATS: r2, MOX_DRAFT_API_DISTRIBUTION: "on",
+    MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_authorization: PERMESSO }) };
+  const percorso = "/mox/draft-data/v1/api/card_data?expansion=TMT&event_type=PremierDraft";
+  for (const [metadati, stato] of [[{ raccolto_il: new Date(Date.now() - 8 * GIORNO).toISOString() }, 404],
+    [{}, 404], [{ raccolto_il: "ieri" }, 404], [{ raccolto_il: new Date(Date.now() - 6 * GIORNO).toISOString() }, 200]]) {
+    r2.metadati.set(chiave, metadati);
+    assert.equal((await chiedi(percorso, attivo)).stato, stato, JSON.stringify(metadati));
   }
 });
 
@@ -225,13 +248,189 @@ test("rotte: solo GET; le rotte esistenti non cambiano", async () => {
   assert.equal(r2.scritture.length, 0);
 });
 
-test("il Worker non importa la raccolta 17Lands, e nessun cron la chiama", () => {
-  const indice = readFileSync(new URL("../src/index.js", import.meta.url), "utf8");
-  assert.doesNotMatch(indice, /raccolta-17lands/);
+test("wrangler.toml non accende niente: binding, variabili e cron della raccolta stanno nel frammento", () => {
   const distribuzione = readFileSync(new URL("../src/dati-draft.js", import.meta.url), "utf8");
   assert.doesNotMatch(distribuzione, /17lands\.com/);
   const toml = readFileSync(new URL("../wrangler.toml", import.meta.url), "utf8");
   assert.doesNotMatch(toml, /DRAFT_STATS|MOX_17LANDS_RACCOLTA|MOX_DRAFT_API_DISTRIBUTION/);
+  assert.ok(!toml.includes(CRON_RACCOLTA_17LANDS));
+  const frammento = readFileSync(new URL("../strumenti/dati-draft/wrangler-dati-draft.frammento.toml",
+    import.meta.url), "utf8");
+  assert.ok(frammento.includes(CRON_RACCOLTA_17LANDS));
+});
+
+test("cron: quello della raccolta non lancia la manutenzione, gli altri si'", async () => {
+  const lavori = [];
+  const contesto = { waitUntil: (p) => lavori.push(p) };
+  await server.scheduled({ cron: CRON_RACCOLTA_17LANDS }, {}, contesto);
+  assert.equal(lavori.length, 1);
+  assert.deepEqual(await lavori[0], undefined);
+  const spenta = await eseguiRaccolta({}, { fetch: async () => { throw new Error("rete"); } });
+  assert.equal(spenta.esito, "spenta");
+});
+
+// -------------------------------------------------------- embargo e set
+
+const FRA = { set: "FRA", uscita: "2026-09-22", speciale: false, formati: ["PremierDraft"] };
+const GIORNO = 24 * 3600 * 1000;
+
+test("set attivi: validazione e embargo prudente (12° giorno → +13, speciali +8)", () => {
+  assert.equal(validaSetAttivi({ schema: 1, set: [FRA] }).ok, true);
+  for (const rotto of [null, {}, { schema: 2, set: [] }, { schema: 1, set: [{ ...FRA, set: "fra" }] },
+    { schema: 1, set: [{ ...FRA, uscita: "22/09/2026" }] }, { schema: 1, set: [{ ...FRA, formati: ["Cube"] }] },
+    { schema: 1, set: [{ ...FRA, speciale: "no" }] }, { schema: 1, set: [FRA, FRA] }]) {
+    assert.equal(validaSetAttivi(rotto).ok, false, JSON.stringify(rotto));
+  }
+  const uscita = Date.parse("2026-09-22T00:00:00Z");
+  assert.equal(fineEmbargo(FRA), uscita + 13 * GIORNO);
+  assert.equal(inEmbargo(FRA, uscita + 13 * GIORNO - 1), true);
+  assert.equal(inEmbargo(FRA, uscita + 13 * GIORNO), false);
+  assert.equal(fineEmbargo({ ...FRA, speciale: true }), uscita + 8 * GIORNO);
+  assert.equal(tabelleDelSet(FRA).length, 12);
+});
+
+class R2ConMetadati extends R2Finto {
+  constructor(oggetti) { super(oggetti); this.teste = 0; }
+  async get(chiave) {
+    const o = await super.get(chiave);
+    if (o) o.text = async () => new TextDecoder().decode(this.oggetti.get(chiave));
+    return o;
+  }
+  async head(chiave) {
+    this.teste += 1;
+    return this.oggetti.has(chiave) ? { customMetadata: this.metadati.get(chiave) ?? {} } : null;
+  }
+  async put(chiave, byte, opzioni) {
+    await super.put(chiave, byte);
+    this.metadati.set(chiave, opzioni?.customMetadata ?? {});
+  }
+}
+
+function archivioConSet(...set) {
+  dimenticaSetAttivi();
+  return new R2ConMetadati({ [CHIAVE_SET_ATTIVI]: JSON.stringify({ schema: 1, set }) });
+}
+
+test("raccolta programmata: niente in embargo, poi 12 tabelle, poi niente per 12 ore", async () => {
+  const uscita = Date.parse("2026-09-22T00:00:00Z");
+  const url = [];
+  const fetch = async (u) => { url.push(u); return rispostaFinta(u.includes("color_ratings")
+    ? [{ color_name: "All Decks", games: 10, wins: 5 }]
+    : { data: [{ mtga_id: 1, name: "A", ever_drawn_win_rate: 0.5, ever_drawn_game_count: 10 }] }); };
+  const ambiente = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
+  const prima = await eseguiRaccolta(ambiente, { fetch, adesso: uscita + 5 * GIORNO });
+  assert.deepEqual([prima.esito, prima.set, prima.salvate, url.length], ["eseguita", [], 0, 0]);
+  dimenticaSetAttivi();
+  const dopo = await eseguiRaccolta(ambiente, { fetch, adesso: uscita + 14 * GIORNO });
+  assert.equal(dopo.salvate, 12);
+  assert.ok(url.slice(0, 2).every((u) => !u.includes("colors=")), "prima le globali");
+  assert.ok(url.every((u) => u.startsWith("https://www.17lands.com/")));
+  const pagina = ambiente.DRAFT_STATS.oggetti.get("api/card_data/FRA/PremierDraft/WU.json");
+  const p = JSON.parse(new TextDecoder().decode(pagina));
+  assert.equal(p.collection.basis, "owner_decision");
+  assert.deepEqual(validaPayload(p, "api"), []);
+  dimenticaSetAttivi();
+  const subito = await eseguiRaccolta(ambiente, { fetch, adesso: uscita + 14 * GIORNO + 3600_000 });
+  assert.equal(subito.salvate, 0);
+  assert.equal(url.length, 12);
+  dimenticaSetAttivi();
+  const poi = await eseguiRaccolta(ambiente, { fetch, adesso: uscita + 14 * GIORNO + 13 * 3600_000 });
+  assert.equal(poi.salvate, 12);
+});
+
+test("raccolta programmata: un rifiuto definitivo si ritenta dopo 12 ore, non ogni ora", async () => {
+  const adesso = Date.parse("2026-12-01T00:00:00Z");
+  const ambiente = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
+  let chiamate = 0;
+  const rifiuta = async () => { chiamate += 1; return rispostaFinta("", 404); };
+  const primo = await eseguiRaccolta(ambiente, { fetch: rifiuta, adesso });
+  assert.deepEqual([primo.salvate, primo.errori, chiamate], [0, 12, 12]);
+  dimenticaSetAttivi();
+  await eseguiRaccolta(ambiente, { fetch: rifiuta, adesso: adesso + 3600_000 });
+  assert.equal(chiamate, 12, "nessun nuovo tentativo dopo un'ora");
+  dimenticaSetAttivi();
+  await eseguiRaccolta(ambiente, { fetch: rifiuta, adesso: adesso + 13 * 3600_000 });
+  assert.equal(chiamate, 24);
+  // Un 503 invece non lascia segnaposto: il giro dopo riprova.
+  dimenticaSetAttivi();
+  const transitorio = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
+  let altre = 0;
+  await eseguiRaccolta(transitorio, { fetch: async () => { altre += 1; return rispostaFinta("", 503); }, adesso });
+  dimenticaSetAttivi();
+  await eseguiRaccolta(transitorio, { fetch: async () => { altre += 1; return rispostaFinta("", 503); },
+    adesso: adesso + 3600_000 });
+  assert.equal(altre, 2 * 12 * LIMITI_RACCOLTA.tentativi);
+  dimenticaSetAttivi();
+});
+
+test("raccolta programmata: dopo 8 minuti non comincia tabelle nuove", async () => {
+  const ambiente = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
+  let tempo = 0;
+  const orologio = () => tempo;
+  const lenta = async () => { tempo += 3 * 60 * 1000; return rispostaFinta([]); };
+  const giro = await eseguiRaccolta(ambiente, { fetch: lenta, adesso: Date.parse("2026-12-01T00:00:00Z"), orologio });
+  assert.equal(giro.salvate, 3, "a 0, 3 e 6 minuti si comincia; a 9 no");
+  assert.equal(giro.rinviate, 9);
+  dimenticaSetAttivi();
+});
+
+test("cron: un errore della raccolta finisce nel log, non in una rejection", async () => {
+  const lavori = [];
+  const errore = console.error;
+  const scritti = [];
+  console.error = (...x) => scritti.push(x.join(" "));
+  try {
+    const archivio = archivioConSet(FRA);
+    archivio.head = async () => { throw new Error("R2 giu'"); };
+    await server.scheduled({ cron: CRON_RACCOLTA_17LANDS }, { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivio },
+      { waitUntil: (p) => lavori.push(p) });
+    await Promise.all(lavori);
+  } finally { console.error = errore; dimenticaSetAttivi(); }
+  assert.equal(lavori.length, 1);
+  assert.ok(scritti.some((r) => r.includes("raccolta 17Lands fallita")), scritti.join("|"));
+});
+
+test("raccolta programmata: al piu' 30 tabelle per giro; elenco rotto = niente", async () => {
+  const set = ["AAA", "BBB", "CCC"].map((s) => ({ ...FRA, set: s }));
+  const ambiente = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(...set) };
+  let chiamate = 0;
+  const giro = await eseguiRaccolta(ambiente, { fetch: async () => { chiamate += 1; return rispostaFinta([]); },
+    adesso: Date.parse("2026-12-01T00:00:00Z") });
+  assert.equal(chiamate, LIMITI_RACCOLTA.richiestePerEsecuzione);
+  assert.equal(giro.rinviate, 36 - LIMITI_RACCOLTA.richiestePerEsecuzione);
+  dimenticaSetAttivi();
+  const rotto = new R2ConMetadati({ [CHIAVE_SET_ATTIVI]: "{rotto" });
+  chiamate = 0;
+  const nulla = await eseguiRaccolta({ ...AMBIENTE_RACCOLTA, DRAFT_STATS: rotto },
+    { fetch: async () => { chiamate += 1; return rispostaFinta([]); } });
+  assert.deepEqual([nulla.set, chiamate], [[], 0]);
+  dimenticaSetAttivi();
+});
+
+test("rotte API: un set in embargo non si serve nemmeno se c'e' la tabella", async () => {
+  const r2 = archivioConSet({ ...FRA, uscita: new Date().toISOString().slice(0, 10) });
+  r2.oggetti.set("api/card_data/FRA/PremierDraft/tutti.json", new TextEncoder().encode("{}"));
+  const ambiente = { DRAFT_STATS: r2, MOX_DRAFT_API_DISTRIBUTION: "on",
+    MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_authorization: PERMESSO }) };
+  const r = await chiedi("/mox/draft-data/v1/api/card_data?expansion=FRA&event_type=PremierDraft", ambiente);
+  assert.equal(r.stato, 404);
+  assert.match(r.corpo.toString(), /embargo/);
+  dimenticaSetAttivi();
+});
+
+test("comando set attivi: dry-run, poi scrittura solo con conferma", () => {
+  const log = console.log; console.log = () => {};
+  const errore = console.error; console.error = () => {};
+  try {
+    let scritture = 0;
+    const lancia = () => { scritture += 1; return 0; };
+    assert.equal(mainSetAttivi(["--set", "FRA:2026-09-22:PremierDraft,QuickDraft"], lancia), 0);
+    assert.equal(mainSetAttivi(["--set", "FRA:2026-09-22:Cube"], lancia), 2);
+    assert.equal(mainSetAttivi(["--set", "FRA:2026-09-22:PremierDraft", "--esegui"], lancia), 3);
+    assert.equal(scritture, 0);
+    assert.equal(mainSetAttivi(["--set", "FRA:2026-09-22:PremierDraft", "--esegui", "--conferma-produzione"], lancia), 0);
+    assert.equal(scritture, 1);
+  } finally { console.log = log; console.error = errore; }
 });
 
 // ------------------------------------------------------------- raccolta
@@ -242,7 +441,7 @@ function rispostaFinta(corpo, stato = 200, intestazioni = {}) {
 }
 
 const AMBIENTE_RACCOLTA = { MOX_17LANDS_RACCOLTA: "on",
-  MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_permission: PERMESSO }) };
+  MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_authorization: PERMESSO }) };
 
 test("raccolta: zero richieste se un cancello e' chiuso", async () => {
   const chiusi = [
@@ -251,8 +450,8 @@ test("raccolta: zero richieste se un cancello e' chiuso", async () => {
     { ...AMBIENTE_RACCOLTA, MOX_17LANDS_RACCOLTA: "1" },
     { ...AMBIENTE_RACCOLTA, MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled" }) },
     { ...AMBIENTE_RACCOLTA, MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api" }) },
-    { ...AMBIENTE_RACCOLTA, MOX_EXTERNAL_DATA_POLICY: secret({ mode: "cache_only", channel: "central_api", api_permission: PERMESSO }) },
-    { ...AMBIENTE_RACCOLTA, MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "public_only", api_permission: PERMESSO }) },
+    { ...AMBIENTE_RACCOLTA, MOX_EXTERNAL_DATA_POLICY: secret({ mode: "cache_only", channel: "central_api", api_authorization: PERMESSO }) },
+    { ...AMBIENTE_RACCOLTA, MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "public_only", api_authorization: PERMESSO }) },
     { ...AMBIENTE_RACCOLTA, MOX_EXTERNAL_DATA_POLICY: "{rotto" },
   ];
   for (const ambiente of chiusi) {
@@ -408,12 +607,18 @@ test("publisher e policy: il dry-run non scrive mai, l'esecuzione vuole la confe
   }
 });
 
-test("comando policy: central_api solo con permesso e modo espliciti", () => {
-  assert.throws(() => costruisciSecret({ canale: "central_api" }), /permesso/);
-  assert.throws(() => costruisciSecret({ canale: "central_api", riferimento: "email" }), /modo-legacy/);
+test("comando policy: central_api solo con base, riferimento e modo espliciti", () => {
+  assert.throws(() => costruisciSecret({ canale: "central_api" }), /--base/);
+  assert.throws(() => costruisciSecret({ canale: "central_api", base: "permesso" }), /--base/);
+  assert.throws(() => costruisciSecret({ canale: "central_api", base: "owner_decision" }), /--riferimento/);
+  assert.throws(() => costruisciSecret({ canale: "central_api", base: "owner_decision",
+    riferimento: "decisione" }), /modo-legacy/);
   assert.throws(() => costruisciSecret({ canale: "public_only", modoLegacy: "enabled" }), /disabled/);
   assert.throws(() => costruisciSecret({ canale: "tutto" }), /canale/);
-  const s = costruisciSecret({ canale: "central_api", riferimento: "email 17Lands", modoLegacy: "cache_only" });
+  const s = costruisciSecret({ canale: "central_api", base: "owner_decision", riferimento: "decisione 14/10",
+    modoLegacy: "cache_only", adesso: new Date("2026-10-14T10:00:00Z") });
+  assert.deepEqual(s.providers["17lands"].api_authorization,
+    { basis: "owner_decision", reference: "decisione 14/10", decided_at: "2026-10-14" });
   const e = effetti(s);
   assert.equal(e.risposta_worker.providers["17lands"].channel, "central_api");
   assert.match(e.client["2.11.4-2.11.8"], /cache_only/);
@@ -434,8 +639,8 @@ test("costi: tre scenari dentro le quote incluse, incrementale zero", () => {
     }
   }
   const prudente = scenario(10000, { manifestoAlMese: 120, payloadAlMese: 12 });
-  assert.equal(prudente.aggiunte.richieste, 1_320_000);
-  assert.equal(prudente.totale.richieste, 1_320_000 + BASE.workersRichieste);
+  assert.equal(prudente.aggiunte.richieste, 1_320_000 + 720, "piu' i 720 giri del cron della raccolta");
+  assert.equal(prudente.totale.richieste, 1_320_720 + BASE.workersRichieste);
   assert.ok(s.soglia_utenti_pessimo > 10000);
   const oltre = scenario(20000, { manifestoAlMese: 720, payloadAlMese: 30 });
   assert.ok(oltre.incrementale_usd > 0, "oltre la soglia il costo variabile compare");

@@ -6,23 +6,28 @@
 // riceveranno aggregati dal Worker (`dati-draft.js`, spazio `api/`) invece di
 // chiamare 17Lands uno per uno.
 //
-// Oggi **nessun codice la chiama**: niente cron, niente rotta, nessun import da
-// `index.js` (una prova lo controlla). Anche chiamata, non fa niente senza
-// due cancelli espliciti, entrambi da aprire a mano:
+// La chiama il cron orario del Worker (`eseguiRaccolta`; 14/10/2026, decisione
+// del proprietario: `central_api` attivo dall'inizio). Non fa niente senza due
+// cancelli espliciti, entrambi da aprire a mano:
 //  1. la policy (`MOX_EXTERNAL_DATA_POLICY`) con canale `central_api`,
-//     `api_permission.granted: true` con riferimento scritto, modo `enabled`;
+//     `api_authorization` scritta (base e riferimento), modo `enabled`;
 //  2. la variabile `MOX_17LANDS_RACCOLTA` esattamente `on`.
+// Raccoglie solo i set di `config/set-attivi.json` usciti dall'embargo
+// (`set-attivi.js`).
 // L'assenza di uno dei due e' un no, mai un si' implicito. Le prove usano solo
 // `fetch` finti: nessun socket verso 17Lands.
 
 import { canaleEffettivo, politicaCorrente } from "./politica-dati-esterni.js";
 import { FORMATI_API, chiaveTabellaApi, coppiaCanonica } from "./dati-draft.js";
+import { inEmbargo, leggiSetAttivi } from "./set-attivi.js";
 
 export const ENDPOINT_17LANDS = Object.freeze({
   card_data: "https://www.17lands.com/api/card_data",
   color_ratings: "https://www.17lands.com/color_ratings/data",
 });
 export const AGENTE = "MoxCentral/1 (+https://moxtracker.app)";
+// Il cron della raccolta: al minuto 23 di ogni ora (la manutenzione e' alle 3:17).
+export const CRON_RACCOLTA_17LANDS = "23 * * * *";
 export const LIMITI_RACCOLTA = Object.freeze({
   millisecondiRete: 15000,
   byteMassimi: 4 * 1024 * 1024,
@@ -31,6 +36,9 @@ export const LIMITI_RACCOLTA = Object.freeze({
   // freschezza della cache che i client hanno sempre avuto.
   intervalloMinimoMs: 12 * 3600 * 1000,
   richiestePerEsecuzione: 30,
+  // Un giro non comincia tabelle nuove dopo 8 minuti: con 17Lands lento i
+  // timeout (2 × 15 s per tabella) arriverebbero ai 15 minuti di un cron.
+  millisecondiPerGiro: 8 * 60 * 1000,
 });
 const SET = /^[A-Z0-9]{2,8}$/;
 
@@ -44,7 +52,8 @@ export function raccoltaAutorizzata(ambiente) {
   if (politica.providers["17lands"].mode !== "enabled") {
     return { ok: false, motivo: "modo diverso da enabled" };
   }
-  return { ok: true, riferimento: politica.providers["17lands"].api_permission.reference };
+  const autorizzazione = politica.providers["17lands"].api_authorization;
+  return { ok: true, base: autorizzazione.basis, riferimento: autorizzazione.reference };
 }
 
 export function parametriRaccolta(tabella, set, formato, colori) {
@@ -110,7 +119,7 @@ async function leggiLimitato(risposta, massimo) {
   return new TextDecoder().decode(byte);
 }
 
-export function payloadApi({ tabella, set, formato, coppia, righe, riferimento, adesso }) {
+export function payloadApi({ tabella, set, formato, coppia, righe, base, riferimento, adesso }) {
   return {
     schema: "mox.draft-stats/1",
     source: "17lands_api",
@@ -125,9 +134,11 @@ export function payloadApi({ tabella, set, formato, coppia, righe, riferimento, 
         color_ratings: "unsupported" }
       : { gih_wr: "unsupported", gp_wr: "unsupported", iwd: "unsupported",
         ata: "unsupported", color_ratings: "supported" },
-    attribution: { text: "Dati di 17Lands (17lands.com), raccolti centralmente da MOX "
-      + `con permesso registrato (${riferimento}). 17Lands non approva ne' sostiene MOX.`,
-    source_url: "https://www.17lands.com/card_data" },
+    attribution: { text: "Dati di 17Lands (17lands.com), raccolti centralmente da MOX. "
+      + "17Lands non approva ne' sostiene MOX.", source_url: "https://www.17lands.com/card_data" },
+    // Su che cosa si regge la raccolta, scritto com'e': una decisione del
+    // proprietario non e' un permesso di 17Lands.
+    collection: { basis: base, reference: riferimento },
     cards: tabella === "card_data" ? righe : [],
     color_ratings: tabella === "color_ratings" ? righe : null,
   };
@@ -164,15 +175,15 @@ export async function raccogliTabella({ tabella, set, formato, colori = null, am
       }
       if (risposta.status !== 200) {
         registro.set(chiave, adesso);
-        return { esito: "errore", motivo: `HTTP ${risposta.status}` };
+        return { esito: "errore", definitivo: true, chiave, motivo: `HTTP ${risposta.status}` };
       }
       const dati = JSON.parse(await leggiLimitato(risposta, LIMITI_RACCOLTA.byteMassimi));
       const righe = tabella === "card_data" ? righeCarte(dati) : righeColori(dati);
       registro.set(chiave, adesso);
-      if (!righe) return { esito: "errore", motivo: "risposta non valida" };
+      if (!righe) return { esito: "errore", definitivo: true, chiave, motivo: "risposta non valida" };
       const coppia = coppiaCanonica(colori) ?? null;
       const payload = payloadApi({ tabella, set, formato, coppia, righe,
-        riferimento: permesso.riferimento, adesso });
+        base: permesso.base, riferimento: permesso.riferimento, adesso });
       return { esito: "ok", chiave, payload };
     } catch (e) {
       ultimoErrore = e?.name === "AbortError" ? "timeout" : String(e?.message ?? e);
@@ -204,6 +215,76 @@ export async function salvaTabellaApi(archivio, ambiente, risultato) {
   if (!raccoltaAutorizzata(ambiente).ok) return { esito: "negata" };
   const byte = new TextEncoder().encode(JSON.stringify(risultato.payload));
   if (byte.byteLength > LIMITI_RACCOLTA.byteMassimi) return { esito: "troppo_grande" };
-  await archivio.put(risultato.chiave, byte, { httpMetadata: { contentType: "application/json" } });
+  await archivio.put(risultato.chiave, byte, { httpMetadata: { contentType: "application/json" },
+    customMetadata: { raccolto_il: risultato.payload.generated_at } });
   return { esito: "salvata", chiave: risultato.chiave, byte: byte.byteLength };
+}
+
+// Il segnaposto di un rifiuto definitivo, accanto alla tabella (mai servito:
+// le rotte leggono solo le chiavi `.json` della whitelist).
+export function chiaveRifiuto(chiave) { return `${chiave}.rifiuto`; }
+
+const COPPIE = Object.freeze(["WU", "WB", "WR", "WG", "UB", "UR", "UG", "BR", "BG", "RG"]);
+
+// Le tabelle di un set: per formato la globale, i colori e le dieci coppie.
+export function tabelleDelSet(voce) {
+  const tabelle = [];
+  for (const formato of voce.formati) {
+    tabelle.push({ tabella: "card_data", set: voce.set, formato, colori: null });
+    tabelle.push({ tabella: "color_ratings", set: voce.set, formato, colori: null });
+    for (const coppia of COPPIE) tabelle.push({ tabella: "card_data", set: voce.set, formato, colori: coppia });
+  }
+  return tabelle;
+}
+
+// Il cron: le tabelle dei set fuori embargo piu' vecchie di 12 ore, al piu'
+// `richiestePerEsecuzione` per giro, le globali prima delle coppie. Con il
+// cron orario ogni tabella si rinnova due volte al giorno.
+export async function eseguiRaccolta(ambiente, { fetch: prendi = fetch, adesso = Date.now(),
+  orologio = () => Date.now() } = {}) {
+  const inizio = orologio();
+  const permesso = raccoltaAutorizzata(ambiente);
+  if (!permesso.ok) return { esito: "spenta", motivo: permesso.motivo };
+  const archivio = ambiente.DRAFT_STATS;
+  if (!archivio || typeof archivio.head !== "function") return { esito: "senza_archivio" };
+  const set = (await leggiSetAttivi(archivio, adesso)).filter((v) => !inEmbargo(v, adesso));
+  const scadute = [];
+  for (const voce of set) {
+    for (const t of tabelleDelSet(voce)) {
+      const chiave = chiaveTabellaApi(t.tabella, parametriRaccolta(t.tabella, t.set, t.formato, t.colori));
+      const oggetto = await archivio.head(chiave);
+      const quando = Date.parse(oggetto?.customMetadata?.raccolto_il ?? "");
+      if (adesso - quando < LIMITI_RACCOLTA.intervalloMinimoMs) continue;
+      // Un rifiuto definitivo (4xx, risposta non valida) lascia un segnaposto:
+      // la tabella si ritenta dopo l'intervallo minimo, non a ogni giro.
+      const rifiuto = await archivio.head(chiaveRifiuto(chiave));
+      if (adesso - Date.parse(rifiuto?.customMetadata?.tentato_il ?? "") < LIMITI_RACCOLTA.intervalloMinimoMs) {
+        continue;
+      }
+      scadute.push({ ...t, quando: Number.isNaN(quando) ? 0 : quando });
+    }
+  }
+  scadute.sort((a, b) => (a.colori ? 1 : 0) - (b.colori ? 1 : 0) || a.quando - b.quando);
+  const conti = { salvate: 0, errori: 0, rinviate: 0 };
+  const registro = new Map();
+  for (const [indice, t] of scadute.entries()) {
+    if (indice >= LIMITI_RACCOLTA.richiestePerEsecuzione
+      || orologio() - inizio >= LIMITI_RACCOLTA.millisecondiPerGiro) {
+      conti.rinviate += 1;
+      continue;
+    }
+    const { quando: _quando, ...voce } = t;
+    const esito = await raccogliTabella({ ...voce, ambiente, fetch: prendi, adesso, registro });
+    const salvato = await salvaTabellaApi(archivio, ambiente, esito);
+    if (salvato.esito === "salvata") {
+      conti.salvate += 1;
+    } else {
+      conti.errori += 1;
+      if (esito.definitivo) {
+        await archivio.put(chiaveRifiuto(esito.chiave), new Uint8Array(0),
+          { customMetadata: { tentato_il: new Date(adesso).toISOString(), motivo: esito.motivo } });
+      }
+    }
+  }
+  return { esito: "eseguita", set: set.map((v) => v.set), ...conti };
 }
