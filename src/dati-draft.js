@@ -141,7 +141,8 @@ export async function gestisciDatiDraft(richiesta, ambiente, indirizzo) {
     // anche se per errore ci fosse una tabella salvata.
     const set = indirizzo.searchParams.get("expansion");
     const voce = (await leggiSetAttivi(archivio)).find((v) => v.set === set);
-    if (voce && inEmbargo(voce)) return errore("set in embargo", 404);
+    if (!voce || !voce.formati.includes(indirizzo.searchParams.get("event_type"))
+      || inEmbargo(voce)) return errore("set non disponibile o in embargo", 404);
     const oggetto = await archivio.get(chiave);
     const raccolto = Date.parse(oggetto?.customMetadata?.raccolto_il ?? "");
     if (oggetto && !(Date.now() - raccolto < ETA_MASSIMA_API_MS)) {

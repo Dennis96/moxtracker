@@ -111,13 +111,40 @@ export function righeColori(dati) {
   return uscita;
 }
 
+class RispostaNonValida extends Error {}
+
 async function leggiLimitato(risposta, massimo) {
   const dichiarata = Number(risposta.headers.get("content-length"));
-  if (Number.isFinite(dichiarata) && dichiarata > massimo) throw new Error("risposta troppo grande");
-  const byte = await risposta.arrayBuffer();
-  if (byte.byteLength > massimo) throw new Error("risposta troppo grande");
-  return new TextDecoder().decode(byte);
+  if (Number.isFinite(dichiarata) && dichiarata > massimo) {
+    try { await risposta.body?.cancel(); } catch { /* Il rifiuto resta definitivo. */ }
+    throw new RispostaNonValida("risposta troppo grande");
+  }
+  if (!risposta.body) return "";
+  const lettore = risposta.body.getReader();
+  const pezzi = [];
+  let totale = 0;
+  try {
+    while (true) {
+      const { done, value } = await lettore.read();
+      if (done) break;
+      totale += value.byteLength;
+      if (totale > massimo) {
+        try { await lettore.cancel(); } catch { /* Il limite e' gia' superato. */ }
+        throw new RispostaNonValida("risposta troppo grande");
+      }
+      pezzi.push(value);
+    }
+  } finally {
+    lettore.releaseLock();
+  }
+  const byte = new Uint8Array(totale);
+  let posizione = 0;
+  for (const pezzo of pezzi) { byte.set(pezzo, posizione); posizione += pezzo.byteLength; }
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(byte); }
+  catch { throw new RispostaNonValida("codifica non valida"); }
 }
+
+const attendi = (millisecondi) => new Promise((risolvi) => setTimeout(risolvi, millisecondi));
 
 export function payloadApi({ tabella, set, formato, coppia, righe, base, riferimento, adesso }) {
   return {
@@ -147,7 +174,7 @@ export function payloadApi({ tabella, set, formato, coppia, righe, base, riferim
 // Una tabella: `{ esito, ... }`. `registro` (Map chiave -> ultimo tentativo)
 // deduplica le richieste ravvicinate; `fetch` e' iniettato (le prove lo fingono).
 export async function raccogliTabella({ tabella, set, formato, colori = null, ambiente,
-  fetch: prendi, adesso = Date.now(), registro = new Map(), dormi = null }) {
+  fetch: prendi, adesso = Date.now(), registro = new Map(), dormi = attendi }) {
   const permesso = raccoltaAutorizzata(ambiente);
   if (!permesso.ok) return { esito: "negata", motivo: permesso.motivo };
   const parametri = parametriRaccolta(tabella, set, formato, colori);
@@ -164,6 +191,7 @@ export async function raccogliTabella({ tabella, set, formato, colori = null, am
   let ultimoErrore = "nessun tentativo";
   for (let tentativo = 0; tentativo < LIMITI_RACCOLTA.tentativi; tentativo += 1) {
     if (tentativo && dormi) await dormi(2000 * tentativo);
+    if (!raccoltaAutorizzata(ambiente).ok) return { esito: "negata", chiave };
     const interruttore = new AbortController();
     const timer = setTimeout(() => interruttore.abort(), LIMITI_RACCOLTA.millisecondiRete);
     try {
@@ -177,7 +205,17 @@ export async function raccogliTabella({ tabella, set, formato, colori = null, am
         registro.set(chiave, adesso);
         return { esito: "errore", definitivo: true, chiave, motivo: `HTTP ${risposta.status}` };
       }
-      const dati = JSON.parse(await leggiLimitato(risposta, LIMITI_RACCOLTA.byteMassimi));
+      let dati;
+      try {
+        const testo = await leggiLimitato(risposta, LIMITI_RACCOLTA.byteMassimi);
+        dati = JSON.parse(testo);
+      } catch (e) {
+        // Timeout e guasti di trasporto restano transitori; dimensione,
+        // codifica e JSON non validi sono rifiuti definitivi.
+        if (!(e instanceof SyntaxError || e instanceof RispostaNonValida)) throw e;
+        registro.set(chiave, adesso);
+        return { esito: "errore", definitivo: true, chiave, motivo: "risposta non valida" };
+      }
       const righe = tabella === "card_data" ? righeCarte(dati) : righeColori(dati);
       registro.set(chiave, adesso);
       if (!righe) return { esito: "errore", definitivo: true, chiave, motivo: "risposta non valida" };
@@ -241,7 +279,7 @@ export function tabelleDelSet(voce) {
 // `richiestePerEsecuzione` per giro, le globali prima delle coppie. Con il
 // cron orario ogni tabella si rinnova due volte al giorno.
 export async function eseguiRaccolta(ambiente, { fetch: prendi = fetch, adesso = Date.now(),
-  orologio = () => Date.now() } = {}) {
+  orologio = () => Date.now(), dormi = attendi } = {}) {
   const inizio = orologio();
   const permesso = raccoltaAutorizzata(ambiente);
   if (!permesso.ok) return { esito: "spenta", motivo: permesso.motivo };
@@ -274,7 +312,7 @@ export async function eseguiRaccolta(ambiente, { fetch: prendi = fetch, adesso =
       continue;
     }
     const { quando: _quando, ...voce } = t;
-    const esito = await raccogliTabella({ ...voce, ambiente, fetch: prendi, adesso, registro });
+    const esito = await raccogliTabella({ ...voce, ambiente, fetch: prendi, adesso, registro, dormi });
     const salvato = await salvaTabellaApi(archivio, ambiente, esito);
     if (salvato.esito === "salvata") {
       conti.salvate += 1;

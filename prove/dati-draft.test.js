@@ -19,7 +19,7 @@ import { main as mainSetAttivi } from "../strumenti/dati-draft/set-attivi.mjs";
 import { sha256, validaPayload } from "../strumenti/dati-draft/contratto.mjs";
 import { main as mainPubblica, pianifica, pianoRollback } from "../strumenti/dati-draft/pubblica.mjs";
 import { costruisciSecret, effetti, main as mainPolitica } from "../strumenti/dati-draft/politica.mjs";
-import { BASE, TARIFFE, scenario, tutti } from "../strumenti/dati-draft/scenari-costi.mjs";
+import { BASE, TARIFFE, IPOTESI, costo, scenario, tutti } from "../strumenti/dati-draft/scenari-costi.mjs";
 
 const PERMESSO = { basis: "owner_decision", reference: "decisione del proprietario 14/10/2026",
   decided_at: "2026-10-14" };
@@ -57,6 +57,7 @@ class R2Finto {
     // Senza metadati espliciti una tabella e' appena raccolta.
     const customMetadata = this.metadati.get(chiave) ?? { raccolto_il: new Date().toISOString() };
     return { size: byte.byteLength, customMetadata, httpEtag: `"e-${sha256(Buffer.from(byte)).slice(0, 8)}"`,
+      text: async () => new TextDecoder().decode(byte),
       arrayBuffer: async () => byte.buffer.slice(byte.byteOffset, byte.byteOffset + byte.byteLength) };
   }
   async put(chiave, byte) { this.scritture.push(chiave); this.oggetti.set(chiave, byte); }
@@ -127,6 +128,7 @@ test("policy: canale sconosciuto e' un secret rotto (503)", async () => {
 // --------------------------------------------------------------- rotte
 
 function archivioPubblico() {
+  dimenticaSetAttivi();
   const byte = Buffer.from(JSON.stringify(payload()));
   const sha = sha256(byte);
   const manifesto = { schema: "mox.draft-stats-manifest/1", namespace: "public",
@@ -135,7 +137,9 @@ function archivioPubblico() {
   const api = Buffer.from(JSON.stringify(payload({ source: "17lands_api" })));
   return { sha, byte, r2: new R2Finto({ "public/manifest.json": JSON.stringify(manifesto),
     [`public/payload/${sha}.json`]: byte,
-    "api/card_data/TMT/PremierDraft/tutti.json": api }) };
+    "api/card_data/TMT/PremierDraft/tutti.json": api,
+    [CHIAVE_SET_ATTIVI]: JSON.stringify({ schema: 1, set: [{ set: "TMT", uscita: "2026-01-01",
+      speciale: false, formati: ["PremierDraft"] }] }) }) };
 }
 
 test("rotte: senza binding R2 rispondono 503 no-store (oggi in produzione)", async () => {
@@ -355,10 +359,11 @@ test("raccolta programmata: un rifiuto definitivo si ritenta dopo 12 ore, non og
   dimenticaSetAttivi();
   const transitorio = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
   let altre = 0;
-  await eseguiRaccolta(transitorio, { fetch: async () => { altre += 1; return rispostaFinta("", 503); }, adesso });
+  await eseguiRaccolta(transitorio, { fetch: async () => { altre += 1; return rispostaFinta("", 503); },
+    adesso, dormi: async () => {} });
   dimenticaSetAttivi();
   await eseguiRaccolta(transitorio, { fetch: async () => { altre += 1; return rispostaFinta("", 503); },
-    adesso: adesso + 3600_000 });
+    adesso: adesso + 3600_000, dormi: async () => {} });
   assert.equal(altre, 2 * 12 * LIMITI_RACCOLTA.tentativi);
   dimenticaSetAttivi();
 });
@@ -628,20 +633,135 @@ test("comando policy: central_api solo con base, riferimento e modo espliciti", 
 
 // ---------------------------------------------------------------- costi
 
-test("costi: tre scenari dentro le quote incluse, incrementale zero", () => {
+test("costi: traffico API esplicito, CPU sconosciuta e costo parziale distinto dal totale", () => {
   const s = tutti();
   for (const nome of ["prudente", "pessimo"]) {
     assert.deepEqual(s[nome].map((x) => x.utenti), [100, 1000, 10000]);
     for (const x of s[nome]) {
-      assert.equal(x.incrementale_usd, 0);
-      assert.equal(x.totale_usd, TARIFFE.workersPaidBase);
-      assert.ok(x.quota_workers_usata < 1);
+      assert.equal(x.incrementale_usd, "n.d.");
+      assert.equal(x.totale_usd, "n.d.");
+      assert.equal(x.cpu_ms, "n.d.");
+      assert.ok(x.richieste_api_client > 0);
     }
   }
-  const prudente = scenario(10000, { manifestoAlMese: 120, payloadAlMese: 12 });
-  assert.equal(prudente.aggiunte.richieste, 1_320_000 + 720, "piu' i 720 giri del cron della raccolta");
-  assert.equal(prudente.totale.richieste, 1_320_720 + BASE.workersRichieste);
-  assert.ok(s.soglia_utenti_pessimo > 10000);
-  const oltre = scenario(20000, { manifestoAlMese: 720, payloadAlMese: 30 });
-  assert.ok(oltre.incrementale_usd > 0, "oltre la soglia il costo variabile compare");
+  const prudente = scenario(10000, IPOTESI.prudente);
+  assert.equal(prudente.aggiunte.richieste, 3_120_000 + 720, "include 1,8 M richieste API client");
+  assert.equal(prudente.totale.richieste, 3_120_720 + BASE.workersRichieste);
+  assert.equal(prudente.aggiunte.classeB, 4_920_000 + 44 + 104400);
+  assert.equal(prudente.incrementale_parziale_usd, 0);
+  assert.ok(s.soglia_utenti_pessimo < 10000, "lo scenario pessimo include anche i client API");
+  assert.ok(s.pessimo.at(-1).incrementale_parziale_usd > 0);
+  const noto = costo({ richieste: 0, byte: 0, classeA: 0, classeB: 0, cpuMs: 31_000_000 });
+  assert.equal(noto.workers_cpu, 0.02);
+  assert.equal(noto.workers, 5.02);
+  const misurato = scenario(10000, IPOTESI.prudente, { esistenteMs: 0, perRichiestaMs: 10, perGiroMs: 1 });
+  assert.ok(misurato.incrementale_usd > 0);
+  assert.equal(misurato.cpu_ms, 31_200_720);
+  assert.throws(() => scenario(100, IPOTESI.prudente, { esistenteMs: -1,
+    perRichiestaMs: null, perGiroMs: null }), /CPU/);
+});
+
+test("rotte API: configurazione assente, rotta, set o formato sconosciuti restano chiusi", async () => {
+  for (const configurazione of [null, "{rotto", { schema: 1, set: [] },
+    { schema: 1, set: [{ set: "TMT", uscita: "2026-01-01", speciale: false, formati: ["TradDraft"] }] }]) {
+    const { r2 } = archivioPubblico();
+    r2.oggetti.delete(CHIAVE_SET_ATTIVI);
+    if (configurazione !== null) r2.oggetti.set(CHIAVE_SET_ATTIVI,
+      new TextEncoder().encode(typeof configurazione === "string" ? configurazione : JSON.stringify(configurazione)));
+    const ambiente = { DRAFT_STATS: r2, MOX_DRAFT_API_DISTRIBUTION: "on",
+      MOX_EXTERNAL_DATA_POLICY: secret({ mode: "enabled", channel: "central_api", api_authorization: PERMESSO }) };
+    const r = await chiedi("/mox/draft-data/v1/api/card_data?expansion=TMT&event_type=PremierDraft", ambiente);
+    assert.equal(r.stato, 404);
+    assert.ok(!r2.letture.includes("api/card_data/TMT/PremierDraft/tutti.json"));
+  }
+});
+
+test("raccolta programmata: JSON rotto lascia un rifiuto persistito per dodici ore", async () => {
+  const adesso = Date.parse("2026-12-01T00:00:00Z");
+  const ambiente = { ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) };
+  let fetch = 0;
+  const prendi = async () => { fetch++; return rispostaFinta("{rotto"); };
+  const primo = await eseguiRaccolta(ambiente, { fetch: prendi, adesso });
+  assert.equal(primo.errori, 12);
+  assert.equal(fetch, 12, "nessun secondo tentativo sul JSON non valido");
+  assert.equal(ambiente.DRAFT_STATS.scritture.filter(k => k.endsWith(".rifiuto")).length, 12);
+  dimenticaSetAttivi();
+  await eseguiRaccolta(ambiente, { fetch: prendi, adesso: adesso + 3600_000 });
+  assert.equal(fetch, 12);
+  dimenticaSetAttivi();
+  await eseguiRaccolta(ambiente, { fetch: prendi, adesso: adesso + 13 * 3600_000 });
+  assert.equal(fetch, 24);
+});
+
+test("raccolta: stream troppo grande senza header o con header falso viene cancellato presto", async () => {
+  for (const header of [{}, { "content-length": "1" }]) {
+    let letti = 0, annullato = false, fetch = 0;
+    const stream = new ReadableStream({ pull(controller) {
+      if (letti >= 10) { controller.close(); return; }
+      letti++;
+      controller.enqueue(new Uint8Array(1024 * 1024));
+    }, cancel() { annullato = true; } }, { highWaterMark: 0 });
+    const risultato = await raccogliTabella({ tabella: "card_data", set: "TMT", formato: "PremierDraft",
+      ambiente: AMBIENTE_RACCOLTA, fetch: async () => { fetch++; return new Response(stream, { headers: header }); } });
+    assert.equal(risultato.definitivo, true);
+    assert.equal(fetch, 1);
+    assert.ok(annullato);
+    assert.equal(letti, 5, "quattro blocchi ammessi, poi il primo oltre il limite");
+  }
+});
+
+test("raccolta: errori del trasporto del corpo restano transitori e i retry attendono", async () => {
+  let fetch = 0;
+  const attese = [];
+  const risultato = await raccogliTabella({ tabella: "card_data", set: "TMT", formato: "PremierDraft",
+    ambiente: AMBIENTE_RACCOLTA, dormi: async ms => attese.push(ms), fetch: async () => {
+      fetch++;
+      return new Response(new ReadableStream({ start(controller) { controller.error(new TypeError("trasporto interrotto")); } }));
+    } });
+  assert.equal(fetch, 2);
+  assert.deepEqual(attese, [2000]);
+  assert.ok(!risultato.definitivo);
+});
+
+test("raccolta programmata: la pausa del retry passa anche dal chiamante del cron", async () => {
+  const attese = [];
+  let fetch = 0;
+  await eseguiRaccolta({ ...AMBIENTE_RACCOLTA, DRAFT_STATS: archivioConSet(FRA) }, {
+    adesso: Date.parse("2026-12-01T00:00:00Z"), dormi: async ms => attese.push(ms),
+    fetch: async () => { fetch++; return rispostaFinta("", 429); } });
+  assert.equal(fetch, 24);
+  assert.deepEqual(attese, Array(12).fill(2000));
+});
+
+test("raccolta: timeout copre anche il corpo lento e una revoca nega il retry", async () => {
+  const veroTimer = globalThis.setTimeout;
+  const scadenze = [];
+  globalThis.setTimeout = (fn, ms, ...argomenti) => {
+    scadenze.push(ms);
+    return veroTimer(fn, 1, ...argomenti);
+  };
+  let chiamate = 0;
+  try {
+    const risultato = await raccogliTabella({ tabella: "card_data", set: "TMT", formato: "PremierDraft",
+      ambiente: AMBIENTE_RACCOLTA, dormi: async () => {}, fetch: async (_url, { signal }) => {
+        chiamate++;
+        return new Response(new ReadableStream({ start(controller) {
+          signal.addEventListener("abort", () => controller.error(new DOMException("lento", "AbortError")), { once: true });
+        } }));
+      } });
+    assert.equal(risultato.esito, "errore");
+    assert.ok(!risultato.definitivo);
+    assert.equal(chiamate, 2);
+    assert.deepEqual(scadenze, [15000, 15000]);
+  } finally { globalThis.setTimeout = veroTimer; }
+  const ambiente = { ...AMBIENTE_RACCOLTA };
+  chiamate = 0;
+  const revocato = await raccogliTabella({ tabella: "card_data", set: "TMT", formato: "PremierDraft",
+    ambiente, dormi: async () => {}, fetch: async () => {
+      chiamate++;
+      ambiente.MOX_17LANDS_RACCOLTA = "off";
+      return rispostaFinta("", 503);
+    } });
+  assert.equal(revocato.esito, "negata");
+  assert.equal(chiamate, 1);
 });
