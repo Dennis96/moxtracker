@@ -1,0 +1,25 @@
+# Frammento INERTE: wrangler non legge questo file.
+#
+# Configurazione della distribuzione dei dati Draft (14/10/2026), da copiare in
+# `wrangler.toml` **solo** dopo l'autorizzazione del proprietario e nell'ordine
+# del runbook (`mox-core/passaggi/coordinamento/RUNBOOK-DATI-DRAFT-CENTRALIZZATI-2026-10-14.md`):
+#   1. `npx wrangler r2 bucket create moxtracker-draft-stats` (bucket nuovo,
+#      R2 Standard; costo stimato $0 dentro la quota gratuita dell'account);
+#   2. le righe qui sotto in `wrangler.toml`, poi deploy del Worker;
+#   3. prima pubblicazione con `strumenti/dati-draft/pubblica.mjs`.
+# Metterle in `wrangler.toml` prima che il bucket esista farebbe fallire il
+# prossimo deploy, qualunque cosa porti: per questo stanno qui.
+#
+# Rollback: togliere il binding e ripubblicare il Worker; le rotte
+# `/mox/draft-data/v1/` tornano 503 e i client usano i ripieghi interni.
+
+[[r2_buckets]]
+binding = "DRAFT_STATS"
+bucket_name = "moxtracker-draft-stats"
+
+# Lo spazio API resta spento finche' non c'e' il permesso di 17Lands e del
+# proprietario. Per accenderlo servono ANCHE la policy `central_api` con
+# `api_permission` (comando `strumenti/dati-draft/politica.mjs`).
+# [vars]
+# MOX_DRAFT_API_DISTRIBUTION = "on"
+# MOX_17LANDS_RACCOLTA = "on"

@@ -19,6 +19,7 @@ import { configResearch, saluteResearch } from "./research/config.js";
 import { pulisciResearchScaduta } from "./research/retention.js";
 import { gestisciResearch } from "./research/rotte.js";
 import { politicaDatiEsterni } from "./politica-dati-esterni.js";
+import { gestisciDatiDraft } from "./dati-draft.js";
 
 const INTESTAZIONI = {
   "content-type": "application/json; charset=utf-8",
@@ -305,6 +306,11 @@ export default {
     if (indirizzo.pathname === "/mox/external-data-policy") {
       return politicaDatiEsterni(richiesta, ambiente);
     }
+
+    // Le statistiche Draft per i client (14/10/2026): solo GET, mai CORS, e
+    // 503 finche' il binding R2 dedicato non esiste.
+    const datiDraft = await gestisciDatiDraft(richiesta, ambiente, indirizzo);
+    if (datiDraft) return datiDraft;
 
     if (richiesta.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: INTESTAZIONI });
