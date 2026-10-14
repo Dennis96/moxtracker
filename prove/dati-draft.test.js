@@ -253,12 +253,20 @@ test("rotte: solo GET; le rotte esistenti non cambiano", async () => {
   assert.equal(r2.scritture.length, 0);
 });
 
-test("wrangler.toml non accende niente: binding, variabili e cron della raccolta stanno nel frammento", () => {
+test("wrangler.toml accende i dati Draft come dice il frammento (attivazione del 14/10/2026)", () => {
   const distribuzione = readFileSync(new URL("../src/dati-draft.js", import.meta.url), "utf8");
   assert.doesNotMatch(distribuzione, /17lands\.com/);
   const toml = readFileSync(new URL("../wrangler.toml", import.meta.url), "utf8");
-  assert.doesNotMatch(toml, /DRAFT_STATS|MOX_17LANDS_RACCOLTA|MOX_DRAFT_API_DISTRIBUTION/);
-  assert.ok(!toml.includes(CRON_RACCOLTA_17LANDS));
+  assert.match(toml, /binding = "DRAFT_STATS"\nbucket_name = "moxtracker-draft-stats"/);
+  assert.match(toml, /^MOX_DRAFT_API_DISTRIBUTION = "on"$/m);
+  assert.match(toml, /^MOX_17LANDS_RACCOLTA = "on"$/m);
+  assert.match(toml, /^crons = \[ "17 3 \* \* \*", "23 \* \* \* \*" \]$/m);
+  assert.ok(toml.includes(CRON_RACCOLTA_17LANDS));
+  // I binding produttivi restano quelli di prima, con i loro bucket.
+  for (const [binding, bucket] of [["DRAFT_RAW", "moxtracker-draft-raw"],
+    ["TICKET_FILES", "moxtracker-ticket-files"], ["MOX_RELEASES", "moxtracker-releases"]]) {
+    assert.match(toml, new RegExp(`binding = "${binding}"\\nbucket_name = "${bucket}"`));
+  }
   const frammento = readFileSync(new URL("../strumenti/dati-draft/wrangler-dati-draft.frammento.toml",
     import.meta.url), "utf8");
   assert.ok(frammento.includes(CRON_RACCOLTA_17LANDS));
