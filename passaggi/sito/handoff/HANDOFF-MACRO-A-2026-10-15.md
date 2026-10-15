@@ -216,3 +216,51 @@ fornito nella consegna finale, evitando un autoriferimento che lo cambierebbe.
 Entrambe le PR restano draft, aperte e non fuse; nessuna comunicazione a
 17Lands, release, deploy o cambio produzione. Worktree clean mantenute per
 review delle PR, evidenze locali fuori Git. LAVORI core senza occupazione fittizia.
+
+## File del diff consegnato
+
+Tracker, 39 file (elenco verificato contro Git):
+
+```text
+.github/workflows/news-verifica.yml
+STATO-CORRENTE-SITO.md
+config/news-fonti.json
+config/news-releases.json
+config/news-stable-receipts.json
+config/news-update-public-key.json
+passaggi/INDICE.md
+passaggi/sito/NEWS-SNAPSHOT-E-GATE.md
+passaggi/sito/handoff/HANDOFF-MACRO-A-2026-10-15.md
+prove/build-sito.test.js
+prove/frontend-privacy.test.js
+prove/news-build.check.mjs
+prove/news.test.js
+prove/prelancio-sito.test.js
+sito/account.html
+sito/admin.html
+sito/archetipo.html
+sito/cosa-invia-mox.html
+sito/css/redesign.css
+sito/download.html
+sito/draft.html
+sito/i18n/en.json
+sito/index.html
+sito/js/download.js
+sito/js/language-link.js
+sito/js/release-note.js
+sito/js/site-shell.js
+sito/js/translate.js
+sito/meta.html
+sito/note-versione.html
+sito/privacy.html
+sito/supporto.html
+src/dati-draft.js
+strumenti/build_sito.mjs
+strumenti/news/aggiorna.mjs
+strumenti/news/fonti.mjs
+strumenti/news/guide.mjs
+strumenti/news/modello.mjs
+strumenti/news/pagine.mjs
+```
+
+Core, solo sei Markdown: `STATUS.md`, `ARRETRATI.md`, `passaggi/coordinamento/INDICE.md`, `passaggi/coordinamento/REGISTRO-COPERTURA-MOX-AUDIT-DRAFT-OMEN-2026-10-14.md`, `passaggi/draft/STATO-DRAFT-CORRENTE.md`, `passaggi/release/PROCEDURA-CANONICA-RELEASE-MOX.md`. Nessun diff finale in `LAVORI.md`; nessun client/contratto congelato modificato.
