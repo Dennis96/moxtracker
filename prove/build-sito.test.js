@@ -64,7 +64,7 @@ test("la build del sito e' riproducibile e versiona l'intero grafo statico", () 
     "supporto.html", "privacy.html", "cosa-invia-mox.html", "note-versione.html"]) {
     const inglese = readFileSync(join(BUILD, "en", pagina), "utf8");
     assert.match(inglese, /<html lang="en"/);
-    assert.match(inglese, /\.\.\/js\/translate\.js\?v=/);
+    assert.match(inglese, /(?:\.\.\/|\/)js\/translate\.js\?v=/);
     assert.doesNotMatch(inglese, /(?:src|href)="\.\/assets\//,
       `${pagina}: asset non riscritto per /en/`);
   }

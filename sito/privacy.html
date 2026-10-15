@@ -17,7 +17,7 @@
     <nav class="nav" aria-label="Navigazione principale">
       <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
       <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
-      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Il mio MOX</a><a data-route="support" href="./supporto.html">Supporto</a></div><a class="nav-download" data-download href="#download">Scarica MOX</a>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="guides" href="./guide.html">Guide</a><a data-route="updates" href="./note-versione.html">Aggiornamenti</a><a data-route="account" href="./account.html">Il mio MOX</a><a data-route="support" href="./supporto.html">Supporto</a></div><a class="nav-download" data-download href="#download">Scarica MOX</a>
     </nav>
   </header>
 
@@ -31,14 +31,15 @@
         <span class="eyebrow">In breve</span>
         <h1 id="privacy-title">Privacy e dati</h1>
         <p>MOX funziona senza account e con tutte le condivisioni spente. Sei tu a scegliere separatamente se inviare Partite/Meta, Draft, Research o sincronizzare i mazzi nel tuo account.</p>
-        <div class="privacy-meta"><span>Aggiornata il 26 settembre 2026</span><span>Beta pubblica</span><span>Account facoltativo</span></div>
+        <div class="privacy-meta"><span>Revisione precedente: 26 settembre 2026. Disclosure A141 pubblicata il 6 ottobre 2026. Candidata del 15 ottobre 2026: data finale di pubblicazione da confermare dal titolare.</span><span>Beta pubblica</span><span>Account facoltativo</span></div>
       </div>
     </section>
 
     <section class="privacy-content" aria-label="Informativa privacy MOX">
+      <article class="panel privacy-section"><h2>Percorsi e flussi in breve</h2><nav aria-label="Indice Privacy"><a href="#uso-locale">Uso locale</a> · <a href="#contributi">Contributi</a> · <a href="#account-mazzi">Account/mazzi</a> · <a href="#supporto">Supporto</a></nav><div class="table-scroll" tabindex="0" role="region" aria-label="Matrice dei flussi dati"><table><thead><tr><th scope="col">Dato/flusso</th><th scope="col">Locale/remoto</th><th scope="col">Scelta</th><th scope="col">Durata documentata</th><th scope="col">Revoca/cancellazione</th></tr></thead><tbody><tr><th scope="row">Uso locale e Player.log</th><td>Sul PC; diagnostica selezionata a parte</td><td>Condivisioni spente consentite</td><td>Copie locali gestite dall’utente</td><td>La cancellazione remota non cancella le copie locali</td></tr><tr><th scope="row">Partite/Meta e Draft</th><td>Contributi pseudonimi remoti</td><td>Consenso separato per funzione</td><td>730 giorni dalla ricezione; manutenzione a cicli</td><td>Stop nuovi invii e comando di cancellazione nelle Opzioni</td></tr><tr><th scope="row">Research</th><td>Fatti osservabili remoti post-consenso</td><td>Consenso Research separato</td><td>730 giorni dalla prima ricezione; manutenzione a cicli</td><td>Revoca e cancellazione sono azioni separate</td></tr><tr><th scope="row">Account e mazzi</th><td>Area privata remota; copie locali distinte</td><td>Account facoltativo; Sync con consenso separato</td><td>Account fino a eliminazione; sessioni massimo 30 giorni</td><td>Export e cancellazione nell’account</td></tr><tr><th scope="row">Supporto e allegati</th><td>Ticket e archivio privati remoti</td><td>Servizio richiesto; allegati e email facoltativi</td><td>Ticket chiuso 365 giorni; allegati 90 giorni dalla chiusura</td><td>Contatto privacy e comandi del servizio; conservare il link segreto</td></tr><tr><th scope="row">Richieste tecniche, sito e fonti</th><td>MOX, GitHub, Scryfall e servizi descritti sotto</td><td>Necessarie alla funzione richiesta; non attivano condivisioni</td><td>Durate dei log provider e backup da confermare dal titolare</td><td>Diritti e contatto privacy; dettagli sui fornitori sotto</td></tr></tbody></table></div><p><a href="#contributi">Dettaglio contributi</a> · <a href="#conservazione">Durate e manutenzione</a> · <a href="#revoca">Revoca e cancellazione</a> · <a href="#fornitori">Servizi e fornitori</a></p></article><article class="panel privacy-section" id="uso-locale"><h2>Richieste tecniche e fonti statistiche</h2><p>I contributi volontari sono distinti dalle richieste tecniche. Anche con tutte le condivisioni spente, MOX può controllare versione e aggiornamenti, scaricare statistiche e dati delle carte; sito, account e download usano i servizi richiesti. Le immagini delle carte autorizzate possono essere richieste a Scryfall. Queste richieste possono comunicare ai servizi i normali dati tecnici di connessione, ma non attivano un consenso ai contributi di gioco.</p><p>Stable 2.11.8 segue il percorso legacy delle statistiche, con richieste dirette a 17Lands controllate dalla policy. Canary 2.11.9 scarica gli aggregati dal servizio MOX: central_api ammette gli aggregati API e i ripieghi pubblici, public_only solo Public Data Sets, off esclude le statistiche esterne. La fonte effettiva, il formato e l’età dei dati possono variare; cache e ripieghi dipendono dalla policy e dalla versione installata.</p><p>La pipeline centralizzata raccoglie aggregati statistici e non inoltra a 17Lands i contributi personali dei giocatori. La decisione del proprietario di usare central_api non costituisce permesso di 17Lands. Attribuzione, licenze dei Public Data Sets e condizioni dei dati API restano distinte.</p><p><a href="./guide/dati-draft">Guida alle fonti e disponibilità dati</a></p></article>
       <article class="panel privacy-section">
         <h2>Le risposte essenziali</h2>
-        <p><strong>Che cosa esce dal PC?</strong> Solo i dati delle funzioni che attivi nelle Opzioni. I contributi di gioco non contengono il tuo nome o account Arena, password, chat o informazioni nascoste dell'avversario. Sono associati a un identificatore tecnico casuale, così puoi richiederne la cancellazione.</p>
+        <p><strong>Che cosa esce dal PC?</strong> I contributi volontari partono solo per le funzioni che attivi nelle Opzioni. Le richieste tecniche per aggiornamenti, dati, download e servizi sono distinte e possono avvenire anche con le condivisioni spente. I contributi di gioco non contengono il tuo nome o account Arena, password, chat o informazioni nascoste dell'avversario. Sono associati a un identificatore tecnico casuale, così puoi richiederne la cancellazione.</p>
         <p><strong>Per quanto tempo?</strong> Dopo circa due anni dalla ricezione sul server, la manutenzione programmata avvia la cancellazione dei contributi Partite/Meta e Draft; per Research conta la prima ricezione. Se c'è arretrato, il completamento può richiedere più cicli. Puoi interrompere gli invii; per Research, la revoca del consenso e la cancellazione dei dati restano azioni separate.</p>
         <p><strong>Che cosa può diventare pubblico?</strong> Statistiche del Meta e del Draft e, dopo almeno 30 partite della stessa variante, una decklist osservata esatta. Anche una sola installazione può raggiungere la soglia: una lista riconoscibile potrebbe quindi essere collegata indirettamente a un giocatore. Il sito non mostra nome, installazione o cronologia personale.</p>
         <p><strong>Come interrompo gli invii?</strong> Spegni le singole scelte in <strong>MOX → Opzioni → Dati e privacy</strong>. Puoi cancellare Partite e Draft da lì; per Research esiste un comando separato. Nell'area personale puoi esportare i dati e cancellare account o singole sezioni. Per richieste riservate scrivi a <a href="mailto:privacy@moxtracker.app">privacy@moxtracker.app</a>.</p>
@@ -63,7 +64,7 @@
       </article>
 
       <article class="panel privacy-section">
-        <h2>Quali dati invia MOX</h2>
+        <h2 id="contributi">Quali dati invia MOX</h2>
         <p>Partite, Draft e Research hanno consensi separati, tutti spenti alla prima installazione. Attivarne uno non attiva gli altri e non invia retroattivamente ciò che è stato registrato mentre era spento.</p>
         <h3>Partite</h3>
         <ul>
@@ -106,15 +107,15 @@
       </article>
 
       <article class="panel privacy-section">
-        <h2>Account e ticket facoltativi</h2>
+        <h2 id="account-mazzi">Account e ticket facoltativi</h2>
         <p>Se accedi, conserviamo soltanto l'identificativo del provider OAuth, il nome visualizzato e l'avatar. Non chiediamo né conserviamo l'email di Google o Discord. Questi dati servono solo ad autenticare la dashboard privata e non entrano nel meta pubblico.</p>
         <p>Collegare l'Account MOX non abilita «Mazzi nel tuo account». Solo se attivi separatamente questa sincronizzazione MOX invia i tuoi mazzi, inclusi i nomi, all'area privata dell'account; non li usa per le statistiche pubbliche.</p>
         <p>Un'installazione viene collegata all'account soltanto con un codice monouso e con la prova del segreto locale di quell'installazione, anche se l'utente non invia contributi. I ticket autenticati restano nell'account; quelli anonimi sono accessibili con un link segreto e protetti da Turnstile. Le notifiche email sono facoltative: l'indirizzo viene chiesto solo per il singolo ticket, dopo una spunta esplicita e una conferma dal messaggio ricevuto. Le email non contengono testo o allegati del ticket, ma un link privato per aprirlo; l'indirizzo e i relativi token vengono eliminati con il ticket.</p>
-        <p>Gli screenshot e i pacchetti diagnostici MOX restano in un archivio R2 privato. Un pacchetto può contenere <code>Player.log</code> soltanto quando l'utente lo ha selezionato esplicitamente in MOX; è disponibile solo al proprietario del ticket e agli amministratori del supporto, mai nel Meta pubblico.</p>
+        <p id="supporto">Gli screenshot e i pacchetti diagnostici MOX restano in un archivio R2 privato. Un pacchetto può contenere <code>Player.log</code> soltanto quando l'utente lo ha selezionato esplicitamente in MOX; è disponibile solo al proprietario del ticket e agli amministratori del supporto, mai nel Meta pubblico.</p>
       </article>
 
       <article class="panel privacy-section">
-        <h2>Dove, per quanto tempo e quando pubblichiamo</h2>
+        <h2 id="conservazione">Dove, per quanto tempo e quando pubblichiamo</h2>
         <p>Cloudflare ospita il servizio e i database D1. La soglia di scadenza dei contributi pseudonimizzati Partite/Meta e Draft è di 730 giorni dalla ricezione sul server; per Research è di 730 giorni dalla prima ricezione, anche se il contributo viene aggiornato. La manutenzione programmata avvia la cancellazione dei contributi scaduti: elimina partite, indici Draft e relative tracce complete nel bucket R2 privato, oltre ai contributi Research e ai dati direttamente collegati. In presenza di arretrato o di un'interruzione, il completamento può richiedere più cicli. L'identificativo di un contributo Research cancellato per scadenza resta soppresso per impedirne il reinvio. La scadenza non revoca il consenso Research: puoi continuare a inviare nuove partite, revocare il consenso o chiedere la cancellazione separatamente. I dati pubblici sono ricalcolati dai contributi ancora conservati. Gli allegati dei ticket chiusi vengono eliminati dopo 90 giorni e l'intero ticket chiuso dopo 365 giorni. Le sessioni account durano al massimo 30 giorni; stati OAuth e codici monouso di collegamento scadono dopo 10 minuti. I dati dell'account restano fino alla sua eliminazione.</p>
         <p>Le statistiche pubbliche restano soggette a soglie minime. Una percentuale Draft richiede almeno 100 pick e un risultato di gioco almeno 30 match collegati; il meta non mostra percentuali sotto 30 partite.</p>
         <p>Una decklist completa può diventare pubblica quando la stessa variante raggiunge almeno 30 partite, anche se i contributi provengono da una sola installazione. Il sito non pubblica il nome, l'account Arena, l'identificatore dell'installazione o la cronologia personale del giocatore. Una lista riconoscibile può comunque consentire un collegamento indiretto.</p>
@@ -122,7 +123,7 @@
       </article>
 
       <article class="panel privacy-section">
-        <h2>Revoca e cancellazione</h2>
+        <h2 id="revoca">Revoca e cancellazione</h2>
         <p>Spegnere un consenso interrompe gli invii futuri e svuota la relativa coda online, senza cancellare le statistiche personali salvate sul PC.</p>
         <p>Il comando <strong>“Cancella dal sito partite e Draft”</strong> nelle Opzioni di MOX elimina i contributi associati a quell'installazione dai database e da R2. Le copie locali restano sul computer dell'utente.</p>
         <p>Per Research puoi ritirare il consenso e richiedere la cancellazione separatamente. Se il servizio non conferma subito la revoca o la cancellazione, MOX conserva la richiesta e la ritenta, anche dopo un riavvio, finché viene confermata.</p>
@@ -137,13 +138,14 @@
       </article>
 
       <article class="panel privacy-section">
-        <h2>Destinatari, fornitori e trasferimenti</h2>
+        <h2 id="fornitori">Destinatari, fornitori e trasferimenti</h2>
         <p>I dati possono essere trattati, nei limiti necessari al servizio, dai fornitori tecnici indicati di seguito e dalle persone autorizzate a gestire il supporto. Non vendiamo dati personali.</p>
         <ul>
           <li><strong>Cloudflare</strong>: Pages, Workers, database D1, archivi R2, Turnstile e Web Analytics; infrastruttura, sicurezza, protezione antiabuso e statistiche del sito.</li>
           <li><strong>Google e Discord</strong>: provider OAuth scelti dall'utente per l'accesso; MOX richiede un identificativo, nome visualizzato e avatar, non l'email.</li>
           <li><strong>Resend</strong>: invio delle notifiche email del ticket, soltanto se richieste.</li>
           <li><strong>Scryfall</strong>: API e immagini carte richieste direttamente dal browser nelle pagine abilitate.</li>
+          <li><strong>17Lands</strong>: fonte degli aggregati Draft; richieste dirette del client legacy e acquisizione centralizzata MOX sono percorsi distinti.</li>
           <li><strong>GitHub</strong>: distribuzione delle release e consultazione dei download; le pagine pubbliche del repository sono esterne a MOX.</li>
         </ul>
         <p>Alcuni fornitori possono trattare dati fuori dallo Spazio economico europeo. Quando applicabile, il trasferimento si basa su una decisione di adeguatezza, sul Data Privacy Framework UE-USA per i soggetti aderenti o sulle clausole contrattuali standard della Commissione europea e relative misure supplementari. Informazioni o copie delle garanzie applicabili possono essere richieste al contatto privacy.</p>

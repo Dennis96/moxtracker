@@ -1,8 +1,23 @@
 # Stato corrente — sito Mox
 
+## Candidata Macro A — 15/10/2026, non pubblicata
+
+Branch `claude/mox-site-news-guides-privacy-2026-10-14`, base remota verificata
+`a08ee510152044b544ecdec014dd0876fd3920b0`. News da snapshot GitHub, Guide
+IT/EN, menu e Privacy candidata: [procedura e gate](passaggi/sito/NEWS-SNAPSHOT-E-GATE.md),
+[resoconto e acceptance](passaggi/sito/handoff/HANDOFF-MACRO-A-2026-10-15.md).
+**OWNER APPROVAL REQUIRED** per copy Privacy e data finale; review indipendente
+successiva. Nessun merge/preview remota/deploy Pages o Worker/release. Il sito
+production resta quello descritto sotto, build `83b81f0227530856`.
+
+Baseline Git corrente al preflight: tracker `a08ee510152044b544ecdec014dd0876fd3920b0`
+(PR #41 documentale, dopo codice PR #40 `5eb5cb0`). Stable **2.11.8**,
+Canary **2.11.9**, campo tester pendente. I paragrafi datati seguenti conservano
+le osservazioni operative storiche e non attestano pubblicazione della candidata.
+
 ## Riferimento corrente — 14/10/2026
 
-`moxtracker/main` = `5eb5cb04376d8b9e079ef00a4e1d951ce3f2d025`, merge commit della PR [#40](https://github.com/Dennis96/moxtracker/pull/40) (dati Draft centralizzati e rinnovo della qualification Research; secondo genitore `9e50ec59`, albero identico). **Stable e Canary MOX Beta 2.11.8**; **Canary MOX Beta 2.11.9** dal 14/10/2026 (client senza chiamate dirette a 17Lands; installer `39f84dc6…`, manifesto `33041aaf…` sul solo `MOX_RELEASE_MANIFEST_CANARY`: Worker **`47f9b73e-6833-4d67-a7bc-5f01947ac48a`**, rollback `4bdade31` = Canary 2.11.8 `6e0de52a…`; Canary reale 16/16; [handoff](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.9-2026-10-14.md)).
+`moxtracker/main` di integrazione = `5eb5cb04376d8b9e079ef00a4e1d951ce3f2d025`, merge commit della PR [#40](https://github.com/Dennis96/moxtracker/pull/40), seguito dalla chiusura documentale #41 `a08ee510152044b544ecdec014dd0876fd3920b0`. **Stable MOX Beta 2.11.8**; **Canary MOX Beta 2.11.9** dal 14/10/2026 (client senza chiamate dirette a 17Lands; installer `39f84dc6…`, manifesto `33041aaf…` sul solo `MOX_RELEASE_MANIFEST_CANARY`: Worker **`47f9b73e-6833-4d67-a7bc-5f01947ac48a`**, rollback `4bdade31` = Canary 2.11.8 `6e0de52a…`; Canary reale 16/16; [handoff](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.9-2026-10-14.md)).
 
 ## Dati Draft centralizzati — production, 14 ottobre 2026
 

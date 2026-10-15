@@ -726,7 +726,7 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
   .phase-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 1100px) {
   :root { --shell: calc(100% - 40px); --page: calc(100% - 40px); }
   .nav { position: relative; height: 64px; gap: 12px; }
   .nav-toggle { display: inline-flex; align-items: center; gap: 7px; margin-left: auto; }
@@ -778,6 +778,18 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
   .mobile-meta { display: block; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; }
   .account-heading { display: grid; gap: 12px; }
 }
+
+/* Il menu unico contiene Guide, Aggiornamenti e Supporto anche su tablet. */
+@media (max-width: 760px) { .nav { min-height: 64px; } }
+.privacy-content, .privacy-section { min-width: 0; }
+.privacy-section { overflow-wrap: anywhere; scroll-margin-top: 90px; }
+.release-body pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.release-list li { margin-block: 12px; }
+.table-scroll { max-width: 100%; overflow-x: auto; }
+.table-scroll table { width: 100%; border-collapse: collapse; }
+.table-scroll th, .table-scroll td { padding: 10px; text-align: left; border-bottom: 1px solid var(--line); }
+.release-warning { border-left: 3px solid #e5b35b; padding-left: 16px; }
+.download-status { max-width: 100%; padding: 12px 20px; overflow-wrap: anywhere; color: var(--text); }
 
 @media (max-width: 480px) {
   .nav-links .language-link { align-self: flex-start; }
