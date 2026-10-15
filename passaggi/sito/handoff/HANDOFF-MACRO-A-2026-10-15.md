@@ -11,7 +11,7 @@ remota, deploy Pages/Worker, release, migrazione, secret o dato produzione.
 |---|---|---|
 | tracker | `a08ee510152044b544ecdec014dd0876fd3920b0` | `claude/mox-site-news-guides-privacy-2026-10-14` |
 | core | `67c683e36e5ee82beeb85e21effc6677991028c2` | `claude/mox-canonics-audit-draft-omen-2026-10-14` |
-| meta | `7057c8d418e331e19f45fc6b1711ee9aaf934e28` da verifica remota iniziale/audit | generated-only, nessuna modifica |
+| meta | `7057c8d418e331e19f45fc6b1711ee9aaf934e28`, riconfermato con ls-remote alla chiusura | generated-only, nessuna modifica |
 
 Primari tracker/core inizialmente puliti; nessuna PR aperta concorrente al
 preflight. Nessuno stash/reset/pull/force push, nessun checkout primario usato
@@ -100,7 +100,7 @@ Tracker: stato/indice aggiornati e solo commento binding R2 in `src/dati-draft.j
 | 6 | A06: workflow read-only, acquisizione/build senza deploy | PASS, gate separati |
 | 7 | A07 + news-build: vecchi ingressi, link/ancore, canonical/hreflang/sitemap | PASS locale |
 | 8 | A08 + browser: 56 viewport/pagina, 6 percorsi Tab/Escape/focus | PASS locale; zoom reale 200% CONDITIONAL |
-| 9 | A09/R01–R07: Latest, duplicati, tombstone, schema, XSS, token | PASS offline; CI remota da leggere sulla PR |
+| 9 | A09/R01–R08: Latest, duplicati, tombstone, schema, XSS, token | PASS offline; CI remota verde sul commit codice |
 | 10 | A10/R01: Latest divergente, rollback, fonte non verificabile, richieste successive | PASS, storia distinta e CTA bloccata |
 | 11 | A11: body unico IT/EN, provenance/ricevuta e checklist fonti/Privacy | PASS procedura candidata; approvazione titolare CONDITIONAL |
 | 12 | A12: nessuna automazione deploy/polling o ampliamento permessi | PASS, Pages richiede mandato separato |
@@ -129,14 +129,35 @@ News/fonti, UI/build/download e copy/test/canonici, adattata all’ambiente senz
 modelli Claude. Rilievi trovati e corretti: cache dopo rollback; tombstone
 ricomparsa solo prerelease; delimitatori CRLF; confronto completo/biunivoco
 cache; validazione fonte prima di rename; test vincolati al bootstrap; riuso
-messaggi download. Regressioni R01–R07. La review locale non sostituisce il
+messaggi download. Regressioni R01–R08. La review locale non sostituisce il
 gate indipendente in nuova chat richiesto dopo questa consegna.
 
-Prove finora: suite canonica 615/615 prima del delta review; News 24/24 dopo
-regressioni. Build di produzione offline e controllo link/SEO passati; prove
-finali su HEAD di consegna e SHA/push/PR registrati nell’appendice di chiusura.
+Prove sul commit di codice finale `ff129d675aca75d0a932dbf636307214732ad54a`:
+suite canonica **623/623**, nessun fallimento/skip; News **25/25** incluse.
+Build di produzione offline e controllo link/SEO **4 PASS + 1 skip** specifico
+della preview; preview locale simulata **5/5 PASS**, inclusi HTML/robots/header
+noindex. Due build successive con medesimo snapshot identiche: production
+`efc9f33a7ac3f901`, preview `54774ca7520b2d4a`, 163 file. SHA-256 del manifesto
+delle due build production sul commit codice:
+`ea67d8b0d92e3896655fd4a32af6fdf452abeb9813b1071e3bc4e36d24bfc6a2`.
+Il manifesto contiene lo SHA Git: una successiva chiusura solo documentale
+cambia quel campo, non i 163 hash degli artefatti. Verifica HEAD finale nella
+consegna/PR; nessun codice o snapshot cambiato dopo questo commit.
 Il primo tentativo nel sandbox falliva sul test loopback preesistente: esecuzione
 fuori sandbox 615/615. Nessun Worker cambiato per mascherare un errore di ambiente.
+
+CI GitHub `verifica`: [success sul commit codice](https://github.com/Dennis96/moxtracker/actions/runs/38792113505/job/116619031756).
+Il job è stato letto tramite il connettore Code Review, HEAD
+`ff129d675aca75d0a932dbf636307214732ad54a`. Chiusura successiva soltanto Markdown.
+
+Review testuale Privacy separata:
+
+| Classe | Evidenza/limite |
+|---|---|
+| Comportamento attestato | Testi/contratti correnti, client rilasciato, test esistenti e manifesti pubblici; consensi separati, fonti per versione e durate già documentate |
+| Non verificato | Backup/log provider, cancellazione reale, installazione desktop o Draft nuovo; nessuna certificazione GDPR |
+| Proposta editoriale | Sintesi flussi, indice, precisazione rete/fonti e cronologia revisioni IT/EN |
+| Approvazione richiesta | Titolare su copy e data effettiva prima della pubblicazione; gate distinto dalla review del codice |
 
 Nessuna dipendenza aggiunta e lockfile invariato. Installazione isolata con
 `npm ci --ignore-scripts` del lock esistente: npm segnala 4 vulnerabilità high
@@ -181,3 +202,17 @@ review delle PR e prove locali, poi proponibili al cleanup con mandato separato.
 - [Audit originale immutabile](https://github.com/Dennis96/moxtracker/blob/9e76015cbe9f88b24da9dc3eb88544912a8add91/passaggi/sito/audit/AUDIT-DRAFT-OMEN-VS-MOX-PRIVACY-DOCS-NEWS-2026-10-14.md).
 - [Procedura News e gate](../NEWS-SNAPSHOT-E-GATE.md).
 - [Registro unico A–F candidato core](https://github.com/Dennis96/mox-core/blob/claude/mox-canonics-audit-draft-omen-2026-10-14/passaggi/coordinamento/REGISTRO-COPERTURA-MOX-AUDIT-DRAFT-OMEN-2026-10-14.md).
+
+## Chiusura Git e PR
+
+| Oggetto | SHA completo / PR |
+|---|---|
+| Codice tracker, snapshot e prove | `ff129d675aca75d0a932dbf636307214732ad54a` — [PR draft #42](https://github.com/Dennis96/moxtracker/pull/42) |
+| Canonici core + registro di consegna | `a4b184c30d52f2652b31ca3218e0723d66854124` — [PR draft #41](https://github.com/Dennis96/mox-core/pull/41) |
+
+Push verificato con confronto HEAD/ls-remote. Il presente aggiornamento
+documentale chiude il report sul branch tracker: il suo SHA immutabile è
+fornito nella consegna finale, evitando un autoriferimento che lo cambierebbe.
+Entrambe le PR restano draft, aperte e non fuse; nessuna comunicazione a
+17Lands, release, deploy o cambio produzione. Worktree clean mantenute per
+review delle PR, evidenze locali fuori Git. LAVORI core senza occupazione fittizia.
