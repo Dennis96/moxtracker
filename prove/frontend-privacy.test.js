@@ -93,8 +93,8 @@ test("navigazione primaria e menu mobile sono uniformi in tutte le pagine", () =
     const nav = html.match(/<div id="primary-nav" class="nav-links">([\s\S]*?)<\/div>/)?.[1] || "";
     assert.match(html, /<body[^>]*data-page="[^"]+"[^>]*>/);
     assert.match(html, /id="nav-toggle"[^>]+aria-controls="primary-nav"[^>]+aria-expanded="false"/);
-    assert.equal((nav.match(/data-route=/g) || []).length, 6);
-    assert.doesNotMatch(nav, />Guide</);
+    assert.equal((nav.match(/data-route=/g) || []).length, 7);
+    assert.match(nav, />Guide</);
     assert.match(nav, />Aggiornamenti</);
     assert.match(nav, />Home</);
     assert.match(nav, />Meta</);

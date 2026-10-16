@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { aggiungiBeaconAnalytics, TOKEN_ANALYTICS_PREVIEW,
   TOKEN_ANALYTICS_PRODUZIONE } from "./analytics_sito.mjs";
-import { generaPagine, approfondimentiDraft } from "./news/pagine.mjs";
+import { generaPagine } from "./news/pagine.mjs";
 import { escapeHtml } from './news/modello.mjs';
 
 const RADICE = fileURLToPath(new URL("..", import.meta.url));
@@ -249,10 +249,7 @@ async function main() {
   const generate = generaPagine(snapshot, fonti, chiave);
   const sommarioHome = `<span data-home-release> · MOX ${escapeHtml(fonti.channels.stable.data.versione.replace('2 beta ', ''))}</span>`;
   contenuti.set('index.html', Buffer.from(contenuti.get('index.html').toString('utf8').replace('<span data-home-release></span>', sommarioHome)));
-  const draft = contenuti.get('draft.html').toString('utf8');
-  contenuti.set('draft.html', Buffer.from(draft.replace('<!-- approfondimenti-draft -->', approfondimentiDraft(fonti))));
-  for (const nome of ['index.html', 'draft.html']) hashSorgente.update(nome).update('\0').update(contenuti.get(nome)).update('\0');
-  hashSorgente.update('draft-approfondimenti-en\0').update(approfondimentiDraft(fonti, true)).update('\0');
+  hashSorgente.update('home-con-versione\0').update(contenuti.get('index.html')).update('\0');
   const modello = contenuti.get('note-versione.html').toString('utf8');
   const traduzioniGenerate = JSON.parse(contenuti.get('i18n/en.json').toString('utf8'));
   for (const [id, pagina] of generate) {
@@ -320,7 +317,6 @@ async function main() {
     const destinazione = join(uscitaRisolta, relativo);
     await mkdir(dirname(destinazione), { recursive: true });
     let tradotta = aggiungiSeo(paginaInglese(corpo.toString("utf8"), traduzioni, nome), nome, "en");
-    if (nome === 'draft.html') tradotta = tradotta.replace(/<section class="draft-help"[\s\S]*?<\/section>/, approfondimentiDraft(fonti, true));
     tradotta = aggiungiBeaconAnalytics(tradotta, analyticsToken);
     const uscita = Buffer.from(trasforma(tradotta, ".html", buildId));
     await writeFile(destinazione, uscita);

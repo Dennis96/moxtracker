@@ -1072,5 +1072,13 @@
   ": fonte degli aggregati Draft; richieste dirette del client legacy e acquisizione centralizzata MOX sono percorsi distinti.": ": Draft aggregate source; direct legacy-client requests and centralized MOX acquisition are separate paths.",
   "17Lands": "17Lands",
   "La versione 2.11.8 può richiedere le statistiche direttamente a 17Lands, secondo la policy del servizio. Il percorso delle richieste, la fonte, il formato e l’età dei dati dipendono dalla versione installata e dalla policy: controlla le informazioni mostrate nel client. Quando le statistiche esterne sono disabilitate restano disponibili i metadati delle carte e le regole locali.": "Version 2.11.8 may request statistics directly from 17Lands, according to service policy. Request paths, source, format and data age depend on the installed version and policy: check the information shown in the client. When external statistics are disabled, card metadata and local rules remain available.",
-  "Fonti e disponibilità dei dati Draft": "Draft data sources and availability"
+  "Fonti e disponibilità dei dati Draft": "Draft data sources and availability",
+  "Guide": "Guides",
+  "Come funzionano i consigli": "How recommendations work",
+  "MOX combina i dati delle carte con i colori e la curva del tuo pool. La scelta resta tua.": "MOX combines card data with the colors and curve of your pool. The choice is yours.",
+  "Durante le scelte": "During your picks",
+  "Il punteggio MOX tiene conto del contesto: non è una percentuale di vittoria. Fonte e campione aiutano a leggere i dati; un valore mancante non significa zero.": "The MOX score takes context into account: it is not a win percentage. Source and sample help you read the data; a missing value does not mean zero.",
+  "Quando costruisci il mazzo": "When building your deck",
+  "Confronta le combinazioni di colori e scegli le terre. La proposta è un punto di partenza: ricontrolla curva e costi di mana prima di giocare.": "Compare color combinations and choose your lands. The proposal is a starting point: check the curve and mana costs before playing.",
+  "Come usare l’assistente Draft →": "How to use the Draft assistant →"
 }

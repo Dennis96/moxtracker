@@ -15,6 +15,7 @@ const percorsi = {
   download: "./download.html",
   account: "./account.html",
   support: "./supporto.html",
+  guides: "./guide.html",
   updates: "./note-versione.html",
 };
 

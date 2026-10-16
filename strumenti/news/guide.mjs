@@ -1,4 +1,4 @@
-// Approfondimenti IT/EN integrati nella pagina Draft, senza sezione separata.
+// Contenuti IT/EN della pagina Guide, organizzati in tre percorsi.
 // Un refresh dei manifesti non certifica automaticamente questi contenuti.
 export const REVISIONE_DRAFT = { versione: '2.11.8', verificata_il: '2026-10-15' };
 export const GUIDE = [

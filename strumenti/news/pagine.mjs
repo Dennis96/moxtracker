@@ -78,12 +78,18 @@ export function generaPagine(snapshot, fonti, key) {
       corpo += '<p><a href="' + e(r.html_url) + '" rel="noopener noreferrer">' + (en ? 'Original GitHub release' : 'Release GitHub originale') + ' →</a></p><details class="release-metadata"><summary>' + (en ? 'Source details' : 'Dettagli della fonte') + '</summary><p>ID ' + r.id + ' · <code>' + e(r.tag_name) + '</code></p><p>SHA-256 body: <code>' + r.body_sha256 + '</code></p><p>' + (en ? 'Client source commit' : 'Commit sorgente client') + ': <code>' + e(r.source_commit || (en ? 'not attested' : 'non attestato')) + '</code></p>' + r.assets.map(a => '<p>' + e(a.name) + ' · ' + a.size + ' byte · <code>' + e(a.digest || 'n.d.') + '</code></p>').join('') + '</details>';
       pagine.set(lingua + '/note-versione/' + slugRelease(r) + '.html', { title: r.name, page: 'updates', main: '<div class="news-page news-detail"><header class="news-head"><p class="news-eyebrow">News</p><h1>' + e(r.name) + '</h1></header><article class="release-card">' + corpo + '</article></div>' });
     }
+    pagine.set(lingua + '/guide.html', { title: en ? 'MOX guides' : 'Guide MOX', page: 'guides', main: paginaGuide(fonti, en) });
   }
   return pagine;
 }
 
-export function approfondimentiDraft(fonti, en = false) {
+export function paginaGuide(fonti, en = false) {
   const prefisso = en ? '/en' : '';
+  const gruppi = [
+    { id: 'inizia-mox', titolo: en ? 'Start with MOX' : 'Inizia con MOX', descrizione: en ? 'Install the app, connect Arena and keep MOX up to date.' : 'Installa il programma, collega Arena e tieni MOX aggiornato.', slugs: ['inizia', 'registri-arena', 'aggiornamenti'] },
+    { id: 'usa-draft', titolo: en ? 'Use Draft' : 'Usa il Draft', descrizione: en ? 'From your first pack to reading recommendations and building your deck.' : 'Dalla prima busta ai consigli, fino al mazzo finale.', slugs: ['primo-draft', 'consigli-draft', 'mazzo-draft'] },
+    { id: 'dati-privacy', titolo: en ? 'Data and privacy' : 'Dati e privacy', descrizione: en ? 'Understand the sources and choose what you share.' : 'Capisci le fonti e scegli che cosa condividere.', slugs: ['dati-draft', 'dati-account'] },
+  ];
   const domande = {
     'inizia': ['Come installo MOX?', 'How do I install MOX?'],
     'registri-arena': ['Come collego Arena?', 'How do I connect Arena?'],
@@ -92,7 +98,13 @@ export function approfondimentiDraft(fonti, en = false) {
     'mazzo-draft': ['Come scelgo il mazzo finale?', 'How do I choose my final deck?'],
     'dati-account': ['Che cosa condivido?', 'What do I share?'],
   };
-  return '<section class="draft-help" aria-labelledby="draft-help-title"><div class="part-head"><h2 id="draft-help-title">' + (en ? 'Draft, explained simply.' : 'Il Draft, spiegato semplice.') + '</h2><p>' + (en ? 'From your first pack to your final deck. Open the answer you need.' : 'Dalla prima busta al mazzo finale. Apri solo la risposta che ti serve.') + '</p><p class="fineprint">MOX ' + e(REVISIONE_DRAFT.versione) + ' · ' + (en ? 'Content checked on ' : 'Contenuti verificati il ') + '<time datetime="' + e(REVISIONE_DRAFT.verificata_il) + '">' + e(data(REVISIONE_DRAFT.verificata_il, en)) + '</time> (UTC).</p></div><div class="draft-answers">' + GUIDE.map(([slug, it, inglese, sezioni]) => '<details class="draft-answer" id="' + slug + '"><summary>' + e(domande[slug]?.[en ? 1 : 0] || (en ? inglese : it)) + '</summary><div class="draft-answer-body">' + sezioni.map(([hi, he, pi, pe]) => '<h3>' + e(en ? he : hi) + '</h3><p>' + e(en ? pe : pi) + '</p>').join('') + (slug === 'dati-draft' ? tabellaDati(fonti, en) : '') + (slug === 'inizia' ? '<p><a href="' + prefisso + '/download">' + (en ? 'Installation instructions →' : 'Procedura di installazione →') + '</a></p>' : '') + '</div></details>').join('') + '</div><p class="draft-help-links"><a href="' + prefisso + '/supporto">' + (en ? 'Need help?' : 'Ti serve una mano?') + '</a> · <a href="' + prefisso + '/privacy">Privacy</a> · <a href="' + prefisso + '/note-versione">' + (en ? 'Updates' : 'Aggiornamenti') + '</a></p></section>';
+  const schede = gruppi.map(g => '<a class="guide-card" href="#' + g.id + '"><h2>' + e(g.titolo) + '</h2><p>' + e(g.descrizione) + '</p><span aria-hidden="true">→</span></a>').join('');
+  const risposte = slugs => slugs.map(slug => {
+    const [, it, inglese, sezioni] = GUIDE.find(r => r[0] === slug);
+    return '<details class="draft-answer" id="' + slug + '"><summary>' + e(domande[slug]?.[en ? 1 : 0] || (en ? inglese : it)) + '</summary><div class="draft-answer-body">' + sezioni.map(([hi, he, pi, pe]) => '<h3>' + e(en ? he : hi) + '</h3><p>' + e(en ? pe : pi) + '</p>').join('') + (slug === 'dati-draft' ? tabellaDati(fonti, en) : '') + (slug === 'inizia' ? '<p><a href="' + prefisso + '/download">' + (en ? 'Installation instructions →' : 'Procedura di installazione →') + '</a></p>' : '') + '</div></details>';
+  }).join('');
+  const contenuti = gruppi.map(g => '<section class="guide-group" id="' + g.id + '" aria-labelledby="' + g.id + '-title"><h2 id="' + g.id + '-title">' + e(g.titolo) + '</h2><div class="draft-answers">' + risposte(g.slugs) + '</div></section>').join('');
+  return '<div class="guide-page"><header class="guide-head"><h1>' + (en ? 'MOX guides' : 'Guide MOX') + '</h1><p>' + (en ? 'Find the answer you need. From installation to your next Draft.' : 'Trova la risposta che ti serve. Dall’installazione al prossimo Draft.') + '</p></header><nav class="guide-cards" aria-label="' + (en ? 'Choose a topic' : 'Scegli un argomento') + '">' + schede + '</nav>' + contenuti + '<p class="guide-revision">MOX ' + e(REVISIONE_DRAFT.versione) + ' · ' + (en ? 'Content checked on ' : 'Contenuti verificati il ') + '<time datetime="' + e(REVISIONE_DRAFT.verificata_il) + '">' + e(data(REVISIONE_DRAFT.verificata_il, en)) + '</time> (UTC).</p><p class="draft-help-links"><a href="' + prefisso + '/supporto">' + (en ? 'Need help?' : 'Ti serve una mano?') + '</a> · <a href="' + prefisso + '/privacy">Privacy</a> · <a href="' + prefisso + '/note-versione">' + (en ? 'Updates' : 'Aggiornamenti') + '</a></p></div>';
 }
 
 export function tabellaDati(fonti, en) {

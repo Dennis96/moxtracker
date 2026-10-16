@@ -2,11 +2,11 @@ import { strict as assert } from "node:assert";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { approfondimentiDraft } from '../strumenti/news/pagine.mjs';
+import { paginaGuide } from '../strumenti/news/pagine.mjs';
 
 const QUI = fileURLToPath(new URL(".", import.meta.url));
 const fonti = JSON.parse(readFileSync(QUI + '../config/news-fonti.json', 'utf8'));
-const html = readFileSync(QUI + "../sito/draft.html", "utf8").replace('<!-- approfondimenti-draft -->', approfondimentiDraft(fonti));
+const html = readFileSync(QUI + "../sito/draft.html", "utf8");
 const css = readFileSync(QUI + "../sito/css/draft.css", "utf8");
 
 test("la pagina Draft racconta il prodotto e il metodo, senza dati Limited", () => {
@@ -22,14 +22,16 @@ test("la pagina Draft racconta il prodotto e il metodo, senza dati Limited", () 
   assert.doesNotMatch(html, /Draft completi|Scelte registrate|Partite collegate|Nessun numero prematuro/);
   assert.doesNotMatch(html, /js\/draft\.js/, "la pagina non chiede piu' le statistiche Draft");
   // Quello che la pagina deve continuare a dire.
-  assert.match(html, /Ogni condivisione è una scelta separata/);
-  assert.match(html, /non modifica Arena e non sceglie al posto tuo/);
-  assert.match(html, /contributi personali dei giocatori non vengono inoltrati a 17Lands/);
-  assert.match(html, /punteggio MOX 0–110 non è un win rate/);
+  const guide = paginaGuide(fonti);
+  assert.match(html, /guide\.html#usa-draft/);
+  assert.match(guide, /Ogni condivisione è una scelta separata/);
+  assert.match(guide, /non modifica Arena e non sceglie al posto tuo/);
+  assert.match(guide, /contributi personali dei giocatori non vengono inoltrati a 17Lands/);
+  assert.match(guide, /punteggio MOX 0–110 non è un win rate/);
   const nuoveFonti = structuredClone(fonti);
   nuoveFonti.channels.stable.data.versione = '2 beta 9.9.9';
   nuoveFonti.verified_at = '2030-01-01T00:00:00Z';
-  const aggiornato = approfondimentiDraft(nuoveFonti);
+  const aggiornato = paginaGuide(nuoveFonti);
   assert.match(aggiornato, /MOX 2\.11\.8 · Contenuti verificati il <time datetime="2026-10-15"/);
   assert.doesNotMatch(aggiornato, /9\.9\.9|2030/);
 });

@@ -129,12 +129,12 @@ test("profilo della lista con etichette per esteso", () => {
   assert.doesNotMatch(js, /"Colori del mazzo"/);
 });
 
-test("Draft: prima il prodotto, poi gli approfondimenti, poi il futuro", () => {
+test("Draft: prima il prodotto, poi la spiegazione, poi il futuro", () => {
   const html = leggi("draft.html");
   const i = (testo) => html.indexOf(testo);
   assert.match(html, /<h1[^>]*>Assistente al Draft<\/h1>/);
-  assert.ok(i(">Nel programma<") > 0 && i(">Nel programma<") < i('<!-- approfondimenti-draft -->'));
-  assert.ok(i('<!-- approfondimenti-draft -->') < i(">Il futuro del Draft<"),
+  assert.ok(i(">Nel programma<") > 0 && i(">Nel programma<") < i('>Come funzionano i consigli<'));
+  assert.ok(i('>Come funzionano i consigli<') < i(">Il futuro del Draft<"),
     "il futuro si racconta dopo aver detto come funziona oggi");
   assert.doesNotMatch(html, /Next Gen/);
 });

@@ -60,7 +60,7 @@ test('A02 — Canary internamente stable, prerelease e soli branch non producono
   validaFonti(f, fixtureKey);
   const html = generaPagine(s, f, fixtureKey).get('it/note-versione.html').main;
   assert.doesNotMatch(html, /MOX 2\.12\.9|Note italiane|release-badge/);
-  assert.equal(generaPagine(s, f, fixtureKey).size, 2);
+  assert.equal(generaPagine(s, f, fixtureKey).size, 4);
 });
 
 test('A03 — note originali: vuoto, escape, lingua e provenienza senza inferenze dai commit', () => {
@@ -151,8 +151,8 @@ test('A07 — vecchi ingressi, SEO, sitemap, ancore e preview sono controllati d
 
 test('A08 — Draft e Aggiornamenti accessibili dal menu, home originale e focus preservati', () => {
   const home = readFileSync(new URL('../sito/index.html', import.meta.url), 'utf8');
-  for (const route of ['updates', 'support', 'account', 'meta', 'draft']) assert.ok(home.includes(`data-route="${route}"`));
-  assert.doesNotMatch(home, /data-route="guides"|Inizia con MOX/);
+  for (const route of ['guides', 'updates', 'support', 'account', 'meta', 'draft']) assert.ok(home.includes(`data-route="${route}"`));
+  assert.doesNotMatch(home, /Inizia con MOX/);
   const shell = readFileSync(new URL('../sito/js/site-shell.js', import.meta.url), 'utf8');
   assert.match(shell, /bottone\.focus\(\)/); assert.match(shell, /aria-expanded/);
 });

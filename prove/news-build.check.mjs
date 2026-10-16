@@ -15,12 +15,12 @@ const stable = fonti.channels.stable.data.versione.replace('2 beta ', '');
 const ammessa = r => ['legacy_verified', 'stable_receipt'].includes(r.provenance) || r.version === stable;
 const pubbliche = snapshot.releases.filter(ammessa);
 
-test('News build — corpus completo per lingua, approfondimenti in Draft, un H1 e SEO completo', () => {
+test('News build — corpus completo per lingua, Guide in tre percorsi, un H1 e SEO completo', () => {
   const attese = pubbliche.length + snapshot.tombstones.filter(ammessa).length;
   assert.equal(files.filter(n => n.startsWith('note-versione/')).length, attese);
   assert.equal(files.filter(n => n.startsWith('en/note-versione/')).length, attese);
-  assert.equal(files.filter(n => /^(?:en\/)?guide(?:\/|\.html)/.test(n)).length, 0);
-  for (const n of files.filter(n => /^(?:en\/)?(?:draft|note-versione)/.test(n))) {
+  assert.equal(files.filter(n => /^(?:en\/)?guide(?:\/|\.html)/.test(n)).length, 2);
+  for (const n of files.filter(n => /^(?:en\/)?(?:draft|guide|note-versione)/.test(n))) {
     const html = read(n);
     assert.equal((html.match(/<h1\b/g) || []).length, 1, n);
     for (const term of ['rel="canonical"', 'hreflang="it"', 'hreflang="en"', 'hreflang="x-default"', 'property="og:url"']) assert.ok(html.includes(term), n + ': ' + term);
@@ -29,8 +29,12 @@ test('News build — corpus completo per lingua, approfondimenti in Draft, un H1
   }
   for (const prefisso of ['', 'en/']) {
     const draft = read(prefisso + 'draft.html');
-    assert.equal((draft.match(/class="draft-answer"/g) || []).length, 8);
-    assert.ok(draft.includes('0–110')); assert.ok(draft.includes('0,54') || draft.includes('0.54'));
+    const guide = read(prefisso + 'guide.html');
+    assert.equal((guide.match(/class="draft-answer"/g) || []).length, 8);
+    assert.equal((guide.match(/class="guide-card"/g) || []).length, 3);
+    assert.doesNotMatch(draft, /class="draft-answer"/);
+    assert.match(draft, /guide\.html#usa-draft/);
+    assert.ok(guide.includes('0–110')); assert.ok(guide.includes('0,54') || guide.includes('0.54'));
     const news = read(prefisso + 'note-versione.html');
     assert.equal((news.match(/class="release-card-head"/g) || []).length, pubbliche.length);
     assert.equal((news.match(/class="release-card-notes"/g) || []).length, pubbliche.length ? 1 : 0);
@@ -39,7 +43,7 @@ test('News build — corpus completo per lingua, approfondimenti in Draft, un H1
 });
 
 test('News build — link e ancore locali validi per tutte le pagine nuove e Privacy', () => {
-  for (const n of files.filter(n => /draft|note-versione|privacy|cosa-invia/.test(n))) {
+  for (const n of files.filter(n => /draft|guide|note-versione|privacy|cosa-invia/.test(n))) {
     const html = read(n);
     for (const m of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
       const url = m[1].replaceAll('&amp;', '&');
