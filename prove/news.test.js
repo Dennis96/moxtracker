@@ -59,7 +59,8 @@ test('A02 — Canary internamente stable, prerelease e soli branch non producono
   }
   validaFonti(f, fixtureKey);
   const html = generaPagine(s, f, fixtureKey).get('it/note-versione.html').main;
-  assert.match(html, /promozione non verificata/); assert.doesNotMatch(html, /Stable attualmente distribuita: MOX 2\.12\.9/);
+  assert.doesNotMatch(html, /MOX 2\.12\.9|Note italiane|release-badge/);
+  assert.equal(generaPagine(s, f, fixtureKey).size, 2);
 });
 
 test('A03 — note originali: vuoto, escape, lingua e provenienza senza inferenze dai commit', () => {
@@ -74,15 +75,40 @@ test('A03 — note originali: vuoto, escape, lingua e provenienza senza inferenz
   assert.equal(noteLingua(bilingue, 'en').text, 'English');
 });
 
+test('Sito pubblico — note riservate ai tester bloccano la generazione senza alterare lo snapshot', async () => {
+  const r = originale(1); r.body = 'Note Canary riservate ai tester';
+  const s = await acquisizione([r]);
+  const prima = JSON.stringify(s);
+  assert.throws(() => generaPagine(s, fonti, key), /revisione editoriale richiesta/);
+  assert.equal(JSON.stringify(s), prima);
+});
+
 test('A04 — dettaglio IT/EN, tag canonico, timestamp UTC e note italiane identificate', () => {
   const p = generaPagine(reale, fonti, key);
-  assert.equal([...p.keys()].filter(n => n.startsWith('en/note-versione/')).length, reale.releases.length + reale.tombstones.length);
-  for (const r of reale.releases) {
+  const stable = fonti.channels.stable.data.versione.replace('2 beta ', '');
+  const ammessa = r => ['legacy_verified', 'stable_receipt'].includes(r.provenance) || r.version === stable;
+  assert.equal([...p.keys()].filter(n => n.startsWith('en/note-versione/')).length, [...reale.releases, ...reale.tombstones].filter(ammessa).length);
+  for (const r of reale.releases.filter(ammessa)) {
     const pagina = p.get(`en/note-versione/${r.tag_name.replaceAll('.', '-')}.html`).main;
     assert.ok(pagina.includes(r.published_at)); assert.ok(pagina.includes(r.html_url));
     if (noteLingua(r.body, 'en').lang === 'it') assert.match(pagina, /Italian original/);
   }
-  assert.match(p.get('it/note-versione.html').main, /Date visualizzate in UTC/);
+  assert.match(p.get('it/note-versione.html').main, /\(UTC\)/);
+});
+
+test('Snapshot schema 1 senza latest_observed resta leggibile offline', () => {
+  const vecchio = structuredClone(reale); delete vecchio.latest_observed;
+  validaSnapshot(vecchio);
+  assert.deepEqual(generaPagine(vecchio, fonti, key), generaPagine(reale, fonti, key));
+});
+
+test('Corpus pubblico — 27 legacy conservate e una pubblicazione non attestata esclusa', async () => {
+  const nuova = originale(9);
+  const s = (await acquisisci({ ...banco([nuova, ...reale.releases]), precedente: reale, now: ora })).snapshot;
+  assert.equal(s.releases.length, reale.releases.length + 1);
+  const p = generaPagine(s, fonti, key);
+  assert.equal([...p.keys()].filter(n => n.startsWith('it/note-versione/')).length, reale.releases.length);
+  assert.doesNotMatch(p.get('it/note-versione.html').main, /MOX 2\.12\.9/);
 });
 
 for (const status of [403, 429, 500]) test(`A05 — errore ${status} non sostituisce last-valid e rispetta Retry-After`, async () => {
@@ -123,10 +149,10 @@ test('A07 — vecchi ingressi, SEO, sitemap, ancore e preview sono controllati d
   assert.match(sorgente, /PAGINE_SEO\.add\(nome\)/); assert.match(sorgente, /noindex, nofollow/);
 });
 
-test('A08 — Guide e Aggiornamenti sono link espliciti nel menu, home, Escape e focus preservati', () => {
+test('A08 — Draft e Aggiornamenti accessibili dal menu, home originale e focus preservati', () => {
   const home = readFileSync(new URL('../sito/index.html', import.meta.url), 'utf8');
-  for (const route of ['guides', 'updates', 'support', 'account', 'meta', 'draft']) assert.ok(home.includes(`data-route="${route}"`));
-  assert.match(home, /href="\.\/guide\/inizia">Inizia con MOX/);
+  for (const route of ['updates', 'support', 'account', 'meta', 'draft']) assert.ok(home.includes(`data-route="${route}"`));
+  assert.doesNotMatch(home, /data-route="guides"|Inizia con MOX/);
   const shell = readFileSync(new URL('../sito/js/site-shell.js', import.meta.url), 'utf8');
   assert.match(shell, /bottone\.focus\(\)/); assert.match(shell, /aria-expanded/);
 });
@@ -151,6 +177,7 @@ test('A09 — XSS/HTML raw, immagini, script, iframe, URL manipolati restano tes
   const html = markdownSicuro('<script>alert(1)</script>\n<img src="https://tracker.invalid/x">\n<iframe src="x"></iframe>\n![x](https://tracker.invalid/x)\n[x](javascript:alert(1))\n[x](data:text/html,x)\n[x](https://user:password@example.org/x)\n[x](https://example.org/x)\n`<svg onload=alert(1)>`');
   assert.doesNotMatch(html, /<(?:script|iframe|img|svg)\b|href="(?:javascript|data):|href="https:\/\/user:/i);
   assert.match(html, /&lt;script&gt;/); assert.match(html, /href="https:\/\/example.org\/x"/);
+  assert.equal(markdownSicuro('**<img src=x onerror=alert(1)>**'), '<p><strong>&lt;img src=x onerror=alert(1)&gt;</strong></p>');
 });
 
 test('A10 — Latest errata, rollback Stable, Canary internamente stable e ZIP manipolato bloccano la CTA', () => {
@@ -215,14 +242,18 @@ test('Review R05 — un 200 JSON con manifesto pubblico invalido non scrive né 
   assert.equal(scritture, 0);
 });
 
-test('Review R06 — 28ª pubblicazione bilingue senza ricevuta resta pubblicata, EN corretta e conteggi variabili', async () => {
+test('Review R06 — 28 pubblicazioni senza attestazione restano interne, ricevuta ammette solo la versione verificata', async () => {
   const items = Array.from({ length: 28 }, (_, i) => originale(i + 1));
-  items[0].body = '<!-- mox-user-notes-en:start -->\nEnglish approved\n<!-- mox-user-notes-en:end -->';
+  items[0].body = '<!-- mox-user-notes-en:start -->\nEnglish approved\n<!-- mox-user-notes-en:end -->\nmox-core source commit = ' + 'a'.repeat(40);
   const s = (await acquisisci({ ...banco(items), now: ora })).snapshot;
   const p = generaPagine(s, fonti, key);
-  assert.equal([...p.keys()].filter(n => n.startsWith('en/note-versione/')).length, 28);
-  assert.match(p.get('en/note-versione/mox-v2-beta2-12-1.html').main, /English approved/);
+  assert.equal([...p.keys()].filter(n => n.startsWith('en/note-versione/')).length, 0);
   assert.equal(s.releases.every(r => r.provenance === 'published_unverified'), true);
+  const ricevuta = { version: '2.12.1', source_commit: 'a'.repeat(40), verified_at: ora };
+  const verificato = (await acquisisci({ ...banco(items), now: ora, receipts: [ricevuta] })).snapshot;
+  const ammessa = generaPagine(verificato, fonti, key);
+  assert.equal([...ammessa.keys()].filter(n => n.startsWith('en/note-versione/')).length, 1);
+  assert.match(ammessa.get('en/note-versione/mox-v2-beta2-12-1.html').main, /English approved/);
 });
 
 test('Review R07 — duplicato nelle pagine conservate rifiutato anche con hash cache ricalcolato', () => {

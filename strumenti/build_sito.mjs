@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { aggiungiBeaconAnalytics, TOKEN_ANALYTICS_PREVIEW,
   TOKEN_ANALYTICS_PRODUZIONE } from "./analytics_sito.mjs";
-import { generaPagine } from "./news/pagine.mjs";
+import { generaPagine, approfondimentiDraft } from "./news/pagine.mjs";
 import { escapeHtml } from './news/modello.mjs';
 
 const RADICE = fileURLToPath(new URL("..", import.meta.url));
@@ -247,8 +247,12 @@ async function main() {
   const fonti = JSON.parse(await readFile(join(RADICE, 'config/news-fonti.json'), 'utf8'));
   const chiave = JSON.parse(await readFile(join(RADICE, 'config/news-update-public-key.json'), 'utf8'));
   const generate = generaPagine(snapshot, fonti, chiave);
-  const sommarioHome = en => `<p data-home-release>${en ? 'Stable distribution verified' : 'Distribuzione Stable verificata'}: MOX ${fonti.channels.stable.data.versione.replace('2 beta ', '')} · <time datetime="${fonti.verified_at}">${fonti.verified_at}</time>. <a href="${en ? '/en' : ''}/note-versione">${en ? 'Publication and distribution' : 'Pubblicazione e distribuzione'}</a></p>`;
-  contenuti.set('index.html', Buffer.from(contenuti.get('index.html').toString('utf8').replace('<p data-home-release></p>', sommarioHome(false))));
+  const sommarioHome = `<span data-home-release> · MOX ${escapeHtml(fonti.channels.stable.data.versione.replace('2 beta ', ''))}</span>`;
+  contenuti.set('index.html', Buffer.from(contenuti.get('index.html').toString('utf8').replace('<span data-home-release></span>', sommarioHome)));
+  const draft = contenuti.get('draft.html').toString('utf8');
+  contenuti.set('draft.html', Buffer.from(draft.replace('<!-- approfondimenti-draft -->', approfondimentiDraft(fonti))));
+  for (const nome of ['index.html', 'draft.html']) hashSorgente.update(nome).update('\0').update(contenuti.get(nome)).update('\0');
+  hashSorgente.update('draft-approfondimenti-en\0').update(approfondimentiDraft(fonti, true)).update('\0');
   const modello = contenuti.get('note-versione.html').toString('utf8');
   const traduzioniGenerate = JSON.parse(contenuti.get('i18n/en.json').toString('utf8'));
   for (const [id, pagina] of generate) {
@@ -269,7 +273,7 @@ async function main() {
     hashSorgente.update(destinazione).update('\0').update(testo).update('\0');
     PAGINE_SEO.add(nome);
   }
-  // La home conserva una sintesi statica verificata e l'ingresso a un clic.
+  // La home conserva il contenuto approvato; la versione è l'unica aggiunta nel hero.
   for (const [nome, corpo] of contenuti) {
     if (!nome.endsWith('.html')) continue;
     if (ambiente === 'preview') contenuti.set(nome, Buffer.from(corpo.toString('utf8').replace('</head>', '<meta name="robots" content="noindex, nofollow"></head>')));
@@ -316,7 +320,7 @@ async function main() {
     const destinazione = join(uscitaRisolta, relativo);
     await mkdir(dirname(destinazione), { recursive: true });
     let tradotta = aggiungiSeo(paginaInglese(corpo.toString("utf8"), traduzioni, nome), nome, "en");
-    if (nome === 'index.html') tradotta = tradotta.replace(/<p data-home-release>[\s\S]*?<\/p>/, sommarioHome(true));
+    if (nome === 'draft.html') tradotta = tradotta.replace(/<section class="draft-help"[\s\S]*?<\/section>/, approfondimentiDraft(fonti, true));
     tradotta = aggiungiBeaconAnalytics(tradotta, analyticsToken);
     const uscita = Buffer.from(trasforma(tradotta, ".html", buildId));
     await writeFile(destinazione, uscita);

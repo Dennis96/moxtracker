@@ -779,12 +779,59 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
   .account-heading { display: grid; gap: 12px; }
 }
 
-/* Il menu unico contiene Guide, Aggiornamenti e Supporto anche su tablet. */
+/* Il menu unico contiene Aggiornamenti e Supporto anche su tablet. */
 @media (max-width: 760px) { .nav { min-height: 64px; } }
 .privacy-content, .privacy-section { min-width: 0; }
 .privacy-section { overflow-wrap: anywhere; scroll-margin-top: 90px; }
 .release-body pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-.release-list li { margin-block: 12px; }
+.news-page { max-width: 1168px; margin-inline: auto; padding: 0 24px 72px; }
+.news-head { padding: 88px 0 56px; }
+.news-eyebrow { margin: 0 0 22px; color: #d8bb82; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.news-head h1 { max-width: 18ch; margin: 0 0 20px; font: 800 clamp(2.75rem, 5.2vw, 4rem)/1.04 var(--sans); letter-spacing: -.045em; }
+.news-head > p:last-child:not(.news-eyebrow) { margin-bottom: 0; color: var(--muted); font-size: 18px; }
+body:has(.news-page) { background: radial-gradient(ellipse at 80% 8%, rgba(83, 53, 134, .16), transparent 45%), var(--ink); }
+.release-feed { display: grid; gap: 18px; }
+.release-card { min-width: 0; padding: 24px; border: 1px solid rgba(160, 143, 197, .3); border-radius: 16px; background: rgba(17, 20, 39, .6); overflow-wrap: anywhere; }
+.release-card-latest { border-color: rgba(160, 143, 197, .48); }
+.release-card-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.release-card h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; font: 800 21px/1.4 var(--sans); letter-spacing: -.02em; }
+.release-badge { padding: 3px 9px; border: 1px solid rgba(216, 187, 130, .32); border-radius: 999px; background: rgba(216, 187, 130, .09); color: #d8bb82; font: 800 10px/1.4 var(--sans); letter-spacing: .09em; text-transform: uppercase; }
+.release-card-head > a { flex-shrink: 0; color: #83b4fa; font-weight: 750; text-decoration: none; }
+.release-card-head > a:hover { text-decoration: underline; }
+.release-date { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+.release-card-notes { margin-top: 22px; padding-top: 6px; border-top: 1px solid var(--line); }
+.release-body { max-width: 85ch; color: var(--muted); }
+.release-body h3 { color: var(--text); font: 750 19px/1.4 var(--sans); margin: 24px 0 12px; }
+.release-body p { margin: 14px 0; line-height: 1.85; }
+.release-body li { margin-block: 16px; line-height: 1.85; padding-left: 3px; }
+.release-body li::marker { color: var(--lilac); }
+.release-body code, .release-metadata code { overflow-wrap: anywhere; white-space: pre-wrap; }
+.release-language, .release-history, .news-source { color: var(--muted); font-size: 14px; }
+.news-source { margin-top: 28px; }
+.release-metadata { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; }
+.release-metadata summary { cursor: pointer; }
+.news-detail .news-head { padding-bottom: 36px; }
+.draft-help { margin-top: 68px; scroll-margin-top: 90px; }
+#draft-help-title { scroll-margin-top: 100px; }
+.draft-answers { border-top: 1px solid var(--line); }
+.draft-answer { border-bottom: 1px solid var(--line); scroll-margin-top: 96px; }
+.draft-answer > summary { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 2px; cursor: pointer; list-style: none; font-weight: 700; font-size: 19px; }
+.draft-answer > summary::-webkit-details-marker { display: none; }
+.draft-answer > summary::after { content: '+'; color: var(--lilac); font-size: 26px; font-weight: 400; }
+.draft-answer[open] > summary::after { content: '−'; }
+.draft-answer-body { max-width: 85ch; padding: 0 2px 24px; color: var(--muted); }
+.draft-answer-body h3 { margin: 24px 0 8px; color: var(--text); font: 700 17px/1.5 var(--sans); }
+.draft-answer-body p { margin: 0 0 16px; }
+.draft-help-links { margin-top: 24px; }
+@media (max-width: 640px) {
+  .news-page { padding-inline: 20px; }
+  .news-head { padding: 54px 0 36px; }
+  .news-head h1 { font-size: 42px; }
+  .release-card { padding: 20px; }
+  .release-card-head { align-items: flex-start; flex-direction: column; gap: 14px; }
+  .release-card-head > a { flex-shrink: 1; }
+  .draft-answer > summary { font-size: 17px; }
+}
 .table-scroll { max-width: 100%; overflow-x: auto; }
 .table-scroll table { width: 100%; border-collapse: collapse; }
 .table-scroll th, .table-scroll td { padding: 10px; text-align: left; border-bottom: 1px solid var(--line); }

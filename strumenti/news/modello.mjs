@@ -147,18 +147,19 @@ export const escapeHtml = valore => String(valore).replaceAll('&', '&amp;').repl
 // Sottoinsieme intenzionale: testo, titoli, liste, codice e link HTTPS.
 // L'HTML sorgente e le immagini rimangono testo; nessun attributo dal body.
 export function markdownSicuro(body) {
+  const testoSicuro = testo => escapeHtml(testo).replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
   const inline = testo => {
     const regex = /`([^`]+)`|(!?)\[([^\]\n]+)\]\(([^\s)]+)\)/g;
     let html = '', posizione = 0;
     for (const m of testo.matchAll(regex)) {
-      html += escapeHtml(testo.slice(posizione, m.index)); posizione = m.index + m[0].length;
+      html += testoSicuro(testo.slice(posizione, m.index)); posizione = m.index + m[0].length;
       if (m[1]) { html += `<code>${escapeHtml(m[1])}</code>`; continue; }
       let url;
       try { url = new URL(m[4]); } catch { /* testo letterale */ }
       if (m[2] || !url || url.protocol !== 'https:' || url.username || url.password || /[\u0000-\u0020\\]/.test(m[4])) html += escapeHtml(m[0]);
       else html += `<a href="${escapeHtml(url.href)}" rel="noopener noreferrer">${escapeHtml(m[3])}</a>`;
     }
-    return html + escapeHtml(testo.slice(posizione));
+    return html + testoSicuro(testo.slice(posizione));
   };
   let codice = false, lista = false, html = '';
   for (const riga of body.split(/\r?\n/)) {

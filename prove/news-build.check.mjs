@@ -10,24 +10,36 @@ const manifesto = JSON.parse(readFileSync(root + 'build-manifest.json'));
 const read = n => readFileSync(root + n, 'utf8');
 const files = Object.keys(manifesto.file).filter(n => n.endsWith('.html'));
 const snapshot = JSON.parse(readFileSync(new URL('../config/news-releases.json', import.meta.url)));
+const fonti = JSON.parse(readFileSync(new URL('../config/news-fonti.json', import.meta.url)));
+const stable = fonti.channels.stable.data.versione.replace('2 beta ', '');
+const ammessa = r => ['legacy_verified', 'stable_receipt'].includes(r.provenance) || r.version === stable;
+const pubbliche = snapshot.releases.filter(ammessa);
 
-test('News build — 27 dettagli per lingua, 8 guide sostanziali, un H1 e SEO completo', () => {
-  const attese = snapshot.releases.length + snapshot.tombstones.length;
+test('News build — corpus completo per lingua, approfondimenti in Draft, un H1 e SEO completo', () => {
+  const attese = pubbliche.length + snapshot.tombstones.filter(ammessa).length;
   assert.equal(files.filter(n => n.startsWith('note-versione/')).length, attese);
   assert.equal(files.filter(n => n.startsWith('en/note-versione/')).length, attese);
-  assert.equal(files.filter(n => n.startsWith('guide/')).length, 8);
-  for (const n of files.filter(n => /^(?:en\/)?(?:guide|note-versione)/.test(n))) {
+  assert.equal(files.filter(n => /^(?:en\/)?guide(?:\/|\.html)/.test(n)).length, 0);
+  for (const n of files.filter(n => /^(?:en\/)?(?:draft|note-versione)/.test(n))) {
     const html = read(n);
     assert.equal((html.match(/<h1\b/g) || []).length, 1, n);
     for (const term of ['rel="canonical"', 'hreflang="it"', 'hreflang="en"', 'hreflang="x-default"', 'property="og:url"']) assert.ok(html.includes(term), n + ': ' + term);
     assert.ok(read('sitemap.xml').includes('https://moxtracker.app/' + n.slice(0, -5)), n);
     assert.doesNotMatch(html, /Controllo la release|Controllo la release|<img[^>]*tracker\.invalid|<script[^>]*release-note/);
-    if (n.includes('guide/')) assert.ok(html.replace(/<[^>]*>/g, '').length > 1500, n);
+  }
+  for (const prefisso of ['', 'en/']) {
+    const draft = read(prefisso + 'draft.html');
+    assert.equal((draft.match(/class="draft-answer"/g) || []).length, 8);
+    assert.ok(draft.includes('0–110')); assert.ok(draft.includes('0,54') || draft.includes('0.54'));
+    const news = read(prefisso + 'note-versione.html');
+    assert.equal((news.match(/class="release-card-head"/g) || []).length, pubbliche.length);
+    assert.equal((news.match(/class="release-card-notes"/g) || []).length, pubbliche.length ? 1 : 0);
+    assert.doesNotMatch(news, /class="release-list"/);
   }
 });
 
 test('News build — link e ancore locali validi per tutte le pagine nuove e Privacy', () => {
-  for (const n of files.filter(n => /guide|note-versione|privacy|cosa-invia/.test(n))) {
+  for (const n of files.filter(n => /draft|note-versione|privacy|cosa-invia/.test(n))) {
     const html = read(n);
     for (const m of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
       const url = m[1].replaceAll('&amp;', '&');
@@ -47,9 +59,19 @@ test('News build — originale IT in cornice EN, nessun token nel bundle e date 
   const n = read('en/note-versione/mox-v2-beta2-9-12.html');
   assert.match(n, /<html lang="en"/); assert.match(n, /Notes are not available in the original release/);
   assert.match(read('en/note-versione/mox-v2-beta2-9-28.html'), /Italian original/);
-  for (const f of Object.keys(manifesto.file).filter(n => /\.(?:html|js|json)$/.test(n))) assert.doesNotMatch(read(f), /github_pat_[A-Za-z0-9_]+|gh[pousr]_[A-Za-z0-9]{20,}|Bearer [A-Za-z0-9._-]{16,}/, f);
+  for (const f of Object.keys(manifesto.file).filter(n => /\.(?:html|js|json|css)$/.test(n))) assert.doesNotMatch(read(f), /canary|github_pat_[A-Za-z0-9_]+|gh[pousr]_[A-Za-z0-9]{20,}|Bearer [A-Za-z0-9._-]{16,}/i, f);
   const privacy = read('en/privacy.html');
   for (const term of ['October 6, 2026', 'October 15, 2026', 'Technical requests and statistical sources', 'Data flow matrix', 'Provider log and backup retention']) assert.ok(privacy.includes(term), term);
+});
+
+test('Home — hero approvato, due sole CTA e unica aggiunta della versione', () => {
+  const hero = read('index.html').match(/<section class="home-hero"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(hero);
+  assert.match(hero, /Tracker, Assistente al Draft, mazzi e statistiche per MTG Arena\./);
+  assert.match(hero, /Durante la partita conta le carte che restano nel tuo mazzo/);
+  assert.equal((hero.match(/class="button /g) || []).length, 2);
+  assert.match(hero, /Windows · Beta pubblica · Download da GitHub<span data-home-release> · MOX \d+\.\d+\.\d+<\/span>/);
+  assert.doesNotMatch(hero, /Inizia con MOX|Pubblicazione e distribuzione|<time/);
 });
 
 test('News build — lingua annidata conserva percorso, query e frammento', () => {
