@@ -65,7 +65,7 @@ test('News build — originale IT in cornice EN, nessun token nel bundle e date 
   assert.match(read('en/note-versione/mox-v2-beta2-9-28.html'), /Italian original/);
   for (const f of Object.keys(manifesto.file).filter(n => /\.(?:html|js|json|css)$/.test(n))) assert.doesNotMatch(read(f), /canary|github_pat_[A-Za-z0-9_]+|gh[pousr]_[A-Za-z0-9]{20,}|Bearer [A-Za-z0-9._-]{16,}/i, f);
   const privacy = read('en/privacy.html');
-  for (const term of ['October 6, 2026', 'October 15, 2026', 'Technical requests and statistical sources', 'Data flow matrix', 'Provider log and backup retention']) assert.ok(privacy.includes(term), term);
+  for (const term of ['October 6, 2026', 'October 16, 2026', 'Technical requests and statistical sources', 'Data flow matrix', 'Provider log and backup retention']) assert.ok(privacy.includes(term), term);
 });
 
 test('Home — hero approvato, due sole CTA e unica aggiunta della versione', () => {
