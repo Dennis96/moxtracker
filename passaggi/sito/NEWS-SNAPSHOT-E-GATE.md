@@ -3,7 +3,9 @@
 GitHub Release pubblicata è la fonte editoriale; `config/news-releases.json` è
 una derivazione last-valid. La build non usa rete. Le 27 pubblicazioni iniziali
 sono legacy verificate, senza ricevute inventate. Release nuove senza ricevuta
-sono pubblicazioni con promozione non verificata, mai automaticamente Stable.
+restano nel corpus interno con promozione non verificata. Il renderer pubblico
+ammette soltanto legacy verificate, ricevute Stable o la versione corrente
+attestata dal manifesto Stable firmato. La sola pubblicazione non è sufficiente.
 
 ## Preparazione riproducibile
 
@@ -60,8 +62,18 @@ Se Latest diverge dallo Stable, la storia resta leggibile; il resolver ZIP
 blocca il click con avviso. Non modifica release/manifesti e non propone
 automaticamente un vecchio ZIP. La cronologia non fa fetch GitHub per lettore;
 solo il click download risolve Latest e confronta Stable, con promise condivise.
+Il sito pubblico non nomina Canary né distribuisce istruzioni per tester. Un
+body utente che la menzioni blocca la generazione per revisione editoriale;
+i test della build controllano tutti gli HTML/JS/JSON/CSS per impedirne la
+pubblicazione anche in titoli o metadati. Il corpo originale resta nel corpus
+interno, senza modifica delle Releases. Titolo duplicato e commit sorgente
+vengono collocati rispettivamente nella scheda e nei dettagli fonte.
 IT/EN legacy: originale italiano identificato, nessuna traduzione inventata.
 2.9.12: assenza esplicita; 2.9.28: escape conservati. Nessuna Release modificata.
+
+Guide: pagina unica IT/EN con tre schede e otto risposte espandibili. Versione
+e data editoriale sono esplicite nel modulo dei contenuti: il refresh dei
+manifesti non attesta automaticamente i testi per una nuova versione.
 
 Nuova candidata → review indipendente → approvazione testi titolare → gate
 separato merge → preview remota approvata e noindex → separata autorizzazione

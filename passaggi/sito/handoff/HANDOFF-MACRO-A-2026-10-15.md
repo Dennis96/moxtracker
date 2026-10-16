@@ -1,227 +1,164 @@
-# Macro A — News, Guide, Privacy e canonici, 15/10/2026
+# Macro A — News, Guide, Privacy e canonici
 
-**Candidata di sviluppo Codex, non pubblicata.** Report unico della consegna;
-registro cross-repo nel branch core, collegato sotto. Review indipendente in
-nuova chat e approvazione del titolare ancora pendenti. Nessun merge, preview
-remota, deploy Pages/Worker, release, migrazione, secret o dato produzione.
+Aggiornamento del 16/10/2026. Candidata di sviluppo, non pubblicata.
+La scelta esplicita dell’utente prevale sul mandato e sulle soluzioni intermedie:
+home identica salvo numero di versione; nessuna Canary nel sito pubblico;
+News con scheda aperta dell’ultima versione e precedenti compatte; Guide
+separate con tre schede, approvate in chat, e Draft concentrata sul prodotto.
+La revisione indipendente in nuova chat e l’approvazione Privacy restano pendenti.
 
-## Baseline e perimetro verificato
+## Basi, sorgenti e Git
 
-| Repository | Base origin/main riconfermata dopo fetch | Branch |
+| Repository | Base origin/main riconfermata il 16/10 | Branch / PR draft |
 |---|---|---|
-| tracker | `a08ee510152044b544ecdec014dd0876fd3920b0` | `claude/mox-site-news-guides-privacy-2026-10-14` |
-| core | `67c683e36e5ee82beeb85e21effc6677991028c2` | `claude/mox-canonics-audit-draft-omen-2026-10-14` |
-| meta | `7057c8d418e331e19f45fc6b1711ee9aaf934e28`, riconfermato con ls-remote alla chiusura | generated-only, nessuna modifica |
+| tracker | a08ee510152044b544ecdec014dd0876fd3920b0 | claude/mox-site-news-guides-privacy-2026-10-14 · [#42](https://github.com/Dennis96/moxtracker/pull/42) |
+| core | 67c683e36e5ee82beeb85e21effc6677991028c2 | claude/mox-canonics-audit-draft-omen-2026-10-14 · [#41](https://github.com/Dennis96/mox-core/pull/41) |
+| meta | 7057c8d418e331e19f45fc6b1711ee9aaf934e28, verificato il 15/10 | generated-only, nessuna modifica |
 
-Primari tracker/core inizialmente puliti; nessuna PR aperta concorrente al
-preflight. Nessuno stash/reset/pull/force push, nessun checkout primario usato
-per sviluppo. Worktree proprie sotto `Progetto Magic/worktrees/`:
-`macro-a-site-2026-10-15` e `macro-a-core-2026-10-15`; registrazione temporanea
-in LAVORI core, da togliere alla consegna. Non riusate worktree di altri.
+Codice tracker finale: **634445dc8da9739eb9e8a28e75dac6c858cd5f42**.
+Guide/Draft finali: 632fb3c6fdf0028ec4d4f0d3ea34dc551a244d6e;
+il commit seguente aggiorna soltanto la data della Privacy candidata IT/EN e la prova.
+Chiusura documentale core: **051c11b29f569a70c9a7e1c822069431d26af3fd**. Lo SHA della presente chiusura
+tracker è fornito nel permalink finale e nella PR, evitando autoriferimenti.
 
-Letti gli ingressi canonici richiesti, policy workspace, procedura release
-§§12–15, fonti dati e Privacy pertinenti. Audit originale recuperato via
-`git show 9e76015cbe9f88b24da9dc3eb88544912a8add91:passaggi/sito/audit/AUDIT-DRAFT-OMEN-VS-MOX-PRIVACY-DOCS-NEWS-2026-10-14.md`,
-incluso §13. Nessuna nuova esplorazione del repository concorrente.
+Letti gli ingressi canonici dei due repository e la policy workspace.
+Audit originale letto integralmente, incluso §13, da
+[9e76015cbe9f88b24da9dc3eb88544912a8add91](https://github.com/Dennis96/moxtracker/blob/9e76015cbe9f88b24da9dc3eb88544912a8add91/passaggi/sito/audit/AUDIT-DRAFT-OMEN-VS-MOX-PRIVACY-DOCS-NEWS-2026-10-14.md).
+Nessuna nuova esplorazione del repository concorrente. Per lo stile News del
+16/10 è stata osservata la [pagina indicata dall’utente](https://www.draftomen.com/news/).
+Testi e CSS MOX originali, nessun asset o testo delle sue release copiato.
 
-## Risultato implementato
+## Risultato consegnato
 
-News: CLI Node senza dipendenze aggiuntive → snapshot JSON last-valid → HTML
-statico IT/EN. Lista numerata fino a pagina vuota, Latest indipendente,
-normalizzazione ID/tag/versione/URL/data/asset/digest, controlli biunivoci e
-ritiri confermati anche per ID. Cache ETag/304 verificata; tre tentativi con
-Retry-After/rate reset limitati. Scrittura atomica solo dopo validazione.
-Nessun token richiesto, polling o GitHub fetch per il lettore della cronologia.
+Home: testi, immagini e due CTA conservati rispetto alla base. Unica aggiunta
+nel hero: MOX 2.11.8 nella fineprint. Menu unico con Home, Meta, Draft, Guide,
+Aggiornamenti, Il mio MOX, Supporto e lingua; Scarica separato.
 
-Snapshot aggiornato: **27 pubblicazioni, zero tombstone**,
-`2026-10-15T19:03:04.940Z`. Ultima pubblicazione GitHub 2.11.8.
-Fonti distribuzione verificate alle `2026-10-15T19:03:05.918Z`: firme RS256
-Stable **2.11.8** e Canary **2.11.9** valide. Il canale richiesto governa la
-classificazione; il campo interno `canale=stable` della Canary non promuove.
-Gli ZIP non sono stati riscaricati: digest è metadata GitHub, non ricalcolo
-locale del pacchetto. Installer non eseguito; nessun field test client nuovo.
+News: cronologia a schede con ultima versione aperta. Dettagli statici IT/EN,
+fonte originale, data UTC e metadati richiudibili. Markdown sicuro, incluse le
+enfasi; HTML/immagini raw inerti. Titolo e commit non duplicati nel testo:
+restano intestazione e dettagli fonte. Nessuna riscrittura delle GitHub Releases.
 
-Le 27 legacy sono esplicite. 2.9.12: nota mancante dichiarata; 2.9.28: escape
-letterali preservati; cornice EN con originale italiano identificato. Nessuna
-riscrittura GitHub o traduzione storica inventata. Commit client solo se
-attestato nel body; target/main del tracker non usato come provenienza core.
-Le future pubblicazioni prive di ricevuta restano «promozione non verificata».
+Acquisizione Node senza nuove dipendenze: pagine fino a una pagina vuota,
+Latest indipendente, ID/tag/versione/date/asset/digest validati, ETag/304
+integri, ritiri confermati per ID, retry limitati e scrittura atomica last-valid.
+Il corpus completo interno resta distinto dal corpus pubblico ammesso:
+legacy verificate, ricevute Stable o versione attestata dal manifesto firmato.
+Una pubblicazione non attestata resta interna anche se non contiene la parola
+Canary. Body pubblici riservati ai tester bloccano la generazione; controllo
+globale sul bundle per impedire menzioni in testi, titoli o metadati.
 
-Renderer Markdown minimale: testo/titoli/liste/codice/link HTTPS verificati,
-HTML e immagini inerti, nessuna dipendenza nuova. Dettagli con slug del tag a
-trattini per evitare ambiguità di estensione nel server locale. Vecchi
-`/note-versione`, `/note-versione.html` e varianti EN conservati; canonical,
-hreflang IT/EN/x-default, OG, sitemap e date UTC esplicite.
+Snapshot: 27 pubblicazioni, zero tombstone, acquisizione 15/10 alle
+19:03:04.940Z. Distribuzione verificata alle 19:03:05.918Z: Stable 2.11.8;
+verifica interna separata dell’altro canale. Il campo interno del manifesto
+non è usato per dedurre una promozione. 2.9.12: assenza note esplicita;
+2.9.28: escape letterali preservati. Originali IT identificati in cornice EN,
+senza traduzioni storiche inventate. Snapshot vecchi schema 1 ancora leggibili.
 
-Download: mantiene resolver ZIP GitHub; corregge il caso concreto di rollback.
-Ogni click riverifica Latest e Stable, con condivisione delle sole richieste
-in corso e `cache:no-store`; divergenza o fonte non verificabile blocca il
-download con messaggio. Nessun endpoint/manifesto remoto modificato. Le
-richieste del piccolo riepilogo esistente possono condividere la stessa promise.
+Download: ogni nuovo click verifica Latest e Stable con cache:no-store;
+condivide soltanto le richieste in corso. Divergenza, rollback o fonte non
+verificabile bloccano lo ZIP con messaggio riusato. La cronologia non fa fetch
+GitHub per ogni lettore. Nessun manifesto o endpoint remoto cambiato.
 
-Menu unico: Home, Meta, Draft, Guide, Aggiornamenti, Il mio MOX, Supporto,
-lingua; Scarica separato. Menu mobile fino a 1100 px. Home con «Inizia con MOX»
-e Aggiornamenti a un clic e Stable verificata datata. Nessun redesign generale.
+Guide: una pagina per lingua, tre schede **Inizia con MOX**, **Usa il Draft**,
+**Dati e privacy**, otto risposte espandibili. Installazione estesa resta in
+Download. Draft conserva schermate e due spiegazioni brevi, poi rimanda al
+percorso pertinente. Nessun indice puntato o otto pagine duplicate.
+Score 0–110 distinto da WR, GIH/GP ricentrato/ATA/prior/campioni/Wilson,
+ibridi/segnali, coppie e limiti del simulatore dichiarati. Nessun ML attivo,
+superiorità scientifica o correzione S5 anticipata. Metadati editoriali fissi:
+MOX 2.11.8, contenuti verificati il 15/10; il refresh fonti non li aggiorna da sé.
 
-Guide: `/guide` e `/en/guide`, slug identici nelle due lingue per coerenza con
-la build esistente; otto capitoli sostanziali in entrambe le lingue. Un’unica
-sorgente editoriale `strumenti/news/guide.mjs`; installazione estesa resta in
-Download, collegata. Score 0–110 distinto da WR, GIH/GP ricentrato/ATA/prior
-0,54/campioni/Wilson, ibridi/segnali, coppie e limiti mana espliciti. Nessun ML
-attivo o superiorità scientifica promessa; nessuna correzione S5 anticipata.
+Privacy/Cosa invia: matrice dei flussi e richieste tecniche separate dai
+contributi, fonti dipendenti dalla versione senza esporre il percorso tester.
+Revisione precedente 26/09, disclosure A141 pubblicata 06/10, candidata
+aggiornata 16/10. Nessun consenso/durata/categoria aggiunti.
+**OWNER APPROVAL REQUIRED** su copy e data finale prima della pubblicazione.
 
-Privacy/Cosa invia: candidata IT/EN, contenuti giuridici esistenti mantenuti,
-revisioni 26/09 → disclosure A141 pubblicata 06/10 → candidata 15/10 distinte.
-Indice con quattro percorsi e matrice locale/remoto/scelta/durata/revoca.
-Rete tecnica separata da contributi, Stable legacy e Canary via MOX distinti.
-Nessun consenso, durata o categoria introdotti. **OWNER APPROVAL REQUIRED**.
+Dati pubblici: manifesto SHA-256
+56b39389e8af106567bcf6d2d0b649732d390c683aa88ad0f49fc17a99dc3fec;
+44 entry ECL/SOS/TLA/TMT PremierDraft, globale + 10 coppie per set, generato
+14/10 alle 17:46:58.860Z. Date sorgente e CC BY 4.0 dichiarate; nessun
+endorsement 17Lands. Catalogo ≠ disponibilità statistica. Nessuna copertura API
+o metrica per carta inventata. A5 live completa dipende da fonte autorizzata.
 
-Disponibilità dati: manifesto pubblico SHA-256
-`56b39389e8af106567bcf6d2d0b649732d390c683aa88ad0f49fc17a99dc3fec`,
-44 entry: ECL/SOS/TLA/TMT PremierDraft, globale + 10 coppie per set; generato
-`2026-10-14T17:46:58.860Z`, date dei dataset mostrate. CC BY 4.0 e attribuzione
-17Lands, nessun endorsement. Metriche per carta non esposte = non inventate;
-catalogo distinto da statistiche; nessun badge live API FRA da manifesto pubblico.
-A5 estensione dipendente da ulteriore fonte autorizzata, nessun nuovo endpoint.
+Core: testa corrente Draft/A141 e STATUS/ARRETRATI riconciliati, addendum
+editoriale della procedura release e registro unico di 28 righe. Storia,
+ranking e contratti congelati conservati. Worker: solo un commento binding.
 
-Core: testa corrente Draft/A141 riconciliata senza riscrivere storia/freeze,
-STATUS/ARRETRATI A141 e addendum delle note future; registro 28 righe preservato.
-Tracker: stato/indice aggiornati e solo commento binding R2 in `src/dati-draft.js`.
+## Matrice dei 12 acceptance News (§6.6)
 
-## Matrice 12 acceptance News (§6.6)
-
-| # | Input e prova | Risultato candidato |
+| # | Prova | Esito candidato |
 |---|---|---|
-| 1 | A01: 27 reali; fixture 205 su 4 pagine; ID/tag/date/asset | PASS, 27/27 |
-| 2 | A02: Canary sintetica firmata con campo stable; prerelease/draft; branch assente | PASS, nessuna Stable inventata |
-| 3 | A03/R03: body vuoto, escape, IT/EN CRLF, target_commitish | PASS, nessun testo/source inventato |
-| 4 | A04 + news-build: dettagli/fonti/date UTC, cornice EN | PASS |
-| 5 | A05/R02/R04/R05/R07: 403/429/500, rete/JSON/pagina mancante, 304, cache/ritiri | PASS, last-valid preservato |
-| 6 | A06: workflow read-only, acquisizione/build senza deploy | PASS, gate separati |
-| 7 | A07 + news-build: vecchi ingressi, link/ancore, canonical/hreflang/sitemap | PASS locale |
-| 8 | A08 + browser: 56 viewport/pagina, 6 percorsi Tab/Escape/focus | PASS locale; zoom reale 200% CONDITIONAL |
-| 9 | A09/R01–R08: Latest, duplicati, tombstone, schema, XSS, token | PASS offline; CI remota verde sul commit codice |
-| 10 | A10/R01: Latest divergente, rollback, fonte non verificabile, richieste successive | PASS, storia distinta e CTA bloccata |
-| 11 | A11: body unico IT/EN, provenance/ricevuta e checklist fonti/Privacy | PASS procedura candidata; approvazione titolare CONDITIONAL |
-| 12 | A12: nessuna automazione deploy/polling o ampliamento permessi | PASS, Pages richiede mandato separato |
+| 1 | A01: corpus 27, fixture 205 su quattro pagine, tag/date/asset | PASS |
+| 2 | A02/R06: canale sintetico con campo stable, prerelease/draft, ricevuta; 27 legacy + 1 non attestata | PASS, tester e non attestate esclusi dal pubblico |
+| 3 | A03/R03: vuoto, escape, IT/EN CRLF e source commit | PASS, originali e hash preservati |
+| 4 | A04/build: dettagli, fonti, UTC, cornice EN | PASS |
+| 5 | A05/R02/R04/R05/R07: 403/429/500, rete/JSON/pagine, 304/cache/ritiri | PASS, last-valid preservato |
+| 6 | A06: workflow read-only e build offline senza deploy | PASS |
+| 7 | A07/build: vecchi ingressi News, link/ancore, canonical/hreflang/sitemap | PASS locale |
+| 8 | A08/browser: menu/home, 56 viewport/pagina e sei percorsi tastiera | PASS locale; zoom reale 200% CONDITIONAL |
+| 9 | A09/R01–R08: duplicati, tombstone, schema, XSS, credenziali e contenuti tester | PASS offline; CI finale da leggere nella PR |
+| 10 | A10/R01: Latest divergente, rollback, fonti non verificabili e click successivi | PASS, CTA bloccata e storia conservata |
+| 11 | A11: body IT/EN, ricevuta e checklist fonti/Privacy | PASS procedura; approvazione titolare CONDITIONAL |
+| 12 | A12: nessun deploy/polling o ampliamento permessi | PASS, gate Pages separato |
 
-## Matrice pagine IT/EN e prove browser
+## Prove e review
 
-| Percorso | IT | EN | Verifica |
-|---|---|---|---|
-| Home / cronologia / dettaglio | PASS | PASS | viewport 375/390/768/1440 |
-| Indice Guide / dati Draft / mazzo finale | PASS | PASS | viewport 375/390/768/1440 |
-| Privacy / Cosa invia | PASS candidata | PASS candidata | viewport 375/390/768/1440 |
-| Tutti gli 8 capitoli e 27 dettagli | PASS | PASS | link/ancore/H1/SEO statici |
-| Menu, Supporto, Account e Download | PASS ingressi | PASS ingressi | 6 percorsi tastiera, route conservate; nessun login/invio |
+Suite canonica: **626 PASS, 0 FAIL, 0 skip**, incluse **28 prove News**.
+Build production: **5 PASS + 1 skip** riservato alla preview.
+Preview locale simulata: **6/6 PASS**, inclusi HTML/header/robots noindex.
+Build finali: production **04f41dad9acb21f7**, preview **d5e79d2837642fe2**,
+147 file e 77 HTML. Determinismo verificato dalla suite, intero grafo statico
+versionato. CI GitHub success precedente ff129; CI del nuovo push nella PR.
+I commit documentali cambiano commit_git nel manifest, non gli hash degli asset.
 
-56/56 combinazioni senza overflow, un H1. Scroll/client mobili 360/360 a 375,
-375/375 a 390; tablet generalmente 753/753 a 768; desktop 1425/1425 o
-1440/1440 secondo scrollbar. Tab → Home, Escape chiude e riporta focus al
-toggle, aria-current Guide presente su pagina annidata. Focus visibile osservato.
-Zoom 200% tentato con shortcut del browser: dimensioni/DPR invariati, quindi
-**non attestato**, resta prova manuale; nessuna certificazione WCAG/CWV.
+Browser locale: Home, News, dettaglio, Draft, Guide, Privacy e Cosa invia in
+IT/EN × 375/390/768/1440 = **56/56**, un H1, nessun overflow esterno o testo
+tester. Menu: sei percorsi IT/EN a 375/390/768, Tab porta a Home, Escape
+chiude e ripristina focus. Otto risposte aperte da tastiera a 375 in entrambe
+le lingue, senza overflow. Zoom reale 200% non attestato; niente claim WCAG/CWV.
+Nessun login, ticket, invio, cancellazione o field test client eseguito.
 
-## Code-review e stato delle prove
+Procedura locale /code-review applicata con revisori Codex News, UI/build e
+copy/prove. Corretti R01–R08 e nel delta del 16/10: filtro corpus pubblico,
+compatibilità snapshot, fingerprint dei contenuti generati, metadati editoriali
+fissi e attese dei test variabili. Ultima review del delta Guide: PASS senza
+rilievi. Non sostituisce la review indipendente in nuova chat.
 
-Applicata la procedura locale `/code-review` con revisori Codex sulle tre aree
-News/fonti, UI/build/download e copy/test/canonici, adattata all’ambiente senza
-modelli Claude. Rilievi trovati e corretti: cache dopo rollback; tombstone
-ricomparsa solo prerelease; delimitatori CRLF; confronto completo/biunivoco
-cache; validazione fonte prima di rename; test vincolati al bootstrap; riuso
-messaggi download. Regressioni R01–R08. La review locale non sostituisce il
-gate indipendente in nuova chat richiesto dopo questa consegna.
+Nessuna nuova dipendenza; lockfile invariato. Le quattro vulnerabilità high
+dev segnalate da npm sul lock esistente restano fuori scope, nessun audit fix.
+Costi/minuti effettivi Actions n.d.; nessun nuovo servizio o piano introdotto.
 
-Prove sul commit di codice finale `ff129d675aca75d0a932dbf636307214732ad54a`:
-suite canonica **623/623**, nessun fallimento/skip; News **25/25** incluse.
-Build di produzione offline e controllo link/SEO **4 PASS + 1 skip** specifico
-della preview; preview locale simulata **5/5 PASS**, inclusi HTML/robots/header
-noindex. Due build successive con medesimo snapshot identiche: production
-`efc9f33a7ac3f901`, preview `54774ca7520b2d4a`, 163 file. SHA-256 del manifesto
-delle due build production sul commit codice:
-`ea67d8b0d92e3896655fd4a32af6fdf452abeb9813b1071e3bc4e36d24bfc6a2`.
-Il manifesto contiene lo SHA Git: una successiva chiusura solo documentale
-cambia quel campo, non i 163 hash degli artefatti. Verifica HEAD finale nella
-consegna/PR; nessun codice o snapshot cambiato dopo questo commit.
-Il primo tentativo nel sandbox falliva sul test loopback preesistente: esecuzione
-fuori sandbox 615/615. Nessun Worker cambiato per mascherare un errore di ambiente.
+## Checkpoint unico e residui
 
-CI GitHub `verifica`: [success sul commit codice](https://github.com/Dennis96/moxtracker/actions/runs/38792113505/job/116619031756).
-Il job è stato letto tramite il connettore Code Review, HEAD
-`ff129d675aca75d0a932dbf636307214732ad54a`. Chiusura successiva soltanto Markdown.
-
-Review testuale Privacy separata:
-
-| Classe | Evidenza/limite |
-|---|---|
-| Comportamento attestato | Testi/contratti correnti, client rilasciato, test esistenti e manifesti pubblici; consensi separati, fonti per versione e durate già documentate |
-| Non verificato | Backup/log provider, cancellazione reale, installazione desktop o Draft nuovo; nessuna certificazione GDPR |
-| Proposta editoriale | Sintesi flussi, indice, precisazione rete/fonti e cronologia revisioni IT/EN |
-| Approvazione richiesta | Titolare su copy e data effettiva prima della pubblicazione; gate distinto dalla review del codice |
-
-Nessuna dipendenza aggiunta e lockfile invariato. Installazione isolata con
-`npm ci --ignore-scripts` del lock esistente: npm segnala 4 vulnerabilità high
-nelle dipendenze dev preesistenti; aggiornamento fuori scope, nessun audit fix.
-Il renderer nuovo non dipende da quei pacchetti. Nessun costo cloud nuovo;
-traffico misurato refresh = 3 GET GitHub + 3 fonti pubbliche per giro; costo
-monetario effettivo e minuti Actions n.d. Non dichiarata gratuità complessiva.
-
-## Checkpoint unico proprietario e residui
-
-1. Approvare copy Privacy IT/EN, matrice/rete/fonti e data effettiva al futuro
-   gate di pubblicazione. Backup/log provider e cancellazione reale non provati:
-   il titolare conferma i dati, nessuna durata inventata o compliance certificata.
-2. Menu candidato scelto e provato; eventuale preferenza editoriale resta
-   reversibile. Traduzioni storiche non necessarie al candidato: originali IT
-   identificati; un lotto di traduzione richiede approvazione separata.
-3. Refresh manuale riproducibile + workflow di sola verifica è la politica
-   consegnata. Non assunti permessi per creare PR automaticamente, niente PAT.
-4. Review indipendente nuova chat prima di merge. Preview remota, merge e
-   produzione non autorizzati; preview remota solo se e quando il proprietario
-   la richiederà. Zoom reale 200% da collaudare manualmente.
-5. A5 API live completa dipendente da fonte autorizzata. G-ADV-01 metodo
-   avanzato, G-ADV-02 screenshot/replay e G-ADV-03 troubleshooting autonomo
-   registrati nel coverage core, senza pagine vuote. Macro B–F non svolte.
-
-**MERGE=NO · PAGES DEPLOY=NO · WORKER/RELEASE=NO.**
+1. Titolare: approvazione Privacy IT/EN e data effettiva. Log/backup provider e
+   cancellazione reale non verificati; nessuna durata o conformità inventata.
+2. Review indipendente in nuova chat prima di merge. Nessun merge/deploy o
+   pubblicazione autorizzati; il candidato resta nelle PR draft.
+3. Zoom reale 200% da collaudare; test su telefono reale e campo client distinti.
+4. A5 API live completa dipendente da metadati autorizzati; G-ADV-01 metodo
+   avanzato, G-ADV-02 catture/replay e G-ADV-03 troubleshooting avanzato
+   registrati nel coverage core. Macro B–F non svolte.
 
 ## ROOT HYGIENE CHECK
 
-PASS sul delta, con limiti preesistenti: nessun file loose o cartella nuova
-nella root parent; due worktree valide sotto `worktrees/`, senza mosse manuali.
-Evidenze/script sotto `Non pubblicare/`; output `.dist` e node_modules ignorati.
-Nessun raw Arena, credenziale, codice tester o materiale privato in Git.
-Primari preservati. L’eccezione core detached preesistente in Temp e le altre
-worktree non sono state riordinate o inventariate integralmente: non si dichiara
-conforme l’intero patrimonio precedente. `.claude`/`.wrangler` preesistenti
-lasciate intatte. Nessun pruning autorizzato; worktree candidate mantenute per
-review delle PR e prove locali, poi proponibili al cleanup con mandato separato.
+PASS sul delta: nessuna nuova voce parent o file loose; due worktree proprie
+sotto worktrees, mantenute per PR aperte e anteprima locale. Nessun primario
+modificato, spostamento manuale o pruning. Script/log/evidenze sotto
+Non pubblicare; .dist e node_modules ignorati. Nessun raw Arena o segreto in Git.
+Le altre worktree, l’eccezione Temp e .claude/.wrangler preesistenti non sono
+state riordinate: non si dichiara conforme l’intero patrimonio precedente.
 
-## Riferimenti
-
-- [Audit originale immutabile](https://github.com/Dennis96/moxtracker/blob/9e76015cbe9f88b24da9dc3eb88544912a8add91/passaggi/sito/audit/AUDIT-DRAFT-OMEN-VS-MOX-PRIVACY-DOCS-NEWS-2026-10-14.md).
-- [Procedura News e gate](../NEWS-SNAPSHOT-E-GATE.md).
-- [Registro unico A–F candidato core](https://github.com/Dennis96/mox-core/blob/claude/mox-canonics-audit-draft-omen-2026-10-14/passaggi/coordinamento/REGISTRO-COPERTURA-MOX-AUDIT-DRAFT-OMEN-2026-10-14.md).
-
-## Chiusura Git e PR
-
-| Oggetto | SHA completo / PR |
-|---|---|
-| Codice tracker, snapshot e prove | `ff129d675aca75d0a932dbf636307214732ad54a` — [PR draft #42](https://github.com/Dennis96/moxtracker/pull/42) |
-| Canonici core + registro di consegna | `a4b184c30d52f2652b31ca3218e0723d66854124` — [PR draft #41](https://github.com/Dennis96/mox-core/pull/41) |
-
-Push verificato con confronto HEAD/ls-remote. Il presente aggiornamento
-documentale chiude il report sul branch tracker: il suo SHA immutabile è
-fornito nella consegna finale, evitando un autoriferimento che lo cambierebbe.
-Entrambe le PR restano draft, aperte e non fuse; nessuna comunicazione a
-17Lands, release, deploy o cambio produzione. Worktree clean mantenute per
-review delle PR, evidenze locali fuori Git. LAVORI core senza occupazione fittizia.
+[Registro unico core](https://github.com/Dennis96/mox-core/blob/051c11b29f569a70c9a7e1c822069431d26af3fd/passaggi/coordinamento/REGISTRO-COPERTURA-MOX-AUDIT-DRAFT-OMEN-2026-10-14.md) ·
+[Procedura News](../NEWS-SNAPSHOT-E-GATE.md).
+**MERGE=NO · PAGES/WORKER DEPLOY=NO · GITHUB RELEASE=NO.**
 
 ## File del diff consegnato
 
-Tracker, 39 file (elenco verificato contro Git):
+Tracker: 41 file.
 
-```text
+~~~text
 .github/workflows/news-verifica.yml
 STATO-CORRENTE-SITO.md
 config/news-fonti.json
@@ -232,10 +169,12 @@ passaggi/INDICE.md
 passaggi/sito/NEWS-SNAPSHOT-E-GATE.md
 passaggi/sito/handoff/HANDOFF-MACRO-A-2026-10-15.md
 prove/build-sito.test.js
+prove/draft-frontend.test.js
 prove/frontend-privacy.test.js
 prove/news-build.check.mjs
 prove/news.test.js
 prove/prelancio-sito.test.js
+prove/redesign-sito.test.js
 sito/account.html
 sito/admin.html
 sito/archetipo.html
@@ -261,6 +200,6 @@ strumenti/news/fonti.mjs
 strumenti/news/guide.mjs
 strumenti/news/modello.mjs
 strumenti/news/pagine.mjs
-```
+~~~
 
-Core, solo sei Markdown: `STATUS.md`, `ARRETRATI.md`, `passaggi/coordinamento/INDICE.md`, `passaggi/coordinamento/REGISTRO-COPERTURA-MOX-AUDIT-DRAFT-OMEN-2026-10-14.md`, `passaggi/draft/STATO-DRAFT-CORRENTE.md`, `passaggi/release/PROCEDURA-CANONICA-RELEASE-MOX.md`. Nessun diff finale in `LAVORI.md`; nessun client/contratto congelato modificato.
+Core: sei Markdown; nessun client o contratto congelato modificato.

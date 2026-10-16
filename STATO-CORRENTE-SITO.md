@@ -1,10 +1,10 @@
 # Stato corrente — sito Mox
 
-## Candidata Macro A — 15/10/2026, non pubblicata
+## Candidata Macro A — aggiornata il 16/10/2026, non pubblicata
 
 Branch `claude/mox-site-news-guides-privacy-2026-10-14`, base remota verificata
-`a08ee510152044b544ecdec014dd0876fd3920b0`. News da snapshot GitHub, Guide
-IT/EN, menu e Privacy candidata: [procedura e gate](passaggi/sito/NEWS-SNAPSHOT-E-GATE.md),
+`a08ee510152044b544ecdec014dd0876fd3920b0`. News pubbliche a schede da snapshot GitHub, Guide IT/EN in tre percorsi,
+Draft sintetico, home conservata con sola versione e Privacy candidata: [procedura e gate](passaggi/sito/NEWS-SNAPSHOT-E-GATE.md),
 [resoconto e acceptance](passaggi/sito/handoff/HANDOFF-MACRO-A-2026-10-15.md).
 **OWNER APPROVAL REQUIRED** per copy Privacy e data finale; review indipendente
 successiva. Nessun merge/preview remota/deploy Pages o Worker/release. Il sito
