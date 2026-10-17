@@ -18,7 +18,7 @@ La revisione indipendente in nuova chat e l’approvazione Privacy restano pende
 Codice tracker finale: **634445dc8da9739eb9e8a28e75dac6c858cd5f42**.
 Guide/Draft finali: 632fb3c6fdf0028ec4d4f0d3ea34dc551a244d6e;
 il commit seguente aggiorna soltanto la data della Privacy candidata IT/EN e la prova.
-Chiusura documentale core: **051c11b29f569a70c9a7e1c822069431d26af3fd**. Lo SHA della presente chiusura
+Chiusura documentale core, incluso addendum del 17/10: **f248af90ecdaa06c41e014a30e74b90f4fa8fb3a**. Lo SHA della presente chiusura
 tracker è fornito nel permalink finale e nella PR, evitando autoriferimenti.
 
 Letti gli ingressi canonici dei due repository e la policy workspace.
@@ -141,6 +141,25 @@ Costi/minuti effettivi Actions n.d.; nessun nuovo servizio o piano introdotto.
    avanzato, G-ADV-02 catture/replay e G-ADV-03 troubleshooting avanzato
    registrati nel coverage core. Macro B–F non svolte.
 
+## Proposta futura — immagini nelle Guide, 17/10/2026
+
+L’utente ha rinviato a un lavoro successivo l’aggiunta di immagini e ha chiesto
+di conservarne la proposta per il coordinatore, nel backlog G-ADV-02:
+
+- **Inizia con MOX:** schermata di Arena che mostra dove attivare Detailed Logs.
+- **Usa il Draft:** una busta con piccoli richiami a punteggio, percentuale e fonte dei dati.
+- **Dati e privacy:** pannello delle condivisioni, con le scelte separate visibili.
+
+Inserimento previsto dentro le risposte espandibili, con didascalie brevi e
+leggibili anche su telefono; le tre schede iniziali restano pulite. Usare
+schermate reali della versione pubblica allora corrente, con eventuali dati
+personali oscurati. Selezione/cattura, sanitizzazione e verifica sono attività
+del prossimo lavoro: **nessuna immagine acquisita o inserita in questa consegna**.
+
+Questo addendum modifica soltanto i documenti. Codice, asset, prove già riportate
+e gate della candidata restano quelli della consegna precedente; G-ADV-02 non
+è chiuso e non viene autorizzata alcuna pubblicazione.
+
 ## ROOT HYGIENE CHECK
 
 PASS sul delta: nessuna nuova voce parent o file loose; due worktree proprie
@@ -150,7 +169,7 @@ Non pubblicare; .dist e node_modules ignorati. Nessun raw Arena o segreto in Git
 Le altre worktree, l’eccezione Temp e .claude/.wrangler preesistenti non sono
 state riordinate: non si dichiara conforme l’intero patrimonio precedente.
 
-[Registro unico core](https://github.com/Dennis96/mox-core/blob/051c11b29f569a70c9a7e1c822069431d26af3fd/passaggi/coordinamento/REGISTRO-COPERTURA-MOX-AUDIT-DRAFT-OMEN-2026-10-14.md) ·
+[Registro unico core](https://github.com/Dennis96/mox-core/blob/f248af90ecdaa06c41e014a30e74b90f4fa8fb3a/passaggi/coordinamento/REGISTRO-COPERTURA-MOX-AUDIT-DRAFT-OMEN-2026-10-14.md) ·
 [Procedura News](../NEWS-SNAPSHOT-E-GATE.md).
 **MERGE=NO · PAGES/WORKER DEPLOY=NO · GITHUB RELEASE=NO.**
 
