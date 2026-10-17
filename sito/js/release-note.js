@@ -1,13 +1,12 @@
-import { RELEASE_MANIFEST_URL } from "./config.js";
+import { releaseStable } from "./download.js";
 import { nomeReleasePubblico } from "./format.js";
 
 try {
-  const risposta = await fetch(RELEASE_MANIFEST_URL, { headers: { accept: "application/json" } });
-  const release = await risposta.json();
-  if (!risposta.ok || release?.disponibile !== true) throw new Error("release non disponibile");
+  const release = await releaseStable();
+  if (release?.disponibile !== true) throw new Error("release non disponibile");
   const host = document.querySelector("[data-release-current]");
   if (host) {
-    const prefisso = document.documentElement.lang === "en" ? "Latest published Windows release" : "Ultima release Windows pubblicata";
+    const prefisso = document.documentElement.lang === "en" ? "Stable currently distributed" : "Stable attualmente distribuita";
     // Il campo `versione` del manifesto resta quello che l'updater legge; qui
     // si mostra soltanto il nome pubblico ricavato dal numero.
     const nome = nomeReleasePubblico(release.versione);

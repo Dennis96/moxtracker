@@ -16,9 +16,8 @@
 //   esattamente `on`; sempre `private, no-store`, cosi' una revoca vale alla
 //   richiesta successiva e nessuna CDN ne tiene una copia. Mai link statici.
 //
-// Lo spazio di archiviazione e' il binding R2 `DRAFT_STATS`, che **non esiste
-// ancora**: il binding non e' in `wrangler.toml` (vedi
-// `strumenti/dati-draft/wrangler-dati-draft.frammento.toml` e il runbook).
+// Lo spazio di archiviazione e' il binding R2 `DRAFT_STATS`, configurato in
+// `wrangler.toml` e attivo dal 14/10/2026 (stato e runbook correnti).
 // Senza binding ogni rotta risponde 503 `no-store` e il client usa i ripieghi.
 // I binding produttivi (`DRAFT_RAW`, `TICKET_FILES`, `MOX_RELEASES`, D1) qui non
 // si toccano.

@@ -6,6 +6,8 @@ Questo indice serve soltanto a trovare i documenti attivi e a distinguere le fon
 
 ## Ingressi e specifiche — riallineamento del 28/09/2026
 
+- [Macro A candidata aggiornata 16/10/2026](sito/handoff/HANDOFF-MACRO-A-2026-10-15.md): News/Guide/Privacy, acceptance e gate ancora separati; [refresh snapshot](sito/NEWS-SNAPSHOT-E-GATE.md). Non pubblicata.
+
 1. [`STATO-CORRENTE-SITO.md`](../STATO-CORRENTE-SITO.md) — stato operativo canonico di sito, preview, Worker, D1 e release client collegata.
 2. [`RUNBOOK-R3-PRODUZIONE.md`](research/RUNBOOK-R3-PRODUZIONE.md) — gestione operativa Research R3 in produzione, inclusi modalità, qualification e rollback.
 3. [`ACCOUNT-E-TICKET.md`](contratti/ACCOUNT-E-TICKET.md) — comportamento tecnico di OAuth, account e supporto; lo stato di rilascio resta nel file di stato operativo.

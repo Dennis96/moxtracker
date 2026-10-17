@@ -1,0 +1,1369 @@
+{
+  "schema_version": 1,
+  "repository": "Dennis96/moxtracker",
+  "source": "https://api.github.com/repos/Dennis96/moxtracker/releases",
+  "complete": true,
+  "fetched_at": "2026-10-15T19:03:04.940Z",
+  "github_latest_id": 406702253,
+  "latest_observed": {
+    "id": 406702253,
+    "tag_name": "mox-v2-beta2.11.8",
+    "version": "2.11.8",
+    "name": "MOX Beta 2.11.8",
+    "published_at": "2026-10-08T10:27:06Z",
+    "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.8",
+    "draft": false,
+    "prerelease": false,
+    "body": "# MOX Beta 2.11.8\n\nLa versione provata sul canale di prova dal 06/10/2026 arriva a tutti. Rispetto alla 2.11.3:\n\n**Draft Assistant.** I consigli seguono meglio i colori che stai costruendo: il secondo colore si sceglie con una regola nuova e le carte fuori piano, soprattutto nel Pack 3, vengono scoraggiate. Le carte ibride non confondono più la scelta dei colori. I dati 17Lands si usano solo quando il servizio lo permette; se non sono disponibili il Draft continua con colori e curva.\n\n**Draft condivisi.** Se hai acceso la condivisione dei Draft, insieme ai pick parte anche il contesto dei consigli: i calcoli di MOX e quali dati 17Lands c'erano. Lo spiegano Opzioni, la [Privacy](https://moxtracker.app/privacy) e [Cosa invia MOX](https://moxtracker.app/cosa-invia-mox). Non c'è nessun nuovo consenso: chi non l'ha accesa non manda niente. L'invio è più robusto e il mazzo finale arriva sul sito; riaprire l'assistente non crea più una cartella nuova per lo stesso Draft.\n\n**Partite e Contatore.** Il Contatore regge meglio i pezzi di log che Arena riassume; quando non può essere sicuro mostra «Conteggio in pausa» invece di un numero sbagliato.\n\n**Aggiornamenti.** In Opzioni › Diagnostica c'è «Controllo aggiornamenti…», con la percentuale del download e la verifica prima dell'installazione. Le finestre si riaprono dove le avevi lasciate.\n\nChi ha MOX 2.11.3 riceve l'aggiornamento automaticamente.\n\n\nmox-core source commit = 86fe7c0daf0a4bac80f014737960654e2424e96e\n",
+    "body_sha256": "fca6bb37d646e01c4d439058c37bcb12854a458ed38d6a93b3496ebb4bf3e5ed",
+    "source_commit": "86fe7c0daf0a4bac80f014737960654e2424e96e",
+    "assets": [
+      {
+        "id": 621487375,
+        "name": "MOX-2.11.8.zip",
+        "size": 110267929,
+        "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.8/MOX-2.11.8.zip",
+        "digest": "sha256:31b8c9faa7c4e16ef28c1c304c13dfd74037f522d2f04d48021319d5bb134c6b"
+      }
+    ]
+  },
+  "pages": [
+    {
+      "url": "https://api.github.com/repos/Dennis96/moxtracker/releases?per_page=100&page=1",
+      "data": [
+        {
+          "id": 406702253,
+          "tag_name": "mox-v2-beta2.11.8",
+          "name": "MOX Beta 2.11.8",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-08T10:27:06Z",
+          "body": "# MOX Beta 2.11.8\n\nLa versione provata sul canale di prova dal 06/10/2026 arriva a tutti. Rispetto alla 2.11.3:\n\n**Draft Assistant.** I consigli seguono meglio i colori che stai costruendo: il secondo colore si sceglie con una regola nuova e le carte fuori piano, soprattutto nel Pack 3, vengono scoraggiate. Le carte ibride non confondono più la scelta dei colori. I dati 17Lands si usano solo quando il servizio lo permette; se non sono disponibili il Draft continua con colori e curva.\n\n**Draft condivisi.** Se hai acceso la condivisione dei Draft, insieme ai pick parte anche il contesto dei consigli: i calcoli di MOX e quali dati 17Lands c'erano. Lo spiegano Opzioni, la [Privacy](https://moxtracker.app/privacy) e [Cosa invia MOX](https://moxtracker.app/cosa-invia-mox). Non c'è nessun nuovo consenso: chi non l'ha accesa non manda niente. L'invio è più robusto e il mazzo finale arriva sul sito; riaprire l'assistente non crea più una cartella nuova per lo stesso Draft.\n\n**Partite e Contatore.** Il Contatore regge meglio i pezzi di log che Arena riassume; quando non può essere sicuro mostra «Conteggio in pausa» invece di un numero sbagliato.\n\n**Aggiornamenti.** In Opzioni › Diagnostica c'è «Controllo aggiornamenti…», con la percentuale del download e la verifica prima dell'installazione. Le finestre si riaprono dove le avevi lasciate.\n\nChi ha MOX 2.11.3 riceve l'aggiornamento automaticamente.\n\n\nmox-core source commit = 86fe7c0daf0a4bac80f014737960654e2424e96e\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.8",
+          "assets": [
+            {
+              "id": 621487375,
+              "name": "MOX-2.11.8.zip",
+              "size": 110267929,
+              "digest": "sha256:31b8c9faa7c4e16ef28c1c304c13dfd74037f522d2f04d48021319d5bb134c6b",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.8/MOX-2.11.8.zip"
+            }
+          ]
+        },
+        {
+          "id": 397637179,
+          "tag_name": "mox-v2-beta2.11.3",
+          "name": "MOX Beta 2.11.3",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-09-27T12:16:36Z",
+          "body": "# MOX Beta 2.11.3\n\nUna release di infrastruttura: niente cambia nel Draft, nelle partite, in Research o nel sito.\n\nGli aggiornamenti automatici sono più robusti. Ogni versione di MOX viene scaricata da un indirizzo tutto suo, così le versioni di prova non possono mai interferire con quella che ricevi tu.\n\nSe le impostazioni di MOX diventano illeggibili, il controllo degli aggiornamenti continua a funzionare e usa il canale normale.\n\nIn Opzioni › Diagnostica c'è una riga piccola per il programma tester: serve a pochi PC che provano le versioni sperimentali prima di tutti, e richiede un codice. Se non ne hai uno, non devi fare niente.\n\n\nmox-core source commit = 59ad91f9512edcca333e2b4f935d8627f4c0a021\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.3",
+          "assets": [
+            {
+              "id": 592865360,
+              "name": "MOX-2.11.3.zip",
+              "size": 110079645,
+              "digest": "sha256:7770523b96147baf9d57d4111e04dd8f4087bc1f63351c53f21e15b5cc7bfd32",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.3/MOX-2.11.3.zip"
+            }
+          ]
+        },
+        {
+          "id": 396519909,
+          "tag_name": "mox-v2-beta2.11.2",
+          "name": "MOX Beta 2.11.2",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-09-25T10:41:53Z",
+          "body": "# MOX Beta 2.11.2\n\nResearch scelta nel primo avvio viene attivata direttamente alla fine del percorso, dopo la conferma del sito. Il riepilogo distingue la scelta ancora da attivare dallo stato realmente acceso. Se la rete o il servizio non rispondono, puoi riprovare oppure entrare in MOX con Research spenta.\n\nAl termine del primo avvio rimani nel Gestore MOX. Opzioni non si apre automaticamente.\n\nSe avevi scelto Research nel primo avvio della 2.11.1, MOX ripropone quella scelta senza attivarla da solo. Puoi confermarla, rinviarla o continuare con Research spenta. Partite/Meta, Draft e account conservano le scelte precedenti.\n\nResearch resta facoltativa, separata dagli altri consensi e revocabile da Opzioni. Questa patch non cambia l'invio dei dati, il Draft o il sito.\n\n\nmox-core source commit = 20d2d0728435bd40601d87b7dfe2d4810404d043\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.2",
+          "assets": [
+            {
+              "id": 588142728,
+              "name": "MOX-2.11.2.zip",
+              "size": 111129196,
+              "digest": "sha256:800ef639ab985b4c4527142957b63b062024c1c080a84190f5596cb7bbda55ec",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.2/MOX-2.11.2.zip"
+            }
+          ]
+        },
+        {
+          "id": 396336053,
+          "tag_name": "mox-v2-beta2.11.1",
+          "name": "MOX Beta 2.11.1",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-09-25T05:38:17Z",
+          "body": "# MOX Beta 2.11.1\n\nMOX per Windows: tracker di MTG Arena, assistente al Draft, mazzi e statistiche.\n\n## Novità\n\n- Il primo avvio guida lingua, aspetto, registri di Arena, condivisioni e account in cinque passi. Le condivisioni Partite/Meta, Draft e Research restano separate e facoltative; chi aggiorna conserva le scelte esistenti.\n- Le risorse non disponibili nei registri di Arena sono indicate come dati mancanti invece di apparire come zero. MOX distingue registri spenti, Arena chiusa e login non ancora completato, con un comando per ricontrollare.\n- La diagnostica espone lo stato dei registri senza allegare nuovi dati; le esportazioni distinguono i valori ignoti dagli zeri reali.\n\nScarica `MOX-2.11.1.zip`, estrailo in una cartella normale e avvia `Mox.exe`. Non avviare l'eseguibile direttamente dallo ZIP.\n\nmox-core source commit = ad8e0632211f8f225d36fa0ddb72fd90139af08d\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.1",
+          "assets": [
+            {
+              "id": 587624666,
+              "name": "MOX-2.11.1.zip",
+              "size": 111118384,
+              "digest": "sha256:d58a079b37cd8b50a99a73745334ee61aba09122da653c769f17deb7b872c44d",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.1/MOX-2.11.1.zip"
+            }
+          ]
+        },
+        {
+          "id": 389127811,
+          "tag_name": "mox-v2-beta2.11.0",
+          "name": "MOX Beta 2.11.0",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-09-15T12:32:03Z",
+          "body": "# Mox 2 beta 2.11.0\n\nArriva **Research**: facoltativa e spenta di partenza. In Opzioni c'è una\nsezione nuova che spiega a che cosa serve, che cosa parte e che cosa non\nparte. Si accende soltanto con il pulsante «Partecipa a Research»: «Non ora»,\nEsc e la chiusura della finestra non fanno niente.\n\n- Partono i fatti delle partite chiuse **dopo** il tuo sì: formato, evento,\n  esito, rank, turni, chi ha cominciato, mulligan, mazzo e cambi di\n  sideboard, carte pescate e giocate. Le partite di prima non rientrano.\n- Non partono mai nomi (né il tuo né dell'avversario), il nome del mazzo,\n  l'identificativo della partita, la mano o il grimorio dell'avversario.\n- Il consenso si ritira quando vuoi, e puoi chiedere di cancellare tutto\n  quello che hai mandato. Se il sito non conferma subito, Mox riprova da\n  solo, anche dopo un riavvio, finché la richiesta non arriva.\n- Se il sito non è pronto a ricevere, Mox non manda niente e tiene le\n  partite sul PC.\n\nL'invio delle partite di sempre, il Draft e l'account non cambiano.\n\nProvenienza sorgente:\n\n```text\nmox-core source commit = 436f0107ede6f99071f696cb18a4402b6feeeb67\n```\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.0",
+          "assets": [
+            {
+              "id": 565666293,
+              "name": "MOX-2.11.0.zip",
+              "size": 109911815,
+              "digest": "sha256:803ef8d0aa4d4b6efa8c2789d52726a19a974523c0f5273979408db8427f9b66",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.0/MOX-2.11.0.zip"
+            }
+          ]
+        },
+        {
+          "id": 381753492,
+          "tag_name": "mox-v2-beta2.9.29",
+          "name": "Mox 2 beta 2.9.29",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-09-03T05:11:49Z",
+          "body": "## Mox v2 beta 2.9.29\n\nIl Draft legge il costo di mana con un parser solo. `{B/G}` vale come\n**alternativa** — uno dei due colori, non tutti e due insieme — quindi una carta\nlanciabile col solo Nero in un mazzo rosso-nero non paga più come se servissero\nentrambi i colori. Il costo convertito degli ibridi monocolore, tipo `{2/R}`,\nvale 2 e non più 1.\n\nDa lì vengono le altre due correzioni. La castabilità nei colori del mazzo si\ngiudica sui requisiti veri della carta invece che sulla sua identità di colore.\nE una carta di cui non si conosce il costo viene marcata come dato mancante\ninvece di essere trattata come una carta a costo zero: senza quella marcatura\nrisultava pagabile con qualunque coppia, cioè la carta perfetta.\n\nIl Contatore legge il mazzo **dopo il sideboard** da quello che Arena dichiara,\ninvece di dedurlo, e dichiara quando l'abbinamento fra la dichiarazione e la\ngara è ambiguo invece di indovinare.\n\nIl ranking non cambia politica: le analisi sperimentali R0 e R1 del Draft\nrestano fuori da questa versione. E non esce niente di nuovo dal computer: il\npacchetto delle partite resta alla versione 2 e l'invio è quello di prima.\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.29",
+          "assets": [
+            {
+              "id": 542242209,
+              "name": "Mox-v2-beta2.9.29-con-python.zip",
+              "size": 109569609,
+              "digest": "sha256:1381b360fd6a30d7e74314ef190d1ae2f2b5ebd8e2acec6e27f1b81b28d239a0",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.29/Mox-v2-beta2.9.29-con-python.zip"
+            }
+          ]
+        },
+        {
+          "id": 386273726,
+          "tag_name": "mox-v2-beta2.10.0",
+          "name": "Mox 2 beta 2.10.0",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-09-10T12:43:10Z",
+          "body": "# Mox 2 beta 2.10.0\n\nQuesta versione ripristina la compatibilità con MTG Arena 2026.62, compresi il\nnuovo schema dei mazzi e della collezione e il JSON spaziato scritto dal client.\n\n- La legalità Standard è valutata per carta: una vecchia stampa resta\n  utilizzabile quando esiste una ristampa legale; ban e dati non determinabili\n  restano distinti.\n- «I tuoi mazzi» conserva le versioni storiche complete e associa correttamente\n  le partite al formato esplicito di Arena, senza trasformare genericamente\n  `Play` in `Standard`.\n- La finestra Mazzi compare subito, rende disponibili i mazzi prima delle\n  statistiche e mostra il progresso reale `X/Y` durante la scansione. La barra\n  scompare al termine.\n- «↗ Mostra file» seleziona direttamente `collezione.json` in Esplora file,\n  senza aprirlo, copiarlo o spostarlo.\n- Il Draft Collection-Aware può usare la collezione come spareggio opzionale;\n  resta disattivato per impostazione predefinita.\n\nIl primo caricamento delle statistiche con cache fredda può ancora richiedere\ntempo; ora l’attività è visibile e ne mostra l’avanzamento reale.\n\nProvenienza sorgente:\n\n```text\nmox-core source commit = 09b889031c903e0f810803c868ea92e696ca7bc5\n```\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.10.0",
+          "assets": [
+            {
+              "id": 554999499,
+              "name": "Mox-v2-beta2.10.0-con-python.zip",
+              "size": 110845723,
+              "digest": "sha256:82e7dc8b7671c22a29b12ea5ed5ec3ec0c124b65eafb362345655e6d2998dbd0",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.10.0/Mox-v2-beta2.10.0-con-python.zip"
+            }
+          ]
+        },
+        {
+          "id": 378700540,
+          "tag_name": "mox-v2-beta2.9.28",
+          "name": "Mox 2 beta 2.9.28",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-28T18:55:27Z",
+          "body": "## Draft\\n\\n- Le schede si ridisegnano correttamente quando allarghi o restringi la finestra.\\n- Riepilogo del tavolo e carte sono separati da una barra regolabile, la cui posizione viene ricordata.\\n- Nessuna modifica ai dati inviati, alle statistiche o al sito.\\n\\nInstaller automatico disponibile da Mox > Opzioni; questo ZIP include anche il runtime per l'installazione offline.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.28",
+          "assets": [
+            {
+              "id": 534219069,
+              "name": "Mox-v2-beta2.9.28-con-python.zip",
+              "size": 110518125,
+              "digest": "sha256:3c7ac8b4899edb1687e116b11f4b4576ac8704ba0b1012d742c162d5aefffcda",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.28/Mox-v2-beta2.9.28-con-python.zip"
+            }
+          ]
+        },
+        {
+          "id": 378619859,
+          "tag_name": "mox-v2-beta2.9.27",
+          "name": "Mox 2 beta 2.9.27",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-28T16:34:42Z",
+          "body": "## Mox v2 beta 2.9.27\n\nCorregge un difetto che poteva comparire fra due Draft consecutivi, soprattutto\nnel PickTwo: Arena può riusare sia il nome dell'evento sia il suo `draftId`.\nIn quel caso Mox poteva mostrare le carte senza modalità e senza statistiche\n17Lands, e non inviare il secondo Draft.\n\nOra Mox riconosce l'ingresso del nuovo tavolo prima del primo pacchetto, carica\nsubito set e formato corretti e conserva una traccia distinta per ogni sessione\nlocale. L'aggiornamento automatico resta invariato.\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.27",
+          "assets": [
+            {
+              "id": 534064338,
+              "name": "Mox-v2-beta2.9.27-con-python.zip",
+              "size": 110511244,
+              "digest": "sha256:4c3afd7510c957c182ce488c2591fa6a0add6a76b506d629860976fed1b9f224",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.27/Mox-v2-beta2.9.27-con-python.zip"
+            }
+          ]
+        },
+        {
+          "id": 378025962,
+          "tag_name": "mox-v2-beta2.9.26",
+          "name": "Mox 2 beta 2.9.26",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-27T18:08:26Z",
+          "body": "Corregge A110: le carte ATA senza percentuale mostrano n.d. ATA e non fermano più la costruzione del mazzo Draft.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.26",
+          "assets": [
+            {
+              "id": 532685563,
+              "name": "Mox-v2-beta2.9.26-con-python.zip",
+              "size": 110508693,
+              "digest": "sha256:7c8aec280b10427a6ecfacd3e4612911a980a65d92d14709a9347bd0bc3431f6",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.26/Mox-v2-beta2.9.26-con-python.zip"
+            }
+          ]
+        },
+        {
+          "id": 377419272,
+          "tag_name": "mox-v2-beta2.9.25",
+          "name": "Mox 2 beta 2.9.25",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-26T20:59:38Z",
+          "body": "## Mox v2 beta 2.9.25\n\nSegue di poche ore la 2.9.24, e sistema due cose viste al primo uso vero.\n\n- **l'avviso dei Draft rifiutati parlava male.** Diceva «0 rimessi in fila e\n  rimandati. 1 non si possono ricostruire», e sembrava un guasto del programma.\n  Peggio: offriva di riprovare a mandare un Draft che non si potrà mai\n  rimandare. Adesso guarda prima se c'è davvero qualcosa da fare, e se non c'è\n  lo dice e basta;\n- **un file rovinato non tiene più chiusa la finestra principale.** Un pacchetto\n  in quarantena scritto a metà — un crash, il disco pieno — faceva saltare la\n  lettura, e il Gestore poteva non aprirsi affatto. Trovato dal controllo del\n  codice, non dalle prove.\n\nChi è già sulla 2.9.24 ha tutto il resto: i Draft che arrivano al sito, i\nrifiutati che si recuperano e l'avviso nel cruscotto.\n\nL'aggiornamento è automatico. Chi preferisce, scarica lo ZIP qui sotto.\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.25",
+          "assets": [
+            {
+              "id": 531339309,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109448027,
+              "digest": "sha256:48bf576f6324f1dd9a498b89879c88ca208cb8e03cfe57a9cccc9ca40a71cee8",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.25/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 374340676,
+          "tag_name": "mox-v2-beta2.9.3",
+          "name": "MOX beta 2.9.3",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-21T10:59:17Z",
+          "body": "Corregge l'invio delle partite quando Arena non espone la mano iniziale: il campo viene omesso invece di inviare una mano vuota che il server rifiuta. I rifiuti futuri restano visibili nelle Opzioni con il motivo salvato solo sul PC.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.3",
+          "assets": [
+            {
+              "id": 523624535,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109230228,
+              "digest": "sha256:c93155663e5a03442ce853da01ba2d97e575bd237c84812cdbbd808243392673",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.3/Mox-Windows-beta.zip"
+            },
+            {
+              "id": 523622847,
+              "name": "Mox-Windows-beta.zip.sha256",
+              "size": 65,
+              "digest": "sha256:8c27c0e2306d70c52b1b22d9fd65916c7fad9420191770e149f017af423a8dfd",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.3/Mox-Windows-beta.zip.sha256"
+            }
+          ]
+        },
+        {
+          "id": 374217060,
+          "tag_name": "mox-v2-beta2.9.2",
+          "name": "MOX beta 2.9.2",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-21T06:54:04Z",
+          "body": "Corregge la regressione di formato delle partite con mazzo fornito. DualColorPrecons, WelcomeDeckDuels e Jump In non vengono piu' classificati come Standard se Arena dichiara Standard nel riepilogo del mazzo; Ladder continua invece a usare il formato effettivamente dichiarato da Arena. La cache delle statistiche viene rigenerata automaticamente.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.2",
+          "assets": [
+            {
+              "id": 523362203,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109227561,
+              "digest": "sha256:a39042e3c0a52f3d965001ce19806655d7b40b257a16338eb7fb4f99efa6937d",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.2/Mox-Windows-beta.zip"
+            },
+            {
+              "id": 523362202,
+              "name": "Mox-Windows-beta.zip.sha256",
+              "size": 64,
+              "digest": "sha256:f0852f465d262709727549a8081a3767a22d3d9b8354c484f5bcaeea55392d05",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.2/Mox-Windows-beta.zip.sha256"
+            }
+          ]
+        },
+        {
+          "id": 375044100,
+          "tag_name": "mox-v2-beta2.9.12",
+          "name": "MOX beta v2.9.12",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-22T21:29:24Z",
+          "body": "",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.12",
+          "assets": [
+            {
+              "id": 525467286,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109262842,
+              "digest": "sha256:4bf206e4c3e01a3c01c7c46070ac745d37664eef7d821f8588208c3557e7a612",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.12/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 373964830,
+          "tag_name": "mox-v2-beta2.9.1",
+          "name": "MOX beta 2.9.1",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-20T19:03:48Z",
+          "body": "Prima beta scaricabile dal sito. Corregge la lettura del pool durante Prendi Due: Mox applica colori e compatibilità a ogni scelta invece di aspettare la fine. Il parser copre anche Premier e Quick mantenendo la compatibilità con i log precedenti. I consensi per inviare partite e Draft restano separati, inizialmente spenti e revocabili. Pacchetto per Windows con EXE e percorso alternativo Python incluso.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.1",
+          "assets": [
+            {
+              "id": 522666591,
+              "name": "Mox-Windows-beta.zip",
+              "size": 107917893,
+              "digest": "sha256:1e7c932c8ddcfcbe19ace5f37eb0f5f55329f7c606a2def1800fae3232dc37a3",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.1/Mox-Windows-beta.zip"
+            },
+            {
+              "id": 522666589,
+              "name": "Mox-Windows-beta.zip.sha256",
+              "size": 87,
+              "digest": "sha256:27843dd8dc4c5840bb95481cf079c7123ef1b491de64ae4fbd74e8502cb9e6fd",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.1/Mox-Windows-beta.zip.sha256"
+            }
+          ]
+        },
+        {
+          "id": 377399281,
+          "tag_name": "mox-v2-beta2.9.24",
+          "name": "Mox 2 beta 2.9.24",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-26T20:20:13Z",
+          "body": "## Mox v2 beta 2.9.24\n\n**I Draft arrivano al sito.** Prima ne passava circa uno su due: Mox rimetteva\nle carte del pool nell'ordine in cui le manda Arena, che non è quello in cui le\nhai scelte, e il server rifiutava il Draft intero — con dentro tutte le carte\ngiuste. Quattro Draft veri persi fra il 24 e il 26 agosto, e il motivo restava\nin un file che nessuno apriva.\n\nCosa cambia per chi usa Mox:\n\n- **i Draft arrivano**, e quello che il sito rifiuterebbe non parte nemmeno:\n  resta sul tuo computer con scritto perché;\n- **il cruscotto te lo dice** se qualcuno viene rifiutato, con un tasto per\n  rimetterlo in ordine e riprovare. Prima quel numero c'era solo dentro Opzioni;\n- **i Draft già rifiutati si recuperano**: le carte e le scelte erano tutte lì,\n  bastava rimetterle in fila. Nessun dato viene inventato — se una carta non\n  torna, quel Draft resta fermo.\n\nSotto il cofano: il pool tiene il proprio ordine, il pacchetto passa dagli\nstessi controlli del server prima di partire (con un file di casi condiviso fra\nle due suite, così non possono divergere), e una traccia chiusa non cambia più\nle scelte.\n\nVerificato con la suite completa, 152 prove sul server, 400 varianti di fuzzing\ne un giro di mutazioni: rimettendo il difetto, 77 varianti su 400 diventano\nrosse; senza, zero.\n\nL'aggiornamento è automatico. Chi preferisce, scarica lo ZIP qui sotto.\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.24",
+          "assets": [
+            {
+              "id": 531296817,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109443412,
+              "digest": "sha256:3910792ef6362fe0c9f9d932dbb743f43fe79b00b9d0237de5af41ca76864ea0",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.24/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 376943693,
+          "tag_name": "mox-v2-beta2.9.23",
+          "name": "Mox v2 beta 2.9.23",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-26T07:19:10Z",
+          "body": "Chiude i difetti visti nei Draft veri del 25 agosto.\n\n**Le terre duali entrano nel mazzo e fra i consigli.** In Arena la rarità 1 non\nè quella delle terre base: è quella di tutte le terre non collezionabili, e in\nHOB il ciclo comune (Goblin-town, Lake-town, Iron Hills, Mirkwood) la condivide\ncon le Paludi. Mox le trattava come Paludi e le lasciava sempre in riserva.\nMisurato sul banco: rimettendo il difetto, l'accordo con i pick dei giocatori\nDiamond/Mythic cala di 0,044 sul set cieco.\n\n**Un Draft nuovo non eredita più quello di prima**, e un Premier non resta\nclassificato come Prendi Due. Non serve più «reset draft» per passare da un\nevento all'altro.\n\n**«chiudi draft» funziona davvero**: prima azzerava le carte ma non l'identità\ndel Draft, e rileggendo il log le stesse carte rientravano.\n\n**Sotto ogni carta del mazzo e della riserva** ci sono la statistica 17lands e\nil campione, anche nella vista Curva e composizione.\n\n**La riga di stato dice a che busta e a che scelta sei**, con i numeri che\nmanda Arena.\n\nSotto il cofano: nessun filo di rete chiama più la finestra, un banco che\nrigioca i Draft veri dai log in un decimo di secondo, il collaudo\ndell'aggiornamento dentro la suite e un cancello che rifiuta di pubblicare\nsenza prove verdi.\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.23",
+          "assets": [
+            {
+              "id": 530437113,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109413860,
+              "digest": "sha256:27c2e260420cc719a4f7f63d181d1118172012abf47b1b1793d0ff432460a89e",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.23/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 376501388,
+          "tag_name": "mox-v2-beta2.9.22",
+          "name": "Mox v2 beta 2.9.22",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-25T15:11:10Z",
+          "body": "Ripristina il controllo automatico degli aggiornamenti. Il controllo parte soltanto dopo l avvio della GUI e non puo piu lasciare bloccato il pulsante manuale. Il canale autoupdate include un ponte temporaneo per aggiornare in modo affidabile le versioni fino alla 2.9.21.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.22",
+          "assets": [
+            {
+              "id": 529372030,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109382916,
+              "digest": "sha256:6144f45c5dff8da680b9d616809898fdda319cafbbab84ba305f14feff2dc4bb",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.22/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 376435699,
+          "tag_name": "mox-v2-beta2.9.21",
+          "name": "Mox 2 beta 2.9.21",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-25T13:40:35Z",
+          "body": "Hotfix del Quick Draft: Mox riconosce l'evento quando Arena lo scrive dentro Payload, carica di nuovo i dati 17lands e non eredita il pool del Draft precedente.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.21",
+          "assets": [
+            {
+              "id": 529258237,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109383830,
+              "digest": "sha256:fa72dda7c3ad7c37a6e06295892d3a10709f7551ea44dc8a4446f28e127ec9eb",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.21/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 376397439,
+          "tag_name": "mox-v2-beta2.9.20",
+          "name": "Mox 2 beta 2.9.20",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-25T12:45:49Z",
+          "body": "Recupera il deck builder dei Draft iniziati con versioni precedenti o dopo il riavvio di Arena. Distingue in modo sicuro eventi vecchi e nuovi, conserva la ripresa locale e usa il recupero autenticato dal server solo quando serve.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.20",
+          "assets": [
+            {
+              "id": 529192554,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109383569,
+              "digest": "sha256:ef033f3523d7738c248fa81f8a670e372921dbba36020c146d4ca04eb01e5cf9",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.20/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 376307234,
+          "tag_name": "mox-v2-beta2.9.19",
+          "name": "MOX beta v2.9.19",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-25T10:07:24Z",
+          "body": "## Dati 17lands completi e nuovo deck builder Draft\n\n**I voti ora usano tutto il set.** Il vecchio indirizzo 17lands restituiva in silenzio soltanto l'ultimo giorno di partite. Mox usa ora i dati `ALL_TIME`, mostra il campione reale, l'IWD e il win rate della carta dentro i tuoi colori.\n\n**Il mazzo finale ha due viste.** Da `⚙ Opzioni` puoi scegliere tra “Dati 17lands”, con valore, fonte e campione di ogni carta, e “Costruzione mazzo”, con tipi, costi, riepilogo e curva di mana. La proposta scelta e le 16/17/18 terre restano sincronizzate.\n\n**La finestra del Draft è più leggibile.** Proposte interamente cliccabili, selezione evidente, scheda carta più ordinata, testi adattivi e vista compatta invariata.\n\n**Corrette terre e proposte.** Le terre non base utili sostituiscono le basi senza portare il mazzo a 18 terre; un pool di sole terre non causa più errori; cambiare 16/17/18 terre non perde la proposta selezionata; il nome dei colori riflette le carte realmente giocate.\n\n**La policy colori è stata ricalibrata** su 20.000 Draft: Mox si impegna nei colori poco prima, con un miglioramento piccolo ma misurato e senza regressioni sui set di calibrazione.\n\n## Come si aggiorna\n\nChi ha già Mox riceve l'aggiornamento automatico firmato 2.9.19 al prossimo controllo. Chi parte da zero scarica `Mox-Windows-beta.zip` qui sotto.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.19",
+          "assets": [
+            {
+              "id": 529000102,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109371108,
+              "digest": "sha256:604729b7253d64f9375779a68fc338983af20fe359bcee129544079501891958",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.19/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 375811653,
+          "tag_name": "mox-v2-beta2.9.18",
+          "name": "MOX beta v2.9.18",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-24T15:40:06Z",
+          "body": "## La versione nata dal primo Draft vero\n\nCinque cose, tutte venute fuori draftando davvero con l'assistente nuovo.\n\n**Il Draft adesso arriva sul sito.** Quando due carte scelte insieme nel Prendi Due comprendevano una carta che avevi già nel pool, Mox le registrava in ordine invertito e il server rifiutava **l'intero Draft**. Non se ne accorgeva nessuno: finiva in quarantena e basta.\n\n**La terra base non si consiglia più** quando c'è altro da prendere. Ne metti quante vuoi a fine Draft: in un pacchetto da otto carte non è mai la seconda scelta.\n\n**Lo splash «facile» pretende una fonte vera.** Una carta costosa fuori dai tuoi colori resta facile da splashare solo se hai almeno una terra che quel colore lo produce. Prima bastava che costasse quattro mana, e ti ritrovavi consigliata una carta che non potevi giocare.\n\n**Sedici terre invece di diciassette.** Non è un'opinione: su **1.862.608 partite vere** sedici vince più di diciassette in ogni fascia di curva, e anche guardando i soli Diamond e Mythic. Se preferisci diciassette o diciotto lo scegli tu, dalla vista del mazzo. E la divisione fra i colori non è più una proporzione sui simboli: Mox tira qualche centinaio di aperture e tiene quella che gioca meglio.\n\n**La vista del mazzo si legge meglio**: i costi con i simboli veri invece di `{2}{B}`, le terre con il loro disegno invece di un rettangolo grigio e con il nome nella tua lingua, e per vedere una carta in grande basta passarci sopra il mouse.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.18 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.18",
+          "assets": [
+            {
+              "id": 527809326,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109311071,
+              "digest": "sha256:469fbedc6685ded6cb50f66a7ba0ffaa3b310df644e3c9ad17380115d988fd34",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.18/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 375463528,
+          "tag_name": "mox-v2-beta2.9.17",
+          "name": "MOX beta v2.9.17",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-24T05:20:16Z",
+          "body": "## L'invio dei Draft, adesso che le tracce sono piene\n\nDalla 2.9.16 la traccia di un Draft contiene **tutte** le scelte, non una o due su quarantadue. Due limiti che prima non si potevano nemmeno vedere:\n\n- un Draft intero pesa circa **174 KB** e il server accetta richieste fino a mezzo mega: quattro insieme facevano 700 KB, la richiesta veniva respinta e la fila restava ferma a ritentare lo stesso pacco. Adesso le richieste si compongono a byte, non a numero fisso;\n- se chiudi Mox **a metà** Draft e lo riapri, le scelte fatte mentre era spento mancano, e il server rifiutava tutto il Draft per quel buco nella numerazione. Adesso viene mandato il tratto più lungo, invece di perdere tutto.\n\n## Dentro c'è anche la 2.9.16 e la 2.9.15\n\nUn Draft nuovo riparte sempre dalle scelte, e i colori del Draft: le terre a doppio colore non salgono più fra le prime scelte quando non producono mana che ti serve, e una carta con un piede fuori dai tuoi colori costa quanto lo splash che è.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.17 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.17",
+          "assets": [
+            {
+              "id": 527128268,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109291655,
+              "digest": "sha256:10ebd7ab69ee50c5dd4131f3d3b7b4941b6fe9900f67216fdbbfbebdc2d2db4a",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.17/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 375325672,
+          "tag_name": "mox-v2-beta2.9.16",
+          "name": "MOX beta v2.9.16",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-23T21:05:22Z",
+          "body": "## Un Draft che non partiva\n\nChi durante un Draft chiede di vedere il **mazzo consigliato** — e dalla 2.9 si può chiedere in qualunque momento — lasciava quel pulsante premuto anche per il Draft successivo. Risultato: il Draft nuovo cominciava, finché il pool era vuoto le scelte si vedevano, ma **dalla prima carta in poi tornava il mazzo e ci restava**. È successo davvero, a un secondo Draft aperto di seguito.\n\nAdesso un Draft nuovo riparte sempre dalle scelte.\n\n## Dentro c'è anche tutta la 2.9.15\n\nI colori del Draft: le terre a doppio colore non salgono più fra le prime scelte quando non producono mana che ti serve, e una carta con un piede fuori dai tuoi colori costa quanto lo splash che è. Misurato su 4.000 Draft veri di 17lands, con un set tenuto da parte per la verifica.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.16 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.16",
+          "assets": [
+            {
+              "id": 526642076,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109287933,
+              "digest": "sha256:7afeb631d58a69b4b26af2b95c1bf20b580dc90ac68da9b81ee21c172c62cd6a",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.16/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 375276160,
+          "tag_name": "mox-v2-beta2.9.15",
+          "name": "MOX beta v2.9.15",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-23T17:23:15Z",
+          "body": "## I colori del Draft\n\n- Le **terre a doppio colore** non salgono più fra le prime scelte quando non producono mana che ti serve. Nel database di Arena le terre hanno il campo dei colori vuoto, e Mox le trattava come se fossero sempre nei tuoi colori: costo zero, più un bonus che non avrebbero dovuto avere.\n- Una carta con **un piede fuori** dai tuoi colori costa adesso quanto lo splash che è. Prima costava dodici volte meno di una carta interamente fuori colore, e il pool si allargava fino a quattro colori.\n\nScelto misurando **4.000 Draft veri** di 17lands su quattro set, con un set tenuto da parte per la verifica: l'accordo con le scelte dei giocatori Diamond e Mythic sale di cinque punti percentuali.\n\nIl **mazzo consigliato resta a due colori**, ed è la scelta giusta: su 421.197 mazzi veri il due colori puro vince più di ogni altra combinazione.\n\n## Tracce dei Draft\n\nOgni Draft lascia ora una traccia completa delle scelte. Prima ne registrava una o due su quarantadue: la traccia cambiava identità durante il Draft, e la registrazione dipendeva da cosa stavi guardando nella finestra.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.15 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.15",
+          "assets": [
+            {
+              "id": 526450459,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109289158,
+              "digest": "sha256:ab3c7ceeff145d7f140d9d38176b6339ae4844353cde23f5fcabcc0f22e11e52",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.15/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 375215060,
+          "tag_name": "mox-v2-beta2.9.14",
+          "name": "MOX beta v2.9.14",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-23T13:12:26Z",
+          "body": "Due correzioni trovate usando la 2.9.13.\n\nL'invito a contribuire con le partite restava nel cruscotto anche dopo aver risposto dalle Opzioni: il consenso veniva registrato, ma la striscia continuava a chiedere una cosa gia' decisa. La domanda si fa una volta sola, e adesso sparisce da qualunque parte tu risponda.\n\nIl rank Bronze non e' piu' mostrato come sconosciuto. Arena non manda la classe quando vale il primo gradino - nello stesso blocco omette anche le vittorie quando sono zero - e Mox mostrava «n.d.» a chi era semplicemente Bronze. Ora scrive Bronze, e sul sito quelle partite compaiono nel filtro del rank invece di sparire.\n\nChi ha gia' la 2.9.12 o la 2.9.13 riceve l'aggiornamento firmato dall'applicazione. Chi parte da zero scarica questo ZIP, lo scompatta dove vuole e apre Mox.exe: prima del primo avvio conviene leggere la voce su Smart App Control nel LEGGIMI.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.14",
+          "assets": [
+            {
+              "id": 526230407,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109280985,
+              "digest": "sha256:5eeb84851ae83218a823529c2791e410079b9a075956a7f21f40d6d853eebe64",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.14/Mox-Windows-beta.zip"
+            }
+          ]
+        },
+        {
+          "id": 375156656,
+          "tag_name": "mox-v2-beta2.9.13",
+          "name": "MOX beta v2.9.13",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-08-23T08:34:54Z",
+          "body": "La finestra Opzioni sta nello schermo: due colonne, ridimensionabile e scorrevole. Prima stava in una colonna sola, non si poteva ridimensionare e non scorreva, quindi su uno schermo da 24 pollici le ultime sezioni - fra cui i consensi - restavano irraggiungibili.\n\nArriva anche un terzo consenso, spento di partenza: i mazzi che hai costruito in Arena possono comparire nel tuo account su moxtracker.app, con il nome che hai dato loro tu. Il nome resta dentro il tuo account e non entra in nessuna statistica pubblica.\n\nSul sito, nella stessa giornata: il filtro Evento della cronologia elenca tutti gli eventi e non i soli Draft, il testo dei ticket si legge, e la verifica anti-spam dei ticket anonimi funziona.\n\nChi ha gia' la 2.9.12 riceve l'aggiornamento firmato dall'applicazione. Chi parte da zero scarica questo ZIP, lo scompatta dove vuole e apre Mox.exe: prima del primo avvio conviene leggere la voce su Smart App Control nel LEGGIMI.",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.13",
+          "assets": [
+            {
+              "id": 526010578,
+              "name": "Mox-Windows-beta.zip",
+              "size": 109280292,
+              "digest": "sha256:6cb97dee678dbb7f8d03672a7aaebc53e114ee32e8eb5b3f8458e5451dff588c",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.13/Mox-Windows-beta.zip"
+            }
+          ]
+        }
+      ],
+      "etag": "W/\"c3d2ac0ef232b9b79d3bd6981e185a0549822f5ff2d11ccd214fef47a92c70b8\"",
+      "body_sha256": "f9c6d3aff4bc85c537ae346cf1ebd6c57cea05533277b1319ada0c951808fe1b"
+    },
+    {
+      "url": "https://api.github.com/repos/Dennis96/moxtracker/releases?per_page=100&page=2",
+      "data": [],
+      "etag": "\"74d1db57f0fec3481bb6b4d9bcdc020d656635ec6c53ee589d27a8831cbbe280\"",
+      "body_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ],
+  "releases": [
+    {
+      "id": 406702253,
+      "tag_name": "mox-v2-beta2.11.8",
+      "version": "2.11.8",
+      "name": "MOX Beta 2.11.8",
+      "published_at": "2026-10-08T10:27:06Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.8",
+      "draft": false,
+      "prerelease": false,
+      "body": "# MOX Beta 2.11.8\n\nLa versione provata sul canale di prova dal 06/10/2026 arriva a tutti. Rispetto alla 2.11.3:\n\n**Draft Assistant.** I consigli seguono meglio i colori che stai costruendo: il secondo colore si sceglie con una regola nuova e le carte fuori piano, soprattutto nel Pack 3, vengono scoraggiate. Le carte ibride non confondono più la scelta dei colori. I dati 17Lands si usano solo quando il servizio lo permette; se non sono disponibili il Draft continua con colori e curva.\n\n**Draft condivisi.** Se hai acceso la condivisione dei Draft, insieme ai pick parte anche il contesto dei consigli: i calcoli di MOX e quali dati 17Lands c'erano. Lo spiegano Opzioni, la [Privacy](https://moxtracker.app/privacy) e [Cosa invia MOX](https://moxtracker.app/cosa-invia-mox). Non c'è nessun nuovo consenso: chi non l'ha accesa non manda niente. L'invio è più robusto e il mazzo finale arriva sul sito; riaprire l'assistente non crea più una cartella nuova per lo stesso Draft.\n\n**Partite e Contatore.** Il Contatore regge meglio i pezzi di log che Arena riassume; quando non può essere sicuro mostra «Conteggio in pausa» invece di un numero sbagliato.\n\n**Aggiornamenti.** In Opzioni › Diagnostica c'è «Controllo aggiornamenti…», con la percentuale del download e la verifica prima dell'installazione. Le finestre si riaprono dove le avevi lasciate.\n\nChi ha MOX 2.11.3 riceve l'aggiornamento automaticamente.\n\n\nmox-core source commit = 86fe7c0daf0a4bac80f014737960654e2424e96e\n",
+      "body_sha256": "fca6bb37d646e01c4d439058c37bcb12854a458ed38d6a93b3496ebb4bf3e5ed",
+      "source_commit": "86fe7c0daf0a4bac80f014737960654e2424e96e",
+      "assets": [
+        {
+          "id": 621487375,
+          "name": "MOX-2.11.8.zip",
+          "size": 110267929,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.8/MOX-2.11.8.zip",
+          "digest": "sha256:31b8c9faa7c4e16ef28c1c304c13dfd74037f522d2f04d48021319d5bb134c6b"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 397637179,
+      "tag_name": "mox-v2-beta2.11.3",
+      "version": "2.11.3",
+      "name": "MOX Beta 2.11.3",
+      "published_at": "2026-09-27T12:16:36Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.3",
+      "draft": false,
+      "prerelease": false,
+      "body": "# MOX Beta 2.11.3\n\nUna release di infrastruttura: niente cambia nel Draft, nelle partite, in Research o nel sito.\n\nGli aggiornamenti automatici sono più robusti. Ogni versione di MOX viene scaricata da un indirizzo tutto suo, così le versioni di prova non possono mai interferire con quella che ricevi tu.\n\nSe le impostazioni di MOX diventano illeggibili, il controllo degli aggiornamenti continua a funzionare e usa il canale normale.\n\nIn Opzioni › Diagnostica c'è una riga piccola per il programma tester: serve a pochi PC che provano le versioni sperimentali prima di tutti, e richiede un codice. Se non ne hai uno, non devi fare niente.\n\n\nmox-core source commit = 59ad91f9512edcca333e2b4f935d8627f4c0a021\n",
+      "body_sha256": "12828acca08a296d0310e00bde4645071849757131e817a2c41221f0b97400e2",
+      "source_commit": "59ad91f9512edcca333e2b4f935d8627f4c0a021",
+      "assets": [
+        {
+          "id": 592865360,
+          "name": "MOX-2.11.3.zip",
+          "size": 110079645,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.3/MOX-2.11.3.zip",
+          "digest": "sha256:7770523b96147baf9d57d4111e04dd8f4087bc1f63351c53f21e15b5cc7bfd32"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 396519909,
+      "tag_name": "mox-v2-beta2.11.2",
+      "version": "2.11.2",
+      "name": "MOX Beta 2.11.2",
+      "published_at": "2026-09-25T10:41:53Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.2",
+      "draft": false,
+      "prerelease": false,
+      "body": "# MOX Beta 2.11.2\n\nResearch scelta nel primo avvio viene attivata direttamente alla fine del percorso, dopo la conferma del sito. Il riepilogo distingue la scelta ancora da attivare dallo stato realmente acceso. Se la rete o il servizio non rispondono, puoi riprovare oppure entrare in MOX con Research spenta.\n\nAl termine del primo avvio rimani nel Gestore MOX. Opzioni non si apre automaticamente.\n\nSe avevi scelto Research nel primo avvio della 2.11.1, MOX ripropone quella scelta senza attivarla da solo. Puoi confermarla, rinviarla o continuare con Research spenta. Partite/Meta, Draft e account conservano le scelte precedenti.\n\nResearch resta facoltativa, separata dagli altri consensi e revocabile da Opzioni. Questa patch non cambia l'invio dei dati, il Draft o il sito.\n\n\nmox-core source commit = 20d2d0728435bd40601d87b7dfe2d4810404d043\n",
+      "body_sha256": "10c605ac22de9f878d246158515faa1f53477fe7771abce09e6a50dee3af555d",
+      "source_commit": "20d2d0728435bd40601d87b7dfe2d4810404d043",
+      "assets": [
+        {
+          "id": 588142728,
+          "name": "MOX-2.11.2.zip",
+          "size": 111129196,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.2/MOX-2.11.2.zip",
+          "digest": "sha256:800ef639ab985b4c4527142957b63b062024c1c080a84190f5596cb7bbda55ec"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 396336053,
+      "tag_name": "mox-v2-beta2.11.1",
+      "version": "2.11.1",
+      "name": "MOX Beta 2.11.1",
+      "published_at": "2026-09-25T05:38:17Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.1",
+      "draft": false,
+      "prerelease": false,
+      "body": "# MOX Beta 2.11.1\n\nMOX per Windows: tracker di MTG Arena, assistente al Draft, mazzi e statistiche.\n\n## Novità\n\n- Il primo avvio guida lingua, aspetto, registri di Arena, condivisioni e account in cinque passi. Le condivisioni Partite/Meta, Draft e Research restano separate e facoltative; chi aggiorna conserva le scelte esistenti.\n- Le risorse non disponibili nei registri di Arena sono indicate come dati mancanti invece di apparire come zero. MOX distingue registri spenti, Arena chiusa e login non ancora completato, con un comando per ricontrollare.\n- La diagnostica espone lo stato dei registri senza allegare nuovi dati; le esportazioni distinguono i valori ignoti dagli zeri reali.\n\nScarica `MOX-2.11.1.zip`, estrailo in una cartella normale e avvia `Mox.exe`. Non avviare l'eseguibile direttamente dallo ZIP.\n\nmox-core source commit = ad8e0632211f8f225d36fa0ddb72fd90139af08d\n",
+      "body_sha256": "67fc44afd8ad5e52609341e066b218490d2c58fb2e7cda6021f17cd87e6760ee",
+      "source_commit": "ad8e0632211f8f225d36fa0ddb72fd90139af08d",
+      "assets": [
+        {
+          "id": 587624666,
+          "name": "MOX-2.11.1.zip",
+          "size": 111118384,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.1/MOX-2.11.1.zip",
+          "digest": "sha256:d58a079b37cd8b50a99a73745334ee61aba09122da653c769f17deb7b872c44d"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 389127811,
+      "tag_name": "mox-v2-beta2.11.0",
+      "version": "2.11.0",
+      "name": "MOX Beta 2.11.0",
+      "published_at": "2026-09-15T12:32:03Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "# Mox 2 beta 2.11.0\n\nArriva **Research**: facoltativa e spenta di partenza. In Opzioni c'è una\nsezione nuova che spiega a che cosa serve, che cosa parte e che cosa non\nparte. Si accende soltanto con il pulsante «Partecipa a Research»: «Non ora»,\nEsc e la chiusura della finestra non fanno niente.\n\n- Partono i fatti delle partite chiuse **dopo** il tuo sì: formato, evento,\n  esito, rank, turni, chi ha cominciato, mulligan, mazzo e cambi di\n  sideboard, carte pescate e giocate. Le partite di prima non rientrano.\n- Non partono mai nomi (né il tuo né dell'avversario), il nome del mazzo,\n  l'identificativo della partita, la mano o il grimorio dell'avversario.\n- Il consenso si ritira quando vuoi, e puoi chiedere di cancellare tutto\n  quello che hai mandato. Se il sito non conferma subito, Mox riprova da\n  solo, anche dopo un riavvio, finché la richiesta non arriva.\n- Se il sito non è pronto a ricevere, Mox non manda niente e tiene le\n  partite sul PC.\n\nL'invio delle partite di sempre, il Draft e l'account non cambiano.\n\nProvenienza sorgente:\n\n```text\nmox-core source commit = 436f0107ede6f99071f696cb18a4402b6feeeb67\n```\n",
+      "body_sha256": "d2a0c03b6c108315459fe64e897bb526f058835bf422208069e0e3844bea926f",
+      "source_commit": "436f0107ede6f99071f696cb18a4402b6feeeb67",
+      "assets": [
+        {
+          "id": 565666293,
+          "name": "MOX-2.11.0.zip",
+          "size": 109911815,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.0/MOX-2.11.0.zip",
+          "digest": "sha256:803ef8d0aa4d4b6efa8c2789d52726a19a974523c0f5273979408db8427f9b66"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 386273726,
+      "tag_name": "mox-v2-beta2.10.0",
+      "version": "2.10.0",
+      "name": "Mox 2 beta 2.10.0",
+      "published_at": "2026-09-10T12:43:10Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.10.0",
+      "draft": false,
+      "prerelease": false,
+      "body": "# Mox 2 beta 2.10.0\n\nQuesta versione ripristina la compatibilità con MTG Arena 2026.62, compresi il\nnuovo schema dei mazzi e della collezione e il JSON spaziato scritto dal client.\n\n- La legalità Standard è valutata per carta: una vecchia stampa resta\n  utilizzabile quando esiste una ristampa legale; ban e dati non determinabili\n  restano distinti.\n- «I tuoi mazzi» conserva le versioni storiche complete e associa correttamente\n  le partite al formato esplicito di Arena, senza trasformare genericamente\n  `Play` in `Standard`.\n- La finestra Mazzi compare subito, rende disponibili i mazzi prima delle\n  statistiche e mostra il progresso reale `X/Y` durante la scansione. La barra\n  scompare al termine.\n- «↗ Mostra file» seleziona direttamente `collezione.json` in Esplora file,\n  senza aprirlo, copiarlo o spostarlo.\n- Il Draft Collection-Aware può usare la collezione come spareggio opzionale;\n  resta disattivato per impostazione predefinita.\n\nIl primo caricamento delle statistiche con cache fredda può ancora richiedere\ntempo; ora l’attività è visibile e ne mostra l’avanzamento reale.\n\nProvenienza sorgente:\n\n```text\nmox-core source commit = 09b889031c903e0f810803c868ea92e696ca7bc5\n```\n",
+      "body_sha256": "5a4d72d4ded9d140ecb62600c363becae2d50091390dee8ae4758b854be77f5a",
+      "source_commit": "09b889031c903e0f810803c868ea92e696ca7bc5",
+      "assets": [
+        {
+          "id": 554999499,
+          "name": "Mox-v2-beta2.10.0-con-python.zip",
+          "size": 110845723,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.10.0/Mox-v2-beta2.10.0-con-python.zip",
+          "digest": "sha256:82e7dc8b7671c22a29b12ea5ed5ec3ec0c124b65eafb362345655e6d2998dbd0"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 381753492,
+      "tag_name": "mox-v2-beta2.9.29",
+      "version": "2.9.29",
+      "name": "Mox 2 beta 2.9.29",
+      "published_at": "2026-09-03T05:11:49Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.29",
+      "draft": false,
+      "prerelease": false,
+      "body": "## Mox v2 beta 2.9.29\n\nIl Draft legge il costo di mana con un parser solo. `{B/G}` vale come\n**alternativa** — uno dei due colori, non tutti e due insieme — quindi una carta\nlanciabile col solo Nero in un mazzo rosso-nero non paga più come se servissero\nentrambi i colori. Il costo convertito degli ibridi monocolore, tipo `{2/R}`,\nvale 2 e non più 1.\n\nDa lì vengono le altre due correzioni. La castabilità nei colori del mazzo si\ngiudica sui requisiti veri della carta invece che sulla sua identità di colore.\nE una carta di cui non si conosce il costo viene marcata come dato mancante\ninvece di essere trattata come una carta a costo zero: senza quella marcatura\nrisultava pagabile con qualunque coppia, cioè la carta perfetta.\n\nIl Contatore legge il mazzo **dopo il sideboard** da quello che Arena dichiara,\ninvece di dedurlo, e dichiara quando l'abbinamento fra la dichiarazione e la\ngara è ambiguo invece di indovinare.\n\nIl ranking non cambia politica: le analisi sperimentali R0 e R1 del Draft\nrestano fuori da questa versione. E non esce niente di nuovo dal computer: il\npacchetto delle partite resta alla versione 2 e l'invio è quello di prima.\n",
+      "body_sha256": "ad7f1928b245063438e353219a27d157b39cfea7573ca1cb7db2817ba9256b40",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 542242209,
+          "name": "Mox-v2-beta2.9.29-con-python.zip",
+          "size": 109569609,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.29/Mox-v2-beta2.9.29-con-python.zip",
+          "digest": "sha256:1381b360fd6a30d7e74314ef190d1ae2f2b5ebd8e2acec6e27f1b81b28d239a0"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 378700540,
+      "tag_name": "mox-v2-beta2.9.28",
+      "version": "2.9.28",
+      "name": "Mox 2 beta 2.9.28",
+      "published_at": "2026-08-28T18:55:27Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.28",
+      "draft": false,
+      "prerelease": false,
+      "body": "## Draft\\n\\n- Le schede si ridisegnano correttamente quando allarghi o restringi la finestra.\\n- Riepilogo del tavolo e carte sono separati da una barra regolabile, la cui posizione viene ricordata.\\n- Nessuna modifica ai dati inviati, alle statistiche o al sito.\\n\\nInstaller automatico disponibile da Mox > Opzioni; questo ZIP include anche il runtime per l'installazione offline.",
+      "body_sha256": "b95b055850a4a79f2e3412ade630ca61fc2c37f24872e9743befadb8a54680ab",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 534219069,
+          "name": "Mox-v2-beta2.9.28-con-python.zip",
+          "size": 110518125,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.28/Mox-v2-beta2.9.28-con-python.zip",
+          "digest": "sha256:3c7ac8b4899edb1687e116b11f4b4576ac8704ba0b1012d742c162d5aefffcda"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 378619859,
+      "tag_name": "mox-v2-beta2.9.27",
+      "version": "2.9.27",
+      "name": "Mox 2 beta 2.9.27",
+      "published_at": "2026-08-28T16:34:42Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.27",
+      "draft": false,
+      "prerelease": false,
+      "body": "## Mox v2 beta 2.9.27\n\nCorregge un difetto che poteva comparire fra due Draft consecutivi, soprattutto\nnel PickTwo: Arena può riusare sia il nome dell'evento sia il suo `draftId`.\nIn quel caso Mox poteva mostrare le carte senza modalità e senza statistiche\n17Lands, e non inviare il secondo Draft.\n\nOra Mox riconosce l'ingresso del nuovo tavolo prima del primo pacchetto, carica\nsubito set e formato corretti e conserva una traccia distinta per ogni sessione\nlocale. L'aggiornamento automatico resta invariato.\n",
+      "body_sha256": "9fe498c64c445cffd39aa3c3f2f7d034ebaf3245c2d3fd469f598e300291d4d4",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 534064338,
+          "name": "Mox-v2-beta2.9.27-con-python.zip",
+          "size": 110511244,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.27/Mox-v2-beta2.9.27-con-python.zip",
+          "digest": "sha256:4c3afd7510c957c182ce488c2591fa6a0add6a76b506d629860976fed1b9f224"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 378025962,
+      "tag_name": "mox-v2-beta2.9.26",
+      "version": "2.9.26",
+      "name": "Mox 2 beta 2.9.26",
+      "published_at": "2026-08-27T18:08:26Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.26",
+      "draft": false,
+      "prerelease": false,
+      "body": "Corregge A110: le carte ATA senza percentuale mostrano n.d. ATA e non fermano più la costruzione del mazzo Draft.",
+      "body_sha256": "32cb4d262cab4a59f14e3fb8bd7bbcfb4a05591ad4248343509ab47d398d9e32",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 532685563,
+          "name": "Mox-v2-beta2.9.26-con-python.zip",
+          "size": 110508693,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.26/Mox-v2-beta2.9.26-con-python.zip",
+          "digest": "sha256:7c8aec280b10427a6ecfacd3e4612911a980a65d92d14709a9347bd0bc3431f6"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 377419272,
+      "tag_name": "mox-v2-beta2.9.25",
+      "version": "2.9.25",
+      "name": "Mox 2 beta 2.9.25",
+      "published_at": "2026-08-26T20:59:38Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.25",
+      "draft": false,
+      "prerelease": false,
+      "body": "## Mox v2 beta 2.9.25\n\nSegue di poche ore la 2.9.24, e sistema due cose viste al primo uso vero.\n\n- **l'avviso dei Draft rifiutati parlava male.** Diceva «0 rimessi in fila e\n  rimandati. 1 non si possono ricostruire», e sembrava un guasto del programma.\n  Peggio: offriva di riprovare a mandare un Draft che non si potrà mai\n  rimandare. Adesso guarda prima se c'è davvero qualcosa da fare, e se non c'è\n  lo dice e basta;\n- **un file rovinato non tiene più chiusa la finestra principale.** Un pacchetto\n  in quarantena scritto a metà — un crash, il disco pieno — faceva saltare la\n  lettura, e il Gestore poteva non aprirsi affatto. Trovato dal controllo del\n  codice, non dalle prove.\n\nChi è già sulla 2.9.24 ha tutto il resto: i Draft che arrivano al sito, i\nrifiutati che si recuperano e l'avviso nel cruscotto.\n\nL'aggiornamento è automatico. Chi preferisce, scarica lo ZIP qui sotto.\n",
+      "body_sha256": "703f0c6bdef0d399824ac650ceae7a68c58e98291ee503dce142b59c0a4d024c",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 531339309,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109448027,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.25/Mox-Windows-beta.zip",
+          "digest": "sha256:48bf576f6324f1dd9a498b89879c88ca208cb8e03cfe57a9cccc9ca40a71cee8"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 377399281,
+      "tag_name": "mox-v2-beta2.9.24",
+      "version": "2.9.24",
+      "name": "Mox 2 beta 2.9.24",
+      "published_at": "2026-08-26T20:20:13Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.24",
+      "draft": false,
+      "prerelease": false,
+      "body": "## Mox v2 beta 2.9.24\n\n**I Draft arrivano al sito.** Prima ne passava circa uno su due: Mox rimetteva\nle carte del pool nell'ordine in cui le manda Arena, che non è quello in cui le\nhai scelte, e il server rifiutava il Draft intero — con dentro tutte le carte\ngiuste. Quattro Draft veri persi fra il 24 e il 26 agosto, e il motivo restava\nin un file che nessuno apriva.\n\nCosa cambia per chi usa Mox:\n\n- **i Draft arrivano**, e quello che il sito rifiuterebbe non parte nemmeno:\n  resta sul tuo computer con scritto perché;\n- **il cruscotto te lo dice** se qualcuno viene rifiutato, con un tasto per\n  rimetterlo in ordine e riprovare. Prima quel numero c'era solo dentro Opzioni;\n- **i Draft già rifiutati si recuperano**: le carte e le scelte erano tutte lì,\n  bastava rimetterle in fila. Nessun dato viene inventato — se una carta non\n  torna, quel Draft resta fermo.\n\nSotto il cofano: il pool tiene il proprio ordine, il pacchetto passa dagli\nstessi controlli del server prima di partire (con un file di casi condiviso fra\nle due suite, così non possono divergere), e una traccia chiusa non cambia più\nle scelte.\n\nVerificato con la suite completa, 152 prove sul server, 400 varianti di fuzzing\ne un giro di mutazioni: rimettendo il difetto, 77 varianti su 400 diventano\nrosse; senza, zero.\n\nL'aggiornamento è automatico. Chi preferisce, scarica lo ZIP qui sotto.\n",
+      "body_sha256": "b979ace507ba47f76a64ffa79563350bdfb3026607a09cbc875e68d5cae217a4",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 531296817,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109443412,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.24/Mox-Windows-beta.zip",
+          "digest": "sha256:3910792ef6362fe0c9f9d932dbb743f43fe79b00b9d0237de5af41ca76864ea0"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 376943693,
+      "tag_name": "mox-v2-beta2.9.23",
+      "version": "2.9.23",
+      "name": "Mox v2 beta 2.9.23",
+      "published_at": "2026-08-26T07:19:10Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.23",
+      "draft": false,
+      "prerelease": false,
+      "body": "Chiude i difetti visti nei Draft veri del 25 agosto.\n\n**Le terre duali entrano nel mazzo e fra i consigli.** In Arena la rarità 1 non\nè quella delle terre base: è quella di tutte le terre non collezionabili, e in\nHOB il ciclo comune (Goblin-town, Lake-town, Iron Hills, Mirkwood) la condivide\ncon le Paludi. Mox le trattava come Paludi e le lasciava sempre in riserva.\nMisurato sul banco: rimettendo il difetto, l'accordo con i pick dei giocatori\nDiamond/Mythic cala di 0,044 sul set cieco.\n\n**Un Draft nuovo non eredita più quello di prima**, e un Premier non resta\nclassificato come Prendi Due. Non serve più «reset draft» per passare da un\nevento all'altro.\n\n**«chiudi draft» funziona davvero**: prima azzerava le carte ma non l'identità\ndel Draft, e rileggendo il log le stesse carte rientravano.\n\n**Sotto ogni carta del mazzo e della riserva** ci sono la statistica 17lands e\nil campione, anche nella vista Curva e composizione.\n\n**La riga di stato dice a che busta e a che scelta sei**, con i numeri che\nmanda Arena.\n\nSotto il cofano: nessun filo di rete chiama più la finestra, un banco che\nrigioca i Draft veri dai log in un decimo di secondo, il collaudo\ndell'aggiornamento dentro la suite e un cancello che rifiuta di pubblicare\nsenza prove verdi.\n",
+      "body_sha256": "2eb701b6c2e8f149ecfebf1d7a525719e93961c0b88bb338fc3f1fbc75990c86",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 530437113,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109413860,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.23/Mox-Windows-beta.zip",
+          "digest": "sha256:27c2e260420cc719a4f7f63d181d1118172012abf47b1b1793d0ff432460a89e"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 376501388,
+      "tag_name": "mox-v2-beta2.9.22",
+      "version": "2.9.22",
+      "name": "Mox v2 beta 2.9.22",
+      "published_at": "2026-08-25T15:11:10Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.22",
+      "draft": false,
+      "prerelease": false,
+      "body": "Ripristina il controllo automatico degli aggiornamenti. Il controllo parte soltanto dopo l avvio della GUI e non puo piu lasciare bloccato il pulsante manuale. Il canale autoupdate include un ponte temporaneo per aggiornare in modo affidabile le versioni fino alla 2.9.21.",
+      "body_sha256": "fcfbf241fe4a88334b649bad125423a50523b4ebec5b8a0c8dc41cf63c9a7bb5",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 529372030,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109382916,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.22/Mox-Windows-beta.zip",
+          "digest": "sha256:6144f45c5dff8da680b9d616809898fdda319cafbbab84ba305f14feff2dc4bb"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 376435699,
+      "tag_name": "mox-v2-beta2.9.21",
+      "version": "2.9.21",
+      "name": "Mox 2 beta 2.9.21",
+      "published_at": "2026-08-25T13:40:35Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.21",
+      "draft": false,
+      "prerelease": false,
+      "body": "Hotfix del Quick Draft: Mox riconosce l'evento quando Arena lo scrive dentro Payload, carica di nuovo i dati 17lands e non eredita il pool del Draft precedente.",
+      "body_sha256": "275e2669d7a47e40687692420193a6174b310cacb571fcc6bccf39db7e62229f",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 529258237,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109383830,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.21/Mox-Windows-beta.zip",
+          "digest": "sha256:fa72dda7c3ad7c37a6e06295892d3a10709f7551ea44dc8a4446f28e127ec9eb"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 376397439,
+      "tag_name": "mox-v2-beta2.9.20",
+      "version": "2.9.20",
+      "name": "Mox 2 beta 2.9.20",
+      "published_at": "2026-08-25T12:45:49Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.20",
+      "draft": false,
+      "prerelease": false,
+      "body": "Recupera il deck builder dei Draft iniziati con versioni precedenti o dopo il riavvio di Arena. Distingue in modo sicuro eventi vecchi e nuovi, conserva la ripresa locale e usa il recupero autenticato dal server solo quando serve.",
+      "body_sha256": "23f0a3bf3a88c77d2e6ddfc8339c4c308b18f14eadbd3911497cba6eca0f03f9",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 529192554,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109383569,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.20/Mox-Windows-beta.zip",
+          "digest": "sha256:ef033f3523d7738c248fa81f8a670e372921dbba36020c146d4ca04eb01e5cf9"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 376307234,
+      "tag_name": "mox-v2-beta2.9.19",
+      "version": "2.9.19",
+      "name": "MOX beta v2.9.19",
+      "published_at": "2026-08-25T10:07:24Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.19",
+      "draft": false,
+      "prerelease": false,
+      "body": "## Dati 17lands completi e nuovo deck builder Draft\n\n**I voti ora usano tutto il set.** Il vecchio indirizzo 17lands restituiva in silenzio soltanto l'ultimo giorno di partite. Mox usa ora i dati `ALL_TIME`, mostra il campione reale, l'IWD e il win rate della carta dentro i tuoi colori.\n\n**Il mazzo finale ha due viste.** Da `⚙ Opzioni` puoi scegliere tra “Dati 17lands”, con valore, fonte e campione di ogni carta, e “Costruzione mazzo”, con tipi, costi, riepilogo e curva di mana. La proposta scelta e le 16/17/18 terre restano sincronizzate.\n\n**La finestra del Draft è più leggibile.** Proposte interamente cliccabili, selezione evidente, scheda carta più ordinata, testi adattivi e vista compatta invariata.\n\n**Corrette terre e proposte.** Le terre non base utili sostituiscono le basi senza portare il mazzo a 18 terre; un pool di sole terre non causa più errori; cambiare 16/17/18 terre non perde la proposta selezionata; il nome dei colori riflette le carte realmente giocate.\n\n**La policy colori è stata ricalibrata** su 20.000 Draft: Mox si impegna nei colori poco prima, con un miglioramento piccolo ma misurato e senza regressioni sui set di calibrazione.\n\n## Come si aggiorna\n\nChi ha già Mox riceve l'aggiornamento automatico firmato 2.9.19 al prossimo controllo. Chi parte da zero scarica `Mox-Windows-beta.zip` qui sotto.",
+      "body_sha256": "74f34fc821278606b8dbead68bbb9354ac255ef2b331d11db9758e15c35a8eae",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 529000102,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109371108,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.19/Mox-Windows-beta.zip",
+          "digest": "sha256:604729b7253d64f9375779a68fc338983af20fe359bcee129544079501891958"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 375811653,
+      "tag_name": "mox-v2-beta2.9.18",
+      "version": "2.9.18",
+      "name": "MOX beta v2.9.18",
+      "published_at": "2026-08-24T15:40:06Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.18",
+      "draft": false,
+      "prerelease": false,
+      "body": "## La versione nata dal primo Draft vero\n\nCinque cose, tutte venute fuori draftando davvero con l'assistente nuovo.\n\n**Il Draft adesso arriva sul sito.** Quando due carte scelte insieme nel Prendi Due comprendevano una carta che avevi già nel pool, Mox le registrava in ordine invertito e il server rifiutava **l'intero Draft**. Non se ne accorgeva nessuno: finiva in quarantena e basta.\n\n**La terra base non si consiglia più** quando c'è altro da prendere. Ne metti quante vuoi a fine Draft: in un pacchetto da otto carte non è mai la seconda scelta.\n\n**Lo splash «facile» pretende una fonte vera.** Una carta costosa fuori dai tuoi colori resta facile da splashare solo se hai almeno una terra che quel colore lo produce. Prima bastava che costasse quattro mana, e ti ritrovavi consigliata una carta che non potevi giocare.\n\n**Sedici terre invece di diciassette.** Non è un'opinione: su **1.862.608 partite vere** sedici vince più di diciassette in ogni fascia di curva, e anche guardando i soli Diamond e Mythic. Se preferisci diciassette o diciotto lo scegli tu, dalla vista del mazzo. E la divisione fra i colori non è più una proporzione sui simboli: Mox tira qualche centinaio di aperture e tiene quella che gioca meglio.\n\n**La vista del mazzo si legge meglio**: i costi con i simboli veri invece di `{2}{B}`, le terre con il loro disegno invece di un rettangolo grigio e con il nome nella tua lingua, e per vedere una carta in grande basta passarci sopra il mouse.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.18 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+      "body_sha256": "a93890d3d1d7e9a1392c96f031edcec3730310756269e2a6fb7b334eb91095af",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 527809326,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109311071,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.18/Mox-Windows-beta.zip",
+          "digest": "sha256:469fbedc6685ded6cb50f66a7ba0ffaa3b310df644e3c9ad17380115d988fd34"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 375463528,
+      "tag_name": "mox-v2-beta2.9.17",
+      "version": "2.9.17",
+      "name": "MOX beta v2.9.17",
+      "published_at": "2026-08-24T05:20:16Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.17",
+      "draft": false,
+      "prerelease": false,
+      "body": "## L'invio dei Draft, adesso che le tracce sono piene\n\nDalla 2.9.16 la traccia di un Draft contiene **tutte** le scelte, non una o due su quarantadue. Due limiti che prima non si potevano nemmeno vedere:\n\n- un Draft intero pesa circa **174 KB** e il server accetta richieste fino a mezzo mega: quattro insieme facevano 700 KB, la richiesta veniva respinta e la fila restava ferma a ritentare lo stesso pacco. Adesso le richieste si compongono a byte, non a numero fisso;\n- se chiudi Mox **a metà** Draft e lo riapri, le scelte fatte mentre era spento mancano, e il server rifiutava tutto il Draft per quel buco nella numerazione. Adesso viene mandato il tratto più lungo, invece di perdere tutto.\n\n## Dentro c'è anche la 2.9.16 e la 2.9.15\n\nUn Draft nuovo riparte sempre dalle scelte, e i colori del Draft: le terre a doppio colore non salgono più fra le prime scelte quando non producono mana che ti serve, e una carta con un piede fuori dai tuoi colori costa quanto lo splash che è.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.17 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+      "body_sha256": "03b7804edd6f9bd08c7bd9ccf7f75c243cc27175d63df9e8808465c23b6d2b92",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 527128268,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109291655,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.17/Mox-Windows-beta.zip",
+          "digest": "sha256:10ebd7ab69ee50c5dd4131f3d3b7b4941b6fe9900f67216fdbbfbebdc2d2db4a"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 375325672,
+      "tag_name": "mox-v2-beta2.9.16",
+      "version": "2.9.16",
+      "name": "MOX beta v2.9.16",
+      "published_at": "2026-08-23T21:05:22Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.16",
+      "draft": false,
+      "prerelease": false,
+      "body": "## Un Draft che non partiva\n\nChi durante un Draft chiede di vedere il **mazzo consigliato** — e dalla 2.9 si può chiedere in qualunque momento — lasciava quel pulsante premuto anche per il Draft successivo. Risultato: il Draft nuovo cominciava, finché il pool era vuoto le scelte si vedevano, ma **dalla prima carta in poi tornava il mazzo e ci restava**. È successo davvero, a un secondo Draft aperto di seguito.\n\nAdesso un Draft nuovo riparte sempre dalle scelte.\n\n## Dentro c'è anche tutta la 2.9.15\n\nI colori del Draft: le terre a doppio colore non salgono più fra le prime scelte quando non producono mana che ti serve, e una carta con un piede fuori dai tuoi colori costa quanto lo splash che è. Misurato su 4.000 Draft veri di 17lands, con un set tenuto da parte per la verifica.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.16 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+      "body_sha256": "744fa2e21490ac2b48a11bc167a90933743339356ae1a5725132184c3e524252",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 526642076,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109287933,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.16/Mox-Windows-beta.zip",
+          "digest": "sha256:7afeb631d58a69b4b26af2b95c1bf20b580dc90ac68da9b81ee21c172c62cd6a"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 375276160,
+      "tag_name": "mox-v2-beta2.9.15",
+      "version": "2.9.15",
+      "name": "MOX beta v2.9.15",
+      "published_at": "2026-08-23T17:23:15Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.15",
+      "draft": false,
+      "prerelease": false,
+      "body": "## I colori del Draft\n\n- Le **terre a doppio colore** non salgono più fra le prime scelte quando non producono mana che ti serve. Nel database di Arena le terre hanno il campo dei colori vuoto, e Mox le trattava come se fossero sempre nei tuoi colori: costo zero, più un bonus che non avrebbero dovuto avere.\n- Una carta con **un piede fuori** dai tuoi colori costa adesso quanto lo splash che è. Prima costava dodici volte meno di una carta interamente fuori colore, e il pool si allargava fino a quattro colori.\n\nScelto misurando **4.000 Draft veri** di 17lands su quattro set, con un set tenuto da parte per la verifica: l'accordo con le scelte dei giocatori Diamond e Mythic sale di cinque punti percentuali.\n\nIl **mazzo consigliato resta a due colori**, ed è la scelta giusta: su 421.197 mazzi veri il due colori puro vince più di ogni altra combinazione.\n\n## Tracce dei Draft\n\nOgni Draft lascia ora una traccia completa delle scelte. Prima ne registrava una o due su quarantadue: la traccia cambiava identità durante il Draft, e la registrazione dipendeva da cosa stavi guardando nella finestra.\n\n## Come si aggiorna\n\nChi ha già Mox non deve fare niente: l'aggiornamento automatico firmato propone la 2.9.15 al prossimo avvio. Chi parte da zero scarica lo ZIP qui sotto.",
+      "body_sha256": "94a4cb47649a2120dfb4b79b3a09b93333baf0777b72e7922661af3d28a3e21a",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 526450459,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109289158,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.15/Mox-Windows-beta.zip",
+          "digest": "sha256:ab3c7ceeff145d7f140d9d38176b6339ae4844353cde23f5fcabcc0f22e11e52"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 375215060,
+      "tag_name": "mox-v2-beta2.9.14",
+      "version": "2.9.14",
+      "name": "MOX beta v2.9.14",
+      "published_at": "2026-08-23T13:12:26Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.14",
+      "draft": false,
+      "prerelease": false,
+      "body": "Due correzioni trovate usando la 2.9.13.\n\nL'invito a contribuire con le partite restava nel cruscotto anche dopo aver risposto dalle Opzioni: il consenso veniva registrato, ma la striscia continuava a chiedere una cosa gia' decisa. La domanda si fa una volta sola, e adesso sparisce da qualunque parte tu risponda.\n\nIl rank Bronze non e' piu' mostrato come sconosciuto. Arena non manda la classe quando vale il primo gradino - nello stesso blocco omette anche le vittorie quando sono zero - e Mox mostrava «n.d.» a chi era semplicemente Bronze. Ora scrive Bronze, e sul sito quelle partite compaiono nel filtro del rank invece di sparire.\n\nChi ha gia' la 2.9.12 o la 2.9.13 riceve l'aggiornamento firmato dall'applicazione. Chi parte da zero scarica questo ZIP, lo scompatta dove vuole e apre Mox.exe: prima del primo avvio conviene leggere la voce su Smart App Control nel LEGGIMI.",
+      "body_sha256": "ec38b90ca07f2ee692f44348be2926d872fc4376da82505ce3342b8d50ac8d05",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 526230407,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109280985,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.14/Mox-Windows-beta.zip",
+          "digest": "sha256:5eeb84851ae83218a823529c2791e410079b9a075956a7f21f40d6d853eebe64"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 375156656,
+      "tag_name": "mox-v2-beta2.9.13",
+      "version": "2.9.13",
+      "name": "MOX beta v2.9.13",
+      "published_at": "2026-08-23T08:34:54Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.13",
+      "draft": false,
+      "prerelease": false,
+      "body": "La finestra Opzioni sta nello schermo: due colonne, ridimensionabile e scorrevole. Prima stava in una colonna sola, non si poteva ridimensionare e non scorreva, quindi su uno schermo da 24 pollici le ultime sezioni - fra cui i consensi - restavano irraggiungibili.\n\nArriva anche un terzo consenso, spento di partenza: i mazzi che hai costruito in Arena possono comparire nel tuo account su moxtracker.app, con il nome che hai dato loro tu. Il nome resta dentro il tuo account e non entra in nessuna statistica pubblica.\n\nSul sito, nella stessa giornata: il filtro Evento della cronologia elenca tutti gli eventi e non i soli Draft, il testo dei ticket si legge, e la verifica anti-spam dei ticket anonimi funziona.\n\nChi ha gia' la 2.9.12 riceve l'aggiornamento firmato dall'applicazione. Chi parte da zero scarica questo ZIP, lo scompatta dove vuole e apre Mox.exe: prima del primo avvio conviene leggere la voce su Smart App Control nel LEGGIMI.",
+      "body_sha256": "c534333a911a00f0251fa865413241a13f68cc6ef891848ce1a1c55efbfab73e",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 526010578,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109280292,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.13/Mox-Windows-beta.zip",
+          "digest": "sha256:6cb97dee678dbb7f8d03672a7aaebc53e114ee32e8eb5b3f8458e5451dff588c"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 375044100,
+      "tag_name": "mox-v2-beta2.9.12",
+      "version": "2.9.12",
+      "name": "MOX beta v2.9.12",
+      "published_at": "2026-08-22T21:29:24Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.12",
+      "draft": false,
+      "prerelease": false,
+      "body": "",
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 525467286,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109262842,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.12/Mox-Windows-beta.zip",
+          "digest": "sha256:4bf206e4c3e01a3c01c7c46070ac745d37664eef7d821f8588208c3557e7a612"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 374340676,
+      "tag_name": "mox-v2-beta2.9.3",
+      "version": "2.9.3",
+      "name": "MOX beta 2.9.3",
+      "published_at": "2026-08-21T10:59:17Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.3",
+      "draft": false,
+      "prerelease": false,
+      "body": "Corregge l'invio delle partite quando Arena non espone la mano iniziale: il campo viene omesso invece di inviare una mano vuota che il server rifiuta. I rifiuti futuri restano visibili nelle Opzioni con il motivo salvato solo sul PC.",
+      "body_sha256": "6b0159c5ca3c1db0d8a90a7f18fe1a605861c2e74c4dbb0da3f9d4c7a2fa2a78",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 523624535,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109230228,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.3/Mox-Windows-beta.zip",
+          "digest": "sha256:c93155663e5a03442ce853da01ba2d97e575bd237c84812cdbbd808243392673"
+        },
+        {
+          "id": 523622847,
+          "name": "Mox-Windows-beta.zip.sha256",
+          "size": 65,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.3/Mox-Windows-beta.zip.sha256",
+          "digest": "sha256:8c27c0e2306d70c52b1b22d9fd65916c7fad9420191770e149f017af423a8dfd"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 374217060,
+      "tag_name": "mox-v2-beta2.9.2",
+      "version": "2.9.2",
+      "name": "MOX beta 2.9.2",
+      "published_at": "2026-08-21T06:54:04Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.2",
+      "draft": false,
+      "prerelease": false,
+      "body": "Corregge la regressione di formato delle partite con mazzo fornito. DualColorPrecons, WelcomeDeckDuels e Jump In non vengono piu' classificati come Standard se Arena dichiara Standard nel riepilogo del mazzo; Ladder continua invece a usare il formato effettivamente dichiarato da Arena. La cache delle statistiche viene rigenerata automaticamente.",
+      "body_sha256": "e83a01d561e5cd540f976b5bfc4dd97159fbd9b710e11b172da764cb1f14d7e9",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 523362203,
+          "name": "Mox-Windows-beta.zip",
+          "size": 109227561,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.2/Mox-Windows-beta.zip",
+          "digest": "sha256:a39042e3c0a52f3d965001ce19806655d7b40b257a16338eb7fb4f99efa6937d"
+        },
+        {
+          "id": 523362202,
+          "name": "Mox-Windows-beta.zip.sha256",
+          "size": 64,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.2/Mox-Windows-beta.zip.sha256",
+          "digest": "sha256:f0852f465d262709727549a8081a3767a22d3d9b8354c484f5bcaeea55392d05"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    },
+    {
+      "id": 373964830,
+      "tag_name": "mox-v2-beta2.9.1",
+      "version": "2.9.1",
+      "name": "MOX beta 2.9.1",
+      "published_at": "2026-08-20T19:03:48Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.9.1",
+      "draft": false,
+      "prerelease": false,
+      "body": "Prima beta scaricabile dal sito. Corregge la lettura del pool durante Prendi Due: Mox applica colori e compatibilità a ogni scelta invece di aspettare la fine. Il parser copre anche Premier e Quick mantenendo la compatibilità con i log precedenti. I consensi per inviare partite e Draft restano separati, inizialmente spenti e revocabili. Pacchetto per Windows con EXE e percorso alternativo Python incluso.",
+      "body_sha256": "33676a347c752ac2d51142cb63c52512c3960d7b1d41abfeb39ac335101d2448",
+      "source_commit": null,
+      "assets": [
+        {
+          "id": 522666591,
+          "name": "Mox-Windows-beta.zip",
+          "size": 107917893,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.1/Mox-Windows-beta.zip",
+          "digest": "sha256:1e7c932c8ddcfcbe19ace5f37eb0f5f55329f7c606a2def1800fae3232dc37a3"
+        },
+        {
+          "id": 522666589,
+          "name": "Mox-Windows-beta.zip.sha256",
+          "size": 87,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.9.1/Mox-Windows-beta.zip.sha256",
+          "digest": "sha256:27843dd8dc4c5840bb95481cf079c7123ef1b491de64ae4fbd74e8502cb9e6fd"
+        }
+      ],
+      "language_status": "it_original_en_missing",
+      "provenance": "legacy_verified"
+    }
+  ],
+  "tombstones": [],
+  "exceptions": [
+    {
+      "id": 406702253,
+      "type": "en_missing"
+    },
+    {
+      "id": 397637179,
+      "type": "en_missing"
+    },
+    {
+      "id": 396519909,
+      "type": "en_missing"
+    },
+    {
+      "id": 396336053,
+      "type": "en_missing"
+    },
+    {
+      "id": 389127811,
+      "type": "en_missing"
+    },
+    {
+      "id": 386273726,
+      "type": "en_missing"
+    },
+    {
+      "id": 381753492,
+      "type": "en_missing"
+    },
+    {
+      "id": 378700540,
+      "type": "literal_escapes"
+    },
+    {
+      "id": 378700540,
+      "type": "en_missing"
+    },
+    {
+      "id": 378619859,
+      "type": "en_missing"
+    },
+    {
+      "id": 378025962,
+      "type": "en_missing"
+    },
+    {
+      "id": 377419272,
+      "type": "en_missing"
+    },
+    {
+      "id": 377399281,
+      "type": "en_missing"
+    },
+    {
+      "id": 376943693,
+      "type": "en_missing"
+    },
+    {
+      "id": 376501388,
+      "type": "en_missing"
+    },
+    {
+      "id": 376435699,
+      "type": "en_missing"
+    },
+    {
+      "id": 376397439,
+      "type": "en_missing"
+    },
+    {
+      "id": 376307234,
+      "type": "en_missing"
+    },
+    {
+      "id": 375811653,
+      "type": "en_missing"
+    },
+    {
+      "id": 375463528,
+      "type": "en_missing"
+    },
+    {
+      "id": 375325672,
+      "type": "en_missing"
+    },
+    {
+      "id": 375276160,
+      "type": "en_missing"
+    },
+    {
+      "id": 375215060,
+      "type": "en_missing"
+    },
+    {
+      "id": 375156656,
+      "type": "en_missing"
+    },
+    {
+      "id": 375044100,
+      "type": "empty_body"
+    },
+    {
+      "id": 375044100,
+      "type": "en_missing"
+    },
+    {
+      "id": 374340676,
+      "type": "en_missing"
+    },
+    {
+      "id": 374217060,
+      "type": "en_missing"
+    },
+    {
+      "id": 373964830,
+      "type": "en_missing"
+    }
+  ]
+}

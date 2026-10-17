@@ -18,7 +18,7 @@
     <nav class="nav" aria-label="Navigazione principale">
       <a class="brand" data-route="home" href="./index.html" aria-label="MOX home"><img src="./assets/branding/mox-marchio.webp" alt=""><span>MOX</span></a>
       <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button>
-      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="account" href="./account.html">Il mio MOX</a><a data-route="support" href="./supporto.html">Supporto</a></div>
+      <div id="primary-nav" class="nav-links"><a data-route="home" href="./index.html">Home</a><a data-route="meta" href="./meta.html">Meta</a><a data-route="draft" href="./draft.html">Draft</a><a data-route="guides" href="./guide.html">Guide</a><a data-route="updates" href="./note-versione.html">Aggiornamenti</a><a data-route="account" href="./account.html">Il mio MOX</a><a data-route="support" href="./supporto.html">Supporto</a></div>
       <a class="nav-download" data-download href="#download">Scarica MOX</a>
     </nav>
   </header>
@@ -54,7 +54,7 @@
           <img src="./assets/home/story-draft.webp" width="1442" height="940" alt="Un Draft su Arena con la finestra dell'Assistente al Draft a destra: la busta in ordine, le due scelte suggerite in evidenza.">
           <p class="real-note">Schermata reale. A sinistra la busta in Arena, a destra la stessa busta ordinata da MOX.</p>
           <h3>Durante il Draft</h3>
-          <p>A ogni busta MOX mette in ordine le carte, con la percentuale di vittoria dai dati 17Lands e un giudizio in chiaro: carta forte, buona nei tuoi colori, riempimento. Tiene una scelta principale e dice quando esistono alternative equivalenti.</p>
+          <p>A ogni busta MOX mette in ordine le carte, con la percentuale di vittoria dai dati 17Lands e un giudizio in chiaro: carta forte, buona nei tuoi colori, riempimento. Tiene una scelta principale e dice quando esistono alternative vicine.</p>
         </article>
         <article class="feature">
           <img src="./assets/home/story-mazzo-draft.webp" width="835" height="860" alt="Draft finito: MOX propone un mazzo nero e rosso di 40 carte, con due alternative e la scelta del numero di terre.">
@@ -65,33 +65,13 @@
       </div>
     </section>
 
-    <section aria-labelledby="metodo-title">
-      <div class="part-head">
-        <h2 id="metodo-title">Il metodo</h2>
-        <p>Le scelte restano tue. Qui spieghiamo come MOX valuta i consigli e quali dati può usare; nessuna modifica avviene automaticamente.</p>
+    <section class="draft-explainer" aria-labelledby="metodo-title">
+      <div class="part-head"><h2 id="metodo-title">Come funzionano i consigli</h2><p>MOX combina i dati delle carte con i colori e la curva del tuo pool. La scelta resta tua.</p></div>
+      <div class="draft-explainer-grid">
+        <article><h3>Durante le scelte</h3><p>Il punteggio MOX tiene conto del contesto: non è una percentuale di vittoria. Fonte e campione aiutano a leggere i dati; un valore mancante non significa zero.</p></article>
+        <article><h3>Quando costruisci il mazzo</h3><p>Confronta le combinazioni di colori e scegli le terre. La proposta è un punto di partenza: ricontrolla curva e costi di mana prima di giocare.</p></article>
       </div>
-      <ol class="steps">
-        <li><h3>Draft con MOX</h3><p>Il consiglio viene calcolato localmente mentre giochi.</p></li>
-        <li><h3>Consenso separato</h3><p>Solo chi lo attiva condivide i dati del Draft, senza il proprio nome o account Arena. Un identificatore tecnico casuale permette di cancellarli.</p></li>
-        <li><h3>Campioni separati</h3><p>Set, evento e periodo restano separati per non mescolare segnali diversi.</p></li>
-        <li><h3>Aggiornamento verificato</h3><p>Una regola cambia soltanto se le prove mostrano un miglioramento stabile.</p></li>
-      </ol>
-      <div class="where">
-        <p><strong>Sul tuo PC:</strong> consigli e statistiche personali.</p>
-        <p><strong>Sul sito:</strong> solo statistiche aggregate; le tracce complete restano in un archivio privato.</p>
-      </div>
-
-      <section class="panel draft-method" aria-labelledby="draft-method-title">
-        <div class="panel-inner">
-          <div class="panel-head"><h2 id="draft-method-title">Le garanzie del metodo</h2></div>
-          <ul class="method-list">
-            <li><h3>Consiglio locale</h3><p>MOX mantiene una scelta principale, ma dichiara quando esistono alternative statisticamente equivalenti.</p></li>
-            <li><h3>Campione e incertezza</h3><p>Ogni percentuale pubblicata porta il campione e un intervallo di affidabilità.</p></li>
-            <li><h3>Segnali separati</h3><p>Set, evento e periodo non vengono mescolati per creare numeri più attraenti ma meno utili.</p></li>
-            <li><h3>Privacy e controllo</h3><p>Le tracce complete restano private; il sito espone solo aggregati e il consenso è revocabile.</p></li>
-          </ul>
-        </div>
-      </section>
+      <p><a class="button button-ghost" href="./guide.html#usa-draft">Come usare l’assistente Draft →</a></p>
     </section>
 
     <section aria-labelledby="futuro-title">

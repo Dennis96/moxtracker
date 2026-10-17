@@ -51,6 +51,7 @@ function traduciNodo(nodo) {
     return;
   }
   if (!(nodo instanceof Element)) return;
+  if (nodo.closest('[lang="it"], [translate="no"]') && nodo !== document.documentElement) return;
   for (const attributo of attributi) {
     const valore = nodo.getAttribute(attributo);
     if (valore) nodo.setAttribute(attributo, traduciValore(valore));
