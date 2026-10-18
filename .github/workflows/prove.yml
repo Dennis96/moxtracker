@@ -11,8 +11,10 @@ permissions:
   contents: read
 
 concurrency:
-  group: prove-${{ github.ref }}
-  # A newer push replaces an old PR run; on main every merge commit keeps its own run.
+  # A PR shares one group, so a newer push replaces its older run. Every other event gets a
+  # group of its own (run_id): GitHub keeps only one pending run per group, so a shared group
+  # on main would silently drop queued merge commits.
+  group: prove-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

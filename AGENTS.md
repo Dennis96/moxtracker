@@ -11,8 +11,8 @@ prevalgono su qualunque documento.
 È quello di tutto Mox, scritto una volta sola in
 [mox-core, AGENTS.md — il ciclo di un lavoro](https://github.com/Dennis96/mox-core/blob/main/AGENTS.md#il-ciclo-di-un-lavoro):
 un lavoro alla volta su tutto Mox (core e sito dello stesso lavoro contano come
-uno), un branch e una PR draft per lavoro, review dell'altro agente in un solo
-file sul branch della PR, al massimo due giri, merge autorizzato da Dennis con
+uno), un branch e una PR draft per ogni repository che il lavoro tocca, review
+dell'altro agente in un solo file sul branch della PR, al massimo due giri, merge autorizzato da Dennis con
 la chiusura compresa. Il registro dei lavori è
 [mox-core/LAVORI.md](https://github.com/Dennis96/mox-core/blob/main/LAVORI.md).
 
