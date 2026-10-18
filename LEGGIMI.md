@@ -43,5 +43,6 @@ storici.
 
 Dopo ogni deploy preview riuscito aggiornare subito
 [STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md): commit, URL, modifiche,
-verifiche e confini non toccati. Non creare un secondo handoff per lo stesso
-scopo.
+verifiche e confini non toccati, riscrivendo il riferimento corrente invece di
+aggiungere una sezione per ogni evento. Non creare un secondo handoff per lo
+stesso scopo. Le regole di lavoro sono in [AGENTS.md](AGENTS.md).
