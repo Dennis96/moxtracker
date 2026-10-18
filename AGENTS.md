@@ -42,7 +42,7 @@ npm run prove
 npm run sito:build
 ```
 
-Ogni PR verso `main` le esegue anche su GitHub (workflow `prove.yml`, meno di
-un minuto). Un controllo verde su GitHub non sostituisce le prove mirate del
-lavoro né il collaudo in preview. `STATO-CORRENTE-SITO.md` si aggiorna dopo
-ogni deploy riuscito, in poche righe: stato, prossimo passo, decisioni attese.
+Ogni PR verso `main`, e ogni commit su `main`, le esegue anche su GitHub
+(workflow `prove.yml`). Un controllo verde su GitHub non sostituisce le prove
+mirate del lavoro né il collaudo in preview. Quando e come si aggiorna
+`STATO-CORRENTE-SITO.md` lo dice [LEGGIMI.md](LEGGIMI.md).
