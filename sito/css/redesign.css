@@ -748,7 +748,8 @@ a.deck-link:hover .deck-name { color: var(--lilac); }
     background: rgba(7, 8, 13, 0.98);
     box-shadow: var(--shadow);
   }
-  .nav-links[data-open] { display: flex; }
+  /* Agganciato all'intestazione fissa: se non entra nello schermo (zoom 200%) scorre da sé. */
+  .nav-links[data-open] { display: flex; max-height: calc(100vh - 66px); max-height: calc(100dvh - 66px); overflow-y: auto; overscroll-behavior: contain; }
   .nav-links a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border-radius: 8px; }
   .nav-links a[aria-current="page"] { background: rgba(124, 44, 255, 0.22); box-shadow: none; }
   .nav-links .language-link { margin: 6px 0 0; }

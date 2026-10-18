@@ -287,3 +287,10 @@ test('Review R08 — tre retry navbar riusano un messaggio; successo rimuove mes
     assert.equal(attrs.has('aria-busy'), false); assert.equal(link.dataset.downloadInCorso, 'false');
   } finally { Object.assign(globalThis, originali); }
 });
+
+test('Guide e News pubbliche non mostrano nomi interni di policy o di provenienza', () => {
+  // Il corpo delle release resta l'originale GitHub: qui si controlla il testo generato da MOX.
+  for (const [nome, pagina] of generaPagine(reale, fonti, key)) {
+    assert.doesNotMatch(pagina.main, /confidenza=|central_api|owner_decision|\blegacy\b/i, nome);
+  }
+});
