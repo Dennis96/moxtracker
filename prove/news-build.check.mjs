@@ -34,7 +34,7 @@ test('News build — corpus completo per lingua, Guide in tre percorsi, un H1 e 
     assert.equal((guide.match(/class="guide-card"/g) || []).length, 3);
     assert.doesNotMatch(draft, /class="draft-answer"/);
     assert.match(draft, /guide\.html#usa-draft/);
-    assert.ok(guide.includes('0–110')); assert.ok(guide.includes('0,54') || guide.includes('0.54'));
+    assert.ok(guide.includes('0–110') || guide.includes('0 a 110') || guide.includes('0 to 110'));
     const news = read(prefisso + 'note-versione.html');
     assert.equal((news.match(/class="release-card-head"/g) || []).length, pubbliche.length);
     assert.equal((news.match(/class="release-card-notes"/g) || []).length, pubbliche.length ? 1 : 0);
@@ -59,13 +59,13 @@ test('News build — link e ancore locali validi per tutte le pagine nuove e Pri
   }
 });
 
-test('News build — originale IT in cornice EN, nessun token nel bundle e date dichiarate', () => {
+test('News build — note per i giocatori in EN, nessun token nel bundle e Privacy datata', () => {
   const n = read('en/note-versione/mox-v2-beta2-9-12.html');
-  assert.match(n, /<html lang="en"/); assert.match(n, /Notes are not available in the original release/);
-  assert.match(read('en/note-versione/mox-v2-beta2-9-28.html'), /Italian original/);
-  for (const f of Object.keys(manifesto.file).filter(n => /\.(?:html|js|json|css)$/.test(n))) assert.doesNotMatch(read(f), /canary|github_pat_[A-Za-z0-9_]+|gh[pousr]_[A-Za-z0-9]{20,}|Bearer [A-Za-z0-9._-]{16,}/i, f);
+  assert.match(n, /<html lang="en"/); assert.match(n, /No notes were written for this version/);
+  assert.doesNotMatch(read('en/note-versione/mox-v2-beta2-9-28.html'), /Italian original|lang="it" class="release-body"/);
+  for (const f of Object.keys(manifesto.file).filter(n => /\.(?:html|js|json|css)$/.test(n))) assert.doesNotMatch(read(f), /canary|programma tester|github_pat_[A-Za-z0-9_]+|gh[pousr]_[A-Za-z0-9]{20,}|Bearer [A-Za-z0-9._-]{16,}/i, f);
   const privacy = read('en/privacy.html');
-  for (const term of ['October 6, 2026', 'October 16, 2026', 'Technical requests and statistical sources', 'Data flow matrix', 'Provider log and backup retention']) assert.ok(privacy.includes(term), term);
+  for (const term of ['Updated October 19, 2026', 'What happens even with sharing turned off', 'Your data in one table', 'providers follow their own rules']) assert.ok(privacy.includes(term), term);
 });
 
 test('Home — hero approvato, due sole CTA e unica aggiunta della versione', () => {
