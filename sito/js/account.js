@@ -839,8 +839,8 @@ async function apriPartita(id) {
       const mano = listaCarte(INGLESE ? "Last observed hand" : "Ultima mano osservata",
         p.apertura, "", dato.nomi_carte, dato.stampe_carte);
       mano.append(nodo("p", "detail-note", INGLESE
-        ? "This legacy field contains the last hand observed in the log, not the opening hand."
-        : "Questo dato legacy contiene l’ultima mano osservata nel log, non la mano d’apertura"));
+        ? "This is the last hand seen in Arena's logs, not the opening hand."
+        : "Questa è l’ultima mano vista nei registri di Arena, non la mano d’apertura"));
       contenuto.push(mano);
     }
     if (p.avversario?.carte?.length) contenuto.push(listaCarte("Carte avversarie rivelate",

@@ -19,6 +19,7 @@ const schemi = [
   [/^Da (.+) a (.+)$/, "From $1 to $2"],
   [/^(\d[\d.,]*) partite su (\d[\d.,]*): ne mancano (\d[\d.,]*)$/, "$1 of $2 matches: $3 to go"],
   [/^Variante osservata #(\d+)$/, "Observed variant #$1"],
+  [/^(\d+) carte non hanno ancora un nome nel catalogo di MOX\.$/, "$1 cards do not have a name in the MOX catalog yet."],
   [/^V$/, "W"],
   [/^S$/, "L"],
   [/^Altro \(Brew\)$/, "Other (Brew)"],

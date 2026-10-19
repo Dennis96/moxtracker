@@ -115,9 +115,8 @@ test("privacy e note originali 2.11.0/2.11.1 sono complete e datate dalla pubbli
   const privacy = leggi("privacy.html");
   const trasparenza = leggi("cosa-invia-mox.html");
   const releases = JSON.parse(leggiRadice('config/news-releases.json')).releases;
-  assert.match(privacy, /Revisione precedente: 26 settembre 2026/);
-  assert.match(privacy, /Disclosure A141 pubblicata il 6 ottobre 2026/);
-  assert.match(privacy, /data finale di pubblicazione da confermare dal titolare/);
+  assert.match(privacy, /Aggiornata il 19 ottobre 2026/);
+  assert.doesNotMatch(privacy, /A141|Disclosure|da confermare|Candidata/);
   assert.match(privacy, /privacy@moxtracker\.app/);
   assert.match(privacy, /<strong>Dennis Santinelli è il titolare del trattamento dei dati personali trattati tramite MOX e MoxTracker\.<\/strong>/);
   assert.doesNotMatch(privacy, /la legge chiama questo ruolo/);

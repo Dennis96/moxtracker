@@ -1,4 +1,5 @@
 import { createPublicKey, verify } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { validaSnapshot, escapeHtml as e, markdownSicuro, noteLingua, slugRelease, sha256 } from './modello.mjs';
 import { GUIDE, REVISIONE_DRAFT } from './guide.mjs';
 
@@ -25,18 +26,26 @@ export function validaFonti(f, key) {
   return f;
 }
 
+// Note scritte per i giocatori, una per versione (IT/EN). Il sito non mostra
+// il testo tecnico delle GitHub Releases quando esiste la nota per i giocatori.
+export const NOTE_UTENTE = JSON.parse(readFileSync(new URL('../../config/news-note-utente.json', import.meta.url), 'utf8'));
+// Parole da sviluppatore o da programma tester che non devono comparire nelle pagine pubbliche.
+export const GERGO_VIETATO = /canary|\btester\b|canale di prova|versioni? sperimental|confidenza=|central_api|owner_decision|\blegacy\b|\bpolicy\b|\bhash\b|\bparser\b|\bpayload\b|\bmanifest[oi]?\b|\bfrontend\b|\bbackend\b|\bWorker\b|\bD1\b|\bR2\b|\bOAuth\b|\bcommit\b|\bsuite\b|\bfuzzing\b|\bschema\b|\bhotfix\b|\bA\d{2,3}\b/i;
+
 const data = (iso, en) => new Intl.DateTimeFormat(en ? 'en-GB' : 'it-IT', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso));
 
 // Il sito pubblico espone esclusivamente note destinate agli utenti.
 // Il corpus originale resta integro nello snapshot per audit e riconciliazione.
-function notePubbliche(r, lingua) {
-  const note = noteLingua(r.body, lingua);
-  if (/canary/i.test(note.text)) throw new Error('Note riservate ai tester: revisione editoriale richiesta');
+function notePubbliche(r, lingua, noteUtente) {
+  const scritta = noteUtente[r.version]?.[lingua];
+  const note = scritta ? { text: scritta, lang: lingua, status: 'utente' } : noteLingua(r.body, lingua);
+  // La riga del commit sorgente non arriva mai nella pagina (corpoNote la toglie).
+  if (GERGO_VIETATO.test(note.text.replace(/^mox-core source commit\s*=.*$/gim, ''))) throw new Error('Note con linguaggio da sviluppatori o per tester: revisione editoriale richiesta (' + r.version + ')');
   return note;
 }
 
-function corpoNote(r, lingua) {
-  const note = notePubbliche(r, lingua), en = lingua === 'en';
+function corpoNote(r, lingua, noteUtente) {
+  const note = notePubbliche(r, lingua, noteUtente), en = lingua === 'en';
   // Titolo e commit hanno già una collocazione nella scheda e nei dettagli fonte.
   const righe = note.text.split(/\r?\n/);
   if (righe[0]?.replace(/^#\s+/, '').trim() === r.name) righe.shift();
@@ -45,7 +54,7 @@ function corpoNote(r, lingua) {
   return avviso + '<div lang="' + note.lang + '" class="release-body">' + (testo.trim() ? markdownSicuro(testo) : '<p>' + (en ? 'Notes are not available in the original release.' : 'Note non disponibili nella release originale.') + '</p>') + '</div>';
 }
 
-export function generaPagine(snapshot, fonti, key) {
+export function generaPagine(snapshot, fonti, key, noteUtente = NOTE_UTENTE) {
   validaSnapshot(snapshot); validaFonti(fonti, key);
   const pagine = new Map();
   const stable = fonti.channels.stable.data.versione.replace('2 beta ', '');
@@ -60,22 +69,21 @@ export function generaPagine(snapshot, fonti, key) {
     const schede = pubbliche.map(r => {
       const ultima = r.id === latest.id;
       const badge = ultima ? '<span class="release-badge">' + (en ? 'Latest' : 'Ultima versione') + '</span>' : '';
-      return '<article class="release-card' + (ultima ? ' release-card-latest' : '') + '" id="release-' + e(r.version) + '"><header class="release-card-head"><div><h2>' + e(r.name) + ' ' + badge + '</h2><p class="release-date"><time datetime="' + e(r.published_at) + '">' + e(data(r.published_at, en)) + '</time></p></div>' + link('note-versione/' + slugRelease(r), (ultima ? en ? 'Open the release page' : 'Apri la pagina della versione' : en ? 'Read the release notes' : 'Leggi le note di versione') + ' →') + '</header>' + (ultima ? '<div class="release-card-notes">' + corpoNote(r, lingua) + '</div>' : '') + '</article>';
+      return '<article class="release-card' + (ultima ? ' release-card-latest' : '') + '" id="release-' + e(r.version) + '"><header class="release-card-head"><div><h2>' + e(r.name) + ' ' + badge + '</h2><p class="release-date"><time datetime="' + e(r.published_at) + '">' + e(data(r.published_at, en)) + '</time></p></div>' + link('note-versione/' + slugRelease(r), (ultima ? en ? 'Open the release page' : 'Apri la pagina della versione' : en ? 'Read the release notes' : 'Leggi le note di versione') + ' →') + '</header>' + (ultima ? '<div class="release-card-notes">' + corpoNote(r, lingua, noteUtente) + '</div>' : '') + '</article>';
     }).join('');
     const avviso = latestGitHub.version !== stable ? '<p class="release-warning">' + (en ? 'Download is temporarily unavailable. Current public version: MOX ' : 'Download momentaneamente non disponibile. Versione pubblica corrente: MOX ') + e(stable) + '.</p>' : '';
     const ritirate = ritiratePubbliche.length ? '<section class="release-withdrawn"><h2>' + (en ? 'Withdrawn releases' : 'Versioni ritirate') + '</h2>' + ritiratePubbliche.map(r => '<p>' + link('note-versione/' + slugRelease(r), r.name) + '</p>').join('') + '</section>' : '';
     pagine.set(lingua + '/note-versione.html', {
       title: en ? 'Updates' : 'Aggiornamenti', page: 'updates',
-      main: '<div class="news-page"><header class="news-head"><p class="news-eyebrow">News</p><h1>' + (en ? 'What changed in each release.' : 'Le novità di ogni versione.') + '</h1><p>' + (en ? 'The release notes for MOX, newest first.' : 'Le note di versione di MOX, dalla più recente alle precedenti.') + '</p></header>' + avviso + '<section class="release-feed" aria-label="' + (en ? 'Releases' : 'Versioni') + '">' + schede + '</section>' + ritirate + '<p class="news-source">' + (en ? 'Source: GitHub Releases. Checked on ' : 'Fonte: GitHub Releases. Verifica del ') + '<time datetime="' + e(snapshot.fetched_at) + '">' + e(data(snapshot.fetched_at, en)) + '</time> (UTC).</p></div>'
+      main: '<div class="news-page"><header class="news-head"><p class="news-eyebrow">News</p><h1>' + (en ? 'What changed in each release.' : 'Le novità di ogni versione.') + '</h1><p>' + (en ? 'The release notes for MOX, newest first.' : 'Le note di versione di MOX, dalla più recente alle precedenti.') + '</p></header>' + avviso + '<section class="release-feed" aria-label="' + (en ? 'Releases' : 'Versioni') + '">' + schede + '</section>' + ritirate + '</div>'
     });
     for (const r of [...pubbliche, ...ritiratePubbliche]) {
       const ritirata = snapshot.tombstones.includes(r);
-      let corpo = '<p>' + link('note-versione', en ? '← All updates' : '← Tutti gli aggiornamenti') + '</p><p class="release-date"><time datetime="' + e(r.published_at) + '">' + e(data(r.published_at, en)) + ' UTC</time></p>';
+      let corpo = '<p>' + link('note-versione', en ? '← All updates' : '← Tutti gli aggiornamenti') + '</p><p class="release-date"><time datetime="' + e(r.published_at) + '">' + e(data(r.published_at, en)) + '</time></p>';
       if (ritirata) corpo += '<p class="release-warning">' + (en ? 'Withdrawn release. Download links removed.' : 'Versione ritirata. Link di download rimossi.') + '</p>';
-      else if (r.version !== stable) corpo += '<p class="release-history">' + (r.provenance === 'legacy_verified' ? en ? 'Earlier version, verified publication.' : 'Versione precedente, pubblicazione verificata.' : r.provenance === 'stable_receipt' ? en ? 'Stable promotion receipt recorded.' : 'Ricevuta di promozione Stable registrata.' : en ? 'Published on GitHub; Stable promotion unverified.' : 'Pubblicata su GitHub; promozione Stable non verificata.') + '</p>';
-      if (r.body.includes('\\n')) corpo += '<p>' + (en ? 'Literal escape sequences are preserved from the original source.' : 'Le sequenze di escape letterali sono conservate dalla fonte originale.') + '</p>';
-      corpo += corpoNote(r, lingua);
-      corpo += '<p><a href="' + e(r.html_url) + '" rel="noopener noreferrer">' + (en ? 'Original GitHub release' : 'Release GitHub originale') + ' →</a></p><details class="release-metadata"><summary>' + (en ? 'Source details' : 'Dettagli della fonte') + '</summary><p>ID ' + r.id + ' · <code>' + e(r.tag_name) + '</code></p><p>SHA-256 body: <code>' + r.body_sha256 + '</code></p><p>' + (en ? 'Client source commit' : 'Commit sorgente client') + ': <code>' + e(r.source_commit || (en ? 'not attested' : 'non attestato')) + '</code></p>' + r.assets.map(a => '<p>' + e(a.name) + ' · ' + a.size + ' byte · <code>' + e(a.digest || 'n.d.') + '</code></p>').join('') + '</details>';
+      else if (r.version !== stable) corpo += '<p class="release-history">' + (en ? 'Earlier version.' : 'Versione precedente.') + '</p>';
+      corpo += corpoNote(r, lingua, noteUtente);
+      // Dettagli tecnici (ID, hash, commit, digest) restano nello snapshot interno, non nella pagina.
       pagine.set(lingua + '/note-versione/' + slugRelease(r) + '.html', { title: r.name, page: 'updates', main: '<div class="news-page news-detail"><header class="news-head"><p class="news-eyebrow">News</p><h1>' + e(r.name) + '</h1></header><article class="release-card">' + corpo + '</article></div>' });
     }
     pagine.set(lingua + '/guide.html', { title: en ? 'MOX guides' : 'Guide MOX', page: 'guides', main: paginaGuide(fonti, en) });
@@ -104,12 +112,14 @@ export function paginaGuide(fonti, en = false) {
     return '<details class="draft-answer" id="' + slug + '"><summary>' + e(domande[slug]?.[en ? 1 : 0] || (en ? inglese : it)) + '</summary><div class="draft-answer-body">' + sezioni.map(([hi, he, pi, pe]) => '<h3>' + e(en ? he : hi) + '</h3><p>' + e(en ? pe : pi) + '</p>').join('') + (slug === 'dati-draft' ? tabellaDati(fonti, en) : '') + (slug === 'inizia' ? '<p><a href="' + prefisso + '/download">' + (en ? 'Installation instructions →' : 'Procedura di installazione →') + '</a></p>' : '') + '</div></details>';
   }).join('');
   const contenuti = gruppi.map(g => '<section class="guide-group" id="' + g.id + '" aria-labelledby="' + g.id + '-title"><h2 id="' + g.id + '-title">' + e(g.titolo) + '</h2><div class="draft-answers">' + risposte(g.slugs) + '</div></section>').join('');
-  return '<div class="guide-page"><header class="guide-head"><h1>' + (en ? 'MOX guides' : 'Guide MOX') + '</h1><p>' + (en ? 'Find the answer you need. From installation to your next Draft.' : 'Trova la risposta che ti serve. Dall’installazione al prossimo Draft.') + '</p></header><nav class="guide-cards" aria-label="' + (en ? 'Choose a topic' : 'Scegli un argomento') + '">' + schede + '</nav>' + contenuti + '<p class="guide-revision">MOX ' + e(REVISIONE_DRAFT.versione) + ' · ' + (en ? 'Content checked on ' : 'Contenuti verificati il ') + '<time datetime="' + e(REVISIONE_DRAFT.verificata_il) + '">' + e(data(REVISIONE_DRAFT.verificata_il, en)) + '</time> (UTC).</p><p class="draft-help-links"><a href="' + prefisso + '/supporto">' + (en ? 'Need help?' : 'Ti serve una mano?') + '</a> · <a href="' + prefisso + '/privacy">Privacy</a> · <a href="' + prefisso + '/note-versione">' + (en ? 'Updates' : 'Aggiornamenti') + '</a></p></div>';
+  return '<div class="guide-page"><header class="guide-head"><h1>' + (en ? 'MOX guides' : 'Guide MOX') + '</h1><p>' + (en ? 'Find the answer you need. From installation to your next Draft.' : 'Trova la risposta che ti serve. Dall’installazione al prossimo Draft.') + '</p></header><nav class="guide-cards" aria-label="' + (en ? 'Choose a topic' : 'Scegli un argomento') + '">' + schede + '</nav>' + contenuti + '<p class="guide-revision">' + (en ? 'Guides updated for MOX ' : 'Guide aggiornate per MOX ') + e(REVISIONE_DRAFT.versione) + (en ? ' on ' : ' il ') + '<time datetime="' + e(REVISIONE_DRAFT.verificata_il) + '">' + e(data(REVISIONE_DRAFT.verificata_il, en)) + '</time>.</p><p class="draft-help-links"><a href="' + prefisso + '/supporto">' + (en ? 'Need help?' : 'Ti serve una mano?') + '</a> · <a href="' + prefisso + '/privacy">Privacy</a> · <a href="' + prefisso + '/note-versione">' + (en ? 'Updates' : 'Aggiornamenti') + '</a></p></div>';
 }
 
 export function tabellaDati(fonti, en) {
   const m = fonti.public_data.data;
   const gruppi = new Map();
   for (const r of m.entries) { const id = [r.set, r.format, r.source_published_at].join('/'); if (!gruppi.has(id)) gruppi.set(id, []); gruppi.get(id).push(r); }
-  return '<div class="draft-data"><h3>' + (en ? 'Public data available' : 'Dati pubblici disponibili') + '</h3>' + `<p>${en ? 'Public Data Sets only. Checked' : 'Solo Public Data Sets. Verificato al'} <time datetime="${e(fonti.public_data.fetched_at)}">${e(fonti.public_data.fetched_at)}</time>. ${en ? 'Manifest generated' : 'Manifesto generato'}: ${e(m.generated_at)}.</p><div class="table-scroll" tabindex="0" role="region" aria-label="${en ? 'Public Draft data table' : 'Tabella dati Draft pubblici'}"><table><thead><tr><th>Set</th><th>${en ? 'Format' : 'Formato'}</th><th>${en ? 'Source date' : 'Data sorgente'}</th><th>${en ? 'Tables' : 'Tabelle'}</th></tr></thead><tbody>${[...gruppi.values()].map(righe => `<tr><th scope="row">${e(righe[0].set)}</th><td>${e(righe[0].format)}</td><td>${e(righe[0].source_published_at)}</td><td>${righe.filter(r => r.main_colors === null).length} ${en ? 'global' : 'globale'} + ${righe.filter(r => r.main_colors !== null).length} ${en ? 'color pairs' : 'coppie colori'}</td></tr>`).join('')}</tbody></table></div><p>${en ? 'This table covers Public Data Sets only, not API availability. The listed date refers to the source data. Card-level metrics and coverage may vary; the client shows the source actually used.' : 'Questa tabella riguarda solo i Public Data Sets, non la disponibilità API. La data indicata è quella dei dati sorgente. Metriche e copertura per carta possono variare; il client mostra la fonte effettivamente usata.'}</p><p>${en ? 'Statistics calculated by MOX from 17Lands Public Data Sets, CC BY 4.0. 17Lands does not endorse MOX.' : 'Statistiche calcolate da MOX sui 17Lands Public Data Sets, CC BY 4.0. 17Lands non approva né sostiene MOX.'} <a href="https://www.17lands.com/public_datasets">17Lands Public Data Sets</a> · <a href="${e(fonti.public_data.source)}">${en ? 'Source manifest' : 'Manifesto fonte'}</a></p>` + '</div>';
+  const formati = { PremierDraft: 'Premier Draft', TradDraft: 'Traditional Draft', QuickDraft: 'Quick Draft', PickTwoDraft: en ? 'Pick Two' : 'Prendi Due' };
+  const righe = [...gruppi.values()].map(g => '<tr><th scope="row">' + e(g[0].set) + '</th><td>' + e(formati[g[0].format] || g[0].format) + '</td><td><time datetime="' + e(g[0].source_published_at) + '">' + e(data(g[0].source_published_at + 'T00:00:00Z', en)) + '</time></td><td>' + (en ? 'All decks' : 'Tutti i mazzi') + ' + ' + g.filter(r => r.main_colors !== null).length + (en ? ' color pairs' : ' coppie di colori') + '</td></tr>').join('');
+  return '<div class="draft-data"><h3>' + (en ? 'Public 17Lands statistics available' : 'Statistiche pubbliche di 17Lands disponibili') + '</h3><p>' + (en ? 'Sets and formats for which MOX has 17Lands public data, with the date of the data.' : 'Set e formati per cui MOX ha i dati pubblici di 17Lands, con la data dei dati.') + '</p><div class="table-scroll" tabindex="0" role="region" aria-label="' + (en ? 'Public Draft statistics' : 'Statistiche Draft pubbliche') + '"><table><thead><tr><th>Set</th><th>' + (en ? 'Format' : 'Formato') + '</th><th>' + (en ? 'Data from' : 'Dati del') + '</th><th>' + (en ? 'Statistics for' : 'Statistiche per') + '</th></tr></thead><tbody>' + righe + '</tbody></table></div><p>' + (en ? 'Not every card has statistics. In the Draft window MOX always shows which data it is using.' : 'Non tutte le carte hanno statistiche. Nella finestra del Draft MOX mostra sempre quali dati sta usando.') + '</p><p>' + (en ? 'Statistics calculated by MOX from 17Lands Public Data Sets, CC BY 4.0. 17Lands does not endorse MOX.' : 'Statistiche calcolate da MOX sui 17Lands Public Data Sets, CC BY 4.0. 17Lands non approva né sostiene MOX.') + ' <a href="https://www.17lands.com/public_datasets">17Lands Public Data Sets</a></p></div>';
 }

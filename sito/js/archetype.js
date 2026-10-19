@@ -276,7 +276,7 @@ function renderVariantDecklist(variant) {
   const unknown = cards.filter(card => !card.nome).length;
   if (unknown) {
     const note = document.createElement("p"); note.className = "variant-note";
-    note.textContent = `${unknown} carte hanno un Arena ID valido ma il catalogo nomi compatto del Worker non le conosce ancora.`;
+    note.textContent = `${unknown} carte non hanno ancora un nome nel catalogo di MOX.`;
     host.append(note);
   }
 }

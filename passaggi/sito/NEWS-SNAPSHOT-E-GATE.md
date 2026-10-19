@@ -29,6 +29,18 @@ scriva branch. Permessi per PR automatiche non assunti; comando manuale sopra
 con diff revisionato è il percorso candidato. GitHub Actions usa runner del
 piano esistente: nessun nuovo piano/costo autorizzato, minuti effettivi n.d.
 
+## Le note che il sito mostra: scritte per chi gioca
+
+Decisione di Dennis del 19/10/2026: il sito parla ai giocatori, mai agli
+sviluppatori. Le pagine News non mostrano il testo tecnico delle GitHub
+Releases né i dettagli della fonte (ID, hash, commit, digest), che restano nello
+snapshot interno. Per ogni versione pubblica il testo viene da
+`config/news-note-utente.json` (IT ed EN), oppure, in mancanza, dai blocchi
+`mox-user-notes` qui sotto. Se una versione pubblica non ha né l'una né
+l'altra e il suo body contiene gergo tecnico o parla del programma tester
+(`GERGO_VIETATO` in `strumenti/news/pagine.mjs`), la build si ferma.
+Prima di una nuova Stable: aggiungere la sua voce in `news-note-utente.json`.
+
 ## Un solo body bilingue per le pubblicazioni future
 
 Preparare prima della pubblicazione, con approvazione editoriale:
@@ -53,7 +65,8 @@ Nessun requisito retroattivo sulle Stable già pubblicate.
 Checklist prima di approvare il body: rete/fonti, dati inviati, consensi,
 retention, provider, canale, metodo e limiti. Rileggere Guide, Privacy e Cosa
 invia MOX quando il comportamento cambia; nessuna Privacy generata dai commit.
-Privacy candidata: **OWNER APPROVAL REQUIRED**, inclusa data finale effettiva.
+Privacy: testi riscritti in linguaggio da giocatore il 19/10/2026 su richiesta di Dennis, data «Aggiornata il 19 ottobre 2026».
+Ogni modifica futura della Privacy: **OWNER APPROVAL REQUIRED**, data compresa.
 
 ## Gate e limiti
 
@@ -62,12 +75,12 @@ Se Latest diverge dallo Stable, la storia resta leggibile; il resolver ZIP
 blocca il click con avviso. Non modifica release/manifesti e non propone
 automaticamente un vecchio ZIP. La cronologia non fa fetch GitHub per lettore;
 solo il click download risolve Latest e confronta Stable, con promise condivise.
-Il sito pubblico non nomina Canary né distribuisce istruzioni per tester. Un
-body utente che la menzioni blocca la generazione per revisione editoriale;
+Il sito pubblico non nomina Canary né distribuisce istruzioni per tester. Una
+nota che usi gergo tecnico o parli di tester blocca la generazione per revisione editoriale;
 i test della build controllano tutti gli HTML/JS/JSON/CSS per impedirne la
 pubblicazione anche in titoli o metadati. Il corpo originale resta nel corpus
-interno, senza modifica delle Releases. Titolo duplicato e commit sorgente
-vengono collocati rispettivamente nella scheda e nei dettagli fonte.
+interno, senza modifica delle Releases. Il titolo resta nella scheda; il
+commit sorgente resta solo nello snapshot interno.
 IT/EN legacy: originale italiano identificato, nessuna traduzione inventata.
 2.9.12: assenza esplicita; 2.9.28: escape conservati. Nessuna Release modificata.
 

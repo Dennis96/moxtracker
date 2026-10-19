@@ -33,7 +33,7 @@ test("testi pubblici separano catalogo e osservazioni e descrivono la soglia a 3
   assert.doesNotMatch(privacy, /5 installazioni/);
   assert.doesNotMatch(detail, /installazioni distinte/);
   assert.match(privacy, /catalogo pubblico curato separatamente/);
-  assert.match(privacy, /decklist osservata protetta non genera richieste immagine o hover/);
+  assert.match(privacy, /Le carte di una decklist non ancora pubblicabile non vengono chieste a Scryfall, nemmeno passandoci sopra con il mouse/);
 });
 
 test("liste di riferimento restano compatibili con API pre-S1-A", () => {

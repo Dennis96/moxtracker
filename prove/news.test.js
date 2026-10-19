@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { generateKeyPairSync, sign } from 'node:crypto';
 import { acquisisci, API, validaSnapshot, normalizzaRelease, markdownSicuro, noteLingua, sha256 } from '../strumenti/news/modello.mjs';
-import { generaPagine, validaFonti } from '../strumenti/news/pagine.mjs';
+import { generaPagine, validaFonti, NOTE_UTENTE, GERGO_VIETATO } from '../strumenti/news/pagine.mjs';
 import { downloadCoerente } from '../sito/js/download.js';
 import { salvaFonti } from '../strumenti/news/fonti.mjs';
 
@@ -83,17 +83,18 @@ test('Sito pubblico — note riservate ai tester bloccano la generazione senza a
   assert.equal(JSON.stringify(s), prima);
 });
 
-test('A04 — dettaglio IT/EN, tag canonico, timestamp UTC e note italiane identificate', () => {
+test('A04 — dettaglio IT/EN con le note scritte per i giocatori, senza dettagli tecnici', () => {
   const p = generaPagine(reale, fonti, key);
   const stable = fonti.channels.stable.data.versione.replace('2 beta ', '');
   const ammessa = r => ['legacy_verified', 'stable_receipt'].includes(r.provenance) || r.version === stable;
   assert.equal([...p.keys()].filter(n => n.startsWith('en/note-versione/')).length, [...reale.releases, ...reale.tombstones].filter(ammessa).length);
   for (const r of reale.releases.filter(ammessa)) {
     const pagina = p.get(`en/note-versione/${r.tag_name.replaceAll('.', '-')}.html`).main;
-    assert.ok(pagina.includes(r.published_at)); assert.ok(pagina.includes(r.html_url));
-    if (noteLingua(r.body, 'en').lang === 'it') assert.match(pagina, /Italian original/);
+    assert.ok(pagina.includes(r.published_at));
+    assert.doesNotMatch(pagina, /Italian original|SHA-256|release-metadata|github\.com/);
+    assert.ok(NOTE_UTENTE[r.version]?.it && NOTE_UTENTE[r.version]?.en, 'nota per i giocatori mancante: ' + r.version);
   }
-  assert.match(p.get('it/note-versione.html').main, /\(UTC\)/);
+  assert.doesNotMatch(p.get('it/note-versione.html').main, /\(UTC\)|GitHub Releases/);
 });
 
 test('Snapshot schema 1 senza latest_observed resta leggibile offline', () => {
@@ -288,9 +289,17 @@ test('Review R08 — tre retry navbar riusano un messaggio; successo rimuove mes
   } finally { Object.assign(globalThis, originali); }
 });
 
-test('Guide e News pubbliche non mostrano nomi interni di policy o di provenienza', () => {
-  // Il corpo delle release resta l'originale GitHub: qui si controlla il testo generato da MOX.
+test('Guide e News pubbliche parlano ai giocatori: niente gergo da sviluppatori o da tester', () => {
   for (const [nome, pagina] of generaPagine(reale, fonti, key)) {
-    assert.doesNotMatch(pagina.main, /confidenza=|central_api|owner_decision|\blegacy\b/i, nome);
+    assert.doesNotMatch(pagina.main.replace(/<[^>]+>/g, ' '), GERGO_VIETATO, nome);
+  }
+  // Senza le note per i giocatori i testi GitHub originali (programma tester, dettagli tecnici) fermano la build.
+  assert.throws(() => generaPagine(reale, fonti, key, {}), /revisione editoriale richiesta/);
+});
+
+test('Privacy e Cosa invia MOX non contengono segnaposto o nomi interni', () => {
+  const leggiSito = nome => readFileSync(new URL('../sito/' + nome, import.meta.url), 'utf8').replace(/<script[\s\S]*?<\/script>|<head>[\s\S]*?<\/head>/g, ' ').replace(/<[^>]+>/g, ' ');
+  for (const nome of ['privacy.html', 'cosa-invia-mox.html', 'download.html', 'archetipo.html']) {
+    assert.doesNotMatch(leggiSito(nome), /da confermare|A1\d\d|central_api|owner_decision|\blegacy\b|\bR2\b|\bD1\b|OAuth|Turnstile|InventoryInfo|pipeline|\bhash\b|mox-meta/i, nome);
   }
 });

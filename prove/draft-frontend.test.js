@@ -24,15 +24,15 @@ test("la pagina Draft racconta il prodotto e il metodo, senza dati Limited", () 
   // Quello che la pagina deve continuare a dire.
   const guide = paginaGuide(fonti);
   assert.match(html, /guide\.html#usa-draft/);
-  assert.match(guide, /Ogni condivisione è una scelta separata/);
-  assert.match(guide, /non modifica Arena e non sceglie al posto tuo/);
-  assert.match(guide, /contributi personali dei giocatori non vengono inoltrati a 17Lands/);
-  assert.match(guide, /punteggio MOX 0–110 non è un win rate/);
+  assert.match(guide, /Ogni condivisione è una scelta a parte/);
+  assert.match(guide, /MOX non tocca Arena e non sceglie al posto tuo/);
+  assert.match(guide, /Le tue partite e i tuoi Draft non vengono mai mandati a 17Lands/);
+  assert.match(guide, /Il punteggio MOX va da 0 a 110: non è una percentuale di vittoria/);
   const nuoveFonti = structuredClone(fonti);
   nuoveFonti.channels.stable.data.versione = '2 beta 9.9.9';
   nuoveFonti.verified_at = '2030-01-01T00:00:00Z';
   const aggiornato = paginaGuide(nuoveFonti);
-  assert.match(aggiornato, /MOX 2\.11\.8 · Contenuti verificati il <time datetime="2026-10-15"/);
+  assert.match(aggiornato, /Guide aggiornate per MOX 2\.11\.8 il <time datetime="2026-10-19"/);
   assert.doesNotMatch(aggiornato, /9\.9\.9|2030/);
 });
 

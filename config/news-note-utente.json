@@ -1,0 +1,110 @@
+{
+  "2.11.8": {
+    "it": "Rispetto alla 2.11.3:\n\n**Assistente al Draft.** I consigli seguono meglio i colori che stai costruendo: il secondo colore si sceglie in modo più sicuro e le carte fuori dai tuoi colori, soprattutto nella terza busta, vengono scoraggiate. Le carte ibride non confondono più la scelta dei colori. Se le statistiche di 17Lands non sono disponibili, il Draft continua con colori e curva.\n\n**Draft condivisi.** Se condividi i tuoi Draft, insieme alle scelte parte anche come MOX ha deciso ogni consiglio. Lo spiegano le Opzioni, la Privacy e Cosa invia MOX. Non serve un nuovo consenso: chi non condivide non manda niente. Ora il mazzo finale arriva sul sito e riaprire l'assistente non spezza più il Draft in due.\n\n**Contatore.** Segue meglio le partite; quando non è sicuro del conto mostra «Conteggio in pausa» invece di un numero sbagliato.\n\n**Aggiornamenti.** In Opzioni › Diagnostica c'è «Controllo aggiornamenti…», con l'avanzamento del download. Le finestre si riaprono dove le avevi lasciate.\n\nChi ha MOX 2.11.3 riceve l'aggiornamento automaticamente.",
+    "en": "Compared with 2.11.3:\n\n**Draft Assistant.** Recommendations follow the colors you are building more closely: the second color is chosen more reliably and cards outside your colors, especially in the third pack, are discouraged. Hybrid cards no longer confuse color choice. If 17Lands statistics are not available, the Draft continues with colors and curve.\n\n**Shared Drafts.** If you share your Drafts, how MOX decided each recommendation is sent along with your picks. Options, the Privacy page and What MOX sends explain it. No new consent is needed: if you do not share, nothing is sent. The final deck now reaches the website, and reopening the assistant no longer splits the Draft in two.\n\n**Counter.** It follows matches better; when it is not sure of the count it shows «Count paused» instead of a wrong number.\n\n**Updates.** Options › Diagnostics has «Check for updates…», with download progress. Windows reopen where you left them.\n\nIf you have MOX 2.11.3 you get the update automatically."
+  },
+  "2.11.3": {
+    "it": "Aggiornamenti automatici più affidabili. Nient'altro cambia nel Draft, nelle partite, in Research o nel sito.\n\nSe le impostazioni di MOX si rovinano, il controllo degli aggiornamenti continua comunque a funzionare.",
+    "en": "More reliable automatic updates. Nothing else changes in the Draft, matches, Research or the website.\n\nIf MOX's settings get damaged, update checks still keep working."
+  },
+  "2.11.2": {
+    "it": "Se scegli Research al primo avvio, viene attivata alla fine del percorso, dopo la conferma. Il riepilogo distingue una scelta fatta da una già attiva. Se Internet non risponde puoi riprovare oppure entrare in MOX con Research spenta.\n\nAlla fine del primo avvio resti nella finestra principale di MOX; le Opzioni non si aprono più da sole.\n\nSe avevi scelto Research al primo avvio della 2.11.1, MOX te lo richiede senza attivarla da solo: puoi confermare, rimandare o lasciarla spenta. Le altre scelte restano come le avevi lasciate.",
+    "en": "If you choose Research on first start, it is turned on at the end of setup, after confirmation. The summary shows the difference between a choice you made and one already active. If the Internet does not respond you can try again or enter MOX with Research off.\n\nAt the end of first start you stay in the main MOX window; Options no longer opens by itself.\n\nIf you chose Research on first start in 2.11.1, MOX asks you again without turning it on by itself: you can confirm, postpone or leave it off. Your other choices stay as they were."
+  },
+  "2.11.1": {
+    "it": "- Il primo avvio ti guida in cinque passi: lingua, aspetto, registri di Arena, condivisioni e account. Partite/Meta, Draft e Research restano scelte separate e facoltative; chi aggiorna conserva le scelte di prima.\n- Quando oro, gemme o wildcard non sono ancora noti, MOX li mostra come sconosciuti invece che come zero. MOX ti dice anche se i registri di Arena sono spenti, se Arena è chiusa o se non hai ancora fatto l'accesso, con un pulsante per ricontrollare.",
+    "en": "- First start guides you in five steps: language, look, Arena logs, sharing and account. Matches/Meta, Draft and Research remain separate, optional choices; if you update, your earlier choices are kept.\n- When gold, gems or wildcards are not known yet, MOX shows them as unknown instead of zero. MOX also tells you whether Arena logs are off, Arena is closed or you have not signed in yet, with a button to check again."
+  },
+  "2.11.0": {
+    "it": "Arriva **Research**: facoltativa e spenta all'inizio. Nelle Opzioni c'è una sezione nuova che spiega a cosa serve, cosa parte e cosa no. Si accende solo con il pulsante «Partecipa a Research».\n\n- Partono le partite giocate **dopo** il tuo sì: formato, evento, esito, rank, turni, chi ha cominciato, mulligan, mazzo, cambi di sideboard, carte pescate e giocate. Le partite di prima non rientrano.\n- Non partono mai nomi (né il tuo né dell'avversario), il nome del mazzo, la mano o il mazzo dell'avversario.\n- Puoi ritirare il consenso quando vuoi e chiedere di cancellare tutto quello che hai mandato.\n\nLe altre condivisioni, il Draft e l'account non cambiano.",
+    "en": "**Research** arrives: optional and off to begin with. Options has a new section explaining what it is for, what is sent and what is not. It turns on only with the «Join Research» button.\n\n- Matches played **after** your yes are sent: format, event, result, rank, turns, who started, mulligans, deck, sideboard changes, cards drawn and played. Earlier matches are not included.\n- Names (yours or your opponent's), your deck name, and your opponent's hand or deck are never sent.\n- You can withdraw consent whenever you like and ask to delete everything you sent.\n\nOther sharing, the Draft and the account do not change."
+  },
+  "2.10.0": {
+    "it": "MOX torna a funzionare con l'ultimo aggiornamento di MTG Arena, che aveva cambiato il modo in cui sono salvati mazzi e collezione.\n\n- La legalità in Standard si valuta carta per carta: una vecchia stampa resta valida se esiste una ristampa legale.\n- «I tuoi mazzi» conserva tutte le versioni dei mazzi e assegna le partite al formato giusto.\n- La finestra dei mazzi si apre subito e mostra l'avanzamento mentre carica le statistiche.\n- «Mostra file» ti porta direttamente al file della collezione.\n- Nel Draft puoi usare la tua collezione come spareggio fra carte simili; è spento finché non lo accendi.\n\nIl primo caricamento delle statistiche può ancora richiedere un po' di tempo, ma ora vedi l'avanzamento.",
+    "en": "MOX works again with the latest MTG Arena update, which had changed how decks and collection are saved.\n\n- Standard legality is checked card by card: an old printing stays valid if a legal reprint exists.\n- «Your decks» keeps every version of your decks and assigns matches to the right format.\n- The decks window opens straight away and shows progress while statistics load.\n- «Show file» takes you straight to your collection file.\n- In the Draft you can use your collection as a tiebreaker between similar cards; it is off until you turn it on.\n\nThe first loading of statistics can still take a while, but now you see the progress."
+  },
+  "2.9.29": {
+    "it": "Il Draft legge meglio le carte ibride: una carta come {B/G} si paga con uno dei due colori, non con entrambi. Una carta lanciabile con il solo nero in un mazzo rosso-nero non viene più penalizzata. Il costo totale delle carte come {2/R} conta 2.\n\nSe MOX non conosce il costo di una carta lo dice, invece di trattarla come una carta a costo zero.\n\nIl Contatore prende il mazzo dopo la sideboard da quello che indica Arena, e ti avvisa quando non è sicuro.\n\nNessun nuovo dato esce dal tuo computer.",
+    "en": "The Draft reads hybrid cards better: a card like {B/G} is paid with one of the two colors, not both. A card castable with black alone in a red-black deck is no longer penalised. The total cost of cards like {2/R} counts as 2.\n\nIf MOX does not know a card's cost it says so, instead of treating it as a zero-cost card.\n\nThe Counter takes your post-sideboard deck from what Arena reports, and warns you when it is not sure.\n\nNo new data leaves your computer."
+  },
+  "2.9.28": {
+    "it": "- Le schede del Draft si ridisegnano bene quando allarghi o stringi la finestra.\n- Riepilogo del tavolo e carte sono separati da una barra che puoi spostare, e MOX ne ricorda la posizione.\n- Nessun cambiamento ai dati inviati, alle statistiche o al sito.",
+    "en": "- Draft tabs redraw properly when you widen or narrow the window.\n- Table summary and cards are separated by a bar you can move, and MOX remembers its position.\n- No changes to data sent, statistics or the website."
+  },
+  "2.9.27": {
+    "it": "Corretto un problema che poteva comparire fra due Draft di fila, soprattutto nel Prendi Due: MOX poteva mostrare le carte senza statistiche e non inviare il secondo Draft. Ora riconosce subito il nuovo Draft e carica set e formato giusti.",
+    "en": "Fixed a problem that could appear between two Drafts in a row, especially in Pick Two: MOX could show cards without statistics and not send the second Draft. Now it recognises the new Draft straight away and loads the right set and format."
+  },
+  "2.9.26": {
+    "it": "Le carte che hanno solo la posizione media di scelta (ATA) e nessuna percentuale ora mostrano «n.d.» e non bloccano più la costruzione del mazzo a fine Draft.",
+    "en": "Cards that have only an average pick position (ATA) and no percentage now show «n/a» and no longer block deck building at the end of the Draft."
+  },
+  "2.9.25": {
+    "it": "Due correzioni subito dopo la 2.9.24:\n\n- l'avviso dei Draft non inviati era poco chiaro e proponeva di riprovare anche quando non serviva: ora dice solo quello che c'è da fare;\n- un file rovinato (per esempio dopo un crash o con il disco pieno) poteva impedire alla finestra principale di aprirsi: ora non succede più.\n\nL'aggiornamento è automatico.",
+    "en": "Two fixes right after 2.9.24:\n\n- the notice about unsent Drafts was unclear and offered to retry even when not needed: now it only says what there is to do;\n- a damaged file (for example after a crash or with a full disk) could stop the main window from opening: this no longer happens.\n\nThe update is automatic."
+  },
+  "2.9.24": {
+    "it": "**I Draft condivisi arrivano al sito.** Prima circa un Draft su due non veniva accettato per un errore nell'ordine delle carte del pool.\n\n- I Draft ora arrivano; se uno non può essere accettato resta sul tuo computer con il motivo.\n- La schermata principale ti avvisa se un Draft non è stato inviato, con un pulsante per riprovare.\n- I Draft non inviati in passato si possono recuperare: nessun dato viene inventato.\n\nL'aggiornamento è automatico.",
+    "en": "**Shared Drafts reach the website.** Before, about one Draft in two was not accepted because of an error in the order of pool cards.\n\n- Drafts now arrive; if one cannot be accepted it stays on your computer with the reason.\n- The main screen warns you if a Draft was not sent, with a button to retry.\n- Drafts not sent in the past can be recovered: no data is made up.\n\nThe update is automatic."
+  },
+  "2.9.23": {
+    "it": "**Le terre duali entrano nel mazzo e fra i consigli.** In alcuni set MOX scambiava le duali comuni per terre base e le lasciava sempre fuori.\n\n**Un Draft nuovo non eredita più quello di prima**, e un Premier non viene più scambiato per un Prendi Due.\n\n**«Chiudi Draft» funziona davvero.**\n\n**Sotto ogni carta del mazzo** vedi la statistica di 17Lands e su quante partite si basa.\n\n**La riga di stato dice a che busta e a che scelta sei.**",
+    "en": "**Dual lands go into the deck and the recommendations.** In some sets MOX mistook common duals for basic lands and always left them out.\n\n**A new Draft no longer inherits the previous one**, and a Premier is no longer mistaken for a Pick Two.\n\n**«Close Draft» really works.**\n\n**Under each card of the deck** you see the 17Lands statistic and how many games it is based on.\n\n**The status line shows which pack and which pick you are on.**"
+  },
+  "2.9.22": {
+    "it": "Torna il controllo automatico degli aggiornamenti, e il pulsante per controllarli a mano non resta più bloccato.",
+    "en": "Automatic update checks are back, and the button to check by hand no longer gets stuck."
+  },
+  "2.9.21": {
+    "it": "Correzione per il Quick Draft: MOX riconosce di nuovo l'evento, carica le statistiche di 17Lands e non si porta dietro il pool del Draft precedente.",
+    "en": "Quick Draft fix: MOX recognises the event again, loads 17Lands statistics and no longer carries over the pool from the previous Draft."
+  },
+  "2.9.20": {
+    "it": "La costruzione del mazzo funziona anche per i Draft iniziati con una versione precedente o dopo un riavvio di Arena.",
+    "en": "Deck building works also for Drafts started with an earlier version or after restarting Arena."
+  },
+  "2.9.19": {
+    "it": "**Statistiche di 17Lands complete.** Prima arrivavano solo quelle dell'ultimo giorno; ora MOX usa i dati di tutto il set e mostra su quante partite si basano e come va la carta nei tuoi colori.\n\n**Due viste per il mazzo finale.** Puoi scegliere fra «Dati 17lands», con valore e campione di ogni carta, e «Costruzione mazzo», con tipi, costi e curva di mana.\n\n**Finestra del Draft più leggibile**, con proposte cliccabili e scheda carta più ordinata.\n\n**Terre e proposte corrette**: le terre non base utili prendono il posto delle base, e cambiare il numero di terre non fa perdere la proposta scelta.\n\n**Scelta dei colori migliorata**: MOX si decide sui colori un po' prima.\n\nChi ha già MOX riceve l'aggiornamento automaticamente.",
+    "en": "**Complete 17Lands statistics.** Before, only the last day arrived; now MOX uses data from the whole set and shows how many games they are based on and how the card does in your colors.\n\n**Two views for the final deck.** You can choose between «17lands data», with each card's value and sample, and «Deck building», with types, costs and mana curve.\n\n**More readable Draft window**, with clickable suggestions and a tidier card panel.\n\n**Lands and suggestions fixed**: useful nonbasic lands replace basics, and changing the number of lands no longer loses the chosen suggestion.\n\n**Better color choice**: MOX settles on its colors a little earlier.\n\nIf you already have MOX you get the update automatically."
+  },
+  "2.9.18": {
+    "it": "Cinque novità nate dal primo Draft giocato davvero con l'assistente nuovo.\n\n**Il Draft arriva sul sito** anche quando nel Prendi Due scegli una carta che avevi già nel pool.\n\n**La terra base non viene più consigliata** quando c'è altro da prendere.\n\n**Lo splash «facile» richiede una terra vera** che produca quel colore.\n\n**Sedici terre invece di diciassette.** Su moltissime partite reali sedici terre vincono più di diciassette. Se preferisci diciassette o diciotto lo scegli tu.\n\n**La vista del mazzo si legge meglio**: simboli di mana veri, disegni delle terre, nomi nella tua lingua e la carta in grande passandoci sopra con il mouse.\n\nChi ha già MOX riceve l'aggiornamento automaticamente.",
+    "en": "Five changes that came from the first Draft really played with the new assistant.\n\n**The Draft reaches the website** even when in Pick Two you take a card you already had in your pool.\n\n**Basic lands are no longer recommended** when there is something else to take.\n\n**An «easy» splash needs a real land** that produces that color.\n\n**Sixteen lands instead of seventeen.** Across a very large number of real games, sixteen lands win more than seventeen. If you prefer seventeen or eighteen, you choose.\n\n**The deck view is easier to read**: real mana symbols, land artwork, names in your language and the card shown large when you hover over it.\n\nIf you already have MOX you get the update automatically."
+  },
+  "2.9.17": {
+    "it": "Gli invii dei Draft condivisi non si bloccano più quando ci sono più Draft completi in attesa.\n\nSe chiudi MOX a metà Draft e lo riapri, viene comunque inviata la parte registrata invece di perdere tutto il Draft.\n\nComprende anche le novità della 2.9.15 e 2.9.16. Chi ha già MOX riceve l'aggiornamento automaticamente.",
+    "en": "Uploads of shared Drafts no longer get stuck when several complete Drafts are waiting.\n\nIf you close MOX halfway through a Draft and reopen it, the recorded part is still sent instead of losing the whole Draft.\n\nIt also includes what's new in 2.9.15 and 2.9.16. If you already have MOX you get the update automatically."
+  },
+  "2.9.16": {
+    "it": "Corretto un problema per cui, dopo aver guardato il mazzo consigliato durante un Draft, il Draft successivo mostrava il mazzo invece delle scelte. Ora un Draft nuovo riparte sempre dalle scelte.\n\nComprende anche le novità della 2.9.15. Chi ha già MOX riceve l'aggiornamento automaticamente.",
+    "en": "Fixed a problem where, after looking at the suggested deck during a Draft, the next Draft showed the deck instead of the picks. Now a new Draft always starts from the picks.\n\nIt also includes what's new in 2.9.15. If you already have MOX you get the update automatically."
+  },
+  "2.9.15": {
+    "it": "**I colori del Draft.**\n\n- Le terre a due colori non salgono più fra le prime scelte quando non producono il mana che ti serve.\n- Una carta con un solo simbolo fuori dai tuoi colori ora conta come lo splash che è: il pool non si allarga più fino a quattro colori.\n\nCon queste regole i consigli somigliano di più alle scelte dei giocatori di rank Diamond e Mythic. Il mazzo consigliato resta a due colori, che è la combinazione che vince di più.\n\nOgni Draft ora registra tutte le tue scelte, non solo alcune.",
+    "en": "**Draft colors.**\n\n- Two-color lands no longer rise among the top picks when they do not produce the mana you need.\n- A card with a single symbol outside your colors now counts as the splash it is: the pool no longer spreads to four colors.\n\nWith these rules recommendations are closer to the picks of Diamond and Mythic players. The suggested deck stays two-color, the combination that wins most.\n\nEvery Draft now records all your picks, not just some."
+  },
+  "2.9.14": {
+    "it": "Due correzioni:\n\n- l'invito a condividere le partite sparisce appena rispondi, da qualunque parte tu lo faccia;\n- il rank Bronze non compare più come sconosciuto, né in MOX né sul sito.\n\nChi ha già MOX riceve l'aggiornamento automaticamente.",
+    "en": "Two fixes:\n\n- the invitation to share matches disappears as soon as you answer, wherever you do it;\n- Bronze rank no longer shows as unknown, either in MOX or on the website.\n\nIf you already have MOX you get the update automatically."
+  },
+  "2.9.13": {
+    "it": "La finestra Opzioni ora sta nello schermo: due colonne, ridimensionabile e scorrevole.\n\nNuova scelta, spenta all'inizio: i mazzi che hai costruito in Arena possono comparire nel tuo account sul sito, con il nome che hai dato loro. Il nome resta nel tuo account e non entra nelle statistiche pubbliche.\n\nSul sito: il filtro Evento mostra tutti gli eventi, il testo dei ticket si legge e la verifica anti-spam funziona.\n\nChi ha già MOX riceve l'aggiornamento automaticamente.",
+    "en": "The Options window now fits on screen: two columns, resizable and scrollable.\n\nNew choice, off to begin with: the decks you built in Arena can appear in your account on the website, with the name you gave them. The name stays in your account and does not go into public statistics.\n\nOn the website: the Event filter shows all events, ticket text is readable and the anti-spam check works.\n\nIf you already have MOX you get the update automatically."
+  },
+  "2.9.12": {
+    "it": "Per questa versione non sono state scritte note.",
+    "en": "No notes were written for this version."
+  },
+  "2.9.3": {
+    "it": "Le partite vengono inviate correttamente anche quando Arena non indica la mano iniziale. Se una partita non viene accettata, il motivo resta visibile nelle Opzioni.",
+    "en": "Matches are sent correctly even when Arena does not report the opening hand. If a match is not accepted, the reason stays visible in Options."
+  },
+  "2.9.2": {
+    "it": "Le partite giocate con mazzi forniti dal gioco, come i precostruiti e Jump In, non vengono più contate come Standard. Le statistiche si ricalcolano da sole.",
+    "en": "Matches played with decks provided by the game, such as precons and Jump In, are no longer counted as Standard. Statistics are recalculated automatically."
+  },
+  "2.9.1": {
+    "it": "Prima versione scaricabile dal sito.\n\nNel Prendi Due MOX tiene conto di colori e compatibilità a ogni scelta invece di aspettare la fine. Funziona anche con Premier e Quick Draft.\n\nLe condivisioni di partite e Draft sono separate, spente all'inizio e si possono spegnere quando vuoi.",
+    "en": "First version downloadable from the website.\n\nIn Pick Two MOX takes colors and compatibility into account at every pick instead of waiting until the end. It also works with Premier and Quick Draft.\n\nSharing matches and Drafts are separate choices, off to begin with, and can be turned off whenever you like."
+  }
+}
