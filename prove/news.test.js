@@ -325,4 +325,17 @@ test('Privacy e Cosa invia: «mai» vale per le condivisioni di gioco, Player.lo
   assert.match(privacy, /Cosa non entra mai nelle condivisioni di gioco/);
   assert.match(privacy, /Fa eccezione solo il registro di Arena/);
   assert.match(privacy, /Il registro di Arena, che contiene il tuo nome, parte solo se scegli tu di allegarlo a un ticket di supporto/);
+  // Le stesse promesse nelle traduzioni inglesi attive (G2-m1): la chiave e' il testo italiano della pagina.
+  const en = JSON.parse(readFileSync(new URL('../sito/i18n/en.json', import.meta.url), 'utf8'));
+  const traduzione = (pagina, inizio) => {
+    const chiavi = Object.keys(en).filter(k => k.startsWith(inizio) && pagina.includes(k));
+    assert.equal(chiavi.length, 1, 'chiave attiva per: ' + inizio);
+    return en[chiavi[0]];
+  };
+  assert.equal(traduzione(cosa, 'Nelle condivisioni non inviamo mai:'), 'Sharing never sends:');
+  assert.match(traduzione(cosa, "password, chat, il tuo nome o account Arena"), /Player\.log\), which also contains your name and Arena account, is sent only if you choose to attach it to a support ticket/);
+  assert.match(traduzione(privacy, 'Cosa non entra mai nelle condivisioni di gioco'), /game sharing/);
+  assert.match(traduzione(privacy, 'Fa eccezione solo il registro di Arena'), /The only exception is Arena's log/);
+  assert.match(traduzione(privacy, '): contiene anche il tuo nome e account Arena'), /only if you choose to put it in the diagnostic package of a support ticket/);
+  assert.match(traduzione(privacy, 'Le tue partite e i tuoi Draft partono solo per le funzioni'), /Arena's log, which contains your name, is sent only if you choose to attach it to a support ticket/);
 });

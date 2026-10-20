@@ -1,19 +1,18 @@
 # Stato corrente — sito Mox
 
-## Candidata Macro A — aggiornata il 16/10/2026, non pubblicata
+## Macro A — fuso in main il 20/10/2026, non pubblicato
 
-Branch `claude/mox-site-news-guides-privacy-2026-10-14`, base remota verificata
-`a08ee510152044b544ecdec014dd0876fd3920b0`. News pubbliche a schede da snapshot GitHub, Guide IT/EN in tre percorsi,
-Draft sintetico, home conservata con sola versione e Privacy candidata: [procedura e gate](passaggi/sito/NEWS-SNAPSHOT-E-GATE.md),
-[resoconto e acceptance](passaggi/sito/handoff/HANDOFF-MACRO-A-2026-10-15.md).
-**OWNER APPROVAL REQUIRED** per copy Privacy e data finale; review indipendente
-successiva. Nessun merge/preview remota/deploy Pages o Worker/release. Il sito
-production resta quello descritto sotto, build `83b81f0227530856`.
-
-Baseline Git corrente al preflight: tracker `a08ee510152044b544ecdec014dd0876fd3920b0`
-(PR #41 documentale, dopo codice PR #40 `5eb5cb0`). Stable **2.11.8**,
-Canary **2.11.9**, campo tester pendente. I paragrafi datati seguenti conservano
-le osservazioni operative storiche e non attestano pubblicazione della candidata.
+PR [#42](https://github.com/Dennis96/moxtracker/pull/42), merge autorizzato da
+Dennis il 20/10/2026 dopo la review di Claude e due giri di delta review Codex
+(PASS, [file di review](https://github.com/Dennis96/mox-core/blob/main/passaggi/coordinamento/audit/REVIEW-MACRO-A-2026-10-18.md)).
+In `main`: News a schede con note per i giocatori IT/EN
+(`config/news-note-utente.json`), Guide in tre percorsi, pagina Draft
+sintetica, Privacy e Cosa invia MOX riscritte in linguaggio da giocatore
+(«Aggiornata il 19 ottobre 2026»), download che ricontrolla Latest e Stable.
+**Il sito in produzione non cambia** finché Dennis non autorizza a parte il
+deploy Pages: resta la build `83b81f0227530856` descritta sotto. Procedura
+News: [NEWS-SNAPSHOT-E-GATE.md](passaggi/sito/NEWS-SNAPSHOT-E-GATE.md).
+Stable **2.11.8**, Canary **2.11.9**, field test pendente.
 
 ## Riferimento corrente — 14/10/2026
 
