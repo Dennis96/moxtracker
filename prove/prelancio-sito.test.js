@@ -126,7 +126,7 @@ test("privacy e note originali 2.11.0/2.11.1 sono complete e datate dalla pubbli
   assert.match(privacy, /Garante per la protezione dei dati personali/);
   assert.match(privacy, /clausole contrattuali standard/);
   assert.match(privacy, /Research è facoltativa e separata/);
-  assert.match(privacy, /servizio Research non è pronto o qualificato/);
+  assert.match(privacy, /servizio Research non è pronto a ricevere i dati, MOX non li invia/);
   assert.doesNotMatch(privacy, /Prima del lancio ufficiale verrà aggiunto/);
   assert.match(trasparenza, /Research:/);
   assert.equal(releases.find(r => r.version === '2.11.0').published_at, '2026-09-15T12:32:03Z');

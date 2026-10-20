@@ -60,7 +60,7 @@
 
       <article class="panel privacy-section">
         <h2>Le risposte essenziali</h2>
-        <p><strong>Che cosa esce dal PC?</strong> Le tue partite e i tuoi Draft partono solo per le funzioni che attivi nelle Opzioni. I collegamenti per aggiornamenti, statistiche e immagini sono un'altra cosa e avvengono anche con le condivisioni spente. Quello che condividi non contiene il tuo nome o account Arena, password, chat o le carte nascoste dell'avversario. È legato a un codice casuale, così puoi chiederne la cancellazione.</p>
+        <p><strong>Che cosa esce dal PC?</strong> Le tue partite e i tuoi Draft partono solo per le funzioni che attivi nelle Opzioni. I collegamenti per aggiornamenti, statistiche e immagini sono un'altra cosa e avvengono anche con le condivisioni spente. Le partite e i Draft che condividi non contengono il tuo nome o account Arena, password, chat o le carte nascoste dell'avversario: sono legati a un codice casuale, così puoi chiederne la cancellazione. Il registro di Arena, che contiene il tuo nome, parte solo se scegli tu di allegarlo a un ticket di supporto.</p>
         <p><strong>Per quanto tempo?</strong> Dopo circa due anni dalla ricezione sul server, la manutenzione programmata cancella i contributi Partite/Meta e Draft; per Research conta la prima ricezione. Se il lavoro si accumula, la cancellazione può richiedere qualche giro in più. Puoi fermare gli invii quando vuoi; per Research, ritirare il consenso e cancellare i dati sono due azioni separate.</p>
         <p><strong>Che cosa può diventare pubblico?</strong> Statistiche del Meta e del Draft e, dopo almeno 30 partite della stessa variante, una decklist osservata esatta. Anche una sola installazione può raggiungere la soglia: una lista riconoscibile potrebbe quindi essere collegata indirettamente a un giocatore. Il sito non mostra nome, installazione o cronologia personale.</p>
         <p><strong>Come interrompo gli invii?</strong> Spegni le singole scelte in <strong>MOX → Opzioni → Dati e privacy</strong>. Puoi cancellare Partite e Draft da lì; per Research c'è un comando separato. Nell'area personale puoi esportare i dati e cancellare l'account o singole sezioni. Per richieste riservate scrivi a <a href="mailto:privacy@moxtracker.app">privacy@moxtracker.app</a>.</p>
@@ -112,11 +112,11 @@
           <li>il tuo mazzo e la sideboard, come li indica Arena;</li>
           <li>le tue carte pescate, lanciate e giocate come terre, quando si vedono nei registri.</li>
         </ul>
-        <p>Research non invia nomi, il nome che dai al mazzo, il codice originale della partita, password o email, né la mano o il mazzo non rivelati dell'avversario. Se il servizio Research non è pronto o qualificato a ricevere i dati, MOX non li invia.</p>
+        <p>Research non invia nomi, il nome che dai al mazzo, il codice originale della partita, password o email, né la mano o il mazzo non rivelati dell'avversario. Se il servizio Research non è pronto a ricevere i dati, MOX non li invia e tiene le partite sul PC.</p>
       </article>
 
       <article class="panel privacy-section">
-        <h2>Cosa non entra mai in quello che condividi</h2>
+        <h2>Cosa non entra mai nelle condivisioni di gioco</h2>
         <ul>
           <li>il tuo nome o quello dell'avversario;</li>
           <li>il nome dell'account Arena e i codici originali di Arena;</li>
@@ -124,14 +124,15 @@
           <li>mano, mazzo o carte non rivelate dell'avversario;</li>
           <li>password: l'accesso usa Google o Discord e MOX non gestisce password proprie.</li>
         </ul>
-        <p>I contributi sono pseudonimizzati: ogni installazione usa un codice casuale al posto del nome. Il codice segreto che serve per cancellarli è conservato sul server solo in forma cifrata, da cui non si può ricavare.</p>
+        <p>Fa eccezione solo il registro di Arena (<code>Player.log</code>): contiene anche il tuo nome e account Arena e parte soltanto se scegli tu di metterlo nel pacchetto diagnostico di un ticket di supporto. Lo vedono solo chi ha aperto il ticket e chi gestisce il supporto.</p>
+        <p>I contributi sono pseudonimizzati: ogni installazione usa un codice casuale al posto del nome. Il codice segreto che serve per cancellarli è conservato sul server solo in una forma da cui non si può risalire al codice.</p>
       </article>
 
       <article class="panel privacy-section">
         <h2 id="account-mazzi">Account e ticket facoltativi</h2>
         <p>Se accedi, conserviamo soltanto il codice che Google o Discord ci danno per riconoscerti, il nome visualizzato e l'immagine del profilo. Non chiediamo né conserviamo l'email di Google o Discord. Questi dati servono solo per entrare nella tua area privata e non entrano nel Meta pubblico.</p>
         <p>Collegare l'Account MOX non abilita «Mazzi nel tuo account». Solo se attivi a parte questa sincronizzazione MOX invia i tuoi mazzi, con i loro nomi, alla tua area privata; non li usa per le statistiche pubbliche.</p>
-        <p>MOX si collega al tuo account soltanto con un codice monouso generato da te e con una chiave che resta sul tuo PC, anche se non condividi niente. I ticket aperti con l'account restano nell'account; quelli aperti senza account si riaprono con un link segreto e sono protetti da una verifica anti-spam. Le notifiche email sono facoltative: l'indirizzo viene chiesto solo per quel ticket, dopo una spunta esplicita e una conferma dal messaggio ricevuto. Le email non contengono testo o allegati del ticket, ma un link privato per aprirlo; l'indirizzo e i codici di conferma vengono eliminati insieme al ticket.</p>
+        <p>MOX si collega al tuo account soltanto con un codice monouso generato da te e con una chiave salvata sul tuo PC, anche se non condividi niente. I ticket aperti con l'account restano nell'account; quelli aperti senza account si riaprono con un link segreto e sono protetti da una verifica anti-spam. Le notifiche email sono facoltative: l'indirizzo viene chiesto solo per quel ticket, dopo una spunta esplicita e una conferma dal messaggio ricevuto. Le email non contengono testo o allegati del ticket, ma un link privato per aprirlo; l'indirizzo e i codici di conferma vengono eliminati insieme al ticket.</p>
         <p id="supporto">Screenshot e pacchetti diagnostici di MOX restano in un archivio privato. Un pacchetto può contenere <code>Player.log</code>, il registro di Arena, soltanto quando lo hai scelto esplicitamente in MOX; lo vedono solo chi ha aperto il ticket e chi gestisce il supporto, mai il Meta pubblico.</p>
       </article>
 
@@ -148,9 +149,9 @@
       <article class="panel privacy-section">
         <h2 id="revoca">Revoca e cancellazione</h2>
         <p>Spegnere un consenso ferma gli invii futuri e annulla quelli ancora in attesa, senza cancellare le statistiche personali salvate sul PC.</p>
-        <p>Il comando <strong>“Cancella dal sito partite e Draft”</strong> nelle Opzioni di MOX cancella dal server, archivi compresi, tutto quello che quella installazione ha condiviso. Le copie sul tuo computer restano.</p>
+        <p>Il comando <strong>“Cancella dal sito partite e Draft”</strong> nelle Opzioni di MOX cancella dal server, archivi compresi, le partite e i Draft condivisi da quella installazione. Non tocca i mazzi sincronizzati nel tuo account: quelli li cancelli dal tuo account sul sito, dove puoi eliminare anche l'intero account. Le copie sul tuo computer restano.</p>
         <p>Per Research puoi ritirare il consenso e chiedere la cancellazione separatamente. Se il servizio non conferma subito, MOX conserva la richiesta e la ritenta, anche dopo un riavvio, finché viene confermata.</p>
-        <p>Dopo che hai ritirato il consenso Research, MOX non invia più niente per Research. Se le impostazioni sul PC risultano danneggiate, MOX recupera quello che può ma considera spenti Partite/Meta, Draft e «Mazzi nel tuo account» finché non li scegli di nuovo.</p>
+        <p>Dopo che hai ritirato il consenso Research, MOX non avvia più nuovi invii per Research. Se le impostazioni sul PC risultano danneggiate, MOX recupera quello che può ma considera spenti Partite/Meta, Draft e «Mazzi nel tuo account» finché non li scegli di nuovo.</p>
       </article>
 
       <article class="panel privacy-section">

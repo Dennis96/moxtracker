@@ -303,3 +303,26 @@ test('Privacy e Cosa invia MOX non contengono segnaposto o nomi interni', () => 
     assert.doesNotMatch(leggiSito(nome), /da confermare|A1\d\d|central_api|owner_decision|\blegacy\b|\bR2\b|\bD1\b|OAuth|Turnstile|InventoryInfo|pipeline|\bhash\b|mox-meta/i, nome);
   }
 });
+
+test('Privacy: il comando di cancellazione non promette di togliere i mazzi dell’account', () => {
+  const testo = nome => readFileSync(new URL('../sito/' + nome, import.meta.url), 'utf8').replace(/<[^>]+>/g, '');
+  const en = JSON.parse(readFileSync(new URL('../sito/i18n/en.json', import.meta.url), 'utf8'));
+  const privacy = testo('privacy.html');
+  // Il server cancella partite e Draft dell'installazione e lascia i mazzi sincronizzati (src/draft.js, src/account.js).
+  assert.doesNotMatch(privacy, /tutto quello che quella installazione ha condiviso/);
+  assert.match(privacy, /Non tocca i mazzi sincronizzati nel tuo account: quelli li cancelli dal tuo account sul sito/);
+  assert.ok(Object.values(en).some(v => v.includes('does not touch the decks synced to your account')));
+  assert.ok(!Object.values(en).some(v => v.includes('everything that installation shared')));
+});
+
+test('Privacy e Cosa invia: «mai» vale per le condivisioni di gioco, Player.log solo se lo alleghi tu', () => {
+  const testo = nome => readFileSync(new URL('../sito/' + nome, import.meta.url), 'utf8').replace(/<[^>]+>/g, '');
+  const cosa = testo('cosa-invia-mox.html'), privacy = testo('privacy.html');
+  // Il pacchetto diagnostico copia Player.log intero (strumenti/diagnostica.py della 2.11.8).
+  assert.doesNotMatch(cosa, /(^|>|\s)Non inviamo mai:/);
+  assert.match(cosa, /Nelle condivisioni non inviamo mai:/);
+  assert.match(cosa, /Player\.log\), che contiene anche il tuo nome e account Arena, parte solo se scegli tu di allegarlo a un ticket/);
+  assert.match(privacy, /Cosa non entra mai nelle condivisioni di gioco/);
+  assert.match(privacy, /Fa eccezione solo il registro di Arena/);
+  assert.match(privacy, /Il registro di Arena, che contiene il tuo nome, parte solo se scegli tu di allegarlo a un ticket di supporto/);
+});

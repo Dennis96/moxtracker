@@ -30,7 +30,8 @@ export function validaFonti(f, key) {
 // il testo tecnico delle GitHub Releases quando esiste la nota per i giocatori.
 export const NOTE_UTENTE = JSON.parse(readFileSync(new URL('../../config/news-note-utente.json', import.meta.url), 'utf8'));
 // Parole da sviluppatore o da programma tester che non devono comparire nelle pagine pubbliche.
-export const GERGO_VIETATO = /canary|\btester\b|canale di prova|versioni? sperimental|confidenza=|central_api|owner_decision|\blegacy\b|\bpolicy\b|\bhash\b|\bparser\b|\bpayload\b|\bmanifest[oi]?\b|\bfrontend\b|\bbackend\b|\bWorker\b|\bD1\b|\bR2\b|\bOAuth\b|\bcommit\b|\bsuite\b|\bfuzzing\b|\bschema\b|\bhotfix\b|\bA\d{2,3}\b/i;
+// È una rete di sicurezza, non la revisione editoriale: ogni nota nuova si rilegge come la leggerebbe un giocatore.
+export const GERGO_VIETATO = /canary|\btester\b|canale di prova|versioni? sperimental|confidenza=|central_api|owner_decision|\blegacy\b|(?<!privacy )\bpolicy\b|\bendpoint\b|\bAPI\b|\bfallback\b|\bcache\b|chi prova le versioni|versioni? di prova|codice di accesso|\btest(ing)? channel\b|\bearly access\b|\bhash\b|\bparser\b|\bpayload\b|\bmanifest[oi]?\b|\bfrontend\b|\bbackend\b|\bWorker\b|\bD1\b|\bR2\b|\bOAuth\b|\bcommit\b|\bsuite\b|\bfuzzing\b|\bschema\b|\bhotfix\b|\bA\d{2,3}\b/i;
 
 const data = (iso, en) => new Intl.DateTimeFormat(en ? 'en-GB' : 'it-IT', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso));
 

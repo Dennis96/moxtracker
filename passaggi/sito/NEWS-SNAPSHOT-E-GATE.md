@@ -81,8 +81,10 @@ i test della build controllano tutti gli HTML/JS/JSON/CSS per impedirne la
 pubblicazione anche in titoli o metadati. Il corpo originale resta nel corpus
 interno, senza modifica delle Releases. Il titolo resta nella scheda; il
 commit sorgente resta solo nello snapshot interno.
-IT/EN legacy: originale italiano identificato, nessuna traduzione inventata.
-2.9.12: assenza esplicita; 2.9.28: escape conservati. Nessuna Release modificata.
+Fonte interna (snapshot): i body originali restano intatti, compresi l'italiano
+delle versioni storiche, l'assenza di note della 2.9.12 e gli escape della
+2.9.28. Le pagine pubbliche mostrano invece le note IT/EN per i giocatori,
+senza quegli avvisi. Nessuna Release modificata.
 
 Guide: pagina unica IT/EN con tre schede e otto risposte espandibili. Versione
 e data editoriale sono esplicite nel modulo dei contenuti: il refresh dei
