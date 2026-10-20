@@ -1,20 +1,35 @@
 # Stato corrente — sito Mox
 
-## Macro A — fuso in main il 20/10/2026, non pubblicato
+## Riferimento corrente — 20/10/2026: Macro A in produzione
 
-PR [#42](https://github.com/Dennis96/moxtracker/pull/42), merge autorizzato da
-Dennis il 20/10/2026 dopo la review di Claude e due giri di delta review Codex
-(PASS, [file di review](https://github.com/Dennis96/mox-core/blob/main/passaggi/coordinamento/audit/REVIEW-MACRO-A-2026-10-18.md)).
-In `main`: News a schede con note per i giocatori IT/EN
-(`config/news-note-utente.json`), Guide in tre percorsi, pagina Draft
-sintetica, Privacy e Cosa invia MOX riscritte in linguaggio da giocatore
-(«Aggiornata il 19 ottobre 2026»), download che ricontrolla Latest e Stable.
-**Il sito in produzione non cambia** finché Dennis non autorizza a parte il
-deploy Pages: resta la build `83b81f0227530856` descritta sotto. Procedura
-News: [NEWS-SNAPSHOT-E-GATE.md](passaggi/sito/NEWS-SNAPSHOT-E-GATE.md).
-Stable **2.11.8**, Canary **2.11.9**, field test pendente.
+`moxtracker/main` = `dfbe64f43f8bb239e96cd5dcc456791ddbb35dec`, merge della PR
+[#42](https://github.com/Dennis96/moxtracker/pull/42) (Macro A: News a schede con
+note per i giocatori IT/EN, Guide in tre percorsi, pagina Draft sintetica,
+Privacy e Cosa invia MOX in linguaggio da giocatore, «Aggiornata il 19 ottobre
+2026»; review Claude e due giri Codex PASS,
+[file di review](https://github.com/Dennis96/mox-core/blob/main/passaggi/coordinamento/audit/REVIEW-MACRO-A-2026-10-18.md)).
+Merge, preview e produzione autorizzati da Dennis in chat il 20/10/2026.
 
-## Riferimento corrente — 14/10/2026
+**Pages:** `strumenti/release_sito.mjs` da `main` `dfbe64f` pulito e uguale a
+`origin/main`: prove 631/631 a ogni esecuzione. Preview **`78b53608`**
+(build `b1786b84405bf867`, 147 file, smoke 6/6 a 200, `noindex` + robots
+Disallow), controllata a mano su `preview.moxtracker.pages.dev`: 14 pagine IT/EN
+a 200 con un H1, Meta con dati (116 partite), console senza errori, nessuna
+parola tecnica, download coerente (GitHub Latest `mox-v2-beta2.11.8` = Stable
+`2 beta 2.11.8`), Privacy al telefono (375 px) senza scorrimento laterale.
+Poi production **`87e32483`** (build `9e1ec740558c9168`): home pubblica con lo
+SHA-256 approvato `1be22665…`, smoke 6/6, indicizzabile (robots Allow +
+sitemap), record `.release/production-dfbe64f43f8b-87e32483.json` con esito
+«verificato» e le due schermate della preview. Dopo il deploy:
+`smoke_beta.mjs --site https://moxtracker.app` 14/14 e 16 pagine IT/EN su
+`moxtracker.app` a 200 con build `9e1ec740558c9168` e commit `dfbe64f`.
+
+**Rollback:** production precedente **`b1e3a39e`** (`3bc05da`, build
+`83b81f0227530856`): dashboard Cloudflare → Pages → moxtracker → Deployments →
+`b1e3a39e` → «Rollback to this deployment». Nessun Worker, secret, migrazione
+D1 o release toccati. Stable **2.11.8**, Canary **2.11.9**, field test pendente.
+
+## Riferimento precedente — 14/10/2026
 
 `moxtracker/main` di integrazione = `5eb5cb04376d8b9e079ef00a4e1d951ce3f2d025`, merge commit della PR [#40](https://github.com/Dennis96/moxtracker/pull/40), seguito dalla chiusura documentale #41 `a08ee510152044b544ecdec014dd0876fd3920b0`. **Stable MOX Beta 2.11.8**; **Canary MOX Beta 2.11.9** dal 14/10/2026 (client senza chiamate dirette a 17Lands; installer `39f84dc6…`, manifesto `33041aaf…` sul solo `MOX_RELEASE_MANIFEST_CANARY`: Worker **`47f9b73e-6833-4d67-a7bc-5f01947ac48a`**, rollback `4bdade31` = Canary 2.11.8 `6e0de52a…`; Canary reale 16/16; [handoff](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.9-2026-10-14.md)).
 
