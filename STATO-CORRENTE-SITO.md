@@ -1,5 +1,30 @@
 # Stato corrente — sito Mox
 
+## Worker — 20/10/2026: qualification Research rinnovata
+
+`moxtracker/main` = `39be1770237adebec84fdc78afc307c821a648d1`, merge della PR
+[#45](https://github.com/Dennis96/moxtracker/pull/45): qualification Research
+**`q-produzione-2026-10-20`, valida fino al 15/12/2026 00:00 UTC** (prima
+`q-produzione-2026-10-14`, fino al 15/11). Merge e deploy autorizzati da Dennis
+in chat il 20/10/2026, senza review di Codex per sua scelta.
+
+**Worker:** da `47f9b73e-6833-4d67-a7bc-5f01947ac48a` a
+**`c7b3b068-33a9-4bde-be71-200a941bd590`** (`wrangler deploy` da `main`
+`39be177` pulito, `npm run prove` 631/631, `verifica.mjs` ok). Rispetto al
+sorgente dell'ultimo deploy di codice (`5eb5cb0`) cambiano solo la
+qualification e un commento in `src/dati-draft.js`; secret invariati (stessi
+nomi, policy `central_api` servita identica), cron `17 3 * * *` e
+`23 * * * *`. Nessuna migrazione D1, nessuna scrittura R2, nessun deploy Pages.
+
+**Smoke in sola lettura:** `/salute` Research `on`, `enabled: true`,
+`lifecycle: true`, transport 4, cap 33/1000, qualification `valida`
+`q-produzione-2026-10-20`; `/mox/external-data-policy`,
+`/meta?formato=standard` e `moxtracker.app` a 200.
+
+**Rollback:** `npx wrangler rollback 47f9b73e-6833-4d67-a7bc-5f01947ac48a`
+(qualification vecchia, valida fino al 15/11, stessi secret). Prossimo rinnovo
+prima del 15/12/2026, con il runbook R3, sezione «Rinnovo».
+
 ## Riferimento corrente — 20/10/2026: Macro A in produzione
 
 `moxtracker/main` = `dfbe64f43f8bb239e96cd5dcc456791ddbb35dec`, merge della PR
