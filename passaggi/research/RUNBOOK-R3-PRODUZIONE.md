@@ -1,6 +1,6 @@
 # Runbook R3 — Research in produzione
 
-Aggiornato: 15/09/2026 (FASE B: Research accesa in produzione).
+Aggiornato: 20/10/2026 (rinnovo della qualification); stato di produzione del 15/09 qui sotto, quello corrente in `STATO-CORRENTE-SITO.md`.
 
 ## Stato di produzione — 15/09/2026
 
@@ -128,6 +128,31 @@ SELECT COUNT(*) FROM research_consent_generation g
 A regime nessuna lineage resta in `deleting` a lungo e il secondo conteggio è
 zero. Una lineage ferma in `deleting` si completa con una nuova cancellazione
 dal client (o da quello stesso utente dal sito, cancellando l'account).
+
+## Rinnovo della qualification (Research resta on)
+
+La qualification scade da sola: prima della scadenza se ne genera una nuova,
+senza cambiare nient'altro. Ultimo rinnovo preparato il 20/10/2026:
+`q-produzione-2026-10-20`, valida fino al 2026-12-15T00:00:00Z (prima
+`q-produzione-2026-10-14`, fino al 15/11). Lo stato di produzione corrente è in
+`STATO-CORRENTE-SITO.md`.
+
+1. Da `main` aggiornato, su un branch:
+   `node strumenti/research-produzione/qualification.mjs --valida-fino <istante UTC> --id q-produzione-<data>`
+   e il JSON in `RESEARCH_RUNTIME_QUALIFICATION`, con il commento accanto.
+2. Prove, senza Cloudflare: `npm run prove`,
+   `node strumenti/research-produzione/verifica.mjs`,
+   `npx wrangler deploy --dry-run --outdir .dist/worker-dry-run`; il diff di
+   `src/` dall'ultimo deploy di codice deve essere quello atteso.
+3. Con l'autorizzazione di Dennis, da `main` pulito dopo il merge:
+   `npx wrangler deploy`. I secret restano quelli della versione attiva.
+4. `/salute` → `qualification: { stato: "valida", id: <nuovo id> }`, `modo: "on"`.
+5. Rollback: `npx wrangler rollback <versione precedente>`, che riporta la
+   qualification vecchia (valida fino alla sua scadenza) e i secret di quella
+   versione.
+
+Nessuna prova del rinnovo scrive righe su D1: le quote D1 sono condivise fra
+staging e produzione.
 
 ## Riaccendere (drain → on)
 

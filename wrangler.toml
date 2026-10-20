@@ -44,12 +44,12 @@ RESEARCH_AMBIENTE = "produzione"
 RESEARCH_DEPLOYMENT = "research-produzione-r3"
 RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST = "33"
 RESEARCH_MAX_D1_QUERIES_PER_REQUEST = "1000"
-# Generata con `qualification.mjs --valida-fino 2026-11-15T00:00:00Z --id
-# q-produzione-2026-10-14` il 14/10/2026 (rinnovo della precedente, valida fino
-# al 15/10, autorizzato da Dennis). Va rinnovata prima della scadenza: dopo,
+# Generata con `qualification.mjs --valida-fino 2026-12-15T00:00:00Z --id
+# q-produzione-2026-10-20` il 20/10/2026 (rinnovo della precedente, valida fino
+# al 15/11). Va rinnovata prima della scadenza: dopo,
 # l'ingresso si chiude da solo (consenso nuovo e upload) e revoca e
 # cancellazione restano aperte.
-RESEARCH_RUNTIME_QUALIFICATION = '{"versione":1,"id":"q-produzione-2026-10-14","deployment":"research-produzione-r3","max_contributions_per_request":33,"max_d1_queries_per_request":1000,"valida_fino":"2026-11-15T00:00:00Z"}'
+RESEARCH_RUNTIME_QUALIFICATION = '{"versione":1,"id":"q-produzione-2026-10-20","deployment":"research-produzione-r3","max_contributions_per_request":33,"max_d1_queries_per_request":1000,"valida_fino":"2026-12-15T00:00:00Z"}'
 # Dati Draft centralizzati (14/10/2026, decisione di Dennis: `central_api` dal
 # primo giorno, embargo di 17Lands rispettato). Aprono distribuzione e raccolta
 # delle tabelle API; servono ANCHE la policy `central_api` con
