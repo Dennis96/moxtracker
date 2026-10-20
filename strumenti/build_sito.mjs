@@ -5,6 +5,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { aggiungiBeaconAnalytics, TOKEN_ANALYTICS_PREVIEW,
   TOKEN_ANALYTICS_PRODUZIONE } from "./analytics_sito.mjs";
+import { generaPagine } from "./news/pagine.mjs";
+import { escapeHtml } from './news/modello.mjs';
 
 const RADICE = fileURLToPath(new URL("..", import.meta.url));
 const SORGENTE = join(RADICE, "sito");
@@ -43,7 +45,7 @@ function estensione(percorso) {
 }
 
 function versione(percorso, buildId) {
-  if (!percorso.startsWith(".") || !ESTENSIONI_VERSIONATE.has(estensione(percorso))) {
+  if (!(percorso.startsWith('.') || /^\/(?:assets|css|js)\//.test(percorso)) || !ESTENSIONI_VERSIONATE.has(estensione(percorso))) {
     return percorso;
   }
   const [senzaFrammento, frammento] = percorso.split("#", 2);
@@ -59,7 +61,7 @@ function trasforma(testo, tipo, buildId) {
   let risultato = testo;
   if (tipo === ".html") {
     risultato = risultato.replace(
-      /((?:src|href)\s*=\s*["'])(\.{1,2}\/[^"']+)(["'])/gi,
+      /((?:src|href)\s*=\s*["'])((?:\.{1,2}\/|\/(?:assets|css|js)\/)[^"']+)(["'])/gi,
       (_, prima, percorso, dopo) => prima + versione(percorso, buildId) + dopo,
     );
   }
@@ -241,6 +243,38 @@ async function main() {
     contenuti.set(relativo, corpo);
     hashSorgente.update(relativo).update("\0").update(corpo).update("\0");
   }
+  const snapshot = JSON.parse(await readFile(join(RADICE, 'config/news-releases.json'), 'utf8'));
+  const fonti = JSON.parse(await readFile(join(RADICE, 'config/news-fonti.json'), 'utf8'));
+  const chiave = JSON.parse(await readFile(join(RADICE, 'config/news-update-public-key.json'), 'utf8'));
+  const generate = generaPagine(snapshot, fonti, chiave);
+  const sommarioHome = `<span data-home-release> · MOX ${escapeHtml(fonti.channels.stable.data.versione.replace('2 beta ', ''))}</span>`;
+  contenuti.set('index.html', Buffer.from(contenuti.get('index.html').toString('utf8').replace('<span data-home-release></span>', sommarioHome)));
+  hashSorgente.update('home-con-versione\0').update(contenuti.get('index.html')).update('\0');
+  const modello = contenuti.get('note-versione.html').toString('utf8');
+  const traduzioniGenerate = JSON.parse(contenuti.get('i18n/en.json').toString('utf8'));
+  for (const [id, pagina] of generate) {
+    const en = id.startsWith('en/');
+    const nome = id.slice(3);
+    let testo = en ? paginaInglese(modello, traduzioniGenerate, nome) : modello;
+    // URL assoluti della lingua: le pagine annidate non dipendono dalla profondità.
+    testo = testo.replace(/((?:src|href)=["'])\.{1,2}\/(?:\.\.\/)*((?:assets|css|js)\/[^"']+)(["'])/g, '$1/$2$3');
+    testo = testo.replace(/((?:href)=["'])\.\/([^"']+\.html)(["'])/g, `$1${en ? '/en/' : '/'}$2$3`);
+    testo = testo.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(pagina.title)} — MOX</title>`)
+      .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escapeHtml(pagina.title)} — ${en ? 'MOX instructions, original sources and explicit limits.' : 'Istruzioni MOX, fonti originali e limiti espliciti.'}">`)
+      .replace(/<main\b[^>]*>[\s\S]*?<\/main>/, `<main id="contenuto">${pagina.main}</main>`)
+      .replace(/data-page="[^"]+"/, `data-page="${pagina.page}"`)
+      .replace(/(<a class="skip-link" href="#contenuto">)[^<]*(<\/a>)/, `$1${en ? 'Skip to content' : 'Vai al contenuto'}$2`)
+      .replace(/<script[^>]*src="[^"]*release-note\.js"[^>]*><\/script>/g, '');
+    const destinazione = en ? `en/${nome}` : nome;
+    contenuti.set(destinazione, Buffer.from(testo));
+    hashSorgente.update(destinazione).update('\0').update(testo).update('\0');
+    PAGINE_SEO.add(nome);
+  }
+  // La home conserva il contenuto approvato; la versione è l'unica aggiunta nel hero.
+  for (const [nome, corpo] of contenuti) {
+    if (!nome.endsWith('.html')) continue;
+    if (ambiente === 'preview') contenuti.set(nome, Buffer.from(corpo.toString('utf8').replace('</head>', '<meta name="robots" content="noindex, nofollow"></head>')));
+  }
   hashSorgente.update(`web-analytics-${ambiente}\0`).update(analyticsToken);
   const sorgenteSha256 = hashSorgente.digest("hex");
   const buildId = sorgenteSha256.slice(0, 16);
@@ -264,7 +298,7 @@ async function main() {
     if ([".css", ".html", ".js"].includes(tipo)) {
       let testo = corpo.toString("utf8");
       if (tipo === ".html") {
-        testo = aggiungiSeo(testo, relativo, "it");
+        testo = aggiungiSeo(testo, relativo.replace(/^en\//, ''), relativo.startsWith('en/') ? 'en' : 'it');
         testo = aggiungiBeaconAnalytics(testo, analyticsToken);
       }
       uscita = Buffer.from(trasforma(testo, tipo, buildId));
@@ -276,6 +310,7 @@ async function main() {
   }
 
   for (const nome of PAGINE_PUBBLICHE) {
+    if (generate.has(`en/${nome}`)) continue;
     const corpo = contenuti.get(nome);
     if (!corpo) throw new Error(`pagina pubblica mancante: ${nome}`);
     const relativo = `en/${nome}`;
@@ -292,9 +327,14 @@ async function main() {
   const sitemap = generaSitemap();
   await writeFile(join(uscitaRisolta, "sitemap.xml"), sitemap);
   hashFile["sitemap.xml"] = createHash("sha256").update(sitemap).digest("hex");
+  if (ambiente === 'preview') {
+    const robots = 'User-agent: *\nDisallow: /\n';
+    await writeFile(join(uscitaRisolta, 'robots.txt'), robots);
+    hashFile['robots.txt'] = createHash('sha256').update(robots).digest('hex');
+  }
 
   const headersBase = (contenuti.get("_headers") || Buffer.from("")).toString("utf8").trimEnd();
-  const headers = `${headersBase}\n\n# Cache generata dalla build ${buildId}\n` +
+  const headers = `${headersBase}\n\n${ambiente === 'preview' ? '/*\n  X-Robots-Tag: noindex, nofollow\n\n' : ''}# Cache generata dalla build ${buildId}\n` +
     intestazioniCache(html);
   await writeFile(join(uscitaRisolta, "_headers"), headers);
   hashFile._headers = createHash("sha256").update(headers).digest("hex");

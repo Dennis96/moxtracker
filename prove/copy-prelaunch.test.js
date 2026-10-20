@@ -74,8 +74,8 @@ test("P1: nomi Draft, 17Lands e retention Research sono coerenti in IT/EN", () =
   assert.match(leggi("privacy.html"), /per Research è di 730 giorni dalla prima ricezione/);
   assert.match(leggi("privacy.html"), /il completamento può richiedere più cicli/);
   assert.doesNotMatch(leggi("privacy.html"), /massimo di 730 giorni/);
-  assert.ok(Object.values(en).some((value) => value.includes("completion may take more than one maintenance run")));
-  assert.ok(Object.values(en).some((value) => value.includes("become due for deletion 730 days") && value.includes("completion may require more than one run")));
+  assert.ok(Object.values(en).some((value) => value.includes("deletion can take a few extra rounds")));
+  assert.ok(Object.values(en).some((value) => value.includes("730 days from receipt on the server") && value.includes("completion can take several cycles")));
   assert.match(leggi("account.html"), /Controllo l'accesso…/);
   assert.equal(en["Controllo l'accesso…"], "Checking your sign-in…");
   assert.match(leggi("supporto.html"), /proponi una nuova funzione/);

@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-10-15T19:03:05.918Z",
+  "public_key_sha256": "9f50132381ab2f660a920efd4d95087802e32d6cc14e80f0f3111352b6e80a6a",
+  "channels": {
+    "stable": {
+      "source": "https://api.moxtracker.app/mox/release?piattaforma=win-x64&canale=stable&corrente=0",
+      "fetched_at": "2026-10-15T19:03:05.918Z",
+      "sha256": "f05bf7f4e6c6f215fd1f8054ed234386f58379d95987ff22ff51b57baa20b3d0",
+      "data_sha256": "c1d4245edcfd59c905db8172b3d0d7e9548b23fbf7a4d74b7216cc1dcf91ea05",
+      "data": {
+        "disponibile": true,
+        "canale": "stable",
+        "dimensione": 67247524,
+        "firma": "tBjctsZX1LWwA62KoUMjM6lsIkWJk/PQaWpMM9yEn/MstsII1Gs0xIYc7tX0pkPyNNU/GXEJuHSUJw5jcLHPpZMw2p6CiUc8b6TtngrimlVh38E+02ymbLYV2jrvc1thaNVe80CmLDa8SV6HiR+Gd/ZMLr9uCX06mtX+wxtLWhz39xBVmGFuWna4bC7W8MfnBjnBFn2ZeJlBP+PlMjhYUwfJiFRqkPiIDKCCuKNXpfrMXy5ATglEdcWDxSIqsJrr1T8XoM1c1XxGaCP1QOIhINivTgCaKifZO2nh80lBIK3ULtgWkeUY9i9bC6Lo+rbJzKDIUPVQNRTibxyWYFXaf8ZBIDNr3fukUJCpVR3C4lAq7ud8pYINE3XnNfGlDI1mlsxKI6kIVfbb3TT4COwhiYMfsdBOmPYG0Lvl8csrhggVb2tDUu0D4y5zBaSvqeZG+//Vi4H+ZRpWr6OCfjs9kyKck+UR6SgvSRFxjJ8ivv/pYgfm0rneDTsH3+BXluTR",
+        "minima": "2 beta 2.9.5",
+        "note": "Draft: regola sul secondo colore in prova; informativa sul contesto dei consigli; Contatore invariato dal vivo.",
+        "piattaforma": "win-x64",
+        "sha256": "84f72416abaecbddc05b9f33e160177529ede8dc295e54772847a4d666c8ca3c",
+        "tipo": "mox-installer-v1",
+        "url": "https://api.moxtracker.app/mox/installer/2.11.8/84f72416abaecbddc05b9f33e160177529ede8dc295e54772847a4d666c8ca3c/Mox-Installer-win-x64.exe",
+        "versione": "2 beta 2.11.8"
+      },
+      "signature_verified": true,
+      "requested_channel": "stable"
+    },
+    "canary": {
+      "source": "https://api.moxtracker.app/mox/release?piattaforma=win-x64&canale=canary&corrente=0",
+      "fetched_at": "2026-10-15T19:03:05.918Z",
+      "sha256": "a5fd64d76d8f19312c0afbd861d40d7fee8dac8ff1df959bb78a94eaf0d275cf",
+      "data_sha256": "209bcd6c7d03a0424d9bb86cda8ab5bcfdeca5815f6c65e10640453bd555bcba",
+      "data": {
+        "disponibile": true,
+        "canale": "stable",
+        "dimensione": 67283028,
+        "firma": "OLsJtAEVemDea4H7kqKwFWXHJrSFEOfGm5fHBkShM5tjDyFRXqpNOVfUs1GRtgstSh/AARdx8pvXOq9GW8gR5U2G0EmRFMzOThT7nGZrr4j0xzpCu3yeElAsf6H5vOeOhDlzOMI+2KUbeDpJx1uAnliudLFfZ+Sa8nv0opaskmNJNYE0p1XNHDIg37Eo2tn85OJc+EDoichXASJ4YGQLoThTTPO8lMQTvVXMk6T1rSb4VCyU+84m59rjEZ/DAxG6MyHLSovNEQnyNipYBeEYTqMbMa6vZU+KOk/JOpY+VYVpk6a1UhrQmCpmn3BuamnZMuJBuVFZuokB+OKc3N5LhWyoIMsz7m42dvGMzEDRh1d5GGGFs7xMmZ7G0hBrlxX0BJd7nSpXzKoH31J+7sR5gc0RjShdTzGWcL2NI2gd9ai/9VGnSOdOQ6PWqKQzLAaH4JjYRlT0mogk5b+oewfcP5JaL/4ukhRdUILT47u11KV2G8f8laA86BNIuweSS/NZ",
+        "minima": "2 beta 2.9.5",
+        "note": "Statistiche Draft dal server di MOX (API centralizzata e 17Lands Public Data Sets)",
+        "piattaforma": "win-x64",
+        "sha256": "39f84dc63aa0da8dcec5a74702c362d4d8ba53900207e045a105abda7b5ad02a",
+        "tipo": "mox-installer-v1",
+        "url": "https://api.moxtracker.app/mox/installer/2.11.9/39f84dc63aa0da8dcec5a74702c362d4d8ba53900207e045a105abda7b5ad02a/Mox-Installer-win-x64.exe",
+        "versione": "2 beta 2.11.9"
+      },
+      "signature_verified": true,
+      "requested_channel": "canary"
+    }
+  },
+  "public_data": {
+    "source": "https://api.moxtracker.app/mox/draft-data/v1/public/manifest.json",
+    "fetched_at": "2026-10-15T19:03:05.918Z",
+    "sha256": "56b39389e8af106567bcf6d2d0b649732d390c683aa88ad0f49fc17a99dc3fec",
+    "data_sha256": "56b39389e8af106567bcf6d2d0b649732d390c683aa88ad0f49fc17a99dc3fec",
+    "data": {
+      "schema": "mox.draft-stats-manifest/1",
+      "namespace": "public",
+      "source": "17lands_public_dataset",
+      "revision": 1,
+      "generated_at": "2026-10-14T17:46:58.860Z",
+      "attribution": {
+        "text": "Statistiche calcolate da MOX sui 17Lands Public Data Sets, CC BY 4.0. 17Lands non approva ne' sostiene MOX.",
+        "license": "CC BY 4.0",
+        "source_url": "https://www.17lands.com/public_datasets"
+      },
+      "entries": [
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": null,
+          "sha256": "b686759b6c9f91fbda5c73c668a3529cc1dc1382a85460b9eb4c8ce1b9ee7f92",
+          "bytes": 83799,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "BG",
+          "sha256": "89c23cbcf64526fb2958ddff61e3670ecbe5e81be09aa07351f1753c90940f86",
+          "bytes": 69289,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "BR",
+          "sha256": "2e4b2c53d87ea13cc0d7aa67c65acc8acf4f684a78cfecd7b103fe1a0f03aefe",
+          "bytes": 68613,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "RG",
+          "sha256": "dab07542ac50077acb86b5ffe2cb62e76dcb6636ed363132bd0370254053e6e3",
+          "bytes": 68589,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "UB",
+          "sha256": "d880e133948e55599edc7dddd9f8e6a99c01794437622438f3cc03657f7e78d1",
+          "bytes": 67698,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "UG",
+          "sha256": "a2c8a41e98d59044e487b588f1d2d43a4459b30a9dc84f7d81affbfd7868f48d",
+          "bytes": 68248,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "UR",
+          "sha256": "898a2c917fbb4903373d4e279de8c205a6403be7776377957e144b7338798a9c",
+          "bytes": 69306,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "WB",
+          "sha256": "3e8a08f57664acb05a1806441e57bb796a0562a2d2025191c63cf5a32bc81b8e",
+          "bytes": 67563,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "WG",
+          "sha256": "f411b5c092cba0472edf8fb797ac2d81630274da875117f92b5b6f279f539cba",
+          "bytes": 69076,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "WR",
+          "sha256": "e06717763dcc6eb96aec855ae9334269ff69efe88f936448254c81badac48605",
+          "bytes": 67891,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "ECL",
+          "format": "PremierDraft",
+          "main_colors": "WU",
+          "sha256": "d5147816eef46e2b1383020c16fd98fd3c7e2cba0f7e702c699572cfa385aa67",
+          "bytes": 68697,
+          "source_published_at": "2026-05-18"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": null,
+          "sha256": "ebaa9aa237e445ccf868752092dbbf3b29835323cd5a8318dae4d79e58ef2695",
+          "bytes": 96766,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "BG",
+          "sha256": "fcf12eb7bc80c5840c83495f143d468c425277addd02389236c8983be76831cf",
+          "bytes": 79944,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "BR",
+          "sha256": "a2ee26cd0a422b3289e6da2ee9077f6d4b396e2579bafa60f53ee95da5882a2d",
+          "bytes": 75803,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "RG",
+          "sha256": "c0cfb09938df9dbfcfa4f507297312ecc566f67fbbe2f922e1d71c9973fdf783",
+          "bytes": 76594,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "UB",
+          "sha256": "0faf9504cb62267709c2d8f55f7da219ea126d90388c693acf2bbe66e50b3057",
+          "bytes": 76324,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "UG",
+          "sha256": "a3f6f2e19ec6e22c4aba816fe6605c0d80382af312aacefce0479047f5792900",
+          "bytes": 79907,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "UR",
+          "sha256": "bd4aa8647ed9732005ae6a1aafc8bfe7834dbcce47e48908ef10beed93d1f1a3",
+          "bytes": 79986,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "WB",
+          "sha256": "9258a7372f82dbea8be155b3da882db20239d50c7a74d4346e0bf3ec89a8f5ef",
+          "bytes": 79081,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "WG",
+          "sha256": "d3c5d0e872bdbb895978b42501d685782ae7edfcf4c9ea7ed0c46c608e73f13b",
+          "bytes": 75483,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "WR",
+          "sha256": "7204cab8b0c3afcebf72293a1a0f69b6435fbc7f07228cf6052f27b2e474861c",
+          "bytes": 79537,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "SOS",
+          "format": "PremierDraft",
+          "main_colors": "WU",
+          "sha256": "cfa7bcc13e4e7c7cb2afe2d1068dde2895ca9ee16598da64881303a627e2b4cd",
+          "bytes": 75591,
+          "source_published_at": "2026-06-05"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": null,
+          "sha256": "458178ff34b72c26e9398737d1146922ac8bd01f59d217c8d63fa63320b3f7f8",
+          "bytes": 99047,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "BG",
+          "sha256": "c7d27a51c667a185df3b14f69542b09933463e33ee300182e84d1bac447f8424",
+          "bytes": 81153,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "BR",
+          "sha256": "ce7846d83c456fa2ff412e898c16fe5bc5343d019b4fc70d6e8de7c9598779bf",
+          "bytes": 80780,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "RG",
+          "sha256": "b6b5cf077d11253aafd6349631cba1cffee09af150543868b99a42a84fd19013",
+          "bytes": 81394,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "UB",
+          "sha256": "ea594eb34101070d309c920653304b9ed70c3685b281d6f068c5c6891ce5e365",
+          "bytes": 81454,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "UG",
+          "sha256": "461fe8e28244b78517bfe592926d169940a923b627bc40830f4aff3915ea8b33",
+          "bytes": 81652,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "UR",
+          "sha256": "dbd628a03de245287d39dd9eeb058a932cb02995473ae0e855ad07066a564384",
+          "bytes": 81618,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "WB",
+          "sha256": "a45f8083a1053cd7e353538471d575a8b0c1e2c75f53c14197a25ca112efb881",
+          "bytes": 80867,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "WG",
+          "sha256": "c39e9bd2f59b8c6d4a13405905741c509faa6b32070e3e08068e375c07297cbb",
+          "bytes": 81753,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "WR",
+          "sha256": "b3cd01ed963598735b8ff3e65f8f1deb5181c5db79e7f5d5615bbbe2101f4103",
+          "bytes": 81300,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TLA",
+          "format": "PremierDraft",
+          "main_colors": "WU",
+          "sha256": "5f739be3382c9d2fe32524a654c1550a69cfb75ad95657accf43d64d1479b2b4",
+          "bytes": 81774,
+          "source_published_at": "2026-01-10"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": null,
+          "sha256": "ae1ca8244de7e6e6319f0ef0fbca04ea670342adf0f88031dd01ed0b60f0da91",
+          "bytes": 62399,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "BG",
+          "sha256": "37752d9e3025c940f1353d44e519d879aea9892a2dccd8b3d4fdf66e0cb2f022",
+          "bytes": 51390,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "BR",
+          "sha256": "5776b9732cb3402a50c456d65c902951018ed011642f8c4a2be532f925ef50e1",
+          "bytes": 49471,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "RG",
+          "sha256": "c016bd88215bd8c08bd8aebf4eb9cf4acd1789f19651e3b0739e5064dabbbf2f",
+          "bytes": 49741,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "UB",
+          "sha256": "0c56b65e07d8f5bc3e26d23a9a5a8b34194f7f6439e4451479ec2264dd85045d",
+          "bytes": 49720,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "UG",
+          "sha256": "663a5f94593b247ed480fa73721fb2cb75d7b7b43636d9374b2290268e24c909",
+          "bytes": 51176,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "UR",
+          "sha256": "0149a85b9dc750f34fd1255ab01f4cfbd2345fdb114fbc0b29a2c613e6dcc833",
+          "bytes": 51353,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "WB",
+          "sha256": "c40427c0f33694eb17c69deea245d1c246273e48281a839abf22ba80f3f3f1bf",
+          "bytes": 51216,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "WG",
+          "sha256": "6c575a92318ffc1481681d525cc6a2491696e2912da229dd0445dd223d838003",
+          "bytes": 50342,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "WR",
+          "sha256": "4af13949d117177b04cc6d2fbcd2cd0f22ce5bb5099c1418c5262a8342e433e3",
+          "bytes": 50775,
+          "source_published_at": "2026-04-08"
+        },
+        {
+          "set": "TMT",
+          "format": "PremierDraft",
+          "main_colors": "WU",
+          "sha256": "f99a78a1082e038f8e6a4436f366aa063eebd27f744f10aa999a5b675979b020",
+          "bytes": 49819,
+          "source_published_at": "2026-04-08"
+        }
+      ]
+    }
+  }
+}

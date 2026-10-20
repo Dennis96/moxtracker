@@ -15,11 +15,13 @@ const percorsi = {
   download: "./download.html",
   account: "./account.html",
   support: "./supporto.html",
+  guides: "./guide.html",
+  updates: "./note-versione.html",
 };
 
 for (const link of document.querySelectorAll("[data-route]")) {
   const destinazione = link.dataset.route;
-  if (percorsi[destinazione]) link.href = percorsi[destinazione];
+  if (percorsi[destinazione]) link.href = `${inglese ? '/en/' : '/'}${percorsi[destinazione].slice(2)}`;
   const attivo = destinazione === pagina ||
     (destinazione === "meta" && pagina === "archetype") ||
     (destinazione === "account" && pagina === "admin");
@@ -59,7 +61,7 @@ if (bottone && menu) {
     if (evento.target.closest("a")) chiudiMenu();
   });
   document.addEventListener("keydown", (evento) => {
-    if (evento.key === "Escape") {
+    if (evento.key === "Escape" && bottone.getAttribute('aria-expanded') === 'true') {
       chiudiMenu();
       bottone.focus();
     }

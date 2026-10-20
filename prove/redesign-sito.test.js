@@ -56,6 +56,15 @@ test("ogni pagina ha la testata del redesign, la CTA di download e i link Meta n
   assert.match(css, /@media \(max-width: 760px\)/);
 });
 
+test("il menu aperto scorre quando non entra nello schermo, per esempio a zoom 200%", () => {
+  // A 640x400 px CSS (finestra 1280x800 al 200%) le otto voci arrivano a 440 px:
+  // il menu è agganciato all'intestazione fissa e la voce lingua resterebbe fuori.
+  const css = leggi("css/redesign.css");
+  const blocco = css.match(/\.nav-links\[data-open\] \{([^}]*)\}/)?.[1] || "";
+  assert.match(blocco, /max-height: calc\(100dvh - \d+px\)/);
+  assert.match(blocco, /overflow-y: auto/);
+});
+
 test("l'Explorer vive in meta.html e non nella Home", () => {
   const meta = leggi("meta.html");
   for (const id of ["format-filter", "rank-min", "rank-max", "rank-label", "rank-ticks", "archetype-search",
@@ -129,13 +138,12 @@ test("profilo della lista con etichette per esteso", () => {
   assert.doesNotMatch(js, /"Colori del mazzo"/);
 });
 
-test("Draft: prima il prodotto, poi il metodo, poi il futuro", () => {
+test("Draft: prima il prodotto, poi la spiegazione, poi il futuro", () => {
   const html = leggi("draft.html");
   const i = (testo) => html.indexOf(testo);
   assert.match(html, /<h1[^>]*>Assistente al Draft<\/h1>/);
-  assert.ok(i(">Nel programma<") > 0 && i(">Nel programma<") < i(">Il metodo<"));
-  assert.ok(i(">Il metodo<") < i(">Le garanzie del metodo<"));
-  assert.ok(i(">Le garanzie del metodo<") < i(">Il futuro del Draft<"),
+  assert.ok(i(">Nel programma<") > 0 && i(">Nel programma<") < i('>Come funzionano i consigli<'));
+  assert.ok(i('>Come funzionano i consigli<') < i(">Il futuro del Draft<"),
     "il futuro si racconta dopo aver detto come funziona oggi");
   assert.doesNotMatch(html, /Next Gen/);
 });

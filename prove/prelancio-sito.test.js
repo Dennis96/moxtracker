@@ -111,11 +111,12 @@ test("homepage presenta Mox come da specifica, con schermate reali e pagine di t
   assert.match(leggi("note-versione.html"), /Tutte le note di versione/);
 });
 
-test("privacy e note 2.11.1 sono complete", () => {
+test("privacy e note originali 2.11.0/2.11.1 sono complete e datate dalla pubblicazione", () => {
   const privacy = leggi("privacy.html");
   const trasparenza = leggi("cosa-invia-mox.html");
-  const note = leggi("note-versione.html");
-  assert.match(privacy, /Aggiornata il 26 settembre 2026/);
+  const releases = JSON.parse(leggiRadice('config/news-releases.json')).releases;
+  assert.match(privacy, /Aggiornata il 19 ottobre 2026/);
+  assert.doesNotMatch(privacy, /A141|Disclosure|da confermare|Candidata/);
   assert.match(privacy, /privacy@moxtracker\.app/);
   assert.match(privacy, /<strong>Dennis Santinelli è il titolare del trattamento dei dati personali trattati tramite MOX e MoxTracker\.<\/strong>/);
   assert.doesNotMatch(privacy, /la legge chiama questo ruolo/);
@@ -125,14 +126,13 @@ test("privacy e note 2.11.1 sono complete", () => {
   assert.match(privacy, /Garante per la protezione dei dati personali/);
   assert.match(privacy, /clausole contrattuali standard/);
   assert.match(privacy, /Research è facoltativa e separata/);
-  assert.match(privacy, /servizio Research non è pronto o qualificato/);
+  assert.match(privacy, /servizio Research non è pronto a ricevere i dati, MOX non li invia/);
   assert.doesNotMatch(privacy, /Prima del lancio ufficiale verrà aggiunto/);
   assert.match(trasparenza, /Research:/);
-  assert.match(note, /15 settembre 2026/);
-  assert.match(note, /2\.11\.0/);
-  assert.match(note, /Arriva MOX Research/);
-  assert.match(note, /24 settembre 2026/);
-  assert.match(note, /2\.11\.1/);
+  assert.equal(releases.find(r => r.version === '2.11.0').published_at, '2026-09-15T12:32:03Z');
+  assert.match(releases.find(r => r.version === '2.11.0').body, /Research/);
+  assert.equal(releases.find(r => r.version === '2.11.1').published_at, '2026-09-25T05:38:17Z');
+  assert.ok(releases.find(r => r.version === '2.11.1').body.length > 100);
 });
 
 test("tutte le pagine pubbliche espongono il disclaimer Wizards", () => {
