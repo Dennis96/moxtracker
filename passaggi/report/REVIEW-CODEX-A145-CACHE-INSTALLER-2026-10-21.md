@@ -1,5 +1,14 @@
 # Review indipendente Codex — A145, installer dalla cache
 
+**Esito corrente: PASS — giro 2 di 2**, SHA rivisto
+**`2ee52dd6fc1906d70ad4b0749aea639a97c2b023`**. Nessun BLOCKER o MAJOR
+aperto; nessun finding nuovo. MAJOR-1 chiuso; MINOR-1 corretto nel sito,
+con trasferimento nella procedura canonica accettato come adempimento
+differito della chiusura A145, prima della release successiva. Dettagli in
+«Giro 2» in fondo. Le sezioni del giro 1 restano come evidenza storica.
+
+## Giro 1
+
 **Esito: FAIL — giro 1 di massimo 2.** 0 BLOCKER, **1 MAJOR**, 1 MINOR.
 Il MAJOR richiede una modifica al Worker: corregge Claude, poi Codex verifica
 il delta aggiornando questo stesso file. Nessun fix applicato dal reviewer.
@@ -301,3 +310,118 @@ delta review del lavoro aperto; nessun mandato di pruning o merge ricevuto.
 preriscaldamento; Codex controlla il delta in questo stesso file. Nessun PASS
 al merge con MAJOR-1 aperto. Lo SHA e il link del commit di consegna sono
 forniti nel commento della PR dopo il push verificato.
+
+## Giro 2
+
+**PASS — 21/10/2026, delta review finale, giro 2 di 2.**
+
+Rivisto esclusivamente il delta **`78a488d31fdbc370b5fa8ae91e4732c6790d3664`
+→ `2ee52dd6fc1906d70ad4b0749aea639a97c2b023`**: `src/index.js`,
+`prove/server.test.js`, prima sezione di `STATO-CORRENTE-SITO.md`.
+Il remoto della PR #48 è stato verificato a `2ee52dd`; la worktree propria,
+ancora a `78a488d` all'ingresso, è stata aggiornata a quel fix prima delle
+prove. Nessun codice o test corretto dal reviewer; modificato soltanto
+questo report.
+
+### Finding del giro 2
+
+1. **MAJOR-1 — CHIUSO.** In `src/index.js:289`, la copia parte con un
+   `AbortController` prima dell'attesa di `head()`. Metadati assenti:
+   annullamento immediato, 404 e zero `get()`. Rigetto di head:
+   annullamento e binding senza attendere la copia. Con metadati validi
+   l'attesa residua delle intestazioni è limitata a 10.000 ms; scadenza:
+   abort e binding. Il limite parte dopo l'arrivo dei metadati e non si
+   estende al trasferimento del corpo. `clearTimeout` segue la race; le
+   Promise partecipanti non propagano rigetti. `scartaCopia` chiude anche
+   risposte tardive senza leggerle e assorbe rigetti della cancellazione.
+   Verificati timer rimossi e assenza di rigetti non gestiti, come sotto.
+2. **MINOR-1 — ACCETTATO, con adempimento canonico differito esplicito.**
+   Commento e stato ora descrivono livello superiore condiviso, possibile
+   espulsione, causa interna a Cloudflare come inferenza e intestazione
+   `x-mox-installer: cache` che non certifica un HIT. Il preriscaldamento
+   richiede GET completo dell'URL esatto dopo upload e prima del manifesto,
+   con dimensione e SHA-256 controllati; HEAD e download interrotti esclusi.
+   **Accetto** che il passo entri nella procedura canonica di mox-core con
+   la PR che chiude A145 dopo il deploy. Il trasferimento non è ancora
+   eseguito né certificato da questa review: va completato prima della
+   release successiva. Il differimento dichiarato non blocca il PASS del
+   delta. Deploy e collaudo reale restano passaggi separati autorizzati.
+
+**Nuovi finding: 0 BLOCKER, 0 MAJOR, 0 MINOR.** Nessun bloccante aperto.
+
+### Riproduzione, prove nuove e risorse
+
+Rieseguito senza modifiche lo script del giro 1: le due asserzioni prima
+rosse passano, exit 0. `head-errore` risponde 200 con una sola lettura del
+binding, `head-assente` risponde 404 con zero letture, prima di sbloccare
+la cache. Nel terzo caso l'osservazione originale a 150 ms resta PENDING,
+coerentemente con l'attesa ammessa di 10 secondi; non è più un'attesa
+illimitata. Ripetuto quel caso con orologio virtuale: ancora in attesa a
+9.999 ms, 200 dal binding a 10.000 ms, senza sbloccare il fetch sospeso.
+Quindi tutti e tre gli scenari concludono entro il rispettivo termine.
+
+Verifica supplementare indipendente **9/9 PASS**, senza rete:
+
+```text
+head errore: 200, get=1, abort=true, timer=0, cancel=1, pull=0
+head assente: 404, get=0, abort=true, timer=0, cancel=1, pull=0
+head valido + 10 s: 200, get=1, abort=true, timer=0, cancel=1, pull=0
+rigetti tardivi dopo errore head e timeout: gestiti, timer=0
+cancel della copia tardiva rigettato: gestito, pull=0
+copia valida: cache, get=0, timer=0, nessun abort dopo altri 60 s virtuali
+copia diversa / fetch rigettato: binding, abort=true, timer=0
+rigetti non gestiti=0; fetch e timer ripristinati
+```
+
+Per la copia valida il corpo è stato consegnato soltanto dopo altri 60 s
+virtuali: è arrivato intero, confermando che il timer riguarda le
+intestazioni. Le copie tardive sono state annullate esattamente una volta
+senza `pull`, anche quando il fetch finto ignorava il segnale di abort.
+
+Le due prove nuove sono deterministiche sul fix: Promise sbloccate dalla
+prova e `setImmediate` per assestare le microtask; il watchdog di 5 s della
+prima è soltanto una protezione contro la regressione. La seconda usa
+`mock.timers.tick(9_999)` e `tick(1)`, senza attendere 10 s reali, e
+`mock.timers.reset()` in `finally`. `conCacheFinta` continua a ripristinare
+fetch in `finally`.
+
+Controprova sulle **stesse prove di `2ee52dd`**, caricando in memoria il solo
+`src/index.js` di `c24df91` con un hook Node, senza modificare file tracciati:
+
+| Prova nuova sul Worker precedente | Esito essenziale |
+|---|---|
+| Metadati già decisivi e cache sospesa, riga 340 | exit 1; `test timed out after 5000ms`, 1 cancelled. Riproduce il blocco precedente. |
+| Attesa 10 s con metadati validi, riga 369 | exit 1; `Cannot read properties of undefined (reading 'aborted')`: il vecchio fetch non riceveva un AbortSignal. |
+
+Entrambe verdi sul fix nella suite completa, circa 1,35 e 1,42 ms. La
+verifica supplementare controlla anche il termine di 10 s direttamente,
+oltre alla presenza del segnale rilevata dalla seconda controprova.
+
+### Prove richieste ed esito operativo
+
+| Comando | Output essenziale |
+|---|---|
+| `npm run prove` | **637 tests, 637 pass, 0 fail, 0 cancelled, 0 skipped**, exit 0; circa 10,55 s. |
+| `npx wrangler deploy --dry-run --outdir .dist/worker-dry-run` | exit 0; `Total Upload: 1739.43 KiB / gzip: 472.00 KiB`; `--dry-run: exiting now.`; nessun deploy. |
+| `git diff --check 78a488d 2ee52dd` | exit 0, nessun output. |
+
+Il dry-run segnala ancora EPERM sul log globale di Wrangler nel sandbox:
+il bundle locale è stato generato e il comando ha concluso con exit 0.
+Le dipendenze del giro 1 sono state riutilizzate; nessun cambiamento a
+package/lockfile. Nessuna nuova verifica della produzione richiesta o
+eseguita in questo giro: niente deploy, `dev --remote`, secret/variabili
+remote, rollback, merge, scritture R2/D1, modifiche di zona/dominio o
+download. Il PASS riguarda il delta e non certifica il throughput reale.
+
+**ROOT HYGIENE CHECK: PASS nel perimetro del giro 2.** Root parent invariata,
+nessun nuovo elemento loose o top-level, primari clean. I registri dei tre
+repository restano coerenti: 11 worktree, nessuna directory mancante;
+nessuna creata/spostata/rimossa in questo giro. Script sintetici e log suite
+in `Non pubblicare/evidenze/2026-10-21/review-codex-a145-cache-installer/giro-2/`;
+solo il report entra in Git. Restano l'eccezione preesistente fuori
+`worktrees/` già indicata nel giro 1 e la worktree propria per il lavoro
+ancora aperto, senza mandato di pruning. Nessun dato privato nel report.
+
+**Consegna:** due giri conclusi con PASS tecnico sul fix `2ee52dd`.
+Il passo canonico differito resta nella chiusura A145; eventuali merge,
+deploy e misure sul Worker reale richiedono i rispettivi mandati.
