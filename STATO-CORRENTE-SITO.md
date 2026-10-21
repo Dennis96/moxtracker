@@ -14,18 +14,29 @@ releases.moxtracker.app` e Smart Tiered Cache di nuovo `off`.
 
 **Misure (curl, stesso PC):** prima, dal Worker che legge il binding, ZRH
 35–94 KB/s e MUC 26 MB/s; uno speedtest Cloudflare senza R2 da ZRH 25–38 MB/s,
-quindi è lenta solo la lettura da R2 a ZRH (anche per i payload Draft di
-`moxtracker-draft-stats`, stessa regione EEUR). Dal dominio in cache, dopo la
-prima richiesta: HIT a 31–51 MB/s **sia da ZRH sia da MUC**, anche in un
-centro che non l'aveva mai chiesto. La prima richiesta di un installer non
-ancora in cache può arrivare lenta a chi la fa (ZRH 18–70 KB/s), ma la cache
-si riempie lo stesso: dopo una release va **scaldata** con un download del suo
-URL `https://releases.moxtracker.app/installer/<versione>/<sha256>/Mox-Installer-win-x64.exe`.
+quindi è lenta la lettura da R2 fatta a ZRH (anche per i payload Draft di
+`moxtracker-draft-stats`, stessa regione EEUR); la causa interna a Cloudflare
+resta un'inferenza. Dal dominio in cache, dopo la prima richiesta: HIT a
+31–51 MB/s **sia da ZRH sia da MUC**, anche in un centro che non l'aveva mai
+chiesto, perché il livello superiore della cache è condiviso. La prima
+richiesta di un installer non ancora in cache può arrivare lenta a chi la fa
+(ZRH 18–70 KB/s), ma la cache si riempie lo stesso. L'anno di cache è la
+freschezza, non una garanzia: Cloudflare può espellere la copia prima, e il
+primo accesso dopo torna lento.
+
+**Preriscaldamento:** dopo il deploy, ogni release fa un GET completo
+dell'URL esatto `https://releases.moxtracker.app/installer/<versione>/<sha256>/Mox-Installer-win-x64.exe`
+dopo l'upload e prima di esporre il manifesto, con dimensione e SHA-256
+controllati; una HEAD o un download interrotto non bastano. Entra nella
+procedura canonica di mox-core con la PR che chiude A145, dopo il deploy.
 
 **Codice (branch `claude/a145-cache-installer-2026-10-21`, non deployato):**
 `scaricaReleaseMox` chiede gli installer con lo SHA-256 nella chiave a
 `MOX_RELEASES_CACHE_ORIGIN` insieme ai metadati del bucket e ripiega sul
-binding se la copia non ha la stessa dimensione e lo stesso ETag;
+binding se la copia non ha la stessa dimensione e lo stesso ETag, o se le sue
+intestazioni non arrivano entro 10 s; se i metadati dicono «assente» (404) o
+non rispondono (binding) la copia si annulla senza aspettarla.
+`x-mox-installer: cache` dice il percorso, non che sia stato un HIT.
 `/mox/download.exe` resta sul binding. Provato in `wrangler dev --remote`: byte
 identici (SHA-256), ETag della cache uguale a quello di R2
 (`x-mox-installer: cache`), mancante 404. La velocità dell'anteprima non vale
