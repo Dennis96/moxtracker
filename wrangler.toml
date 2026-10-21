@@ -25,8 +25,8 @@ RESEND_FROM = "Mox Support <noreply@moxtracker.app>"
 # la loro GUI ha iniziato mainloop. La 2.9.22 corregge il difetto nel client.
 MOX_RELEASE_RECOVERY_DELAY_MS = "1500"
 # A145: il dominio del bucket `moxtracker-releases`, collegato il 21/10/2026
-# con la Smart Tiered Cache della zona. Il Worker ci legge gli installer con lo
-# SHA-256 nella chiave; senza la variabile li legge dal binding come prima.
+# con la Smart Tiered Cache della zona. Il Worker ci rimanda gli installer con
+# lo SHA-256 nella chiave; senza la variabile li serve dal binding come prima.
 MOX_RELEASES_CACHE_ORIGIN = "https://releases.moxtracker.app"
 # Gruppi Brew (S1). Con "on" il cron raggruppa le liste non classificate che
 # hanno gia' 30 partite nel formato; con qualunque altro valore, o senza la

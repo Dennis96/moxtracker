@@ -1,5 +1,62 @@
 # Stato corrente — sito Mox
 
+## Worker — 21/10/2026: A145, installer dalla cache (deploy, non risolve ZRH)
+
+`moxtracker/main` = `88d7fed`, merge della PR
+[#48](https://github.com/Dennis96/moxtracker/pull/48) (review Codex PASS al
+giro 2). Merge e deploy autorizzati da Dennis in chat il 21/10/2026 («Sì,
+fondi», «Sì, deploy»). Deploy da `main`: versione Worker
+**`6f3d3fed-75b8-4adb-b4fd-9cd9f3642bee`**; cambia solo il download degli
+installer (`MOX_RELEASES_CACHE_ORIGIN`). Manifesti invariati dopo il deploy:
+Stable 2.11.8 `84f72416…`, Canary 2.11.10 `7ee60206…`; `/salute` vivo.
+Nessuna migrazione D1, nessun secret, nessun deploy Pages.
+**Rollback:** `npx wrangler rollback d01d1afd-1e98-400b-9726-481722049de8`
+(stessi manifesti, download dal binding come prima).
+
+**Misure dopo il deploy (curl, stesso PC, download completi con SHA-256):**
+via `api.moxtracker.app` con `x-mox-installer: cache`, ZRH 16–19 KB/s
+(2.11.10 e 2.11.8, interrotti a 150 s) e MUC 26 MB/s (SHA-256 giusto). Nello
+stesso momento lo stesso oggetto **direttamente** da `releases.moxtracker.app`:
+HIT a 34 MB/s da ZRH e 48–54 MB/s da MUC. **La diagnosi di prima era
+sbagliata:** a ZRH non è lenta la lettura da R2 ma ogni corpo grande che passa
+dal Worker (prima dal binding, ora dalla cache). Non peggiora niente rispetto
+a prima, ma A145 resta aperto. Scelta di Dennis: il Worker risponde con un
+reindirizzamento al dominio in cache invece di inoltrare i byte.
+
+**Codice (branch `claude/a145-reindirizzamento-2026-10-21`, non deployato):**
+per gli installer con lo SHA-256 nella chiave il Worker legge solo i metadati
+(`head`) e risponde `302` verso `MOX_RELEASES_CACHE_ORIGIN/<chiave>` con
+`cache-control: no-store` e `x-mox-installer: cache`; oggetto assente = 404;
+metadati in errore = rimanda lo stesso (il dominio legge lo stesso bucket).
+`/mox/download.exe` e il Worker senza la variabile servono i byte dal binding
+come prima. Il client (`aggiornamenti.scarica`, `urllib.request.urlopen`
+senza opener proprio) segue il rimando e controlla dimensione, SHA-256 e
+firma. Il Worker non confronta più dimensione ed ETag: le chiavi non si
+riscrivono mai, ma se un installer venisse ricaricato nella stessa chiave va
+fatto il purge dell'URL su `releases.moxtracker.app` (le copie riempite dal
+Worker `6f3d3fed` hanno un anno di freschezza). Restano dentro il Worker, e
+quindi lenti da ZRH, `/mox/download.exe` (manifesti fino alla 2.11.2) e i
+payload dei dati Draft. Provato: `npm run prove` 634/634; `urllib` dietro un 302 locale verso
+il dominio vero, 3 download completi con SHA-256 giusto, HIT a 30–45 MB/s da
+ZRH e 48 MB/s da MUC. `wrangler dev --remote` non è usabile per questa prova:
+il suo proxy locale resta appeso sul 302.
+
+**Durata della cache (review Codex, MAJOR-1):** senza il Worker che chiedeva
+un anno, una copia riempita da un download diretto seguirebbe la regola
+predefinita della zona: 120 minuti per un 200 senza scadenza dall'origine,
+poi rilettura dall'origine e, se la copia manca, di nuovo il percorso lento.
+Le copie già riempite da `6f3d3fed` (per esempio 2.11.8 e 2.11.10) hanno un
+anno; le nuove no. **Fatto in produzione il 21/10/2026, autorizzato da Dennis
+in chat («Sì, aggiungila»):** Cache Rule della zona `moxtracker.app` (ruleset
+di fase `http_request_cache_settings` `a00dc9ed…`, prima assente; regola
+`e0813aab…`) per `http.host eq "releases.moxtracker.app"` e percorso che
+inizia per `/installer/`: cache sì, TTL edge un anno (`override_origin`,
+31.536.000 s), 300–599 `no-store`. Verifica: chiave mancante 404 con
+`cf-cache-status: BYPASS` due volte (ZRH, MUC); 2.11.10 HIT da ZRH a 40 MB/s
+con SHA-256 giusto. **Rollback:** cancellare la regola dalla zona (Cache
+Rules); il resto della zona non cambia. Anche con la regola la copia può
+essere espulsa prima: il preriscaldamento resta.
+
 ## Infrastruttura — 21/10/2026: A145, installer dalla cache
 
 Autorizzato da Dennis in chat il 21/10/2026 («Sì, procedi», dopo aver scelto
@@ -13,10 +70,10 @@ Cache accesa sulla zona `moxtracker.app` (prima `off`).
 releases.moxtracker.app` e Smart Tiered Cache di nuovo `off`.
 
 **Misure (curl, stesso PC):** prima, dal Worker che legge il binding, ZRH
-35–94 KB/s e MUC 26 MB/s; uno speedtest Cloudflare senza R2 da ZRH 25–38 MB/s,
-quindi è lenta la lettura da R2 fatta a ZRH (anche per i payload Draft di
-`moxtracker-draft-stats`, stessa regione EEUR); la causa interna a Cloudflare
-resta un'inferenza. Dal dominio in cache, dopo la prima richiesta: HIT a
+35–94 KB/s e MUC 26 MB/s; uno speedtest Cloudflare senza R2 da ZRH 25–38 MB/s
+(anche i payload Draft serviti dal Worker sono più lenti da ZRH). L'ipotesi
+«è lenta la lettura da R2 a ZRH» è stata smentita dopo il deploy: vedi la
+sezione sopra. Dal dominio in cache, dopo la prima richiesta: HIT a
 31–51 MB/s **sia da ZRH sia da MUC**, anche in un centro che non l'aveva mai
 chiesto, perché il livello superiore della cache è condiviso. La prima
 richiesta di un installer non ancora in cache può arrivare lenta a chi la fa
@@ -24,13 +81,13 @@ richiesta di un installer non ancora in cache può arrivare lenta a chi la fa
 freschezza, non una garanzia: Cloudflare può espellere la copia prima, e il
 primo accesso dopo torna lento.
 
-**Preriscaldamento:** dopo il deploy, ogni release fa un GET completo
+**Preriscaldamento:** dopo il deploy del rimando, ogni release fa un GET completo
 dell'URL esatto `https://releases.moxtracker.app/installer/<versione>/<sha256>/Mox-Installer-win-x64.exe`
 dopo l'upload e prima di esporre il manifesto, con dimensione e SHA-256
 controllati; una HEAD o un download interrotto non bastano. Entra nella
 procedura canonica di mox-core con la PR che chiude A145, dopo il deploy.
 
-**Codice (branch `claude/a145-cache-installer-2026-10-21`, non deployato):**
+**Codice della PR #48 (`claude/a145-cache-installer-2026-10-21`), come era prima del deploy; deployato come `6f3d3fed`, vedi la prima sezione:**
 `scaricaReleaseMox` chiede gli installer con lo SHA-256 nella chiave a
 `MOX_RELEASES_CACHE_ORIGIN` insieme ai metadati del bucket e ripiega sul
 binding se la copia non ha la stessa dimensione e lo stesso ETag, o se le sue
@@ -42,8 +99,8 @@ identici (SHA-256), ETag della cache uguale a quello di R2
 (`x-mox-installer: cache`), mancante 404. La velocità dell'anteprima non vale
 come misura (16–255 KB/s da ZRH mentre lo stesso oggetto, scaricato
 direttamente dalla cache, arrivava a 27–52 MB/s): le sue sottorichieste non
-sembrano passare dalla cache della zona. La misura vera si fa dopo il deploy,
-che richiede l'ok di Dennis.
+sembrano passare dalla cache della zona. Le misure dopo il deploy sono nella
+prima sezione.
 
 ## Worker — 21/10/2026: Canary MOX Beta 2.11.10
 
