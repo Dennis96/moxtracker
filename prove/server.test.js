@@ -120,6 +120,12 @@ function bucketFinto(oggetti = {}) {
       const byte = dentro.get(chiave);
       return byte ? { body: new Blob([byte]).stream(), size: byte.length } : null;
     },
+    async head(chiave) {
+      chieste.push(`head ${chiave}`);
+      const byte = dentro.get(chiave);
+      // l'ETag finto cambia con i byte, come quello vero di R2
+      return byte ? { size: byte.length, httpEtag: `"${new TextDecoder().decode(byte)}"` } : null;
+    },
   };
 }
 
@@ -222,6 +228,113 @@ test("un percorso di installer fuori forma non legge niente dal bucket", async (
     { MOX_RELEASES: bucket });
   assert.equal(mancante.stato, 404);
   assert.deepEqual(bucket.chieste, [`installer/2.12.0/${buono}/Mox-Installer-win-x64.exe`]);
+});
+
+// A145: con il dominio del bucket configurato, gli installer con lo SHA-256
+// nella chiave passano dalla cache; ogni copia che non torna intera ripiega
+// sul binding.
+async function conCacheFinta(rispondi, corpo) {
+  const prima = globalThis.fetch;
+  const chiamate = [];
+  globalThis.fetch = async (indirizzo, opzioni) => {
+    chiamate.push({ indirizzo: String(indirizzo), cf: opzioni?.cf });
+    return rispondi(String(indirizzo));
+  };
+  try {
+    await corpo(chiamate);
+  } finally {
+    globalThis.fetch = prima;
+  }
+}
+
+const ORIGINE = "https://releases.esempio.invalid";
+
+test("A145: un installer immutabile arriva dalla cache, intero e con le stesse intestazioni", async () => {
+  const bucket = bucketFinto();
+  const impronta = "b".repeat(64);
+  const chiave = `installer/2.12.0/${impronta}/Mox-Installer-win-x64.exe`;
+  bucket.metti(chiave, "installer-dal-bucket");
+  const ambiente = { MOX_RELEASES: bucket, MOX_RELEASES_CACHE_ORIGIN: ORIGINE };
+  await conCacheFinta(() => new Response("installer-in-cache-!", {
+    headers: { "content-length": "20", etag: "\"installer-dal-bucket\"" } }),
+  async (chiamate) => {
+    const esito = await scarica(`/mox/${chiave}`, ambiente);
+    assert.equal(esito.stato, 200);
+    assert.equal(esito.testo, "installer-in-cache-!");
+    assert.equal(esito.headers.get("content-length"), "20");
+    assert.equal(esito.headers.get("x-mox-installer"), "cache");
+    assert.equal(esito.headers.get("cache-control"), "no-store");
+    assert.equal(esito.headers.get("content-type"), "application/vnd.microsoft.portable-executable");
+    assert.equal(esito.headers.get("content-disposition"),
+      "attachment; filename=\"Mox-Installer-win-x64.exe\"");
+    assert.deepEqual(chiamate.map((c) => c.indirizzo), [`${ORIGINE}/${chiave}`]);
+    assert.equal(chiamate[0].cf.cacheEverything, true);
+    assert.equal(chiamate[0].cf.cacheTtlByStatus["201-599"], -1);
+    // dal bucket si legge solo la dimensione, mai i byte
+    assert.deepEqual(bucket.chieste, [`head ${chiave}`]);
+  });
+});
+
+test("A145: una copia in cache sbagliata o assente ripiega sul binding", async () => {
+  const impronta = "c".repeat(64);
+  const chiave = `installer/2.12.0/${impronta}/Mox-Installer-win-x64.exe`;
+  const guasti = [
+    () => new Response("corto", { headers: { "content-length": "5", etag: "\"installer-dal-bucket\"" } }),
+    // stessa dimensione ma un oggetto ricaricato: l'ETag non torna
+    () => new Response("installer-vecchio-!!", { headers: { "content-length": "20", etag: "\"vecchio\"" } }),
+    () => new Response("installer-senza-etag", { headers: { "content-length": "20" } }),
+    () => new Response("guasto", { status: 500 }),
+    () => new Response(null, { status: 404 }),
+    () => { throw new Error("rete"); },
+  ];
+  for (const guasto of guasti) {
+    const bucket = bucketFinto();
+    bucket.metti(chiave, "installer-dal-bucket");
+    await conCacheFinta(guasto, async () => {
+      const esito = await scarica(`/mox/${chiave}`,
+        { MOX_RELEASES: bucket, MOX_RELEASES_CACHE_ORIGIN: ORIGINE });
+      assert.equal(esito.stato, 200);
+      assert.equal(esito.testo, "installer-dal-bucket");
+      assert.equal(esito.headers.get("content-length"), "20");
+      assert.equal(esito.headers.get("x-mox-installer"), "bucket");
+      assert.deepEqual(bucket.chieste, [`head ${chiave}`, chiave]);
+    });
+  }
+});
+
+test("A145: se i metadati del bucket non rispondono si legge dal binding", async () => {
+  const chiave = `installer/2.12.0/${"e".repeat(64)}/Mox-Installer-win-x64.exe`;
+  const bucket = bucketFinto();
+  bucket.metti(chiave, "installer-dal-bucket");
+  bucket.head = async () => { throw new Error("R2 non risponde"); };
+  await conCacheFinta(() => new Response("installer-in-cache-!", {
+    headers: { "content-length": "20", etag: "\"installer-dal-bucket\"" } }), async () => {
+    const esito = await scarica(`/mox/${chiave}`,
+      { MOX_RELEASES: bucket, MOX_RELEASES_CACHE_ORIGIN: ORIGINE });
+    assert.equal(esito.testo, "installer-dal-bucket");
+    assert.equal(esito.headers.get("x-mox-installer"), "bucket");
+  });
+});
+
+test("A145: l'installer storico e un percorso fuori forma non passano dalla cache, uno mancante e' 404", async () => {
+  const bucket = bucketFinto();
+  bucket.metti("Mox-Installer-win-x64.exe", "installer-2.11.2");
+  const ambiente = { MOX_RELEASES: bucket, MOX_RELEASES_CACHE_ORIGIN: ORIGINE };
+  await conCacheFinta(() => new Response("mai"), async (chiamate) => {
+    const storico = await scarica("/mox/download.exe", ambiente);
+    assert.equal(storico.testo, "installer-2.11.2");
+
+    const mancante = `installer/2.12.0/${"d".repeat(64)}/Mox-Installer-win-x64.exe`;
+    assert.equal((await scarica(`/mox/${mancante}`, ambiente)).stato, 404);
+
+    const fuoriForma = await scarica(
+      `/mox/installer/2.12.0/${"A".repeat(64)}/Mox-Installer-win-x64.exe`, ambiente);
+    assert.notEqual(fuoriForma.stato, 200);
+
+    // il mancante si chiede alla cache insieme ai metadati, poi risponde 404
+    assert.deepEqual(chiamate.map((c) => c.indirizzo), [`${ORIGINE}/${mancante}`]);
+    assert.deepEqual(bucket.chieste, ["Mox-Installer-win-x64.exe", `head ${mancante}`]);
+  });
 });
 
 test("un manifesto rotto risponde 503 su entrambi i canali, senza ripieghi", async () => {

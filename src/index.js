@@ -251,21 +251,60 @@ function chiaveInstaller(pathname) {
   return `installer/${trovato[1]}/${trovato[2]}/Mox-Installer-win-x64.exe`;
 }
 
+// `x-mox-installer` dice da dove sono arrivati i byte, `cache` o `bucket`:
+// serve a misurare A145 dopo il deploy senza leggere i log.
+function rispostaInstaller(corpo, dimensione, fonte) {
+  return new Response(corpo, {
+    headers: {
+      ...INTESTAZIONI,
+      "content-type": "application/vnd.microsoft.portable-executable",
+      "content-length": String(dimensione),
+      "content-disposition": "attachment; filename=\"Mox-Installer-win-x64.exe\"",
+      "cache-control": "no-store",
+      "x-mox-installer": fonte,
+    },
+  });
+}
+
+// A145 (21/10/2026): letto dal binding, il bucket arrivava a 35-94 KB/s
+// quando rispondeva il centro di Zurigo e a 26 MB/s da Monaco. Gli installer
+// con lo SHA-256 nella chiave non cambiano mai, quindi si chiedono al dominio
+// del bucket attraverso la cache a due livelli di Cloudflare: la prima
+// richiesta la riempie per tutti i centri. Se la copia non e' quella del
+// bucket (dimensione ed ETag), si ripiega sul binding come prima: un oggetto
+// ricaricato nella stessa chiave non resta nascosto dietro la cache.
+const UN_ANNO = 365 * 24 * 3600;
+
+async function installerDallaCache(ambiente, chiave) {
+  const origine = ambiente.MOX_RELEASES_CACHE_ORIGIN;
+  if (!origine || chiave === CHIAVE_INSTALLER_STORICO) return null;
+  // I metadati e la copia insieme: a Zurigo il solo `head` costa mezzo secondo.
+  // `undefined` = metadati non letti (errore R2), `null` = oggetto assente.
+  const [dati, copia] = await Promise.all([
+    ambiente.MOX_RELEASES.head(chiave).catch(() => undefined),
+    fetch(`${origine}/${chiave}`, {
+      cf: { cacheEverything: true, cacheTtlByStatus: { "200": UN_ANNO, "201-599": -1 } },
+    }).catch(() => null), // la cache non risponde: resta il binding
+  ]);
+  if (copia && dati && copia.status === 200 && copia.body &&
+      copia.headers.get("content-length") === String(dati.size) &&
+      copia.headers.get("etag") === dati.httpEtag) {
+    return rispostaInstaller(copia.body, dati.size, "cache");
+  }
+  await copia?.body?.cancel().catch(() => {});
+  if (dati === null) return risposta({ errore: "installer non trovato" }, 404);
+  return null;
+}
+
 async function scaricaReleaseMox(ambiente, chiave) {
   if (!ambiente.MOX_RELEASES) {
     return risposta({ errore: "download release non configurato" }, 503);
   }
+  const dallaCache = await installerDallaCache(ambiente, chiave);
+  if (dallaCache) return dallaCache;
   const oggetto = await ambiente.MOX_RELEASES.get(chiave);
   if (!oggetto) return risposta({ errore: "installer non trovato" }, 404);
-  return new Response(oggetto.body, {
-    headers: {
-      ...INTESTAZIONI,
-      "content-type": "application/vnd.microsoft.portable-executable",
-      "content-length": String(oggetto.size),
-      "content-disposition": "attachment; filename=\"Mox-Installer-win-x64.exe\"",
-      "cache-control": "no-store",
-    },
-  });
+  return rispostaInstaller(oggetto.body, oggetto.size, "bucket");
 }
 
 // I compiti della manutenzione notturna, ognuno col suo nome. Brew segue la

@@ -1,5 +1,39 @@
 # Stato corrente — sito Mox
 
+## Infrastruttura — 21/10/2026: A145, installer dalla cache
+
+Autorizzato da Dennis in chat il 21/10/2026 («Sì, procedi», dopo aver scelto
+l'opzione «Indirizzo R2 con cache»). Nessun deploy del Worker, nessun
+manifesto, secret o byte pubblicato toccato.
+
+**Fatto in produzione:** dominio `releases.moxtracker.app` collegato al bucket
+`moxtracker-releases` (TLS minimo 1.2; r2.dev resta spento) e Smart Tiered
+Cache accesa sulla zona `moxtracker.app` (prima `off`).
+**Rollback:** `wrangler r2 bucket domain remove moxtracker-releases --domain
+releases.moxtracker.app` e Smart Tiered Cache di nuovo `off`.
+
+**Misure (curl, stesso PC):** prima, dal Worker che legge il binding, ZRH
+35–94 KB/s e MUC 26 MB/s; uno speedtest Cloudflare senza R2 da ZRH 25–38 MB/s,
+quindi è lenta solo la lettura da R2 a ZRH (anche per i payload Draft di
+`moxtracker-draft-stats`, stessa regione EEUR). Dal dominio in cache, dopo la
+prima richiesta: HIT a 31–51 MB/s **sia da ZRH sia da MUC**, anche in un
+centro che non l'aveva mai chiesto. La prima richiesta di un installer non
+ancora in cache può arrivare lenta a chi la fa (ZRH 18–70 KB/s), ma la cache
+si riempie lo stesso: dopo una release va **scaldata** con un download del suo
+URL `https://releases.moxtracker.app/installer/<versione>/<sha256>/Mox-Installer-win-x64.exe`.
+
+**Codice (branch `claude/a145-cache-installer-2026-10-21`, non deployato):**
+`scaricaReleaseMox` chiede gli installer con lo SHA-256 nella chiave a
+`MOX_RELEASES_CACHE_ORIGIN` insieme ai metadati del bucket e ripiega sul
+binding se la copia non ha la stessa dimensione e lo stesso ETag;
+`/mox/download.exe` resta sul binding. Provato in `wrangler dev --remote`: byte
+identici (SHA-256), ETag della cache uguale a quello di R2
+(`x-mox-installer: cache`), mancante 404. La velocità dell'anteprima non vale
+come misura (16–255 KB/s da ZRH mentre lo stesso oggetto, scaricato
+direttamente dalla cache, arrivava a 27–52 MB/s): le sue sottorichieste non
+sembrano passare dalla cache della zona. La misura vera si fa dopo il deploy,
+che richiede l'ok di Dennis.
+
 ## Worker — 21/10/2026: Canary MOX Beta 2.11.10
 
 Solo il manifesto Canary: nessun deploy di codice, nessuna migrazione D1,
