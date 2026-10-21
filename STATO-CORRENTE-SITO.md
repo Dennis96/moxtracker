@@ -1,5 +1,29 @@
 # Stato corrente — sito Mox
 
+## Worker — 21/10/2026: A145, installer dalla cache (deploy, non risolve ZRH)
+
+`moxtracker/main` = `88d7fed`, merge della PR
+[#48](https://github.com/Dennis96/moxtracker/pull/48) (review Codex PASS al
+giro 2). Merge e deploy autorizzati da Dennis in chat il 21/10/2026 («Sì,
+fondi», «Sì, deploy»). Deploy da `main`: versione Worker
+**`6f3d3fed-75b8-4adb-b4fd-9cd9f3642bee`**; cambia solo il download degli
+installer (`MOX_RELEASES_CACHE_ORIGIN`). Manifesti invariati dopo il deploy:
+Stable 2.11.8 `84f72416…`, Canary 2.11.10 `7ee60206…`; `/salute` vivo.
+Nessuna migrazione D1, nessun secret, nessun deploy Pages.
+**Rollback:** `npx wrangler rollback d01d1afd-1e98-400b-9726-481722049de8`
+(stessi manifesti, download dal binding come prima).
+
+**Misure dopo il deploy (curl, stesso PC, download completi con SHA-256):**
+via `api.moxtracker.app` con `x-mox-installer: cache`, ZRH 16–19 KB/s
+(2.11.10 e 2.11.8, interrotti a 150 s) e MUC 26 MB/s (SHA-256 giusto). Nello
+stesso momento lo stesso oggetto **direttamente** da `releases.moxtracker.app`:
+HIT a 34 MB/s da ZRH e 48–54 MB/s da MUC. **La diagnosi di prima era
+sbagliata:** a ZRH non è lenta la lettura da R2 ma ogni corpo grande che passa
+dal Worker (prima dal binding, ora dalla cache). Non peggiora niente rispetto
+a prima, ma A145 resta aperto. Scelta di Dennis: il Worker risponde con un
+reindirizzamento al dominio in cache invece di inoltrare i byte (lavoro su
+`claude/a145-reindirizzamento-2026-10-21`).
+
 ## Infrastruttura — 21/10/2026: A145, installer dalla cache
 
 Autorizzato da Dennis in chat il 21/10/2026 («Sì, procedi», dopo aver scelto
@@ -13,10 +37,10 @@ Cache accesa sulla zona `moxtracker.app` (prima `off`).
 releases.moxtracker.app` e Smart Tiered Cache di nuovo `off`.
 
 **Misure (curl, stesso PC):** prima, dal Worker che legge il binding, ZRH
-35–94 KB/s e MUC 26 MB/s; uno speedtest Cloudflare senza R2 da ZRH 25–38 MB/s,
-quindi è lenta la lettura da R2 fatta a ZRH (anche per i payload Draft di
-`moxtracker-draft-stats`, stessa regione EEUR); la causa interna a Cloudflare
-resta un'inferenza. Dal dominio in cache, dopo la prima richiesta: HIT a
+35–94 KB/s e MUC 26 MB/s; uno speedtest Cloudflare senza R2 da ZRH 25–38 MB/s
+(anche i payload Draft serviti dal Worker sono più lenti da ZRH). L'ipotesi
+«è lenta la lettura da R2 a ZRH» è stata smentita dopo il deploy: vedi la
+sezione sopra. Dal dominio in cache, dopo la prima richiesta: HIT a
 31–51 MB/s **sia da ZRH sia da MUC**, anche in un centro che non l'aveva mai
 chiesto, perché il livello superiore della cache è condiviso. La prima
 richiesta di un installer non ancora in cache può arrivare lenta a chi la fa
