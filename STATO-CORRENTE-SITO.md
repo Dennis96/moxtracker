@@ -23,9 +23,11 @@ dell'08/10). A 375 px la pagina non sborda (`scrollWidth` 375).
 https://moxtracker.app` 14/14. Nessun deploy del Worker, nessun secret, nessuna
 scrittura D1 o R2.
 
-**Rollback:** `npx wrangler pages deployment rollback` verso
-**`87e32483-11e6-4fd0-943d-f44c8b7f1921`** (Macro A del 20/10, News fino alla
-2.11.8), solo con autorizzazione di produzione.
+**Rollback:** dashboard Cloudflare → Workers & Pages → moxtracker → Deployments
+→ All deployments → menu del deployment
+**`87e32483-11e6-4fd0-943d-f44c8b7f1921`** → «Rollback to this deployment»
+(Macro A del 20/10, News fino alla 2.11.8), solo con autorizzazione di produzione.
+Wrangler non espone un comando `pages deployment rollback`.
 
 ## Worker e GitHub — 21/10/2026: Stable MOX Beta 2.11.10
 
