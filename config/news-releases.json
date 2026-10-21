@@ -3,27 +3,27 @@
   "repository": "Dennis96/moxtracker",
   "source": "https://api.github.com/repos/Dennis96/moxtracker/releases",
   "complete": true,
-  "fetched_at": "2026-10-15T19:03:04.940Z",
-  "github_latest_id": 406702253,
+  "fetched_at": "2026-10-21T19:35:30.274Z",
+  "github_latest_id": 419915656,
   "latest_observed": {
-    "id": 406702253,
-    "tag_name": "mox-v2-beta2.11.8",
-    "version": "2.11.8",
-    "name": "MOX Beta 2.11.8",
-    "published_at": "2026-10-08T10:27:06Z",
-    "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.8",
+    "id": 419915656,
+    "tag_name": "mox-v2-beta2.11.10",
+    "version": "2.11.10",
+    "name": "MOX Beta 2.11.10",
+    "published_at": "2026-10-21T18:35:07Z",
+    "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.10",
     "draft": false,
     "prerelease": false,
-    "body": "# MOX Beta 2.11.8\n\nLa versione provata sul canale di prova dal 06/10/2026 arriva a tutti. Rispetto alla 2.11.3:\n\n**Draft Assistant.** I consigli seguono meglio i colori che stai costruendo: il secondo colore si sceglie con una regola nuova e le carte fuori piano, soprattutto nel Pack 3, vengono scoraggiate. Le carte ibride non confondono più la scelta dei colori. I dati 17Lands si usano solo quando il servizio lo permette; se non sono disponibili il Draft continua con colori e curva.\n\n**Draft condivisi.** Se hai acceso la condivisione dei Draft, insieme ai pick parte anche il contesto dei consigli: i calcoli di MOX e quali dati 17Lands c'erano. Lo spiegano Opzioni, la [Privacy](https://moxtracker.app/privacy) e [Cosa invia MOX](https://moxtracker.app/cosa-invia-mox). Non c'è nessun nuovo consenso: chi non l'ha accesa non manda niente. L'invio è più robusto e il mazzo finale arriva sul sito; riaprire l'assistente non crea più una cartella nuova per lo stesso Draft.\n\n**Partite e Contatore.** Il Contatore regge meglio i pezzi di log che Arena riassume; quando non può essere sicuro mostra «Conteggio in pausa» invece di un numero sbagliato.\n\n**Aggiornamenti.** In Opzioni › Diagnostica c'è «Controllo aggiornamenti…», con la percentuale del download e la verifica prima dell'installazione. Le finestre si riaprono dove le avevi lasciate.\n\nChi ha MOX 2.11.3 riceve l'aggiornamento automaticamente.\n\n\nmox-core source commit = 86fe7c0daf0a4bac80f014737960654e2424e96e\n",
-    "body_sha256": "fca6bb37d646e01c4d439058c37bcb12854a458ed38d6a93b3496ebb4bf3e5ed",
-    "source_commit": "86fe7c0daf0a4bac80f014737960654e2424e96e",
+    "body": "# MOX Beta 2.11.10\n\n<!-- mox-user-notes-it:start -->\nRispetto alla 2.11.8:\n\n**Il Draft ti spiega i consigli.** Sopra le carte del pacchetto un riquadro «Perché» dice in poche parole perché MOX consiglia quella carta, quale alternativa va bene lo stesso e perché la carta con la percentuale più alta sta più in basso. Passando il mouse su una carta vedi come nasce il suo punteggio: forza della carta, il tuo mazzo e bonus. Quando guardi il mazzo, «Le scelte del mazzo» spiega le carte forti lasciate fuori, i colori aggiunti e le terre ritoccate; le stesse righe finiscono anche nel file del mazzo.\n\n**Terre del mazzo più precise.** Il mazzo proposto conta meglio i simboli di mana, comprese le carte ibride, quando decide quante terre di ogni colore mettere.\n\n**Statistiche del Draft dal server di MOX.** MOX non chiede più i dati direttamente a 17Lands: li prende dal server di MOX. Se i dati recenti mancano usa quelli pubblici di 17Lands, e se mancano anche quelli consiglia in base a colori e curva. La testata del Draft dice sempre da dove vengono i dati.\n\nChi ha MOX 2.11.8 riceve l'aggiornamento automaticamente.\n<!-- mox-user-notes-it:end -->\n<!-- mox-user-notes-en:start -->\nCompared with 2.11.8:\n\n**The Draft explains its advice.** Above the cards in the pack, a «Why» box says in a few words why MOX recommends that card, which alternative is just as good, and why the card with the highest percentage is ranked lower. Hover over a card to see how its score adds up: card strength, your deck and bonus. When you look at your deck, «Deck choices» explains the strong cards left out, the colours added and the lands adjusted; the same lines also go into the deck file.\n\n**More precise deck lands.** The suggested deck counts mana symbols better, hybrid cards included, when it decides how many lands of each colour to play.\n\n**Draft statistics from the MOX server.** MOX no longer asks 17Lands for data directly: it gets it from the MOX server. If recent data is missing it uses the 17Lands public data, and if that is missing too it advises by colour and curve. The Draft header always says where the data comes from.\n\nIf you have MOX 2.11.8, the update arrives automatically.\n<!-- mox-user-notes-en:end -->\n\nmox-core source commit = de882f61c7e9153b8163cf1cae3da17c4f601cc5\n",
+    "body_sha256": "c0460ef2123c6c7979fc85d9637effd113b30fe3267a05fa7e9a3c1004fb8806",
+    "source_commit": "de882f61c7e9153b8163cf1cae3da17c4f601cc5",
     "assets": [
       {
-        "id": 621487375,
-        "name": "MOX-2.11.8.zip",
-        "size": 110267929,
-        "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.8/MOX-2.11.8.zip",
-        "digest": "sha256:31b8c9faa7c4e16ef28c1c304c13dfd74037f522d2f04d48021319d5bb134c6b"
+        "id": 663435727,
+        "name": "MOX-2.11.10.zip",
+        "size": 110356856,
+        "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.10/MOX-2.11.10.zip",
+        "digest": "sha256:2baa89f8976fb47305274bab1f28e3791e116f9f2c39039ba9401588d59da60a"
       }
     ]
   },
@@ -31,6 +31,25 @@
     {
       "url": "https://api.github.com/repos/Dennis96/moxtracker/releases?per_page=100&page=1",
       "data": [
+        {
+          "id": 419915656,
+          "tag_name": "mox-v2-beta2.11.10",
+          "name": "MOX Beta 2.11.10",
+          "draft": false,
+          "prerelease": false,
+          "published_at": "2026-10-21T18:35:07Z",
+          "body": "# MOX Beta 2.11.10\n\n<!-- mox-user-notes-it:start -->\nRispetto alla 2.11.8:\n\n**Il Draft ti spiega i consigli.** Sopra le carte del pacchetto un riquadro «Perché» dice in poche parole perché MOX consiglia quella carta, quale alternativa va bene lo stesso e perché la carta con la percentuale più alta sta più in basso. Passando il mouse su una carta vedi come nasce il suo punteggio: forza della carta, il tuo mazzo e bonus. Quando guardi il mazzo, «Le scelte del mazzo» spiega le carte forti lasciate fuori, i colori aggiunti e le terre ritoccate; le stesse righe finiscono anche nel file del mazzo.\n\n**Terre del mazzo più precise.** Il mazzo proposto conta meglio i simboli di mana, comprese le carte ibride, quando decide quante terre di ogni colore mettere.\n\n**Statistiche del Draft dal server di MOX.** MOX non chiede più i dati direttamente a 17Lands: li prende dal server di MOX. Se i dati recenti mancano usa quelli pubblici di 17Lands, e se mancano anche quelli consiglia in base a colori e curva. La testata del Draft dice sempre da dove vengono i dati.\n\nChi ha MOX 2.11.8 riceve l'aggiornamento automaticamente.\n<!-- mox-user-notes-it:end -->\n<!-- mox-user-notes-en:start -->\nCompared with 2.11.8:\n\n**The Draft explains its advice.** Above the cards in the pack, a «Why» box says in a few words why MOX recommends that card, which alternative is just as good, and why the card with the highest percentage is ranked lower. Hover over a card to see how its score adds up: card strength, your deck and bonus. When you look at your deck, «Deck choices» explains the strong cards left out, the colours added and the lands adjusted; the same lines also go into the deck file.\n\n**More precise deck lands.** The suggested deck counts mana symbols better, hybrid cards included, when it decides how many lands of each colour to play.\n\n**Draft statistics from the MOX server.** MOX no longer asks 17Lands for data directly: it gets it from the MOX server. If recent data is missing it uses the 17Lands public data, and if that is missing too it advises by colour and curve. The Draft header always says where the data comes from.\n\nIf you have MOX 2.11.8, the update arrives automatically.\n<!-- mox-user-notes-en:end -->\n\nmox-core source commit = de882f61c7e9153b8163cf1cae3da17c4f601cc5\n",
+          "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.10",
+          "assets": [
+            {
+              "id": 663435727,
+              "name": "MOX-2.11.10.zip",
+              "size": 110356856,
+              "digest": "sha256:2baa89f8976fb47305274bab1f28e3791e116f9f2c39039ba9401588d59da60a",
+              "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.10/MOX-2.11.10.zip"
+            }
+          ]
+        },
         {
           "id": 406702253,
           "tag_name": "mox-v2-beta2.11.8",
@@ -566,8 +585,8 @@
           ]
         }
       ],
-      "etag": "W/\"c3d2ac0ef232b9b79d3bd6981e185a0549822f5ff2d11ccd214fef47a92c70b8\"",
-      "body_sha256": "f9c6d3aff4bc85c537ae346cf1ebd6c57cea05533277b1319ada0c951808fe1b"
+      "etag": "W/\"3ec82b160234ae23dc1ee0c7112ca4d5864ac79a7822fcf62f1451ec386c56a7\"",
+      "body_sha256": "dcfdd8f31235463503baa26fb33cecd1bc06f0256fe0d0ad0883976233527945"
     },
     {
       "url": "https://api.github.com/repos/Dennis96/moxtracker/releases?per_page=100&page=2",
@@ -577,6 +596,36 @@
     }
   ],
   "releases": [
+    {
+      "id": 419915656,
+      "tag_name": "mox-v2-beta2.11.10",
+      "version": "2.11.10",
+      "name": "MOX Beta 2.11.10",
+      "published_at": "2026-10-21T18:35:07Z",
+      "html_url": "https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.10",
+      "draft": false,
+      "prerelease": false,
+      "body": "# MOX Beta 2.11.10\n\n<!-- mox-user-notes-it:start -->\nRispetto alla 2.11.8:\n\n**Il Draft ti spiega i consigli.** Sopra le carte del pacchetto un riquadro «Perché» dice in poche parole perché MOX consiglia quella carta, quale alternativa va bene lo stesso e perché la carta con la percentuale più alta sta più in basso. Passando il mouse su una carta vedi come nasce il suo punteggio: forza della carta, il tuo mazzo e bonus. Quando guardi il mazzo, «Le scelte del mazzo» spiega le carte forti lasciate fuori, i colori aggiunti e le terre ritoccate; le stesse righe finiscono anche nel file del mazzo.\n\n**Terre del mazzo più precise.** Il mazzo proposto conta meglio i simboli di mana, comprese le carte ibride, quando decide quante terre di ogni colore mettere.\n\n**Statistiche del Draft dal server di MOX.** MOX non chiede più i dati direttamente a 17Lands: li prende dal server di MOX. Se i dati recenti mancano usa quelli pubblici di 17Lands, e se mancano anche quelli consiglia in base a colori e curva. La testata del Draft dice sempre da dove vengono i dati.\n\nChi ha MOX 2.11.8 riceve l'aggiornamento automaticamente.\n<!-- mox-user-notes-it:end -->\n<!-- mox-user-notes-en:start -->\nCompared with 2.11.8:\n\n**The Draft explains its advice.** Above the cards in the pack, a «Why» box says in a few words why MOX recommends that card, which alternative is just as good, and why the card with the highest percentage is ranked lower. Hover over a card to see how its score adds up: card strength, your deck and bonus. When you look at your deck, «Deck choices» explains the strong cards left out, the colours added and the lands adjusted; the same lines also go into the deck file.\n\n**More precise deck lands.** The suggested deck counts mana symbols better, hybrid cards included, when it decides how many lands of each colour to play.\n\n**Draft statistics from the MOX server.** MOX no longer asks 17Lands for data directly: it gets it from the MOX server. If recent data is missing it uses the 17Lands public data, and if that is missing too it advises by colour and curve. The Draft header always says where the data comes from.\n\nIf you have MOX 2.11.8, the update arrives automatically.\n<!-- mox-user-notes-en:end -->\n\nmox-core source commit = de882f61c7e9153b8163cf1cae3da17c4f601cc5\n",
+      "body_sha256": "c0460ef2123c6c7979fc85d9637effd113b30fe3267a05fa7e9a3c1004fb8806",
+      "source_commit": "de882f61c7e9153b8163cf1cae3da17c4f601cc5",
+      "assets": [
+        {
+          "id": 663435727,
+          "name": "MOX-2.11.10.zip",
+          "size": 110356856,
+          "browser_download_url": "https://github.com/Dennis96/moxtracker/releases/download/mox-v2-beta2.11.10/MOX-2.11.10.zip",
+          "digest": "sha256:2baa89f8976fb47305274bab1f28e3791e116f9f2c39039ba9401588d59da60a"
+        }
+      ],
+      "language_status": "en_original",
+      "provenance": "stable_receipt",
+      "receipt": {
+        "version": "2.11.10",
+        "source_commit": "de882f61c7e9153b8163cf1cae3da17c4f601cc5",
+        "verified_at": "2026-10-21T18:36:16Z",
+        "evidence": "mox-core passaggi/release/handoff/HANDOFF-STABLE-2.11.10-2026-10-21.md"
+      }
+    },
     {
       "id": 406702253,
       "tag_name": "mox-v2-beta2.11.8",
