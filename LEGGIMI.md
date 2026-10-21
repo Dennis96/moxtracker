@@ -41,8 +41,15 @@ Per riprendere il lavoro leggere nell'ordine:
 Il codice, la cronologia Git e `npm run prove` prevalgono sempre sui documenti
 storici.
 
-Dopo ogni deploy preview riuscito aggiornare subito
-[STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md): commit, URL, modifiche,
-verifiche e confini non toccati, riscrivendo il riferimento corrente invece di
-aggiungere una sezione per ogni evento. Non creare un secondo handoff per lo
-stesso scopo. Le regole di lavoro sono in [AGENTS.md](AGENTS.md).
+[STATO-CORRENTE-SITO.md](STATO-CORRENTE-SITO.md) è la **sola fonte** dei
+dettagli di produzione — versioni di Worker e Pages, secret cambiati, SHA dei
+manifesti pubblicati, punti di ritorno e comandi di rollback —; `mox-core`
+scrive lo stato in una riga e rimanda qui. Ogni giro di deploy o di release ha
+**un solo registro**: una PR draft aperta all'inizio del giro, aggiornata con
+un commit dopo ogni pubblicazione (preview, produzione, News) e fusa una volta
+sola alla fine, come dice
+[mox-core, AGENTS.md — il ciclo di un lavoro](https://github.com/Dennis96/mox-core/blob/main/AGENTS.md#il-ciclo-di-un-lavoro).
+Nel registro si scrivono commit, URL, modifiche, verifiche e confini non
+toccati, riscrivendo il riferimento corrente invece di aggiungere una sezione
+per ogni evento. Non creare un secondo handoff per lo stesso scopo. Le regole
+di lavoro sono in [AGENTS.md](AGENTS.md).

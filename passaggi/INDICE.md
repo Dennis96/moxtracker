@@ -44,7 +44,7 @@ Il redesign è stato pubblicato il 25/09 e Web Analytics verificata in produzion
 
 Quando un macro-task cambia lo stato globale di sito/backend/release:
 
-1. aggiornare `STATO-CORRENTE-SITO.md` nello stesso lavoro;
+1. aggiornare `STATO-CORRENTE-SITO.md` nello stesso lavoro, o nel registro del giro se il cambiamento è un deploy o una release ([LEGGIMI.md](../LEGGIMI.md));
 2. aggiornare questo indice se cambia la porta d'ingresso o la classificazione attivo/storico;
 3. non riscrivere report datati che erano corretti al momento della loro emissione;
 4. non creare un secondo file di “stato corrente” concorrente.
