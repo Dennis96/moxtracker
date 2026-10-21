@@ -251,9 +251,9 @@ function chiaveInstaller(pathname) {
   return `installer/${trovato[1]}/${trovato[2]}/Mox-Installer-win-x64.exe`;
 }
 
-// `x-mox-installer` dice da dove sono arrivati i byte, `cache` o `bucket`:
-// serve a misurare A145 dopo il deploy senza leggere i log.
-function rispostaInstaller(corpo, dimensione, fonte) {
+// `x-mox-installer` dice chi serve l'installer: `cache` quando il Worker
+// rimanda al dominio in cache, `bucket` quando i byte arrivano dal binding.
+function rispostaInstaller(corpo, dimensione) {
   return new Response(corpo, {
     headers: {
       ...INTESTAZIONI,
@@ -261,72 +261,46 @@ function rispostaInstaller(corpo, dimensione, fonte) {
       "content-length": String(dimensione),
       "content-disposition": "attachment; filename=\"Mox-Installer-win-x64.exe\"",
       "cache-control": "no-store",
-      "x-mox-installer": fonte,
+      "x-mox-installer": "bucket",
     },
   });
 }
 
-// A145 (21/10/2026): letto dal binding, il bucket arrivava a 35-94 KB/s
-// quando rispondeva il centro di Zurigo e a 26 MB/s da Monaco. Gli installer
-// con lo SHA-256 nella chiave non cambiano mai, quindi si chiedono al dominio
-// del bucket attraverso la cache a due livelli di Cloudflare: il livello
-// superiore e' condiviso, quindi la prima richiesta lo riempie anche per gli
-// altri centri. L'anno e' la freschezza, non una garanzia: Cloudflare puo'
-// espellere la copia prima, e il primo accesso dopo torna lento. Se la copia
-// non e' quella del bucket (dimensione ed ETag), si ripiega sul binding come
-// prima: un oggetto ricaricato nella stessa chiave non resta nascosto.
-const UN_ANNO = 365 * 24 * 3600;
-// Quanto si aspettano le intestazioni della cache, non il trasferimento: un
-// MISS misurato le dava in 0,4-1,5 s, e oltre questo limite si legge dal
-// binding invece di restare appesi a una copia che forse non arriva.
-const ATTESA_CACHE_INSTALLER_MS = 10_000;
-
-// Una copia non piu' voluta, anche se arriva tardi, si chiude senza leggerla.
-function scartaCopia(copiaInArrivo) {
-  copiaInArrivo.then((copia) => copia?.body?.cancel()).catch(() => {});
-}
-
-async function installerDallaCache(ambiente, chiave) {
+// A145 (21/10/2026): quando la richiesta entra dal centro di Zurigo, ogni
+// corpo grande che passa dal Worker arriva a 16-94 KB/s, che venga dal binding
+// o dalla cache; lo stesso installer, chiesto direttamente al dominio del
+// bucket in cache, arriva a 34 MB/s da Zurigo e a 48-54 MB/s da Monaco. Gli
+// installer con lo SHA-256 nella chiave non cambiano mai: il Worker controlla
+// che esistano e rimanda li', senza toccare i byte. Il client segue il
+// rimando e verifica comunque dimensione, SHA-256 e firma del manifesto.
+async function rimandoAllaCache(ambiente, chiave) {
   const origine = ambiente.MOX_RELEASES_CACHE_ORIGIN;
   if (!origine || chiave === CHIAVE_INSTALLER_STORICO) return null;
-  // La copia parte insieme ai metadati: a Zurigo il solo `head` costa mezzo
-  // secondo. `undefined` = metadati non letti (errore R2), `null` = assente.
-  const annulla = new AbortController();
-  const copiaInArrivo = fetch(`${origine}/${chiave}`, {
-    signal: annulla.signal,
-    cf: { cacheEverything: true, cacheTtlByStatus: { "200": UN_ANNO, "201-599": -1 } },
-  }).catch(() => null); // la cache non risponde: resta il binding
+  // Se i metadati non rispondono si rimanda lo stesso: il dominio legge lo
+  // stesso bucket, e un oggetto davvero assente li' risponde 404.
   const dati = await ambiente.MOX_RELEASES.head(chiave).catch(() => undefined);
-  if (!dati) {
-    annulla.abort();
-    scartaCopia(copiaInArrivo);
-    return dati === null ? risposta({ errore: "installer non trovato" }, 404) : null;
-  }
-  let timer;
-  const scaduta = new Promise((risolvi) => {
-    timer = setTimeout(risolvi, ATTESA_CACHE_INSTALLER_MS, null);
+  if (dati === null) return risposta({ errore: "installer non trovato" }, 404);
+  const { "content-type": _, ...senzaCorpo } = INTESTAZIONI;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      ...senzaCorpo,
+      location: `${origine}/${chiave}`,
+      "cache-control": "no-store",
+      "x-mox-installer": "cache",
+    },
   });
-  const copia = await Promise.race([copiaInArrivo, scaduta]);
-  clearTimeout(timer);
-  if (copia && copia.status === 200 && copia.body &&
-      copia.headers.get("content-length") === String(dati.size) &&
-      copia.headers.get("etag") === dati.httpEtag) {
-    return rispostaInstaller(copia.body, dati.size, "cache");
-  }
-  annulla.abort();
-  scartaCopia(copiaInArrivo);
-  return null;
 }
 
 async function scaricaReleaseMox(ambiente, chiave) {
   if (!ambiente.MOX_RELEASES) {
     return risposta({ errore: "download release non configurato" }, 503);
   }
-  const dallaCache = await installerDallaCache(ambiente, chiave);
-  if (dallaCache) return dallaCache;
+  const rimando = await rimandoAllaCache(ambiente, chiave);
+  if (rimando) return rimando;
   const oggetto = await ambiente.MOX_RELEASES.get(chiave);
   if (!oggetto) return risposta({ errore: "installer non trovato" }, 404);
-  return rispostaInstaller(oggetto.body, oggetto.size, "bucket");
+  return rispostaInstaller(oggetto.body, oggetto.size);
 }
 
 // I compiti della manutenzione notturna, ognuno col suo nome. Brew segue la

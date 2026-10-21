@@ -21,8 +21,25 @@ HIT a 34 MB/s da ZRH e 48–54 MB/s da MUC. **La diagnosi di prima era
 sbagliata:** a ZRH non è lenta la lettura da R2 ma ogni corpo grande che passa
 dal Worker (prima dal binding, ora dalla cache). Non peggiora niente rispetto
 a prima, ma A145 resta aperto. Scelta di Dennis: il Worker risponde con un
-reindirizzamento al dominio in cache invece di inoltrare i byte (lavoro su
-`claude/a145-reindirizzamento-2026-10-21`).
+reindirizzamento al dominio in cache invece di inoltrare i byte.
+
+**Codice (branch `claude/a145-reindirizzamento-2026-10-21`, non deployato):**
+per gli installer con lo SHA-256 nella chiave il Worker legge solo i metadati
+(`head`) e risponde `302` verso `MOX_RELEASES_CACHE_ORIGIN/<chiave>` con
+`cache-control: no-store` e `x-mox-installer: cache`; oggetto assente = 404;
+metadati in errore = rimanda lo stesso (il dominio legge lo stesso bucket).
+`/mox/download.exe` e il Worker senza la variabile servono i byte dal binding
+come prima. Il client (`aggiornamenti.scarica`, `urllib.request.urlopen`
+senza opener proprio) segue il rimando e controlla dimensione, SHA-256 e
+firma. Il Worker non confronta più dimensione ed ETag: le chiavi non si
+riscrivono mai, ma se un installer venisse ricaricato nella stessa chiave va
+fatto il purge dell'URL su `releases.moxtracker.app` (le copie riempite dal
+Worker `6f3d3fed` hanno un anno di freschezza). Restano dentro il Worker, e
+quindi lenti da ZRH, `/mox/download.exe` (manifesti fino alla 2.11.2) e i
+payload dei dati Draft. Provato: `npm run prove` 634/634; `urllib` dietro un 302 locale verso
+il dominio vero, 3 download completi con SHA-256 giusto, HIT a 30–45 MB/s da
+ZRH e 48 MB/s da MUC. `wrangler dev --remote` non è usabile per questa prova:
+il suo proxy locale resta appeso sul 302.
 
 ## Infrastruttura — 21/10/2026: A145, installer dalla cache
 
