@@ -1,5 +1,37 @@
 # Stato corrente — sito Mox
 
+## Worker — 21/10/2026: Canary MOX Beta 2.11.10
+
+Solo il manifesto Canary: nessun deploy di codice, nessuna migrazione D1,
+nessun deploy Pages, `moxtracker/main` invariato (`86b4423`). Autorizzato da
+Dennis in chat il 21/10/2026 («Sì, pubblica la Canary 2.11.10»), con il Draft
+vero rimandato a dopo la pubblicazione per sua scelta.
+
+**R2:** installer 2.11.10 in
+`installer/2.11.10/7ee602069ad7b0c94af2edd9ad6b162089ab3326953b1192a4b70bb943388a97/Mox-Installer-win-x64.exe`
+(67.335.053 byte), riscaricato identico dalla route pubblica dal Canary reale.
+
+**Worker:** secret `MOX_RELEASE_MANIFEST_CANARY` = manifesto 2.11.10
+`e3c516c8…` (1.052 byte, redirezione di bash) → versione
+**`d01d1afd-1e98-400b-9726-481722049de8`** (secret change sopra
+`c7b3b068`). Stable `MOX_RELEASE_MANIFEST` invariato (2.11.8), nessuna
+GitHub Release, il sito non nomina la Canary.
+
+**Verifica:** `aggiornamenti.controlla` Canary da 2.11.9 → 2.11.10 con firma
+valida, da 2.11.10 niente; Stable da 2.11.8 niente, da 2.11.3 → 2.11.8.
+Canary reale 2.11.9 → 2.11.10 **16/16** su base 2.11.9 dai byte pubblicati.
+Dettagli nel [handoff Canary 2.11.10](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.10-2026-10-21.md) di mox-core.
+
+**Rollback:** `npx wrangler rollback c7b3b068-33a9-4bde-be71-200a941bd590`
+riporta il manifesto Canary 2.11.9 (`33041aaf…`, byte salvati fuori Git) con
+lo stesso codice; in alternativa `secret put` di quei byte. Chi ha già la
+2.11.10 resta su quella.
+
+**Da osservare:** il download degli installer dal centro Cloudflare di Zurigo
+(ZRH) è stato misurato a 60–250 KB/s contro 11–38 MB/s da Monaco (MUC), stesso
+oggetto e stesso Worker; bucket `moxtracker-releases` in EEUR. Nessun
+incidente dichiarato da Cloudflare. Registrato come A145 in mox-core.
+
 ## Worker — 20/10/2026: qualification Research rinnovata
 
 `moxtracker/main` = `39be1770237adebec84fdc78afc307c821a648d1`, merge della PR
