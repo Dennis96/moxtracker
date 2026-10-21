@@ -1,6 +1,9 @@
 # Review Codex A145 — reindirizzamento degli installer
 
-**Esito: FAIL — giro 1 di massimo 2, 21/10/2026.** Un MAJOR aperto.
+**Esito corrente: PASS — giro 2 di 2, 21/10/2026.** MAJOR-1 e MINOR-1 chiusi;
+vedere la sezione «Giro 2» per verifiche e limiti. Nessun nuovo finding.
+
+**Esito del giro 1: FAIL, 21/10/2026.** Un MAJOR allora aperto.
 Il codice del rimando e il client verificabile sono corretti; manca la policy
 di durata della cache per gli installer che saranno caricati dopo il cambio.
 
@@ -235,3 +238,122 @@ Prossimo passo: Claude corregge MAJOR-1 e MINOR-1 sullo stesso branch e
 fornisce l'evidenza disponibile sui client più vecchi; Codex verifica il
 delta al giro 2. Nessuna correzione applicata dal reviewer perché il punto
 principale riguarda la policy di rete e un'operazione di infrastruttura.
+
+## Giro 2
+
+**PASS — giro 2 di 2, 21/10/2026.** Nessun BLOCKER, MAJOR o MINOR aperto
+nel delta. SHA rivisto: **`33e01608fe6fe9a1445e292b9d74e1bd3444c475`**;
+confronto con il report del giro 1 a
+`58f268d0ed7ad46de3e9060661090feb9316ade6`. Il delta modifica soltanto
+`STATO-CORRENTE-SITO.md` (+20/-4); codice, prove e dipendenze sono invariati.
+
+### Finding numerati e chiusura
+
+1. **MAJOR-1 — CHIUSO.** La Cache Rule registrata nello STATO, la cui
+   creazione è confermata dal mandato di Dennis («Sì, aggiungila»), risolve
+   il difetto di policy del primo giro. Configurazione esaminata:
+   ruleset di fase `http_request_cache_settings`
+   `a00dc9ed93f54cbea3678cb5ea404d15`, regola
+   `e0813aabc92c40d1b7986109c917c07c`, `cache: true`,
+   `edge_ttl.mode: override_origin`, `edge_ttl.default: 31536000`,
+   `status_code_ttl` per 300–599 con valore `-1`.
+   Il 200 usa quindi un anno di freschezza indipendentemente dal TTL
+   dell'origine; l'eccezione per stato esclude i rimandi, i 404 e i 5xx.
+   La documentazione Cloudflare conferma che `-1` significa `no-store`,
+   distinto da `0` (`no-cache`, con revalidazione). L'espulsione anticipata
+   rimane possibile, come ora dichiarato nel registro.
+
+2. **MINOR-1 — CHIUSO.** Il blocco della PR #48 è ora esplicitamente
+   descritto come stato prima del deploy `6f3d3fed`, con riferimento al
+   deploy e alle misure nella prima sezione. Rimossa la frase che rimandava
+   ancora a un futuro deploy della #48. Il nuovo rimando della #49 resta
+   correttamente indicato come non deployato.
+
+**Nuovi finding:** nessuno.
+
+### Perimetro, rollback e preriscaldamento
+
+Espressione esaminata:
+
+```text
+(http.host eq "releases.moxtracker.app" and starts_with(http.request.uri.path, "/installer/"))
+```
+
+La congiunzione limita la regola a quell'host e a quel prefisso: non include
+`api.moxtracker.app`, l'apice `moxtracker.app`, `/mox/download.exe`, `/altro/`
+o `/installer-altro/`. Il prefisso comprende tutto il namespace
+`/installer/`, anche un percorso malformato; non sostituisce la regex del
+Worker e non la modifica. Le risposte di errore in quel namespace non sono
+memorizzate per effetto dell'eccezione sugli stati.
+
+Il rollback scritto, **cancellare soltanto quella regola in Cache Rules**,
+è corretto: rimuove la policy aggiunta senza toccare dominio, Smart Tiered
+Cache o Worker. L'operazione API equivalente è la cancellazione della
+singola regola nel ruleset indicato, non la cancellazione dell'intero
+ruleset, che in futuro potrebbe contenere altre regole. Poiché prima
+il ruleset di fase era assente, potrebbe restare un ruleset vuoto:
+equivalenza di comportamento, non identità strutturale. Il rollback non
+implica il purge delle copie già presenti. Non è stato eseguito.
+
+Il testo distingue il caso precedente senza regola (nuove copie a TTL
+predefinito) dalla modifica ormai applicata: copie vecchie con un anno
+imposto da `6f3d3fed`, nuovi riempimenti con un anno imposto dalla regola.
+«Le nuove no» si riferisce al caso senza regola descritto all'inizio del
+paragrafo; il successivo «Fatto in produzione» ne esplicita la correzione.
+Il preriscaldamento resta richiesto dopo il deploy del rimando: GET completo
+dell'URL esatto dopo upload e prima del manifesto, con dimensione e SHA-256
+verificati. Non è stato sostituito da HEAD né dato per una garanzia contro
+l'espulsione della copia.
+
+Fonti ufficiali ricontrollate il 21/10/2026:
+[impostazioni Cache Rules, TTL edge e per stato](https://developers.cloudflare.com/cache/how-to/cache-rules/settings/),
+[operazioni sui ruleset e sulle singole regole](https://developers.cloudflare.com/ruleset-engine/rulesets-api/endpoints/).
+
+### Prove del delta e limiti
+
+```text
+git diff 58f268d 33e0160
+solo STATO-CORRENTE-SITO.md: +20/-4
+
+git diff --check 58f268d 33e0160
+exit 0
+
+git diff --exit-code 58f268d 33e0160 -- src prove wrangler.toml package.json package-lock.json
+nessun output; exit 0
+
+Una sola GET curl, senza retry o redirect automatici:
+/installer/0.0.0/<64 zeri>/Mox-Installer-win-x64.exe
+HTTP/1.1 404 Not Found
+cf-cache-status: BYPASS
+centro: ZRH; richieste: 1; tempo: 0.432637 s; exit curl 0
+```
+
+La GET è stata eseguita il 21/10/2026 alle 20:13 CEST. Conferma
+indipendentemente il comportamento pubblico della chiave mancante.
+Le due verifiche 404 da ZRH/MUC e il download 2.11.10 HIT da ZRH a 40 MB/s
+con SHA corretto restano misure di Claude, registrate nel commit esaminato:
+non sono presentate come ripetute da Codex. Non ho scaricato un secondo
+installer in questo giro; resta la prova indipendente del giro 1 a 35,05
+MB/s con dimensione e SHA-256 corretti.
+
+**Limite della rilettura API:** non è stato possibile effettuare il GET
+autenticato dell'entrypoint: nessun token API era disponibile nell'ambiente
+del processo. Nessun file di credenziali aperto, nessun login o modifica di
+secret/variabili. ID, abilitazione della regola e parametri live sono quindi
+quelli confermati dal mandato e documentati da Claude, confrontati con la
+semantica ufficiale; non sono stati ricertificati da un GET API di Codex.
+La risposta pubblica 404/BYPASS non prova da sola un TTL annuale dei 200.
+
+Nessuna nuova esecuzione della suite o del bundle: il delta è soltanto
+documentale e non cambia il codice già provato al giro 1 (634/634, tre
+prove A145 verdi, dry-run riuscito). Rimane dichiarato il limite storico
+sui binari 2.9.5–2.9.11; questa delta review non aggiunge una verifica di
+quegli artefatti e non la dà per completata.
+
+Consegna: aggiornato soltanto questo report; staging e commit separati,
+push sullo stesso branch della PR e commento della delta review. Root
+parent ricontrollata senza nuove voci; riutilizzata la stessa worktree
+dedicata, pulita prima dell'aggiornamento. Nessun nuovo artefatto locale
+loose, nessun dato privato nel report. Restano i limiti di housekeeping
+preesistenti del giro 1; nessun pruning autorizzato. Nessuna operazione
+vietata o modifica a codice, infrastruttura o dati di produzione.
