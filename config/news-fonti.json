@@ -1,46 +1,46 @@
 {
   "schema_version": 1,
-  "verified_at": "2026-10-15T19:03:05.918Z",
+  "verified_at": "2026-10-21T19:35:32.174Z",
   "public_key_sha256": "9f50132381ab2f660a920efd4d95087802e32d6cc14e80f0f3111352b6e80a6a",
   "channels": {
     "stable": {
       "source": "https://api.moxtracker.app/mox/release?piattaforma=win-x64&canale=stable&corrente=0",
-      "fetched_at": "2026-10-15T19:03:05.918Z",
-      "sha256": "f05bf7f4e6c6f215fd1f8054ed234386f58379d95987ff22ff51b57baa20b3d0",
-      "data_sha256": "c1d4245edcfd59c905db8172b3d0d7e9548b23fbf7a4d74b7216cc1dcf91ea05",
+      "fetched_at": "2026-10-21T19:35:32.174Z",
+      "sha256": "efe8b02ebd57f2f845d673f9556b355c655a99a9c4fe6b4993521dace94dcb49",
+      "data_sha256": "71563dafeb493c92561576b23066950dc051453dda8472fe81e52b8fc494c4f6",
       "data": {
         "disponibile": true,
         "canale": "stable",
-        "dimensione": 67247524,
-        "firma": "tBjctsZX1LWwA62KoUMjM6lsIkWJk/PQaWpMM9yEn/MstsII1Gs0xIYc7tX0pkPyNNU/GXEJuHSUJw5jcLHPpZMw2p6CiUc8b6TtngrimlVh38E+02ymbLYV2jrvc1thaNVe80CmLDa8SV6HiR+Gd/ZMLr9uCX06mtX+wxtLWhz39xBVmGFuWna4bC7W8MfnBjnBFn2ZeJlBP+PlMjhYUwfJiFRqkPiIDKCCuKNXpfrMXy5ATglEdcWDxSIqsJrr1T8XoM1c1XxGaCP1QOIhINivTgCaKifZO2nh80lBIK3ULtgWkeUY9i9bC6Lo+rbJzKDIUPVQNRTibxyWYFXaf8ZBIDNr3fukUJCpVR3C4lAq7ud8pYINE3XnNfGlDI1mlsxKI6kIVfbb3TT4COwhiYMfsdBOmPYG0Lvl8csrhggVb2tDUu0D4y5zBaSvqeZG+//Vi4H+ZRpWr6OCfjs9kyKck+UR6SgvSRFxjJ8ivv/pYgfm0rneDTsH3+BXluTR",
+        "dimensione": 67335053,
+        "firma": "pABZX9lTah9GHBkUeFxTd7wd6hB8ojXq8a+X5bAkebMiL1SI0YXbV1+B9oEbeXPW/nuYR5AcxlfBz8L6he50C4GLg/7Dq8JmvOJXt2sqiU1dRlANO27iJ0ljYOJjwiffQzuruANkOGvrkYXURBv1emBIYOyrRKYRbVGIDmJSz1URkaEOOPQgh0P1z/ujqiMv1uXUhUM57JuNNQTxbZBD5R5zeZlZ6rljfEiyvnB0F6aWN8SX16Lyhc6PC4UwuKsz+VvGKLLpUm9VACpBB4EhxAn3yH3dGCpxQ5mFdq9WBLR5+TymSCUF4+aCIdWD3KkU1plFqLhYJZG70AJ/SXcyUHwp3QAp8Z2RK+SVK1NSpl7kfEUM1++vaERzdutckhINHRTMiFawPfCpm+TJLEHo/Emr33qYIdNflrEWib4nnfyHFks4t3Sm/J6KsZQT+hwy/KWq/ItSOQIGr4Kru5SPJQIBN3nD/ckrvthpxQuvirfvM5A8VGtZ9u+sBedR8Aip",
         "minima": "2 beta 2.9.5",
-        "note": "Draft: regola sul secondo colore in prova; informativa sul contesto dei consigli; Contatore invariato dal vivo.",
+        "note": "Il Draft ti spiega i consigli: perché una carta, le alternative quasi alla pari e le scelte del mazzo. Terre del mazzo più precise.",
         "piattaforma": "win-x64",
-        "sha256": "84f72416abaecbddc05b9f33e160177529ede8dc295e54772847a4d666c8ca3c",
+        "sha256": "7ee602069ad7b0c94af2edd9ad6b162089ab3326953b1192a4b70bb943388a97",
         "tipo": "mox-installer-v1",
-        "url": "https://api.moxtracker.app/mox/installer/2.11.8/84f72416abaecbddc05b9f33e160177529ede8dc295e54772847a4d666c8ca3c/Mox-Installer-win-x64.exe",
-        "versione": "2 beta 2.11.8"
+        "url": "https://api.moxtracker.app/mox/installer/2.11.10/7ee602069ad7b0c94af2edd9ad6b162089ab3326953b1192a4b70bb943388a97/Mox-Installer-win-x64.exe",
+        "versione": "2 beta 2.11.10"
       },
       "signature_verified": true,
       "requested_channel": "stable"
     },
     "canary": {
       "source": "https://api.moxtracker.app/mox/release?piattaforma=win-x64&canale=canary&corrente=0",
-      "fetched_at": "2026-10-15T19:03:05.918Z",
-      "sha256": "a5fd64d76d8f19312c0afbd861d40d7fee8dac8ff1df959bb78a94eaf0d275cf",
-      "data_sha256": "209bcd6c7d03a0424d9bb86cda8ab5bcfdeca5815f6c65e10640453bd555bcba",
+      "fetched_at": "2026-10-21T19:35:32.174Z",
+      "sha256": "efe8b02ebd57f2f845d673f9556b355c655a99a9c4fe6b4993521dace94dcb49",
+      "data_sha256": "71563dafeb493c92561576b23066950dc051453dda8472fe81e52b8fc494c4f6",
       "data": {
         "disponibile": true,
         "canale": "stable",
-        "dimensione": 67283028,
-        "firma": "OLsJtAEVemDea4H7kqKwFWXHJrSFEOfGm5fHBkShM5tjDyFRXqpNOVfUs1GRtgstSh/AARdx8pvXOq9GW8gR5U2G0EmRFMzOThT7nGZrr4j0xzpCu3yeElAsf6H5vOeOhDlzOMI+2KUbeDpJx1uAnliudLFfZ+Sa8nv0opaskmNJNYE0p1XNHDIg37Eo2tn85OJc+EDoichXASJ4YGQLoThTTPO8lMQTvVXMk6T1rSb4VCyU+84m59rjEZ/DAxG6MyHLSovNEQnyNipYBeEYTqMbMa6vZU+KOk/JOpY+VYVpk6a1UhrQmCpmn3BuamnZMuJBuVFZuokB+OKc3N5LhWyoIMsz7m42dvGMzEDRh1d5GGGFs7xMmZ7G0hBrlxX0BJd7nSpXzKoH31J+7sR5gc0RjShdTzGWcL2NI2gd9ai/9VGnSOdOQ6PWqKQzLAaH4JjYRlT0mogk5b+oewfcP5JaL/4ukhRdUILT47u11KV2G8f8laA86BNIuweSS/NZ",
+        "dimensione": 67335053,
+        "firma": "pABZX9lTah9GHBkUeFxTd7wd6hB8ojXq8a+X5bAkebMiL1SI0YXbV1+B9oEbeXPW/nuYR5AcxlfBz8L6he50C4GLg/7Dq8JmvOJXt2sqiU1dRlANO27iJ0ljYOJjwiffQzuruANkOGvrkYXURBv1emBIYOyrRKYRbVGIDmJSz1URkaEOOPQgh0P1z/ujqiMv1uXUhUM57JuNNQTxbZBD5R5zeZlZ6rljfEiyvnB0F6aWN8SX16Lyhc6PC4UwuKsz+VvGKLLpUm9VACpBB4EhxAn3yH3dGCpxQ5mFdq9WBLR5+TymSCUF4+aCIdWD3KkU1plFqLhYJZG70AJ/SXcyUHwp3QAp8Z2RK+SVK1NSpl7kfEUM1++vaERzdutckhINHRTMiFawPfCpm+TJLEHo/Emr33qYIdNflrEWib4nnfyHFks4t3Sm/J6KsZQT+hwy/KWq/ItSOQIGr4Kru5SPJQIBN3nD/ckrvthpxQuvirfvM5A8VGtZ9u+sBedR8Aip",
         "minima": "2 beta 2.9.5",
-        "note": "Statistiche Draft dal server di MOX (API centralizzata e 17Lands Public Data Sets)",
+        "note": "Il Draft ti spiega i consigli: perché una carta, le alternative quasi alla pari e le scelte del mazzo. Terre del mazzo più precise.",
         "piattaforma": "win-x64",
-        "sha256": "39f84dc63aa0da8dcec5a74702c362d4d8ba53900207e045a105abda7b5ad02a",
+        "sha256": "7ee602069ad7b0c94af2edd9ad6b162089ab3326953b1192a4b70bb943388a97",
         "tipo": "mox-installer-v1",
-        "url": "https://api.moxtracker.app/mox/installer/2.11.9/39f84dc63aa0da8dcec5a74702c362d4d8ba53900207e045a105abda7b5ad02a/Mox-Installer-win-x64.exe",
-        "versione": "2 beta 2.11.9"
+        "url": "https://api.moxtracker.app/mox/installer/2.11.10/7ee602069ad7b0c94af2edd9ad6b162089ab3326953b1192a4b70bb943388a97/Mox-Installer-win-x64.exe",
+        "versione": "2 beta 2.11.10"
       },
       "signature_verified": true,
       "requested_channel": "canary"
@@ -48,7 +48,7 @@
   },
   "public_data": {
     "source": "https://api.moxtracker.app/mox/draft-data/v1/public/manifest.json",
-    "fetched_at": "2026-10-15T19:03:05.918Z",
+    "fetched_at": "2026-10-21T19:35:32.174Z",
     "sha256": "56b39389e8af106567bcf6d2d0b649732d390c683aa88ad0f49fc17a99dc3fec",
     "data_sha256": "56b39389e8af106567bcf6d2d0b649732d390c683aa88ad0f49fc17a99dc3fec",
     "data": {
