@@ -1,5 +1,25 @@
 # Stato corrente — sito Mox
 
+## Worker — 21/10/2026: A145 chiuso, installer con rimando al dominio in cache
+
+`moxtracker/main` = `718c86d`, merge della PR
+[#49](https://github.com/Dennis96/moxtracker/pull/49) (review Codex PASS al
+giro 2). Merge e deploy autorizzati da Dennis in chat il 21/10/2026 («Sì,
+fondi», «Sì, deploy»). Deploy da `main`: versione Worker
+**`0d31a277-22d3-45dd-9292-9a88645ced22`**; per gli installer con lo SHA-256
+nella chiave il Worker risponde `302` verso `releases.moxtracker.app`.
+Manifesti invariati (Stable 2.11.8 `84f72416…`, Canary 2.11.10 `7ee60206…`).
+Nessuna migrazione D1, nessun secret, nessun deploy Pages; Cache Rule e
+dominio come registrati sotto.
+**Rollback:** `npx wrangler rollback 6f3d3fed-75b8-4adb-b4fd-9cd9f3642bee`
+(il Worker torna a passare i byte, lento da ZRH come prima).
+
+**Misure dopo il deploy:** 6 download completi via `api.moxtracker.app` con
+`curl -L`, un rimando ciascuno, SHA-256 giusto: 14–36 MB/s entrando da ZRH,
+36–40 MB/s da MUC, sempre HIT. Con `urllib` come il client: 33–48 MB/s, SHA-256
+giusto. Chiave mancante: 404. A145 chiuso in mox-core; preriscaldamento e purge
+nella procedura canonica di release.
+
 ## Worker — 21/10/2026: A145, installer dalla cache (deploy, non risolve ZRH)
 
 `moxtracker/main` = `88d7fed`, merge della PR
