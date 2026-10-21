@@ -1,5 +1,41 @@
 # Stato corrente — sito Mox
 
+## Worker e GitHub — 21/10/2026: Stable MOX Beta 2.11.10
+
+Promozione a Stable degli **stessi byte** della Canary 2.11.10, autorizzata da
+Dennis in chat il 21/10/2026 dopo il suo Draft vero sulla Canary («Autorizzo la
+promozione a Stable della 2.11.10 con gli stessi file della Canary»; note per i
+giocatori approvate: «Approvo le note»). Draft del tester prima della Stable
+rinunciato da Dennis. Nessuna build nuova, nessuna rifirma, nessun deploy di
+codice, nessuna scrittura R2 o D1, nessun deploy Pages.
+
+**Worker:** secret `MOX_RELEASE_MANIFEST` = manifesto 2.11.10 `e3c516c8…`
+(1.052 byte, gli stessi byte della Canary, redirezione di bash) → versione
+**`7752c4b4-80cc-4091-a783-ad41cab02965`** (secret change sopra `0d31a277`).
+Installer R2 già presente, non ricaricato.
+
+**GitHub:** release [`mox-v2-beta2.11.10`](https://github.com/Dennis96/moxtracker/releases/tag/mox-v2-beta2.11.10)
+Latest, non prerelease, asset `MOX-2.11.10.zip` (110.356.856 byte,
+`2baa89f8…a60a`), corpo bilingue con le note per i giocatori e il commit
+sorgente `de882f61c7e9153b8163cf1cae3da17c4f601cc5`.
+
+**Verifica:** `/releases/latest` = 2.11.10; ZIP riscaricato con SHA identico;
+installer riscaricato dalla route pubblica (rimando a `releases.moxtracker.app`)
+con SHA identico; `aggiornamenti.controlla` Stable da 2.11.8 e da 2.11.3 →
+2.11.10 con firma valida, da 2.11.10 niente; Canary da 2.11.9 → 2.11.10;
+`moxtracker.app` 200.
+
+**News:** voce 2.11.10 IT/EN in `config/news-note-utente.json` e ricevuta in
+`config/news-stable-receipts.json`. Compaiono sul sito solo con un deploy Pages,
+che richiede un'autorizzazione separata.
+
+**Rollback:** `npx wrangler rollback 0d31a277-22d3-45dd-9292-9a88645ced22`
+riporta il manifesto Stable 2.11.8 (`6e0de52a…`, byte salvati fuori Git) con
+lo stesso codice e la Canary 2.11.10; in alternativa `secret put` di quei
+byte. La GitHub Release resta pubblicata: Latest e Stable divergerebbero, e il
+resolver del sito blocca il download con un avviso. Chi ha già la 2.11.10 resta
+su quella.
+
 ## Worker — 21/10/2026: A145 chiuso, installer con rimando al dominio in cache
 
 `moxtracker/main` = `718c86d`, merge della PR

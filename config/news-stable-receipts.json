@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "version": "2.11.10",
+    "source_commit": "de882f61c7e9153b8163cf1cae3da17c4f601cc5",
+    "verified_at": "2026-10-21T18:36:16Z",
+    "evidence": "mox-core passaggi/release/handoff/HANDOFF-STABLE-2.11.10-2026-10-21.md"
+  }
+]
