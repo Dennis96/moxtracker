@@ -1,5 +1,34 @@
 # Stato corrente — sito Mox
 
+## Pages — 21/10/2026: News della 2.11.10 in produzione
+
+Pubblicazione autorizzata da Dennis in chat il 21/10/2026 («procedi», dopo la
+Stable 2.11.10). Snapshot delle News rigenerato con `strumenti/news/aggiorna.mjs`
+e `fonti.mjs` (28 release, 2.11.10 Latest con provenienza `stable_receipt`,
+firme Stable e Canary valide), PR
+[#52](https://github.com/Dennis96/moxtracker/pull/52), merge **`2dd1fce`**. Il
+testo delle note è quello approvato da Dennis e rivisto da Codex nella #51.
+
+**Pages:** `npm run sito:release` da `main` `2dd1fce` pulito, prove 634/634:
+preview **`2c4096b6`** (build `1ae5d163b0adab38`, smoke 6/6, `noindex` e
+`robots.txt` di blocco), poi production **`db372cc6-2ff8-44ae-aadf-faf0804622b5`**
+(build `0cabb1f1c5e538c4`, record `.release/production-2dd1fceca321-db372cc6.json`
+«verificato», smoke 6/6, indicizzabile). Prove visive: desktop da Edge
+invisibile; telefono dall'emulazione a 375 px del browser integrato, perché Edge
+invisibile a 390 px non emula il telefono e taglia la pagina (stesso limite
+dell'08/10). A 375 px la pagina non sborda (`scrollWidth` 375).
+
+**Verifica:** `/note-versione/mox-v2-beta2-11-10` IT ed EN e l'elenco
+`/note-versione` a 200 con le note della 2.11.10; `smoke_beta.mjs --site
+https://moxtracker.app` 14/14. Nessun deploy del Worker, nessun secret, nessuna
+scrittura D1 o R2.
+
+**Rollback:** dashboard Cloudflare → Workers & Pages → moxtracker → Deployments
+→ All deployments → menu del deployment
+**`87e32483-11e6-4fd0-943d-f44c8b7f1921`** → «Rollback to this deployment»
+(Macro A del 20/10, News fino alla 2.11.8), solo con autorizzazione di produzione.
+Wrangler non espone un comando `pages deployment rollback`.
+
 ## Worker e GitHub — 21/10/2026: Stable MOX Beta 2.11.10
 
 Promozione a Stable degli **stessi byte** della Canary 2.11.10, autorizzata da
