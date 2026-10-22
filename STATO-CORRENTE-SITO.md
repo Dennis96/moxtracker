@@ -4,7 +4,8 @@ Questo file è la **sola fonte** dei dettagli di produzione (Worker, Pages,
 secret, manifesti pubblicati, punti di ritorno); `mox-core/STATUS.md` scrive lo
 stato in una riga e rimanda qui. Durante un giro di deploy o di release il
 riferimento corrente sta nella PR «registro» aperta del giro
-([LEGGIMI.md](LEGGIMI.md)).
+([LEGGIMI.md](LEGGIMI.md)), che scrive questa tabella e le sezioni dei suoi
+deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
 
 **Adesso in produzione (verificato il 21/10/2026):**
 
