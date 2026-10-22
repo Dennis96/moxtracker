@@ -1,5 +1,23 @@
 # Stato corrente — sito Mox
 
+Questo file è la **sola fonte** dei dettagli di produzione (Worker, Pages,
+secret, manifesti pubblicati, punti di ritorno); `mox-core/STATUS.md` scrive lo
+stato in una riga e rimanda qui. Durante un giro di deploy o di release il
+riferimento corrente sta nella PR «registro» aperta del giro
+([LEGGIMI.md](LEGGIMI.md)), che scrive questa tabella e le sezioni dei suoi
+deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
+
+**Adesso in produzione (verificato il 21/10/2026):**
+
+| Cosa | Versione | Punto di ritorno |
+|---|---|---|
+| Client Stable e Canary | MOX Beta 2.11.10, manifesto `e3c516c8…` | Stable 2.11.8 (`npx wrangler rollback 0d31a277-22d3-45dd-9292-9a88645ced22`) |
+| Worker | `7752c4b4-80cc-4091-a783-ad41cab02965` | `0d31a277-22d3-45dd-9292-9a88645ced22` |
+| Pages | `db372cc6-2ff8-44ae-aadf-faf0804622b5` | `87e32483-11e6-4fd0-943d-f44c8b7f1921` (dalla dashboard) |
+| Qualification Research | `q-produzione-2026-10-20`, valida fino al 15/12/2026 | — |
+
+I dettagli e le verifiche di ciascuna voce sono nelle sezioni qui sotto.
+
 ## Pages — 21/10/2026: News della 2.11.10 in produzione
 
 Pubblicazione autorizzata da Dennis in chat il 21/10/2026 («procedi», dopo la

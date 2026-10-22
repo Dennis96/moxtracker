@@ -10,6 +10,11 @@ per Claude Code.
   operazioni distruttive (force push o push diretto su un branch protetto,
   cancellazioni remote non verificate). Dal 20/09/2026 nessun hook chiede
   conferma per push, deploy o scritture remote: vale il mandato.
-- Il gate `~/.claude/hooks/code-review-gate.py` nega un `git commit` che
-  contiene file non `.md` senza lo stamp di un `/code-review` del diff staged.
+- Il gate `~/.claude/hooks/code-review-gate.py` (dal 22/10/2026) non controlla
+  i commit: blocca il merge di una PR che contiene codice quando manca lo
+  stamp di un `/code-review` della sua ultima versione; i soli `.md` e `.txt`
+  sono documenti. Lo stamp si registra con `code-review-gate.py stamp-pr
+  <numero> Dennis96/moxtracker`; la regola completa (un solo `/code-review`
+  per PR, livello proporzionato al rischio) è in
+  [mox-core, AGENTS.md — il ciclo di un lavoro](https://github.com/Dennis96/mox-core/blob/main/AGENTS.md#il-ciclo-di-un-lavoro).
 - Nel terminale dell'utente `npm` si chiama `npm.cmd`.
