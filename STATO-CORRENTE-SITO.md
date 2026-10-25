@@ -31,6 +31,23 @@ ognuno con l'autorizzazione di Dennis: prima la pubblicazione su `mox-meta`
 dello stesso `standard.json`, poi il deploy del Worker. Pages non cambia: la
 build è identica a quella in produzione.
 
+**`mox-meta`, 25/10/2026: pubblicato.** Autorizzato da Dennis in chat
+(«Autorizzo la pubblicazione del catalogo su mox-meta con
+tools/publish_from_mox_core.py da main c4cb227»). `tools/publish_from_mox_core.py`
+da `meta/` di mox-core `main` `c4cb227f7950a1c04cd6b9f8bc03d63a48e68f24`,
+`generated-at` 2026-10-25T22:40:43Z, `--check` OK; cambia solo
+`meta/standard.json`. PR [Dennis96/mox-meta#3](https://github.com/Dennis96/mox-meta/pull/3),
+merge **`f348430bcf8bd30afffe480ae1f513e48484a90c`**. Verifica:
+`raw.githubusercontent.com/Dennis96/mox-meta/main` serve `indice.json`
+(standard 37 liste, `aggiornato` 2026-10-25) e `meta/standard.json` con
+sha256 `01af3c01…158461`, identico al file di mox-core. Ai programmi
+installati non arriva finché il Consigliere resta spento.
+**Rollback:** in `mox-meta`, su un branch nuovo, `git revert -m 1
+f348430bcf8bd30afffe480ae1f513e48484a90c` e una PR; punto di ritorno
+`7057c8d`.
+
+**Worker:** da fare, con la sua autorizzazione.
+
 **Nota per i controlli dopo i deploy:** `/meta?formato=standard` (minuscolo)
 risponde 200 con 0 partite; i dati veri si vedono con `formato=Standard`.
 
