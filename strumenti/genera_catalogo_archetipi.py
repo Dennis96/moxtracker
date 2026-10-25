@@ -47,6 +47,14 @@ NOMI_PUBBLICI = {
     "thor-capstone": "Thor Capstone",
     "four-color-reanimator": "Four-Color Reanimator",
     "five-color-dragonstorm": "Five-Color Dragonstorm",
+    # Dopo FRA (25/10/2026): liste Wizards e Izzet Prowess costruita per Mox.
+    "jund-sacrifice": "Jund Sacrifice",
+    "orzhov-lifegain": "Orzhov Life Gain",
+    "planeswalker-control": "Planeswalker Control",
+    "cleric-lifegain": "Cleric Life Gain",
+    "lizard-aggro": "Lizard Aggro",
+    "kona-combo": "Kona Combo",
+    "izzet-prowess": "Izzet Prowess",
 }
 
 
