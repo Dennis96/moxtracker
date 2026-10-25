@@ -195,3 +195,21 @@ test("piu impronte dello stesso archetipo vengono aggregate come varianti dello 
   assert.equal(gruppi[0].varianti_rilevate, 2);
   assert.deepEqual(gruppi[0].carte_core, catalogo.liste[0].core);
 });
+
+test("il nucleo di ogni archetipo del catalogo reale basta a riconoscerlo", () => {
+  // Un mazzo vero spesso coincide con la lista di riferimento solo nel nucleo.
+  // Se due archetipi hanno quasi lo stesso nucleo si annullano a vicenda e
+  // mandano nei Brew i mazzi veri: il 25/10/2026 Eerie Aggro, archetipo a se',
+  // faceva sparire Mono White Auras, il piu' giocato del sito.
+  // Per questo il nucleo deve bastare anche quando ne manca una carta.
+  const sbagliate = [];
+  for (const lista of CATALOGO_ARCHETIPI.liste) {
+    for (const tolta of lista.core || []) {
+      const firma = Object.fromEntries((lista.core || [])
+        .filter((nome) => nome !== tolta).map((nome) => [nome, 4]));
+      const trovato = classificaFirma(firma, CATALOGO_ARCHETIPI)?.archetipo_id ?? null;
+      if (trovato !== lista.archetipo_id) sbagliate.push([lista.id, tolta, trovato]);
+    }
+  }
+  assert.deepEqual(sbagliate, []);
+});
