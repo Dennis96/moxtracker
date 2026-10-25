@@ -7,18 +7,18 @@ riferimento corrente sta nella PR «registro» aperta del giro
 ([LEGGIMI.md](LEGGIMI.md)), che scrive questa tabella e le sezioni dei suoi
 deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
 
-**Adesso in produzione (verificato il 21/10/2026):**
+**Adesso in produzione (verificato il 25/10/2026):**
 
 | Cosa | Versione | Punto di ritorno |
 |---|---|---|
 | Client Stable e Canary | MOX Beta 2.11.10, manifesto `e3c516c8…` | Stable 2.11.8 (`npx wrangler rollback 0d31a277-22d3-45dd-9292-9a88645ced22`) |
-| Worker | `7752c4b4-80cc-4091-a783-ad41cab02965` | `0d31a277-22d3-45dd-9292-9a88645ced22` |
+| Worker | `a9f2d844-ea55-4d9a-9df4-7bdb95dd5322` (catalogo archetipi dopo FRA) | `7752c4b4-80cc-4091-a783-ad41cab02965` (`npx wrangler rollback 7752c4b4-80cc-4091-a783-ad41cab02965`) |
 | Pages | `db372cc6-2ff8-44ae-aadf-faf0804622b5` | `87e32483-11e6-4fd0-943d-f44c8b7f1921` (dalla dashboard) |
 | Qualification Research | `q-produzione-2026-10-20`, valida fino al 15/12/2026 | — |
 
 I dettagli e le verifiche di ciascuna voce sono nelle sezioni qui sotto.
 
-## Catalogo archetipi dopo FRA — 25/10/2026: in `main`, non in produzione
+## Catalogo archetipi dopo FRA — 25/10/2026: in produzione (`mox-meta` e Worker)
 
 `src/catalogo-archetipi-generato.js` ha il catalogo Standard aggiornato dopo FRA
 (37 liste, `aggiornato` 25/10/2026: nove pubblicate da Wizards, Izzet Prowess
@@ -26,9 +26,8 @@ costruita per Mox, Eerie Aggro come versione di Mono White Auras), generato da
 `meta/standard.json` di mox-core
 ([Dennis96/mox-core#59](https://github.com/Dennis96/mox-core/pull/59)); PR
 [#55](https://github.com/Dennis96/moxtracker/pull/55), review Codex PASS.
-**Il Worker in produzione usa ancora il catalogo del 19/09.** Ordine obbligato,
-ognuno con l'autorizzazione di Dennis: prima la pubblicazione su `mox-meta`
-dello stesso `standard.json`, poi il deploy del Worker. Pages non cambia: la
+Ordine seguito, ognuno con l'autorizzazione di Dennis: prima la pubblicazione
+su `mox-meta` dello stesso `standard.json`, poi il deploy del Worker. Pages non cambia: la
 build è identica a quella in produzione.
 
 **`mox-meta`, 25/10/2026: pubblicato.** Autorizzato da Dennis in chat
@@ -46,7 +45,30 @@ installati non arriva finché il Consigliere resta spento.
 f348430bcf8bd30afffe480ae1f513e48484a90c` e una PR; punto di ritorno
 `7057c8d`.
 
-**Worker:** da fare, con la sua autorizzazione.
+**Worker, 25/10/2026: in produzione.** Autorizzato da Dennis in chat
+(«Autorizzo il deploy del Worker da moxtracker main 6fc9729, con la preview
+prima della produzione»). Da `main` `6fc9729` pulito: `wrangler deploy
+--dry-run` (binding invariati), poi `wrangler versions upload` → versione
+**`a9f2d844-ea55-4d9a-9df4-7bdb95dd5322`** (tag `main-6fc9729`). Il Worker non ha
+URL di anteprima, quindi la preview è stata fatta come dice la documentazione
+di Cloudflare: deploy con `a9f2d844` allo **0%** e `7752c4b4` al 100%, prove
+con l'intestazione `Cloudflare-Workers-Version-Overrides` su
+`api.moxtracker.app`. Con la versione nuova: `/meta?formato=Standard` con il
+catalogo del 25/10 (37 liste), Mono White Auras invariato a 184 partite;
+`/salute`, `/mox/external-data-policy`, `/scontri`, `/gioco-risposta`,
+`/account/me` (401) e i manifesti Stable e Canary identici byte per byte alla
+versione di prima. **Unica differenza:** le 4 partite di Azorius Control (una
+sola lista, non pubblica) passano nei Brew (da 285 a 289), perché la Champion
+Deck Planeswalker Control ha 4 delle 8 carte del suo nucleo; accettato da
+Dennis («accetto che le 4 partite di Azorius Control finiscano nei Brew»).
+Poi `wrangler versions deploy a9f2d844…@100%` alle 22:48 UTC.
+**Verifica in produzione:** `/meta` con catalogo del 25/10 (Brew 289, Mono
+White Auras 184), indirizzi principali a 200 (`/account/me` 401),
+`smoke_beta.mjs --site https://moxtracker.app` 14/14. Nessuna migrazione D1,
+nessun secret cambiato, nessun deploy Pages.
+**Rollback:** `npx wrangler rollback 7752c4b4-80cc-4091-a783-ad41cab02965`
+(torna il catalogo del 19/09; `mox-meta` resta com'è, e il sito ne è
+indipendente fino al prossimo deploy).
 
 **Nota per i controlli dopo i deploy:** `/meta?formato=standard` (minuscolo)
 risponde 200 con 0 partite; i dati veri si vedono con `formato=Standard`.
