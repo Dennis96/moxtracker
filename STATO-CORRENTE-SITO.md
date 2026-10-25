@@ -18,6 +18,22 @@ deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
 
 I dettagli e le verifiche di ciascuna voce sono nelle sezioni qui sotto.
 
+## Catalogo archetipi dopo FRA — 25/10/2026: in `main`, non in produzione
+
+`src/catalogo-archetipi-generato.js` ha il catalogo Standard aggiornato dopo FRA
+(37 liste, `aggiornato` 25/10/2026: nove pubblicate da Wizards, Izzet Prowess
+costruita per Mox, Eerie Aggro come versione di Mono White Auras), generato da
+`meta/standard.json` di mox-core
+([Dennis96/mox-core#59](https://github.com/Dennis96/mox-core/pull/59)); PR
+[#55](https://github.com/Dennis96/moxtracker/pull/55), review Codex PASS.
+**Il Worker in produzione usa ancora il catalogo del 19/09.** Ordine obbligato,
+ognuno con l'autorizzazione di Dennis: prima la pubblicazione su `mox-meta`
+dello stesso `standard.json`, poi il deploy del Worker. Pages non cambia: la
+build è identica a quella in produzione.
+
+**Nota per i controlli dopo i deploy:** `/meta?formato=standard` (minuscolo)
+risponde 200 con 0 partite; i dati veri si vedono con `formato=Standard`.
+
 ## Pages — 21/10/2026: News della 2.11.10 in produzione
 
 Pubblicazione autorizzata da Dennis in chat il 21/10/2026 («procedi», dopo la
