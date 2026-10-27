@@ -11,18 +11,21 @@ deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
 
 | Cosa | Versione | Punto di ritorno |
 |---|---|---|
-| Client Stable e Canary | MOX Beta 2.11.10, manifesto `e3c516c8…` | Stable 2.11.8 (`npx wrangler rollback 0d31a277-22d3-45dd-9292-9a88645ced22`) |
-| Worker | `a9f2d844-ea55-4d9a-9df4-7bdb95dd5322` (catalogo archetipi dopo FRA) | `7752c4b4-80cc-4091-a783-ad41cab02965` (`npx wrangler rollback 7752c4b4-80cc-4091-a783-ad41cab02965`) |
+| Client Stable | MOX Beta 2.11.10, manifesto `e3c516c8…` | Stable 2.11.8 (`npx wrangler rollback 0d31a277-22d3-45dd-9292-9a88645ced22`) |
+| Client Canary | MOX Beta 2.11.11, manifesto `2be1ce83…` (27/10) | Canary 2.11.10 (`npx wrangler rollback a9f2d844-ea55-4d9a-9df4-7bdb95dd5322`) |
+| Worker | `d922592e-e30a-4a5c-9941-217ca57b4f9e` (secret change: manifesto Canary 2.11.11) | `7752c4b4-80cc-4091-a783-ad41cab02965` (`npx wrangler rollback 7752c4b4-80cc-4091-a783-ad41cab02965`) |
 | Pages | `db372cc6-2ff8-44ae-aadf-faf0804622b5` | `87e32483-11e6-4fd0-943d-f44c8b7f1921` (dalla dashboard) |
 | Qualification Research | `q-produzione-2026-10-20`, valida fino al 15/12/2026 | — |
 
 I dettagli e le verifiche di ciascuna voce sono nelle sezioni qui sotto.
 
-## Canary 2.11.11 — 27/10/2026: in preparazione
+## Canary 2.11.11 — 27/10/2026: manifesto pubblicato sul canale Canary
 
 Autorizzata da Dennis in chat il 27/10/2026: «Pubblica la Canary 2.11.11: carica l'installer, metti il manifesto sul canale Canary, fai il Canary reale e se è verde fondi la PR #62». Client-only: Worker e Pages non cambiano codice, cambia solo il secret `MOX_RELEASE_MANIFEST_CANARY`. Release [Dennis96/mox-core#62](https://github.com/Dennis96/mox-core/pull/62); registro mox-core [Dennis96/mox-core#63](https://github.com/Dennis96/mox-core/pull/63).
 
 Punto di ritorno prima della pubblicazione: Worker `a9f2d844-ea55-4d9a-9df4-7bdb95dd5322`, manifesto Canary 2.11.10 `e3c516c8a90590e098377826e20efb0ec7ecc8c73ee5458164aed2d846d205a3` (1.052 byte, salvato in `Non pubblicare/evidenze/2026-10-27/canary-2.11.11/pre-canary/manifesto-canary-2.11.10.json`, uguale alla risposta live ricostruita il 27/10).
+
+**Pubblicazione, 27/10/2026.** Installer `installer/2.11.11/d27810517a621d93d2f34f6ed1c9447689310c0e595744ab7874527febed4d34/Mox-Installer-win-x64.exe` (71.173.736 byte) caricato su R2 `moxtracker-releases`; cache scaldata con un GET completo di `releases.moxtracker.app` (5,6 s, dimensione e SHA-256 uguali al cancello). Manifesto firmato `2be1ce835e92b09b3beb555da891e4c020f61faedf05164057d23fb4fcb860ca` (1.095 byte) su **`MOX_RELEASE_MANIFEST_CANARY`** con la redirezione di bash: Worker **`d922592e-e30a-4a5c-9941-217ca57b4f9e`** (secret change sopra `a9f2d844`). Verifica: Canary da 2.11.10 → 2.11.11 (firma valida), da 2.11.11 niente; Stable da 2.11.10 niente, da 2.11.8 → 2.11.10; la risposta live ricostruita coincide con il file firmato. **Rollback del Canary:** `npx wrangler rollback a9f2d844-ea55-4d9a-9df4-7bdb95dd5322` (rimette il manifesto Canary 2.11.10), oppure `secret put` di `MOX_RELEASE_MANIFEST_CANARY` con i byte salvati; non tocca R2 né i client già aggiornati.
 
 ## Catalogo archetipi dopo FRA — 25/10/2026: in produzione (`mox-meta` e Worker)
 
