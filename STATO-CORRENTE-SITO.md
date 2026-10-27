@@ -18,6 +18,12 @@ deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
 
 I dettagli e le verifiche di ciascuna voce sono nelle sezioni qui sotto.
 
+## Canary 2.11.11 — 27/10/2026: in preparazione
+
+Autorizzata da Dennis in chat il 27/10/2026: «Pubblica la Canary 2.11.11: carica l'installer, metti il manifesto sul canale Canary, fai il Canary reale e se è verde fondi la PR #62». Client-only: Worker e Pages non cambiano codice, cambia solo il secret `MOX_RELEASE_MANIFEST_CANARY`. Release [Dennis96/mox-core#62](https://github.com/Dennis96/mox-core/pull/62); registro mox-core [Dennis96/mox-core#63](https://github.com/Dennis96/mox-core/pull/63).
+
+Punto di ritorno prima della pubblicazione: Worker `a9f2d844-ea55-4d9a-9df4-7bdb95dd5322`, manifesto Canary 2.11.10 `e3c516c8a90590e098377826e20efb0ec7ecc8c73ee5458164aed2d846d205a3` (1.052 byte, salvato in `Non pubblicare/evidenze/2026-10-27/canary-2.11.11/pre-canary/manifesto-canary-2.11.10.json`, uguale alla risposta live ricostruita il 27/10).
+
 ## Catalogo archetipi dopo FRA — 25/10/2026: in produzione (`mox-meta` e Worker)
 
 `src/catalogo-archetipi-generato.js` ha il catalogo Standard aggiornato dopo FRA
