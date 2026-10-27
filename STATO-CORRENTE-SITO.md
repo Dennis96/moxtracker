@@ -19,13 +19,15 @@ deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
 
 I dettagli e le verifiche di ciascuna voce sono nelle sezioni qui sotto.
 
-## Canary 2.11.11 — 27/10/2026: manifesto pubblicato sul canale Canary
+## Canary 2.11.11 — 27/10/2026: pubblicata, Canary reale verde
 
 Autorizzata da Dennis in chat il 27/10/2026: «Pubblica la Canary 2.11.11: carica l'installer, metti il manifesto sul canale Canary, fai il Canary reale e se è verde fondi la PR #62». Client-only: Worker e Pages non cambiano codice, cambia solo il secret `MOX_RELEASE_MANIFEST_CANARY`. Release [Dennis96/mox-core#62](https://github.com/Dennis96/mox-core/pull/62); registro mox-core [Dennis96/mox-core#63](https://github.com/Dennis96/mox-core/pull/63).
 
 Punto di ritorno prima della pubblicazione: Worker `a9f2d844-ea55-4d9a-9df4-7bdb95dd5322`, manifesto Canary 2.11.10 `e3c516c8a90590e098377826e20efb0ec7ecc8c73ee5458164aed2d846d205a3` (1.052 byte, salvato in `Non pubblicare/evidenze/2026-10-27/canary-2.11.11/pre-canary/manifesto-canary-2.11.10.json`, uguale alla risposta live ricostruita il 27/10).
 
 **Pubblicazione, 27/10/2026.** Installer `installer/2.11.11/d27810517a621d93d2f34f6ed1c9447689310c0e595744ab7874527febed4d34/Mox-Installer-win-x64.exe` (71.173.736 byte) caricato su R2 `moxtracker-releases`; cache scaldata con un GET completo di `releases.moxtracker.app` (5,6 s, dimensione e SHA-256 uguali al cancello). Manifesto firmato `2be1ce835e92b09b3beb555da891e4c020f61faedf05164057d23fb4fcb860ca` (1.095 byte) su **`MOX_RELEASE_MANIFEST_CANARY`** con la redirezione di bash: Worker **`d922592e-e30a-4a5c-9941-217ca57b4f9e`** (secret change sopra `a9f2d844`). Verifica: Canary da 2.11.10 → 2.11.11 (firma valida), da 2.11.11 niente; Stable da 2.11.10 niente, da 2.11.8 → 2.11.10; la risposta live ricostruita coincide con il file firmato. **Rollback del Canary:** `npx wrangler rollback a9f2d844-ea55-4d9a-9df4-7bdb95dd5322` (rimette il manifesto Canary 2.11.10), oppure `secret put` di `MOX_RELEASE_MANIFEST_CANARY` con i byte salvati; non tocca R2 né i client già aggiornati.
+
+**Canary reale 2.11.10 → 2.11.11: 16/16 PASS** (27/10/2026), dalla base 2.11.10 dei byte pubblicati, route vera del Worker, dati isolati, codice updater della 2.11.10: installer riscaricato uguale alla build, avvio verificato, un backup, nessun loop, Home e Draft si avviano, uscita dal programma tester torna a Stable senza downgrade. PR della release [Dennis96/mox-core#62](https://github.com/Dennis96/mox-core/pull/62) fusa: `main` `614be0c`, albero identico al `FINAL_RELEASE_HEAD` `7cc69b1`. Build e certificazione nell'[handoff della Canary](https://github.com/Dennis96/mox-core/blob/main/passaggi/release/handoff/HANDOFF-CANARY-2.11.11-2026-10-27.md) (registro mox-core [#63](https://github.com/Dennis96/mox-core/pull/63)). Stable invariata; nessuna promozione decisa.
 
 ## Catalogo archetipi dopo FRA — 25/10/2026: in produzione (`mox-meta` e Worker)
 
