@@ -13,20 +13,25 @@ deploy; un lavoro di sviluppo aperto intanto scrive soltanto una sezione sua.
 |---|---|---|
 | Client Stable | MOX Beta 2.11.10, manifesto `e3c516c8…` | Stable 2.11.8 (`npx wrangler rollback 0d31a277-22d3-45dd-9292-9a88645ced22`) |
 | Client Canary | MOX Beta 2.11.11, manifesto `2be1ce83…` (27/10) | Canary 2.11.10 (`npx wrangler rollback a9f2d844-ea55-4d9a-9df4-7bdb95dd5322`) |
-| Worker | `5f0ea314-c5a3-44a6-b7ae-34f95236b70b` (secret change del 15/11: dati Draft `public_only`, raccolta 17Lands ferma) | `d922592e-e30a-4a5c-9941-217ca57b4f9e` (`npx wrangler rollback d922592e-e30a-4a5c-9941-217ca57b4f9e`: rimette `central_api`) |
+| Worker | `600dde52-b005-4e67-9938-c4440d97997e` (15/11, `main` `2a365f9`: pausa per Workers Free; policy `public_only`) | `5f0ea314-c5a3-44a6-b7ae-34f95236b70b` (`npx wrangler rollback 5f0ea314-c5a3-44a6-b7ae-34f95236b70b`: codice di prima, policy `public_only`); `d922592e-e30a-4a5c-9941-217ca57b4f9e` rimette anche `central_api` |
 | Pages | `db372cc6-2ff8-44ae-aadf-faf0804622b5` | `87e32483-11e6-4fd0-943d-f44c8b7f1921` (dalla dashboard) |
 | Qualification Research | `q-produzione-2026-10-20`, valida fino al 15/12/2026 | — |
 
 I dettagli e le verifiche di ciascuna voce sono nelle sezioni qui sotto.
 
-## Pausa del progetto — 15/11/2026: raccolta 17Lands ferma
+## Pausa del progetto — 15/11/2026: raccolta 17Lands ferma, Worker pronto per Workers Free
 
 Decisione di Dennis in chat il 15/11/2026: mettere in pausa il progetto e «spegnere in ordine» (prima la raccolta 17Lands, poi Research, poi la misura della CPU, infine l'annullamento di Workers Paid, che fa lui). Giro aperto: questa PR è il suo registro.
 
 **Dati Draft, 15/11/2026 08:11 UTC.** Policy salvata prima del cambio in `Non pubblicare/evidenze/2026-11-15/pausa/policy-prima.json` (`central_api`, `owner_decision`, `updated_at` 2026-10-14T17:50:19Z). `node strumenti/dati-draft/politica.mjs --canale public_only --motivo "pausa del progetto decisa dal proprietario il 15/11/2026" --esegui --conferma-produzione`: Worker da `d922592e` a **`5f0ea314-c5a3-44a6-b7ae-34f95236b70b`** (secret change). `/mox/external-data-policy` risponde `channel: public_only`, `mode: disabled`, `api_authorization: null`. Il cron `23 * * * *` resta, ma `raccoltaAutorizzata` risponde no senza `central_api`. I client nuovi usano solo i Public Data Sets; i 2.11.4–2.11.8 ricevono `disabled`. Verifica: il giro delle 08:23:32 UTC è finito `ok` con 1 ms di CPU e senza la riga «raccolta 17Lands» (quello delle 07:23 l'aveva, 24 ms).
 **Rollback:** `npx wrangler rollback d922592e-e30a-4a5c-9941-217ca57b4f9e`, oppure `politica.mjs --canale central_api --base owner_decision --riferimento "…" --modo-legacy enabled --esegui --conferma-produzione`.
 
-**CPU misurata per il piano Free (Workers Observability, 08–15/11, eventi campionati).** Il limite Free è 10 ms per invocazione ([limiti](https://developers.cloudflare.com/workers/platform/limits/)). Sopra il limite: raccolta `23 * * * *` (mediana 30 ms, massimo 352 ms; ora ferma), manutenzione `17 3 * * *` (mediana 27 ms, massimo 55 ms: retention di partite, Research, ticket e credenziali), `/meta` (mediana 22 ms, massimo 50 ms) e `/archetipo` (mediana 23 ms, massimo 38 ms). Il resto delle richieste ha mediana 1 ms. Con il codice di oggi il piano Free fermerebbe la retention notturna promessa dalla privacy: Workers Paid non va annullato finché questo non è risolto.
+**CPU misurata per il piano Free (Workers Observability, 08–15/11, eventi campionati).** Il limite Free è 10 ms per invocazione ([limiti](https://developers.cloudflare.com/workers/platform/limits/)). Sopra il limite: raccolta `23 * * * *` (mediana 30 ms, massimo 352 ms; ora ferma), manutenzione `17 3 * * *` (mediana 27 ms, massimo 55 ms: retention di partite, Research, ticket e credenziali), `/meta` (mediana 22 ms, massimo 50 ms) e `/archetipo` (mediana 23 ms, massimo 38 ms). Il resto delle richieste ha mediana 1 ms. Con il codice di quel momento il piano Free avrebbe fermato la retention notturna promessa dalla privacy: da qui la PR #59 qui sotto.
+
+**Worker per Workers Free, 15/11/2026 08:42 UTC.** Dennis in chat: «Salta, fondi e pubblica» (review Codex rinunciata da lui; `/code-review` fatto, stamp su `501e420`). PR [#59](https://github.com/Dennis96/moxtracker/pull/59) fusa: `main` **`2a365f95abb5097a1964c1568147b51d9b726ba2`**; da `main` pulito `npm run prove` 643/643 e `verifica.mjs` ok, poi `wrangler deploy --tag main-2a365f9`: versione **`600dde52-b005-4e67-9938-c4440d97997e`**, trigger soltanto `17 3 * * *`. Variabili: `RESEARCH_MODE = "drain"`, `BREW_GRUPPI = "off"`, `MOX_17LANDS_RACCOLTA` e `MOX_DRAFT_API_DISTRIBUTION` `"off"`, `META_IN_PAUSA = "on"`.
+**Smoke:** `/salute` 200, Research `enabled: false`, `modo: drain`, `lifecycle: true`; `/meta`, `/archetipo`, `/gioco-risposta`, `/scontri` 503 con il messaggio di pausa (la pagina Meta del sito lo mostra in «Meta non disponibile»); `/mox/external-data-policy` `public_only`/`disabled`; `public/manifest.json` 200; `api/card_data` 403 «dati API non autorizzati»; `/account/me` 401; `moxtracker.app` 200. `aggiornamenti.controlla` del client: Stable 2 beta 2.11.8 → 2.11.10 e Canary 2.11.10 → 2.11.11 con firma valida, 2.11.10 Stable e 2.11.11 Canary niente.
+**Rollback:** `npx wrangler rollback 5f0ea314-c5a3-44a6-b7ae-34f95236b70b`.
+**Resta:** misurare la CPU del cron `17 3 * * *` senza Brew (16/11 03:17 UTC) e, se sta sotto i 10 ms, l'annullamento di Workers Paid da parte di Dennis prima del rinnovo del 20/11.
 
 ## Canary 2.11.11 — 27/10/2026: pubblicata, Canary reale verde
 
