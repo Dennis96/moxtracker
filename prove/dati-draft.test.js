@@ -253,13 +253,13 @@ test("rotte: solo GET; le rotte esistenti non cambiano", async () => {
   assert.equal(r2.scritture.length, 0);
 });
 
-test("wrangler.toml accende i dati Draft come dice il frammento (attivazione del 14/10/2026)", () => {
+test("wrangler.toml: dati Draft spenti per la pausa del 15/11/2026, binding e cron come il frammento", () => {
   const distribuzione = readFileSync(new URL("../src/dati-draft.js", import.meta.url), "utf8");
   assert.doesNotMatch(distribuzione, /17lands\.com/);
   const toml = readFileSync(new URL("../wrangler.toml", import.meta.url), "utf8");
   assert.match(toml, /binding = "DRAFT_STATS"\nbucket_name = "moxtracker-draft-stats"/);
-  assert.match(toml, /^MOX_DRAFT_API_DISTRIBUTION = "on"$/m);
-  assert.match(toml, /^MOX_17LANDS_RACCOLTA = "on"$/m);
+  assert.match(toml, /^MOX_DRAFT_API_DISTRIBUTION = "off"$/m);
+  assert.match(toml, /^MOX_17LANDS_RACCOLTA = "off"$/m);
   assert.match(toml, /^crons = \[ "17 3 \* \* \*", "23 \* \* \* \*" \]$/m);
   assert.ok(toml.includes(CRON_RACCOLTA_17LANDS));
   // I binding produttivi restano quelli di prima, con i loro bucket.

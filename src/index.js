@@ -158,6 +158,16 @@ async function riceviPartite(richiesta, ambiente) {
   });
 }
 
+// Pausa del progetto (15/11/2026): con `META_IN_PAUSA = "on"` le statistiche
+// Meta rispondono subito, senza leggere D1, perche' calcolarle costa piu' CPU
+// dei 10 ms del piano Workers Free. Il sito mostra il campo `errore`.
+export const MESSAGGIO_META_IN_PAUSA =
+  "MOX è in pausa: le statistiche Meta non sono disponibili. · MOX is paused: Meta stats are unavailable.";
+
+export function metaInPausa(ambiente) {
+  return ambiente?.META_IN_PAUSA === "on";
+}
+
 async function letturaPubblica(funzione, db, indirizzo) {
   const esito = await funzione(db, indirizzo);
   if (esito.errore) return risposta({ errore: esito.errore }, esito.stato || 400);
@@ -371,11 +381,13 @@ export default {
 
     if (indirizzo.pathname === "/meta") {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      if (metaInPausa(ambiente)) return risposta({ errore: MESSAGGIO_META_IN_PAUSA }, 503);
       return letturaPubblica(leggiMeta, ambiente.DB, indirizzo);
     }
 
     if (indirizzo.pathname === "/archetipo") {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      if (metaInPausa(ambiente)) return risposta({ errore: MESSAGGIO_META_IN_PAUSA }, 503);
       return letturaPubblica(leggiArchetipo, ambiente.DB, indirizzo);
     }
 
