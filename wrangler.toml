@@ -35,7 +35,8 @@ MOX_RELEASES_CACHE_ORIGIN = "https://releases.moxtracker.app"
 # Brew e dopo un deploy del Worker a flag spento che non ha mostrato
 # regressioni. Per spegnerlo si toglie la riga e si ripubblica: i gruppi gia'
 # creati restano dove sono e continuano a leggersi.
-BREW_GRUPPI = "on"
+# Pausa del progetto (15/11/2026): spento, il cron non raggruppa piu'.
+BREW_GRUPPI = "off"
 # Research R3. `RESEARCH_MODE` e' off (niente Research), drain (il rollback:
 # niente consensi nuovi ne' upload, revoca e cancellazione aperte) oppure on.
 # Si parte da off; il runbook `passaggi/research/RUNBOOK-R3-PRODUZIONE.md` dice
@@ -43,7 +44,9 @@ BREW_GRUPPI = "on"
 # senza le route Research, una volta distribuita la 2.11.0. Le chiavi HMAC sono
 # un secret (`RESEARCH_HMAC_KEYS`), mai qui; la qualification di runtime nasce
 # al deploy con `strumenti/research-produzione/qualification.mjs`.
-RESEARCH_MODE = "on"
+# Pausa del progetto (15/11/2026): drain, come dice il runbook R3 per lo
+# spegnimento; revoca e cancellazione restano aperte.
+RESEARCH_MODE = "drain"
 RESEARCH_AMBIENTE = "produzione"
 RESEARCH_DEPLOYMENT = "research-produzione-r3"
 RESEARCH_MAX_CONTRIBUTIONS_PER_REQUEST = "33"
@@ -60,15 +63,24 @@ RESEARCH_RUNTIME_QUALIFICATION = '{"versione":1,"id":"q-produzione-2026-10-20","
 # `api_authorization` (strumenti/dati-draft/politica.mjs) e un set fuori
 # embargo in `config/set-attivi.json`. Per fermare la raccolta e la
 # distribuzione API senza deploy: `politica.mjs --canale public_only`.
-MOX_DRAFT_API_DISTRIBUTION = "on"
-MOX_17LANDS_RACCOLTA = "on"
+# Pausa del progetto (15/11/2026): tutte e due spente, oltre alla policy
+# `public_only` scritta lo stesso giorno.
+MOX_DRAFT_API_DISTRIBUTION = "off"
+MOX_17LANDS_RACCOLTA = "off"
+# Pausa del progetto (15/11/2026): con "on" `/meta`, `/archetipo`,
+# `/gioco-risposta` e `/scontri` rispondono
+# 503 «in pausa» senza leggere D1. Servono ~22 ms di CPU, oltre i 10 ms del
+# piano Workers Free. Per riaccenderle si toglie la riga e si ripubblica.
+META_IN_PAUSA = "on"
 
 # Pulizia giornaliera: allegati dei ticket chiusi dopo 90 giorni, intero
 # ticket dopo 365 giorni. La funzione e' idempotente e lavora a lotti.
-# Al minuto 23 di ogni ora, la raccolta centrale dei dati Draft
-# (`src/raccolta-17lands.js`); il resto del cron non cambia.
+# Al minuto 23 di ogni ora girava la raccolta centrale dei dati Draft
+# (`src/raccolta-17lands.js`): tolta per la pausa del 15/11/2026, con la
+# raccolta spenta. Per riaccenderla si rimette "23 * * * *" (vedi il frammento
+# `strumenti/dati-draft/wrangler-dati-draft.frammento.toml`).
 [triggers]
-crons = [ "17 3 * * *", "23 * * * *" ]
+crons = [ "17 3 * * *" ]
 
 [[ratelimits]]
 name = "TICKET_RATE_LIMITER"
