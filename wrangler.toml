@@ -67,17 +67,20 @@ RESEARCH_RUNTIME_QUALIFICATION = '{"versione":1,"id":"q-produzione-2026-10-20","
 # `public_only` scritta lo stesso giorno.
 MOX_DRAFT_API_DISTRIBUTION = "off"
 MOX_17LANDS_RACCOLTA = "off"
-# Pausa del progetto (15/11/2026): con "on" `/meta` e `/archetipo` rispondono
+# Pausa del progetto (15/11/2026): con "on" `/meta`, `/archetipo`,
+# `/gioco-risposta` e `/scontri` rispondono
 # 503 «in pausa» senza leggere D1. Servono ~22 ms di CPU, oltre i 10 ms del
 # piano Workers Free. Per riaccenderle si toglie la riga e si ripubblica.
 META_IN_PAUSA = "on"
 
 # Pulizia giornaliera: allegati dei ticket chiusi dopo 90 giorni, intero
 # ticket dopo 365 giorni. La funzione e' idempotente e lavora a lotti.
-# Al minuto 23 di ogni ora, la raccolta centrale dei dati Draft
-# (`src/raccolta-17lands.js`); il resto del cron non cambia.
+# Al minuto 23 di ogni ora girava la raccolta centrale dei dati Draft
+# (`src/raccolta-17lands.js`): tolta per la pausa del 15/11/2026, con la
+# raccolta spenta. Per riaccenderla si rimette "23 * * * *" (vedi il frammento
+# `strumenti/dati-draft/wrangler-dati-draft.frammento.toml`).
 [triggers]
-crons = [ "17 3 * * *", "23 * * * *" ]
+crons = [ "17 3 * * *" ]
 
 [[ratelimits]]
 name = "TICKET_RATE_LIMITER"

@@ -14,7 +14,8 @@ function d1CheNonSiTocca() {
   return new Proxy({}, { get() { throw new Error("D1 letto durante la pausa"); } });
 }
 
-for (const percorso of ["/meta?formato=Standard", "/archetipo?formato=Standard&id=x"]) {
+for (const percorso of ["/meta?formato=Standard", "/archetipo?formato=Standard&id=x",
+  "/gioco-risposta?formato=Standard", "/scontri?formato=Standard"]) {
   test(`pausa: ${percorso.split("?")[0]} risponde 503 senza leggere D1`, async () => {
     const env = { META_IN_PAUSA: "on", DB: d1CheNonSiTocca() };
     const r = await worker.fetch(new Request(`https://api.moxtracker.app${percorso}`), env);

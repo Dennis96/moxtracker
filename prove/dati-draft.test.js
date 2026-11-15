@@ -260,8 +260,8 @@ test("wrangler.toml: dati Draft spenti per la pausa del 15/11/2026, binding e cr
   assert.match(toml, /binding = "DRAFT_STATS"\nbucket_name = "moxtracker-draft-stats"/);
   assert.match(toml, /^MOX_DRAFT_API_DISTRIBUTION = "off"$/m);
   assert.match(toml, /^MOX_17LANDS_RACCOLTA = "off"$/m);
-  assert.match(toml, /^crons = \[ "17 3 \* \* \*", "23 \* \* \* \*" \]$/m);
-  assert.ok(toml.includes(CRON_RACCOLTA_17LANDS));
+  // Pausa: resta solo la manutenzione; il cron della raccolta sta nel frammento.
+  assert.match(toml, /^crons = \[ "17 3 \* \* \*" \]$/m);
   // I binding produttivi restano quelli di prima, con i loro bucket.
   for (const [binding, bucket] of [["DRAFT_RAW", "moxtracker-draft-raw"],
     ["TICKET_FILES", "moxtracker-ticket-files"], ["MOX_RELEASES", "moxtracker-releases"]]) {

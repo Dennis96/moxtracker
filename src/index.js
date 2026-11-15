@@ -158,8 +158,8 @@ async function riceviPartite(richiesta, ambiente) {
   });
 }
 
-// Pausa del progetto (15/11/2026): con `META_IN_PAUSA = "on"` le statistiche
-// Meta rispondono subito, senza leggere D1, perche' calcolarle costa piu' CPU
+// Pausa del progetto (15/11/2026): con `META_IN_PAUSA = "on"` le quattro letture
+// della pagina Meta (/meta, /archetipo, /gioco-risposta, /scontri) rispondono subito, senza leggere D1, perche' calcolarle costa piu' CPU
 // dei 10 ms del piano Workers Free. Il sito mostra il campo `errore`.
 export const MESSAGGIO_META_IN_PAUSA =
   "MOX è in pausa: le statistiche Meta non sono disponibili. · MOX is paused: Meta stats are unavailable.";
@@ -393,11 +393,13 @@ export default {
 
     if (indirizzo.pathname === "/gioco-risposta") {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      if (metaInPausa(ambiente)) return risposta({ errore: MESSAGGIO_META_IN_PAUSA }, 503);
       return letturaPubblica(leggiGiocoRisposta, ambiente.DB, indirizzo);
     }
 
     if (indirizzo.pathname === "/scontri") {
       if (richiesta.method !== "GET") return risposta({ errore: "usa GET" }, 405);
+      if (metaInPausa(ambiente)) return risposta({ errore: MESSAGGIO_META_IN_PAUSA }, 503);
       return letturaPubblica(leggiScontri, ambiente.DB, indirizzo);
     }
 
