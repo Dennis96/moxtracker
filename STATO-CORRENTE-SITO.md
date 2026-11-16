@@ -30,9 +30,11 @@ Decisione di Dennis in chat il 16/11/2026, dopo la misura della notte: «no bast
 
 **Worker e R2, 16/11 ~07:55 UTC, con l'API Cloudflare (nessun dato toccato):** cron di `moxtracker` a `[]`; dominio `api.moxtracker.app` staccato (id `878d023ed71a52724dec6caa5c5174466ba31eac`); `workers.dev` di `moxtracker-research-staging` spento (quello di `moxtracker` lo era già); custom domain `releases.moxtracker.app` del bucket `moxtracker-releases` a `enabled: false`. Verifica da fuori: `api.moxtracker.app` non si risolve più (curl 6), `releases.moxtracker.app` 401, staging `workers.dev` 404. `aggiornamenti.controlla` del client solleva `ErroreAggiornamento` (getaddrinfo), che `assistente.py` gestisce con la sola riga di stato, popup solo col pulsante manuale.
 
-**Dati conservati, contati dopo lo spegnimento:** D1 `moxtracker` 1.028 partite, 10 account, 8 dispositivi, 8 mazzi, 166 contributi Research, 10 ticket con 3 allegati, 7 contributori; D1 `moxtracker-draft-index` 74 Draft, 2.349 pick, 24 mazzi; R2 `moxtracker-draft-raw` 74 oggetti (3,7 MB), `moxtracker-draft-stats` 95 (6,7 MB), `moxtracker-releases` 10 (678 MB), `moxtracker-ticket-files` 3 (1,1 MB). Secret del Worker: tutti e 10 presenti.
+**Dati conservati, contati dopo lo spegnimento:** D1 `moxtracker` 1.028 partite, 10 account, 8 dispositivi, 8 mazzi, 166 contributi Research, 10 ticket con 3 allegati (2 tolti il 16/11, vedi sotto), 7 contributori; D1 `moxtracker-draft-index` 74 Draft, 2.349 pick, 24 mazzi; R2 `moxtracker-draft-raw` 74 oggetti (3,7 MB), `moxtracker-draft-stats` 95 (6,7 MB), `moxtracker-releases` 10 (678 MB), `moxtracker-ticket-files` 3 (1,1 MB). Secret del Worker: tutti e 10 presenti.
 
-**Resta a Dennis:** annullare Workers Paid prima del rinnovo del 20/11 (Billing → Subscriptions). Scadenze a sistema spento nel runbook §4 (la prima: allegati di due ticket chiusi dal 27/11/2026).
+**Resta a Dennis:** annullare Workers Paid prima del rinnovo del 20/11 (Billing → Subscriptions). Scadenze a sistema spento nel runbook §4.
+
+**Allegati di prova, 16/11/2026.** Dennis in chat: «puoi farlo già ora, erano tutti allegati di prova». Cancellati i due allegati dei ticket chiusi il 29/08 (`ticket/d5ad2010…/abdf0479…` e `ticket/eeffb2f9…/50ea7c70…`): prima gli oggetti in `moxtracker-ticket-files`, poi le righe di `ticket_allegato` (2 changes). Verifica: `r2 object get` risponde «does not exist» per entrambi, in D1 resta solo l'allegato del ticket aperto `f655aa18…`. L'hook `blocco-distruttivo` è stato spento solo per quei comandi (script rinominato) e rimesso: stesso SHA-256, prove 107/107, blocca di nuovo.
 
 ## Pausa del progetto — 15/11/2026: raccolta 17Lands ferma, Worker pronto per Workers Free
 
