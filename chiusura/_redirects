@@ -1,0 +1,38 @@
+# Chiusura del 16/11/2026: le pagine che hanno bisogno del server, del download
+# o degli aggiornamenti portano alla pagina di chiusura. Restano raggiungibili
+# la privacy e «Cosa invia MOX», in italiano e in inglese.
+/account.html / 302
+/account / 302
+/admin.html / 302
+/admin / 302
+/archetipo.html / 302
+/archetipo / 302
+/download.html / 302
+/download / 302
+/draft.html / 302
+/draft / 302
+/guide.html / 302
+/guide / 302
+/meta.html / 302
+/meta / 302
+/note-versione.html / 302
+/note-versione / 302
+/note-versione/* / 302
+/supporto.html / 302
+/supporto / 302
+/en/account.html /en/ 302
+/en/account /en/ 302
+/en/archetipo.html /en/ 302
+/en/archetipo /en/ 302
+/en/download.html /en/ 302
+/en/download /en/ 302
+/en/draft.html /en/ 302
+/en/draft /en/ 302
+/en/guide.html /en/ 302
+/en/guide /en/ 302
+/en/meta.html /en/ 302
+/en/meta /en/ 302
+/en/note-versione.html /en/ 302
+/en/note-versione /en/ 302
+/en/supporto.html /en/ 302
+/en/supporto /en/ 302
